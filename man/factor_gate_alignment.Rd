@@ -10,7 +10,8 @@ factor_gate_alignment(
   factor,
   positive = character(),
   negative = character(),
-  thresholds
+  thresholds,
+  direction = c("high", "low")
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ factor_gate_alignment(
 \item{positive, negative}{Marker IDs requiring values above or at/below thresholds.}
 
 \item{thresholds}{Explicit named authoritative marker thresholds.}
+
+\item{direction}{`"high"` (default) compares the gate with the same number of
+highest-activity samples; `"low"` uses the lowest-activity samples, for
+factors expected to mark marker-negative populations.}
 }
 \value{
 Overlap counts/scores, mean activities and selected IDs. Empty gates

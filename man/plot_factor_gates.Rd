@@ -2,7 +2,7 @@
 % Please edit documentation in R/program-markers.R
 \name{plot_factor_gates}
 \alias{plot_factor_gates}
-\title{Plot paired marker-gate and highest-activity populations}
+\title{Plot paired marker-gate and activity-ranked populations}
 \usage{
 plot_factor_gates(result, embedding, display = "point", bins = 50L)
 }
@@ -19,7 +19,7 @@ plot_factor_gates(result, embedding, display = "point", bins = 50L)
 Paired facets with common geometry and the entire declared population.
 }
 \description{
-Plot paired marker-gate and highest-activity populations
+Plot paired marker-gate and activity-ranked populations
 }
 \author{
 Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.

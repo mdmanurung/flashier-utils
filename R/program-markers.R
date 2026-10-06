@@ -49,6 +49,11 @@ plot_factor_contrasts <- function(x, y, n_label = 15L) {
 #' Estimate marker threshold candidates with native Gaussian mixtures
 #' @param measurements Named sample-by-marker matrix.
 #' @param eligible_above Only observations strictly above this value enter mixtures.
+#'   The default of 0.5 suits background-subtracted counts, where values at or
+#'   below it are treated as absent; it is not a general default. Set it from the
+#'   assay scale (a finite value below every observation keeps all values) and
+#'   review the `n_excluded` column. It is recorded in the analysis
+#'   metadata.
 #' @param min_observations Minimum eligible observations.
 #' @param seed Scoped native fitting seed.
 #' @param thresholds Optional supplied named thresholds, which remain authoritative.
@@ -139,11 +144,15 @@ plot_marker_thresholds <- function(result, measurements) {
 #' @param factor One factor ID.
 #' @param positive,negative Marker IDs requiring values above or at/below thresholds.
 #' @param thresholds Explicit named authoritative marker thresholds.
+#' @param direction `"high"` (default) compares the gate with the same number of
+#'   highest-activity samples; `"low"` uses the lowest-activity samples, for
+#'   factors expected to mark marker-negative populations.
 #' @return Overlap counts/scores, mean activities and selected IDs. Empty gates
 #'   have unavailable scores. Activity ties are broken by sample ID.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 gate workflow.
 #' @export
-factor_gate_alignment <- function(fit, measurements, factor, positive = character(), negative = character(), thresholds) {
+factor_gate_alignment <- function(fit, measurements, factor, positive = character(), negative = character(), thresholds, direction = c("high","low")) {
+  direction <- match.arg(direction)
   view <- .resolve_view(fit); A <- factor_activity(view,factors=factor)
   if(ncol(A)!=1) stop("Choose exactly one factor")
   M <- .aligned_measurements(measurements,rownames(A)); markers <- c(positive,negative)
@@ -154,13 +163,13 @@ factor_gate_alignment <- function(fit, measurements, factor, positive = characte
   for(marker in positive) keep <- keep & M[,marker]>threshold[marker]
   for(marker in negative) keep <- keep & M[,marker]<=threshold[marker]
   gated <- rownames(A)[keep]; n <- length(gated)
-  selected <- utils::head(rownames(A)[order(-A[,1],rownames(A))],n)
+  selected <- utils::head(rownames(A)[order(if(direction=="high") -A[,1] else A[,1],rownames(A))],n)
   overlap <- length(intersect(gated,selected))
-  summary <- data.frame(factor=factor,n_population=nrow(A),n_gate=n,n_activity=length(selected),overlap=overlap,overlap_fraction=if(n) overlap/n else NA_real_,jaccard=if(n) overlap/(2*n-overlap) else NA_real_,mean_gate=if(n) mean(A[gated,1]) else NA_real_,mean_activity=if(n) mean(A[selected,1]) else NA_real_,status=if(n) "available" else "unavailable_empty_gate")
-  .program_result(list(summary=summary,gate_ids=gated,activity_ids=selected,population_ids=rownames(A)),view,"factor_gate_alignment",match.call(),list(positive=positive,negative=negative,thresholds=threshold,operators=c(positive=">",negative="<="),tie_rule="descending_activity_then_sample_ID",inference="descriptive_no_p_values"))
+  summary <- data.frame(factor=factor,direction=direction,n_population=nrow(A),n_gate=n,n_activity=length(selected),overlap=overlap,overlap_fraction=if(n) overlap/n else NA_real_,jaccard=if(n) overlap/(2*n-overlap) else NA_real_,mean_gate=if(n) mean(A[gated,1]) else NA_real_,mean_activity=if(n) mean(A[selected,1]) else NA_real_,status=if(n) "available" else "unavailable_empty_gate")
+  .program_result(list(summary=summary,gate_ids=gated,activity_ids=selected,population_ids=rownames(A)),view,"factor_gate_alignment",match.call(),list(positive=positive,negative=negative,thresholds=threshold,direction=direction,operators=c(positive=">",negative="<="),tie_rule=if(direction=="high") "descending_activity_then_sample_ID" else "ascending_activity_then_sample_ID",inference="descriptive_no_p_values"))
 }
 
-#' Plot paired marker-gate and highest-activity populations
+#' Plot paired marker-gate and activity-ranked populations
 #' @param result Result of factor_gate_alignment.
 #' @param embedding Named sample-by-two-coordinate matrix.
 #' @param display point or density (binned selected-cell counts).
@@ -172,7 +181,7 @@ plot_factor_gates <- function(result, embedding, display = "point", bins = 50L) 
   E <- .aligned_measurements(embedding,result$population_ids)
   if(ncol(E)!=2) stop("Embedding needs exactly two coordinates")
   display <- match.arg(display,c("point","density")); .program_number(bins,"bins",TRUE,1)
-  table <- rbind(data.frame(sample=rownames(E),x=E[,1],y=E[,2],panel="marker gate",selected=rownames(E) %in% result$gate_ids),data.frame(sample=rownames(E),x=E[,1],y=E[,2],panel="highest activity",selected=rownames(E) %in% result$activity_ids))
+  table <- rbind(data.frame(sample=rownames(E),x=E[,1],y=E[,2],panel="marker gate",selected=rownames(E) %in% result$gate_ids),data.frame(sample=rownames(E),x=E[,1],y=E[,2],panel=if(identical(attr(result,"analysis_metadata")$direction,"low")) "lowest activity" else "highest activity",selected=rownames(E) %in% result$activity_ids))
   p <- ggplot2::ggplot(table,ggplot2::aes(x=.data$x,y=.data$y))+ggplot2::geom_point(colour="grey85",size=0.5)+ggplot2::facet_wrap(~panel)+ggplot2::coord_equal()
   p <- if(display=="point") p+ggplot2::geom_point(data=table[table$selected,,drop=FALSE],colour="#b2182b",size=0.7) else p+ggplot2::geom_bin_2d(data=table[table$selected,,drop=FALSE],bins=bins)
   attr(p,"analysis_metadata") <- utils::modifyList(attr(result,"analysis_metadata"),list(engine="ggplot2",engine_version=as.character(utils::packageVersion("ggplot2"))))

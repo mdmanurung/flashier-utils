@@ -1,3 +1,11 @@
+# flashier.utils 1.1.0.9000
+
+- `factor_gate_alignment()` gains `direction = c("high", "low")`; `"low"` compares
+  a gate with the lowest-activity samples. The default is unchanged and the
+  summary gains a `direction` column.
+- Document that the `eligible_above = 0.5` default of `estimate_marker_thresholds()`
+  is assay-specific (function manual and protein tutorial); no behaviour change.
+
 # flashier.utils 1.1.0
 
 - Add signed program networks, annotation comparisons, descriptive diagnostics,

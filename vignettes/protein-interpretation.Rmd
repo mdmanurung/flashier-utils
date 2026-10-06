@@ -70,11 +70,18 @@ if (requireNamespace("mclust",quietly=TRUE)) {
 ```
 
 Native mclust defaults fit one- and two-component Gaussian models to values above
-0.5, requiring at least 50 observations and using scoped seed 42. Candidate is the
+`eligible_above = 0.5`, requiring at least 50 observations and using scoped seed 42. Candidate is the
 largest eligible value assigned to the lower-mean component. Outputs retain sizes,
 parameters, warnings, exclusions, pooled-SD separation and BIC difference.
 Failures, empty components, separation below one SD or no BIC support require
-manual review. Supplied thresholds remain authoritative. Engine credit: Luca
+manual review. Supplied thresholds remain authoritative.
+
+The 0.5 cutoff is an assay-specific default, not a general rule: it treats values
+at or below 0.5 as absent, which suits background-subtracted counts. For data on
+another scale (log, arcsinh or z-scored), set `eligible_above` to a finite value
+that separates absent from detected signal, and check `n_excluded` in the result;
+a value below every observation keeps all values. The setting is stored in the
+analysis metadata. Engine credit: Luca
 Scrucca, Chris Fraley, Adrian E. Raftery and collaborators; see [credits](credits.html).
 
 ## Compare equal-size populations
@@ -92,3 +99,15 @@ Positive gates use `>` and negative gates use `<=`. Thresholds are explicit;
 missing markers or thresholds fail. The activity population contains exactly as
 many cells as the gate, with activity ties broken by sample ID. Empty gates report
 unavailable overlap. Both maps use the same full population and geometry.
+
+Use `direction="low"` for a factor expected to mark marker-negative cells: the
+gate is then compared with the same number of lowest-activity cells, with ties
+broken by sample ID, and the second map is labelled "lowest activity". The default
+`direction="high"` is unchanged.
+
+```{r gates-low}
+alignment_low <- factor_gate_alignment(view, proteins, factors[1], positive="CD1",
+                                       negative="CD2", thresholds=c(CD1=0,CD2=0),
+                                       direction="low")
+alignment_low$summary
+```

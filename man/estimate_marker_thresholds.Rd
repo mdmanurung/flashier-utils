@@ -15,7 +15,12 @@ estimate_marker_thresholds(
 \arguments{
 \item{measurements}{Named sample-by-marker matrix.}
 
-\item{eligible_above}{Only observations strictly above this value enter mixtures.}
+\item{eligible_above}{Only observations strictly above this value enter mixtures.
+The default of 0.5 suits background-subtracted counts, where values at or
+below it are treated as absent; it is not a general default. Set it from the
+assay scale (a finite value below every observation keeps all values) and
+review the `n_excluded` column. It is recorded in the analysis
+metadata.}
 
 \item{min_observations}{Minimum eligible observations.}
 
