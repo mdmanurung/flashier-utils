@@ -7,11 +7,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Mikhael Manurung maintains the orchestration and interfaces in flashier.utils.
-The original methods and adapted functions remain credited to their authors.
-Wrapping an upstream method does not transfer authorship of that method.
+Mikhael Manurung maintains flashier.utils. Cite the upstream methods used in
+your analysis. `citation("flashier")` and `citation("ebnm")` return the core
+citations for your installed versions.
 
 ## Function origins
+
+<details>
+<summary>Function authors and workflow sources</summary>
 
 | Function | Original authors / workflow credit | Upstream function or method | Reuse |
 |---|---|---|---|
@@ -50,19 +53,24 @@ Wrapping an upstream method does not transfer authorship of that method.
 | `plot_factor_embedding` | David Zemmour / Zemmour Lab (ImmGenT workflows) | factor-space activity display workflow | NEW_QOL / call_only |
 | `factor_activity_percentile` | David Zemmour / Zemmour Lab (ImmGenT workflows) | stats::ecdf display workflow | ADAPTED / call_only |
 
+</details>
+
 The two modified singlecelljamboreeR helpers, `rank_effects` and
 `compute_le_effects`, are by Peter Carbonetto and Matthew Stephens. Their full
 MIT notice is retained in `inst/licenses/singlecelljamboreeR.txt`. Audited commits,
 source paths, licenses and reuse classifications are installed in `provenance.csv`.
 ZemmourLib and ImmGenT supply credited conceptual workflows; no implementation
-source was copied from them. The Stephens Lab ANOVA script has no verified
-individual author; that uncertainty is retained rather than inventing attribution.
+source was copied from them. The individual author of the Stephens Lab ANOVA script is unverified.
 
 ## Dependency authors and citations
 
 Author and contributor records below come from installed package DESCRIPTION
-metadata at the documentation snapshot. Cite the original method when using it;
+metadata at the documentation snapshot.
 `citation("package_name")` returns the citation for your installed version.
+
+<details>
+<summary>Package authors and method citations</summary>
+
 
 ### flashier (1.0.60)
 
@@ -209,7 +217,13 @@ Hadley Wickham [aut, cre] (ORCID:     <https://orcid.org/0000-0003-4757-117X>), 
 Wickham H, Hesselberth J, Salmon M, Roy O, Brüggemann S (2026). _pkgdown: Make Static HTML Documentation for a Package_. doi:10.32614/CRAN.package.pkgdown <https://doi.org/10.32614/CRAN.package.pkgdown>, R package version 2.2.1, <https://CRAN.R-project.org/package=pkgdown>.
 
 
+</details>
+
 ## Audited workflow repositories
+
+<details>
+<summary>Workflow authors and source versions</summary>
+
 
 - [willwerscheid/flashier](https://github.com/willwerscheid/flashier), commit `fd44811ab22d61ee905e1964175571c452fe7683`; authors: Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 - [stephenslab/singlecelljamboreeR](https://github.com/stephenslab/singlecelljamboreeR), commit `df62f8d169fcac07cd0cb294a3c15051f573ccd5`; authors: Peter Carbonetto; Matthew Stephens.
@@ -217,3 +231,5 @@ Wickham H, Hesselberth J, Salmon M, Roy O, Brüggemann S (2026). _pkgdown: Make 
 - [dzemmour/ZemmourLib](https://github.com/dzemmour/ZemmourLib), commit `4ba5bb9c0bbb1ab1d5a5ac4a6a12eb97badd0902`; authors: David Zemmour.
 - [zemmourlab/immgent_integration_git](https://github.com/zemmourlab/immgent_integration_git), commit `1e60500adb229ee0b98ba038437b6a847be21763`; authors: zemmourlab; scripts identify David Zemmour.
 - [stephenslab/fastTopics](https://github.com/stephenslab/fastTopics), commit `5cf9a448b17a7eb8f139cc916e22cb3ad1766b70`; authors: Peter Carbonetto; Kevin Luo; Kushal Dey; Matthew Stephens.
+
+</details>

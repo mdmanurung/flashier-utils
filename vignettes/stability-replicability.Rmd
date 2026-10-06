@@ -1,38 +1,70 @@
 ---
-title: "Donor stability and independent-fit replicability"
+title: "Check factor stability"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Donor stability and independent-fit replicability}
+  %\VignetteIndexEntry{Check factor stability}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+Refit resampled donors to assess factor recovery, or compare feature programs
+from separate fits. This example uses simulated data with two visits per donor.
+Install psych and clue for factor matching.
+
+```{r setup, echo=FALSE}
 library(flashier.utils)
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
+                backfit = TRUE, nullcheck = FALSE, verbose = 0,
+                feature_scale = "simulated_intensity")
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
 ```
 
-The bootstrap draws donors and preserves both visits, with unique occurrence IDs. Threshold-free assignments are candidates. A caller-chosen congruence criterion gives accepted matches without a universal stable/unstable label.
-```{r}
-if (requireNamespace("psych",quietly=TRUE) && requireNamespace("clue",quietly=TRUE)) {
-  stability <- factor_stability(X,fit,metadata,"donor",B=2,min_congruence=0.8,seed=26)
-  stability$summary
+```{r metadata}
+metadata <- data.frame(sample = rownames(X),
+                       donor = rep(paste0("d", 1:12), each = 2))
+```
+
+## Resample donors
+
+```{r bootstrap}
+if (requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)) {
+  stability <- factor_stability(X, fit, metadata, unit_col = "donor",
+                                B = 2, min_congruence = 0.8, seed = 26)
+  stability$summary[, c("factor", "n_requested", "n_successful",
+                         "recovery_rate_all_requested", "median_congruence")]
   stability$failures
-  other <- fit_ebmf(X,"rows",seed=5,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
-  factor_replicability(fit,other,min_congruence=0.8)$matches
 }
 ```
-This tiny bootstrap demonstrates execution; it cannot estimate recovery reliably. Full fixed-budget benchmark results live outside the vignette. Report both successful-fit and all-requested denominators. Concordance between independently fitted programs does not establish measurement invariance, individual-level transportability or biological replication by itself.
 
+The bootstrap keeps each donor's visits together. `B = 2` shows how to run the
+function. Use more resamples to estimate recovery in an analysis.
+Choose `min_congruence` for your question. The appropriate matching threshold depends on the data and purpose.
+Report failed refits alongside recovery rates.
 
-## Source credits
+## Match separate fits
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+```{r matching}
+if (requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)) {
+  other <- fit_ebmf(X, sample_side = "rows", seed = 5, max_factors = 2,
+                    verbose = 0, backfit = TRUE, nullcheck = FALSE,
+                    feature_scale = "simulated_intensity")
+  factor_replicability(fit, other, min_congruence = 0.8)$matches
+}
+```
+
+Factor numbers need not correspond across fits. Matching compares feature
+programs and can account for sign reversals in signed factors.
+Here, both fits use the same data. To assess replication, compare independently
+collected data with compatible features and preprocessing.
+Similar programs alone do not establish that individual activity scores transfer
+between cohorts. Use [held-out prediction](holdout.html) to assess prediction.
+
+## Sources
+
+Refits use flashier by Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens. Matching uses William Revelle's psych and Kurt Hornik and
+Walter Böhm's clue. [Original authors and sources](credits.html) lists citations.

@@ -1,44 +1,76 @@
 ---
-title: "First signed fit to interpretation"
+title: "Fit and interpret factors"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{First signed fit to interpretation}
+  %\VignetteIndexEntry{Fit and interpret factors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+A factor links a pattern across samples to a pattern across features.
+This tutorial fits a matrix, plots sample activity and finds features that
+contribute to a factor.
+
+## Fit a matrix
+
+Use the GTEx example from flashier. Its rows pair a single nucleotide polymorphism (SNP) with a gene. Its columns
+are tissues, and its entries are association z-scores.
+
+```{r fit}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(24),12,2),matrix(rnorm(16),8,2)) + matrix(rnorm(96,sd=0.2),12,8)
-dimnames(X) <- list(paste0("s",1:12),paste0("g",1:8))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,feature_scale="arcsinh_intensity")
+data("gtex", package = "flashier")
+
+fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 3,
+                backfit = TRUE, seed = 1, verbose = 0,
+                feature_scale = "association_z_score")
+```
+
+`max_factors` sets an upper limit. flashier can retain fewer factors.
+`backfit = TRUE` jointly refines the factors after adding them.
+
+For your own data, use a numeric matrix with unique row and column names.
+Choose `sample_side = "rows"` if samples occupy rows.
+Preprocess the matrix before fitting and record its units in `feature_scale`.
+
+## Plot sample activity
+
+`standardize_factors()` returns matching activity and feature-effect matrices.
+Activity always has samples in rows, even when the input has samples in columns.
+
+```{r activity, fig.width=7, fig.height=8}
 view <- standardize_factors(fit)
-factor_features(view,"F1",n=3)
 plot_factor_activity(view)
 ```
 
-Rows are samples, not implicitly independent donors. No biological replication
-or inferential p-value is established by this example. The same interface takes
-a named, user-preprocessed pseudobulk matrix with its scale and independent unit
-recorded. Signed scores stay signed.
+Each column is a factor and each row is a tissue. Colors show signed activity.
+F2 separates brain tissues from many other tissues.
+F3 has its strongest activity in whole blood.
+Reversing both a factor's activity and its feature effects leaves the fitted
+matrix unchanged. The sign alone does not identify activation or repression.
 
-```{r}
-beta <- setNames(rep(1,ncol(view$activity)),colnames(view$activity))
-backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest)$effects
-factor_uncertainty(fit, "activity")
-provenance("backproject_contrast")
+## Find contributing features
+
+```{r features}
+features <- factor_features(view, factor = "F1", select = "largest", n = 5)
+features[, c("feature", "estimate")]
 ```
 
-These feature effects represent a declared activity contrast in arcsinh units.
-Factor posterior SD is conditional on fitted EBMF priors and differs from
-regression standard error. This workflow credits flashier, singlecelljamboreeR
-and the ZemmourLib/ImmGenT backprojection recipe; see the installed NOTICE.
+`estimate` is the signed feature effect. The largest absolute effects identify
+the strongest contributors. Here, the feature IDs refer to SNP-gene pairs.
+For a gene-expression matrix, they would be the gene IDs you supplied.
 
+See [Find defining features](largest-distinctive.html) for rankings and plots.
+Use [Compare groups and test associations](contrasts.html) to relate factors to sample metadata.
+These tissue summaries do not provide donor-level replication.
 
-## Source credits
+## Sources
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).
+flashier is by Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+The GTEx data come from Lonsdale et al. (2013), with the selection described by
+Urbut, Wang, Carbonetto and Stephens (2019). See the
+[GTEx data reference](https://willwerscheid.github.io/flashier/reference/gtex.html).
+
+Feature ranking adapts singlecelljamboreeR helpers by Peter Carbonetto and
+Matthew Stephens. The display workflow credits David Zemmour.
+[Original authors and sources](credits.html) lists the full credits and citations.

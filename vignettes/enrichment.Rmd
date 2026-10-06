@@ -1,74 +1,89 @@
 ---
-title: "Method-specific pathway summaries"
+title: "Annotate factors with pathways"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Method-specific pathway summaries}
+  %\VignetteIndexEntry{Annotate factors with pathways}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+Annotate a factor from its feature effects using gene sets or signed networks.
+Install fgsea for ranked enrichment, or decoupleR for network scores.
+The examples use simulated feature IDs and annotations with no biological meaning.
+
+```{r setup, echo=FALSE}
 library(flashier.utils)
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
+                backfit = TRUE, nullcheck = FALSE, verbose = 0,
+                feature_scale = "simulated_intensity")
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
 ```
 
-Ranked fgsea enrichment and decoupleR network scores are different estimands. Feature effects and least-extreme distinctiveness are explicit alternative signals. Annotation universes, sizes and losses are retained.
-```{r}
-pathways <- list(panelA=paste0("g",1:6),panelB=paste0("g",7:12))
-if (requireNamespace("fgsea",quietly=TRUE)) {
-  enrichment <- enrich_factors(view,pathways,"fgsea",factors="F1",control=list(seed=12,nPermSimple=100L,eps=1e-3,minSize=3L))
-  enrichment$table
+## Gene-set enrichment
+
+Supply a named list of feature sets. Set members must match the fit's feature IDs.
+
+```{r gene-sets}
+pathways <- list(panelA = paste0("g", 1:6), panelB = paste0("g", 7:12))
+if (requireNamespace("fgsea", quietly = TRUE)) {
+  enrichment <- enrich_factors(
+    view, pathways, engine = "fgsea", factors = "F1",
+    control = list(seed = 12, nPermSimple = 100L, eps = 1e-3, minSize = 3L)
+  )
+  enrichment$table[, c("pathway", "factor", "NES", "padj")]
 }
 ```
-For real gene sets attach a version and source to the named list. These simulated labels are a structural example without biological meaning. SuSiE is explicitly unsupported until its optional source and native API gates are completed.
 
-Signed network weights can annotate factor feature programs directly. The rows
-of the input are features and the columns are factors, as required by decoupleR.
-Supply a network with `source`, `target`, and `mor` columns; for gene-based
-features, native resources such as `decoupleR::get_collectri()` or
-`decoupleR::get_progeny()` can provide these networks. PROGENy returns a `weight`
-column: set `network$mor <- network$weight` before passing it here. Cache and
-version real annotations before use. Feature IDs must match network targets, or be mapped
-explicitly with a one-to-one `feature_map`.
+fgsea ranks features by their signed effects and reports enrichment statistics,
+p-values and adjusted p-values. For an analysis, record the gene-set source,
+organism and version. The small permutation budget here keeps the example short.
 
-```{r}
-network <- data.frame(source=rep(c("programA","programB"),each=6),
-                      target=paste0("g",1:12),
-                      mor=rep(c(1,-1,0.5,-0.5,2,-2),2))
-attr(network,"annotation_version") <- "simulated_v1"
-if (requireNamespace("decoupleR",quietly=TRUE)) {
-  annotation <- enrich_factors(view,network,"decoupleR",
-                                control=list(method="ulm",minsize=3L))
-  annotation$table
+## Signed network scores
+
+A network needs `source` (program), `target` (feature ID) and `mor` (signed weight).
+The univariate linear model (ULM) scores each program separately.
+The multivariate linear model (MLM) fits programs jointly.
+
+```{r network}
+network <- data.frame(
+  source = rep(c("programA", "programB"), each = 6),
+  target = paste0("g", 1:12),
+  mor = rep(c(1, -1, 0.5, -0.5, 2, -2), 2)
+)
+attr(network, "annotation_version") <- "simulated_v1"
+if (requireNamespace("decoupleR", quietly = TRUE)) {
+  annotation <- enrich_factors(view, network, engine = "decoupleR",
+                               control = list(method = "ulm", minsize = 3L))
+  annotation$table[, c("source", "condition", "score", "p_value")]
   annotation$analysis_metadata$pathway_sizes
 }
 ```
 
-`condition` identifies the factor in the native result. ULM and MLM return native
-scores and p-values. The entire mapped feature universe is passed to the native
-method, including features without network edges. Missing targets and mapping
-losses are recorded, along with a hash of the signed network. Duplicate edges
-are rejected rather than silently summed. Native `minsize` filtering and errors
-are retained. Use `control=list(method="mlm",minsize=3L)` for multivariate scoring.
+`condition` identifies the factor. Use `method = "mlm"` for joint scoring.
+Gene networks such as CollecTRI or PROGENy require gene-level features.
+For PROGENy, copy its `weight` column to `mor`. For CyTOF, supply a network
+that describes the measured markers.
 
-Scores describe the estimated feature program, not per-sample pathway activity.
-Reversing a factor's sign reverses its annotation score. By default the input is
-not centered across factors; `center=TRUE` changes the signal and makes the
-result depend on which factors were selected. Native p-values condition on the
-estimated weights and do not propagate EBMF uncertainty. These simulated
-programs have no biological meaning. For CyTOF or other non-gene features, use
-networks matched to those measured features rather than assuming a gene network
-applies to a marker panel.
+## Read the results
 
+Check feature overlap in `analysis_metadata$pathway_sizes`.
+Use `feature_map` for an explicit one-to-one ID mapping if needed.
+Duplicate source-target edges are rejected.
 
-## Source credits
+Network scores annotate feature programs. They do not measure pathway activity
+in individual samples. Scores depend on factor orientation, and native p-values
+do not account for uncertainty in the factorization.
+The default leaves feature effects uncentered across factors.
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+## Sources
+
+The gene-set workflow credits Peter Carbonetto and Matthew Stephens.
+
+fgsea is by Gennady Korotkevich, Vladimir Sukhov and Alexey Sergushichev.
+
+decoupleR is by Pau Badia-i-Mompel, Jesús Vélez-Santiago and colleagues.
+[Original authors and sources](credits.html) lists all authors and method citations.

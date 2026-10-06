@@ -3,16 +3,137 @@ template:
   bootstrap: 5
 navbar:
   structure:
-    left: [intro, reference, articles, news, credits]
+    left: [intro, articles, reference, news, credits]
     right: [search, github]
   components:
     intro:
       text: Get started
       href: articles/first-fit.html
+    articles:
+      text: Tutorials
+      menu:
+        - text: Fit and extract factors
+        - text: Fit and interpret factors
+          href: articles/first-fit.html
+        - text: Factor scales and measurement units
+          href: articles/representation-units.html
+        - text: -------
+        - text: Identify features and pathways
+        - text: Find defining features
+          href: articles/largest-distinctive.html
+        - text: Annotate factors with pathways
+          href: articles/enrichment.html
+        - text: -------
+        - text: Compare groups and conditions
+        - text: Compare groups and test associations
+          href: articles/contrasts.html
+        - text: Translate contrasts into feature effects
+          href: articles/backprojection.html
+        - text: Compare effects across conditions
+          href: articles/multi-cohort.html
+        - text: -------
+        - text: Assess uncertainty, stability and prediction
+        - text: Understand uncertainty
+          href: articles/uncertainty.html
+        - text: Check factor stability
+          href: articles/stability-replicability.html
+        - text: Evaluate held-out prediction
+          href: articles/holdout.html
+        - text: -------
+        - text: Visualize single-cell factors
+        - text: Display factors in Seurat
+          href: articles/single-cell.html
+        - text: -------
+        - text: Find sources and cite methods
+        - text: Original authors and sources
+          href: articles/credits.html
+        - text: Find sources and cite methods
+          href: articles/provenance.html
+        - text: -------
+        - text: All tutorials
+          href: articles/index.html
+    reference:
+      text: Functions
+      href: reference/index.html
     credits:
       text: Original authors
       href: articles/credits.html
-reference:
-  - title: All functions
+articles:
+  - title: Fit and extract factors
+    desc: Fit a matrix, extract matching activity and feature-effect matrices, and retain their scales and measurement units.
     contents:
-      - matches(".")
+      - first-fit
+      - representation-units
+  - title: Identify features and pathways
+    desc: Rank the features that define each factor and annotate feature programs with gene sets or signed networks.
+    contents:
+      - largest-distinctive
+      - enrichment
+  - title: Compare groups and conditions
+    desc: Summarize group differences, test metadata associations, translate contrasts into feature effects, and shrink comparable effects across conditions.
+    contents:
+      - contrasts
+      - backprojection
+      - multi-cohort
+  - title: Assess uncertainty, stability and prediction
+    desc: Examine posterior uncertainty, assess factor recovery and replication, and evaluate held-out reconstruction or masked-feature prediction.
+    contents:
+      - uncertainty
+      - stability-replicability
+      - holdout
+  - title: Visualize single-cell factors
+    desc: Store activities in Seurat, compute a factor embedding, and display activities or reference-cell percentiles.
+    contents:
+      - single-cell
+  - title: Find sources and cite methods
+    desc: Identify original authors, trace function origins, and record method citations and dependency versions.
+    contents:
+      - credits
+      - provenance
+reference:
+  - title: Fit and extract factors
+    contents:
+      - fit_ebmf
+      - fit_nonnegative_ebmf
+      - standardize_factors
+      - factor_activity
+      - factor_effects
+      - factor_pve
+      - refit_factors
+      - fix_factors
+      - remove_factors
+      - reorder_factors
+  - title: Interpret and plot factors
+    contents:
+      - factor_features
+      - rank_features
+      - factor_distinctiveness
+      - plot_factor_features
+      - plot_factor_activity
+      - enrich_factors
+  - title: Compare samples and conditions
+    contents:
+      - summarize_factor_activity
+      - rank_factors_by_metadata
+      - compare_factor_groups
+      - test_factors
+      - backproject_contrast
+      - validate_backprojection
+      - shrink_factor_effects
+      - factor_cor
+  - title: Check uncertainty and prediction
+    contents:
+      - factor_uncertainty
+      - factor_intervals
+      - factor_stability
+      - factor_replicability
+      - factor_holdout
+  - title: Single-cell displays
+    contents:
+      - add_factors_to_seurat
+      - embed_factors
+      - plot_factor_embedding
+      - factor_activity_percentile
+  - title: Authors and sources
+    contents:
+      - provenance

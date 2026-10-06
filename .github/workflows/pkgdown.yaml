@@ -30,7 +30,10 @@ jobs:
           needs: website
       - name: Build documentation
         shell: Rscript {0}
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        run: |
+          # Exclude repository instructions from the public site in this CI checkout.
+          file.remove("AGENTS.md")
+          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs

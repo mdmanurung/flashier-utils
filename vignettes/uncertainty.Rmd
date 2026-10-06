@@ -1,37 +1,69 @@
 ---
-title: "Conditional factor and coefficient uncertainty"
+title: "Understand uncertainty"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Conditional factor and coefficient uncertainty}
+  %\VignetteIndexEntry{Understand uncertainty}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+Factor uncertainty and regression uncertainty answer different questions.
+Factor posterior summaries condition on the learned empirical Bayes priors.
+Regression summaries condition on the estimated factor activities.
+
+## Factor posterior intervals
+
+This simulated fit uses priors supported by flashier's posterior sampler.
+
+```{r fit, echo=FALSE}
 library(flashier.utils)
 set.seed(4)
-X <- tcrossprod(matrix(rnorm(40),20,2),matrix(rnorm(12),6,2)) + matrix(rnorm(120,sd=0.1),20,6)
-dimnames(X) <- list(paste0("s",1:20),paste0("f",1:6))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=1,nullcheck=FALSE,backfit=TRUE,verbose=0,
-                ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace))
+X <- tcrossprod(matrix(rnorm(40), 20, 2), matrix(rnorm(12), 6, 2)) +
+  matrix(rnorm(120, sd = 0.1), 20, 6)
+dimnames(X) <- list(paste0("s", 1:20), paste0("f", 1:6))
+fit <- fit_ebmf(X, sample_side = "rows", max_factors = 2, seed = 1,
+                nullcheck = FALSE, backfit = TRUE, verbose = 0,
+                feature_scale = "simulated_intensity",
+                ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace))
 view <- standardize_factors(fit)
-factor_intervals(fit,"activity",factors="F1",ids="s1",nsamp=20,seed=1)
-D <- matrix(rnorm(20*ncol(view$activity)),20,dimnames=list(NULL,colnames(view$activity)))
-backproject_contrast(view,D,"draws",factor_basis=view$manifest)$effects
 ```
 
-Native variational draws condition on learned priors. Coefficient draws hold
-feature programs fixed and are a separate source of uncertainty. Their arbitrary
-pairing is not a joint posterior. For covariance inputs supply the full named
-factor covariance; marginal SE alone cannot recover it. Bootstrap uncertainty is
-a separately declared pipeline workflow. Exact quantile storage is bounded at
-256 MiB, and projected draws process one selected contrast per call in feature
-blocks. Sign probability means P(theta greater than zero).
+```{r intervals}
+uncertainty <- factor_uncertainty(fit, "activity", factors = "F1", ids = "s1")
+uncertainty[, c("sample", "factor", "estimate", "posterior.sd")]
 
+intervals <- factor_intervals(fit, "activity", factors = "F1", ids = "s1",
+                              nsamp = 200, seed = 1)
+intervals[, c("sample", "factor", "lower", "upper")]
+```
 
-## Source credits
+The posterior standard deviation is not a regression standard error.
+Intervals use native variational draws. Increasing `nsamp` reduces Monte Carlo
+variation in the reported quantiles.
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+## Project coefficient uncertainty
+
+If a model supplies joint draws of factor coefficients, use `input = "draws"`.
+Name the columns by factor and supply the activity model's representation.
+The random draws below illustrate the required shape.
+
+```{r draws}
+set.seed(1)
+draws <- matrix(rnorm(200 * ncol(view$activity)), nrow = 200,
+                dimnames = list(NULL, colnames(view$activity)))
+projected <- backproject_contrast(view, draws, input = "draws",
+                                  factor_basis = view$manifest)
+head(projected$effects)
+```
+
+These intervals hold feature effects fixed. Combining arbitrary factor and
+coefficient draws does not create a joint posterior.
+For covariance-based projection, supply the full named factor covariance matrix.
+Marginal standard errors alone do not recover correlations between coefficients.
+Use a separately designed pipeline bootstrap to assess uncertainty from refitting.
+
+## Sources
+
+Posterior sampling uses flashier by Jason Willwerscheid, Peter Carbonetto,
+Wei Wang and Matthew Stephens. Reconstruction credits David Zemmour's workflows.
+[Original authors and sources](credits.html) lists method citations.

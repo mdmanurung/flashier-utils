@@ -1,34 +1,80 @@
 ---
-title: "Matched backprojection and direct-feature validation"
+title: "Translate contrasts into feature effects"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Matched backprojection and direct-feature validation}
+  %\VignetteIndexEntry{Translate contrasts into feature effects}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r}
+Backprojection expresses a factor-activity contrast as a difference in the
+original feature units. The example compares two groups in a simulated matrix.
+
+```{r setup, echo=FALSE}
 library(flashier.utils)
-set.seed(4)
-X <- matrix(rexp(120),20,6,dimnames=list(paste0("s",1:20),paste0("f",1:6)))
-fit <- fit_nonnegative_ebmf(X,"rows",max_factors=2,seed=1,verbose=0,feature_scale="intensity")
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
+                backfit = TRUE, nullcheck = FALSE, verbose = 0,
+                feature_scale = "simulated_intensity")
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),group=rep(c("A","B"),each=10),donor=paste0("d",1:20))
-contrast <- compare_factor_groups(view,metadata,"group",c("A","B"),unit_col="donor")
-contrast$factor_contrast
-observed <- data.frame(feature=colnames(X),estimate=colMeans(X[1:10,])-colMeans(X[11:20,]),contrast="A - B")
-validate_backprojection(contrast$feature_contrast,observed,feature_scale="intensity")$metrics
 ```
 
-Group A minus B uses identical per-observation weights for direct and represented
-effects. The represented effect can omit residual signatures. Prediction R squared
-can be negative. These descriptive contrasts have no p-values. No count
-normalization, nonlinear inversion or log2 conversion is performed.
+## Compare groups
 
+```{r contrast}
+metadata <- data.frame(
+  sample = rownames(X), group = rep(c("A", "B"), each = 12),
+  donor = rep(paste0("d", 1:12), each = 2)
+)
+difference <- compare_factor_groups(view, metadata, "group", c("A", "B"),
+                                    unit_col = "donor")
+head(difference$feature_contrast)
+```
 
-## Source credits
+`compare_factor_groups()` returns both factor and feature contrasts.
+The direction here is A minus B. Feature estimates retain the input matrix's
+units. For arcsinh input, the estimates are differences in arcsinh units.
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+## Check the reconstruction
+
+Compare the represented difference with the difference calculated directly
+from the same samples and weights.
+
+```{r validation}
+observed <- data.frame(
+  feature = colnames(X),
+  estimate = colMeans(X[1:12, ]) - colMeans(X[13:24, ]),
+  contrast = "A - B"
+)
+validate_backprojection(difference$feature_contrast, observed,
+                        feature_scale = "simulated_intensity")$metrics
+```
+
+The factorization can omit residual patterns, so the differences need not
+agree exactly. Prediction R-squared can be negative if the reconstruction
+performs worse than a constant prediction.
+
+## Project coefficients from a model
+
+For detached factor coefficients, supply the representation used to fit the
+activity model. This example projects a one-unit increase in every factor.
+
+```{r coefficients}
+beta <- setNames(rep(1, ncol(view$activity)), colnames(view$activity))
+projected <- backproject_contrast(view, beta, input = "coefficients",
+                                  factor_basis = view$manifest)
+head(projected$effects)
+```
+
+Coefficients must match the factor scale, sign and order. Point coefficients
+alone produce point feature effects without p-values.
+See [Understand uncertainty](uncertainty.html) for coefficient draws and covariance.
+
+## Sources
+
+Reconstruction follows the FlashierDGE and ImmGenT workflows by David Zemmour
+and the Zemmour Lab. The implementation uses independently written linear algebra.
+[Original authors and sources](credits.html) lists the workflow credits.

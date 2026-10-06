@@ -1,32 +1,43 @@
 ---
-title: "Code origins and runtime versions"
+title: "Find sources and cite methods"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Code origins and runtime versions}
+  %\VignetteIndexEntry{Find sources and cite methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+Cite flashier and ebnm for factorization, and cite the optional methods used
+in your analysis. The citation matches the installed package version.
+
+```{r citations}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
-view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+citation("flashier")
+citation("ebnm")
 ```
 
-Source inspection, numerical parity, scientific calibration and runtime installation evidence are separate records. Audited source SHAs are never presented as installed SHAs when the installed package lacks one.
-```{r}
-provenance(c("standardize_factors","backproject_contrast","factor_distinctiveness"))
+## Find a function's source
+
+```{r sources}
+sources <- provenance(c("standardize_factors", "backproject_contrast",
+                        "factor_distinctiveness"))
+sources[, c("function", "authors", "classification", "code_reuse")]
 ```
-The package contains two modified MIT feature-ranking helpers with the complete source notice. Other adapters call public native functions or independently implement credited glue. The installed NOTICE and provenance CSV list sources and changes. Package-owned code is maintained by Mikhael Manurung; GitHub distribution is checked through cross-platform CI.
 
+The registry distinguishes wrappers, modified source and conceptual workflow
+adaptations. The two modified singlecelljamboreeR ranking helpers are by
+Peter Carbonetto and Matthew Stephens. Plotting and reconstruction workflows
+credit David Zemmour and the Zemmour Lab. Mikhael Manurung maintains this package.
 
-## Source credits
+[Original authors and sources](credits.html) lists all credits and citations.
+The installed `NOTICE` and license files retain upstream notices.
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+## Record package versions
+
+```{r versions}
+attr(sources, "dependencies")
+```
+
+Save this information with analysis results to record installed versions.
+An audited source commit identifies the reviewed source. The runtime commit
+identifies the installed package when that information is available.

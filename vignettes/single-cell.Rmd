@@ -1,40 +1,67 @@
 ---
-title: "Named single-cell reductions and display percentiles"
+title: "Display factors in Seurat"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Named single-cell reductions and display percentiles}
+  %\VignetteIndexEntry{Display factors in Seurat}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+Store factor activities as a Seurat reduction and plot an embedding
+with uniform manifold approximation and projection (UMAP).
+Install SeuratObject and uwot to run this example.
+Each simulated row represents a cell. Both objects use the same cell IDs.
+
+```{r setup, echo=FALSE}
 library(flashier.utils)
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
+                backfit = TRUE, nullcheck = FALSE, verbose = 0,
+                feature_scale = "simulated_intensity")
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
 ```
 
-The example treats each simulated row as a cell for adapter mechanics only. It makes no donor-inference or private ImmGenT reproduction claim. The original activity remains the inference coordinate; percentiles are display-only.
-```{r}
-percentile <- factor_activity_percentile(view,reference_samples=rownames(X)[1:12])
-head(percentile)
-if (requireNamespace("SeuratObject",quietly=TRUE) && requireNamespace("uwot",quietly=TRUE)) {
-  counts <- Matrix::Matrix(matrix(1,16,24,dimnames=list(colnames(X),rownames(X))),sparse=TRUE)
+## Add activities and compute an embedding
+
+```{r seurat}
+if (requireNamespace("SeuratObject", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) {
+  counts <- Matrix::Matrix(
+    matrix(1, 16, 24, dimnames = list(colnames(X), rownames(X))), sparse = TRUE
+  )
   object <- SeuratObject::CreateSeuratObject(counts)
-  object <- add_factors_to_seurat(object,view)
-  object <- embed_factors(object,seed=15,n_neighbors=4,n_epochs=20,init="random")
-  plot_factor_embedding(object,"ebmfumap","F1",display="percentile",max_samples=20,seed=12)
+  object <- add_factors_to_seurat(object, view)
+  object <- embed_factors(object, seed = 15, n_neighbors = 4,
+                          n_epochs = 20, init = "random")
+  plot_factor_embedding(object, "ebmfumap", "F1")
 }
 ```
-Exactly matching cell IDs are required; donor scores are never implicitly expanded. Loadings are omitted if assay feature IDs differ. UMAP is exploratory geometry, not batch correction or program replication. Native ECDF ties and named reference IDs are retained. The million-cell benchmark measures bounded display construction, not fitting or UMAP at that size.
 
+Replace the placeholder object with your existing Seurat object.
+Its cell IDs must exactly match the activity sample IDs.
+Feature loadings are included only when assay feature IDs match.
+UMAP visualizes factor-space geometry. It does not perform batch correction
+or establish replication.
 
-## Source credits
+## Display activity percentiles
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+A percentile expresses activity relative to a declared set of reference cells.
+
+```{r percentiles}
+percentile <- factor_activity_percentile(view, reference_samples = rownames(X)[1:12])
+head(percentile)
+```
+
+Use `display = "percentile"` in `plot_factor_embedding()` to color an embedding
+by percentiles. Retain the original activities for association tests.
+Donor-level inference still requires a model that accounts for cells sharing
+a donor. See [Compare groups and test associations](contrasts.html).
+
+## Sources
+
+The reduction and display workflows credit David Zemmour and the Zemmour Lab.
+SeuratObject is maintained by Paul Hoffman and the Seurat contributors.
+uwot is by James Melville and contributors.
+[Original authors and sources](credits.html) lists full authors and citations.

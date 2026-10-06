@@ -1,35 +1,68 @@
 ---
-title: "Representation and measurement units"
+title: "Factor scales and measurement units"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Representation and measurement units}
+  %\VignetteIndexEntry{Factor scales and measurement units}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+Keep activity and feature effects from the same representation.
+Their product reconstructs the fitted matrix with samples in rows.
+This example uses a simulated fit.
+
+```{r setup, echo=FALSE}
 library(flashier.utils)
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
+                backfit = TRUE, nullcheck = FALSE, verbose = 0,
+                feature_scale = "simulated_intensity")
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
 ```
 
-D is absorbed exactly once. Both canonical coordinates reconstruct the same native posterior mean.
-```{r}
-raw <- standardize_factors(fit,scaling="raw")
-ldf <- standardize_factors(fit,d_location="activity")
-stopifnot(isTRUE(all.equal(tcrossprod(raw$activity,raw$effects),tcrossprod(ldf$activity,ldf$effects),tolerance=1e-10)))
-ldf$manifest[c("basis_id","feature_scale","d_location","orientation")]
+## Extract matching matrices
+
+```{r matrices}
+A <- factor_activity(view)
+B <- factor_effects(view)
+dim(A)
+dim(B)
 ```
-Changing normalization changes the coefficient basis. For a baseline-standardization recipe, compute means and SD on the declared baseline reference samples, transform activity, divide its matched coefficient scale accordingly and reconstruct with effects multiplied by the reference SD. A centered basis also requires an explicit feature offset. This package does not silently create that transformed basis or transport external coefficients into it.
 
+Rows of `A` are samples. Rows of `B` are features. Their columns are matching
+factors. `tcrossprod(A, B)` gives the represented sample-by-feature matrix.
 
-## Source credits
+## Choose a scale
 
-Original function and package authors are named in each function manual and in
-[Original authors and sources](credits.html). The installed `provenance()` registry
-records source pins, authors, licenses and reuse. Please cite the upstream methods
-used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.
+By default, `standardize_factors()` normalizes the factors with flashier's `ldf()`
+and includes the factor magnitude in the feature effects. `scaling = "raw"` uses the native
+posterior means. These choices preserve the reconstruction.
+
+```{r scales}
+raw <- standardize_factors(fit, scaling = "raw")
+max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(A, B)))
+```
+
+Changing the scale or sign changes the meaning of an activity coefficient.
+Fit your activity model on the representation you will use for
+[backprojection](backprojection.html). Save `view` with the model results.
+
+## Retain measurement units
+
+```{r units}
+view$manifest$feature_scale
+```
+
+`feature_scale` records the units supplied to `fit_ebmf()`.
+The package does not normalize counts, invert nonlinear transformations or
+convert estimates to log2 fold changes. Centering or scaling activity outside
+the package requires matching changes to feature effects and any feature offset.
+
+## Sources
+
+The representation uses flashier's LDF interface by Jason Willwerscheid,
+Peter Carbonetto, Wei Wang and Matthew Stephens.
+[Original authors and sources](credits.html) lists method citations.
