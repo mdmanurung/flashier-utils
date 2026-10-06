@@ -21,4 +21,4 @@ Source inspection, numerical parity, scientific calibration and runtime installa
 ```{r}
 provenance(c("standardize_factors","backproject_contrast","factor_distinctiveness"))
 ```
-The package contains two modified MIT feature-ranking helpers with the complete source notice. Other adapters call public native functions or independently implement credited glue. The installed NOTICE and provenance CSV list sources and changes. Package-owned code is maintained by Mikhael Manurung; GitHub distribution awaits cross-platform release checks.
+The package contains two modified MIT feature-ranking helpers with the complete source notice. Other adapters call public native functions or independently implement credited glue. The installed NOTICE and provenance CSV list sources and changes. Package-owned code is maintained by Mikhael Manurung; GitHub distribution is checked through cross-platform CI.

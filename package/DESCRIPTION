@@ -1,9 +1,9 @@
 Package: flashier.utils
 Title: Transparent Interpretation of Empirical Bayes Matrix Factorizations
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: person("Mikhael", "Manurung", role = c("aut", "cre"),
     email = "mikhael.manurung@gmail.com")
-Description: Development toolkit around public flashier interfaces for named,
+Description: Toolkit around public flashier interfaces for named,
     signed factor representations, interpretation and reconstruction. Preserves
     sample orientation, coordinate basis and conditional uncertainty semantics.
 License: MIT + file LICENSE

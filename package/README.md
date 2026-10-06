@@ -1,6 +1,6 @@
 # flashier utils
 
-Install the development package from GitHub:
+Install from GitHub:
 
 ```r
 install.packages("remotes")
@@ -66,5 +66,5 @@ supports its audited default only; native dosym=TRUE fails and is refused.
 
 Source notices are installed with the package. Executable vignettes describe
 assumptions, units, donor replication and display-only transforms. Cross-platform
-validation results are available in GitHub Actions. The development evidence
+validation results are available in GitHub Actions. The scientific development evidence
 archive is retained separately from this source distribution.

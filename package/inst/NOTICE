@@ -15,4 +15,4 @@ ZemmourLib::MyGeneTilePlot and ImmGenT metadata/representation workflows.
 No implementation source copied from those projects. See provenance.csv.
 
 Package-owned code: Copyright 2026 Mikhael Manurung.
-Distribution target: GitHub. Cross-platform release validation is pending.
+Distribution target: GitHub. Cross-platform validation is recorded in GitHub Actions.
