@@ -1,4 +1,4 @@
-# flashier.utils 1.0.0.9000
+# flashier.utils 1.1.0
 
 - Add signed program networks, annotation comparisons, descriptive diagnostics,
   native ROC specificity, protein thresholds and equal-population gates.
@@ -7,8 +7,7 @@
 - Add workflow tutorials and a published-data pancreas example adapted from
   Peter Carbonetto's single-cell Jamboree analysis. Tutorials now use real data
   (flashier's GTEx matrix; pancreas caches from `.github/scripts/prepare-pancreas.R`,
-  built by the pkgdown workflow and gated off during package checks). These are
-  development changes, not a release.
+  built by the pkgdown workflow and gated off during package checks).
 
 # flashier.utils 1.0.0
 

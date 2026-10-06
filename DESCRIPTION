@@ -1,6 +1,6 @@
 Package: flashier.utils
 Title: Transparent Interpretation of Empirical Bayes Matrix Factorizations
-Version: 1.0.0.9000
+Version: 1.1.0
 Authors@R: c(person("Mikhael", "Manurung", role = c("aut", "cre"),
     email = "mikhael.manurung@gmail.com"),
     person("Peter", "Carbonetto", role = "ctb",
