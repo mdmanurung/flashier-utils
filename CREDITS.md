@@ -226,3 +226,170 @@ Wickham H, Hesselberth J, Salmon M, Roy O, Brüggemann S (2026). _pkgdown: Make 
 - [stephenslab/fastTopics](https://github.com/stephenslab/fastTopics), commit `5cf9a448b17a7eb8f139cc916e22cb3ad1766b70`; authors: Peter Carbonetto; Kevin Luo; Kushal Dey; Matthew Stephens.
 
 </details>
+
+## Gene-program interpretation and transfer (development)
+
+These interfaces are independently written workflow adaptations; no ImmGen or
+STARCAT source is redistributed. Annotation retains user-authored labels and
+never assigns cell types automatically.
+
+- ImmGen-T program networks, Figure 2 diagnostics, Figure 5b displays and Figure 7
+  protein/gate workflows: [Ziang Zhang (AgueroZZ)](https://github.com/AgueroZZ),
+  repository author of [immgenT-GP-analysis](https://github.com/AgueroZZ/immgenT-GP-analysis).
+  Individual script authors and source-reuse licensing remain unresolved.
+  Existing David Zemmour and ZemmourLib credits above remain applicable to reused
+  package workflows. These are reusable adaptations, not exact panel reproduction.
+- Pancreas defining-feature and competitor comparisons: [Peter Carbonetto's
+  tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html).
+  Existing modified singlecelljamboreeR helpers credit Peter Carbonetto and
+  Matthew Stephens and retain their MIT notice.
+- Reference-program transfer: [STARCAT](https://github.com/immunogenomics/starCAT),
+  Dylan Kotliar and Michelle Curtis (verified in upstream setup.py). Conceptual
+  credit only; query-specific scaling and normalized usages are not adopted.
+- Native projection: flashier authors Jason Willwerscheid, Peter Carbonetto,
+  Wei Wang and Matthew Stephens, with contributors credited above.
+- Optional plotting engines: igraph, ggraph, ggrepel and patchwork. Classification:
+  pROC. Mixture candidates: mclust. Use `citation(package)` for installed method
+  references. Dependency author records below are taken from installed DESCRIPTION
+  metadata; wrappers do not claim authorship of these engines.
+
+`factor_network`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_factor_network`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_feature_rankings`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`factor_diagnostics`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_factor_diagnostics`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_factor_signature`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`factor_specificity`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`summarize_factors`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`correlate_factor_markers`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_factor_contrasts`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`estimate_marker_thresholds`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_marker_thresholds`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`factor_gate_alignment`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`plot_factor_gates`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`project_factor_features`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`project_factor_activity`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+### igraph
+
+ Gábor Csárdi [aut] (ORCID: <https://orcid.org/0000-0001-7098-9676>),   Tamás Nepusz [aut] (ORCID: <https://orcid.org/0000-0002-1451-338X>),   Vincent Traag [aut] (ORCID: <https://orcid.org/0000-0003-3170-3879>),   Szabolcs Horvát [aut] (ORCID: <https://orcid.org/0000-0002-3100-523X>),   Fabio Zanini [aut] (ORCID: <https://orcid.org/0000-0001-7097-8539>),   Daniel Noom [aut],   Kirill Müller [aut, cre] (ORCID:     <https://orcid.org/0000-0002-1416-3412>),   Michael Antonov [ctb],   Chan Zuckerberg Initiative [fnd] (ROR: <https://ror.org/02qenvm24>),   David Schoch [aut] (ORCID: <https://orcid.org/0000-0003-2952-4812>),   Maëlle Salmon [aut] (ORCID: <https://orcid.org/0000-0002-2815-0399>),   R Consortium [fnd] (ROR: <https://ror.org/01z833950>)
+
+ Csárdi G, Nepusz T (2006). “The igraph software package for complex
+network research.” _InterJournal_, *Complex Systems*, 1695.
+<https://igraph.org>.
+Antonov M, Csárdi G, Horvát S, Müller K, Nepusz T, Noom D, Salmon M,
+Traag V, Welles BF, Zanini F (2023). “igraph enables fast and robust
+network analysis across programming languages.” _arXiv preprint
+arXiv:2311.10260_. doi:10.48550/arXiv.2311.10260
+<https://doi.org/10.48550/arXiv.2311.10260>.
+Csárdi G, Nepusz T, Traag V, Horvát S, Zanini F, Noom D, Müller K,
+Schoch D, Salmon M (2026). _igraph: Network Analysis and Visualization
+in R_. doi:10.5281/zenodo.7682609
+<https://doi.org/10.5281/zenodo.7682609>, R package version 2.3.3,
+<https://CRAN.R-project.org/package=igraph>.
+
+### ggraph
+
+ Thomas Lin Pedersen [cre, aut] (ORCID:     <https://orcid.org/0000-0002-5147-4711>),   RStudio [cph]
+
+ Pedersen T (2025). _ggraph: An Implementation of Grammar of Graphics
+for Graphs and Networks_. doi:10.32614/CRAN.package.ggraph
+<https://doi.org/10.32614/CRAN.package.ggraph>, R package version
+2.2.2, <https://CRAN.R-project.org/package=ggraph>.
+
+### ggrepel
+
+ Kamil Slowikowski [aut, cre] (ORCID:     <https://orcid.org/0000-0002-2843-6370>),   Teun van den Brand [ctb] (ORCID:     <https://orcid.org/0000-0002-9335-7468>),   Alicia Schep [ctb] (ORCID: <https://orcid.org/0000-0002-3915-0618>),   Sean Hughes [ctb] (ORCID: <https://orcid.org/0000-0002-9409-9405>),   Trung Kien Dang [ctb] (ORCID: <https://orcid.org/0000-0001-7562-6495>),   Saulius Lukauskas [ctb],   Jean-Olivier Irisson [ctb] (ORCID:     <https://orcid.org/0000-0003-4920-3880>),   Zhian N Kamvar [ctb] (ORCID: <https://orcid.org/0000-0003-1458-7108>),   Thompson Ryan [ctb] (ORCID: <https://orcid.org/0000-0002-0450-8181>),   Dervieux Christophe [ctb] (ORCID:     <https://orcid.org/0000-0003-4474-2498>),   Yutani Hiroaki [ctb],   Pierre Gramme [ctb],   Amir Masoud Abdol [ctb],   Malcolm Barrett [ctb] (ORCID: <https://orcid.org/0000-0003-0299-5825>),   Robrecht Cannoodt [ctb] (ORCID:     <https://orcid.org/0000-0003-3641-729X>),   Michał Krassowski [ctb] (ORCID:     <https://orcid.org/0000-0002-9638-7785>),   Michael Chirico [ctb] (ORCID: <https://orcid.org/0000-0003-0787-087X>),   Pedro Aphalo [ctb] (ORCID: <https://orcid.org/0000-0003-3385-972X>),   Francis Barton [ctb]
+
+ Slowikowski K (2026). _ggrepel: Automatically Position Non-Overlapping
+Text Labels with 'ggplot2'_. doi:10.32614/CRAN.package.ggrepel
+<https://doi.org/10.32614/CRAN.package.ggrepel>, R package version
+0.9.8, <https://CRAN.R-project.org/package=ggrepel>.
+
+### patchwork
+
+ Thomas Lin Pedersen [cre, aut] (ORCID:     <https://orcid.org/0000-0002-5147-4711>)
+
+ Pedersen T (2025). _patchwork: The Composer of Plots_.
+doi:10.32614/CRAN.package.patchwork
+<https://doi.org/10.32614/CRAN.package.patchwork>, R package version
+1.3.2, <https://CRAN.R-project.org/package=patchwork>.
+
+### pROC
+
+ Xavier Robin [cre, aut] (ORCID:     <https://orcid.org/0000-0002-6813-3200>),   Natacha Turck [aut],   Alexandre Hainard [aut],   Natalia Tiberti [aut],   Frédérique Lisacek [aut],   Jean-Charles Sanchez [aut],   Markus Müller [aut],   Stefan Siegert [ctb] (Fast DeLong code),   Matthias Doering [ctb] (Hand & Till Multiclass),   Zane Billings [ctb] (DeLong paired test CI)
+
+ Robin X, Turck N, Hainard A, Tiberti N, Lisacek F, Sanchez J, Müller M
+(2011). “pROC: an open-source package for R and S+ to analyze and
+compare ROC curves.” _BMC Bioinformatics_, *12*, 77.
+
+### mclust
+
+ Chris Fraley [aut],   Adrian E. Raftery [aut] (ORCID:     <https://orcid.org/0000-0002-6589-301X>),   Luca Scrucca [aut, cre] (ORCID:     <https://orcid.org/0000-0003-3826-0484>),   Thomas Brendan Murphy [ctb] (ORCID:     <https://orcid.org/0000-0002-5668-7046>),   Michael Fop [ctb] (ORCID: <https://orcid.org/0000-0003-3936-2757>)
+
+ Scrucca L, Fraley C, Murphy TB, Raftery AE (2023). _Model-Based
+Clustering, Classification, and Density Estimation Using mclust in R_.
+Chapman and Hall/CRC. ISBN 978-1032234953, doi:10.1201/9781003277965
+<https://doi.org/10.1201/9781003277965>,
+<https://mclust-org.github.io/book/>.
+
+## Published pancreas worked example
+
+`pancreas-programs` adapts Peter Carbonetto's [pancreas annotation
+tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html),
+using input data and NMF/semi-NMF coordinates from single-cell Jamboree revision
+`6cf9aa720cc16dc543e93b36d57bc1a85555860d`. The source reports CEL-Seq2 data
+from Muraro et al. (2016), assembled in the Luecken et al. (2022) benchmark.
+See [source preparation and study references](https://stephenslab.github.io/single-cell-jamboree/pancreas.html).
+The new tutorial code is independently written; upstream input data, model
+objects and scripts are downloaded explicitly into a local archive and are not
+redistributed in package sources. Saved posterior means are restored without
+claiming to restore posterior uncertainties or hyperparameters. All native
+flashier and STARCAT conceptual transfer credits above apply.
+
+## Real-data tutorial sources
+
+Tutorials use real data in place of simulations wherever the design supports it.
+No upstream data are redistributed in this package.
+
+- **GTEx example from flashier.** The `backprojection`, `representation-units`,
+  `stability-replicability`, `uncertainty` and `first-fit` tutorials load the
+  `gtex` matrix distributed with flashier (Jason Willwerscheid, Peter Carbonetto,
+  Wei Wang and Matthew Stephens), derived from the GTEx project (Lonsdale et al.
+  2013, _Nature Genetics_ 45(6):580-585; top-SNP-per-gene selection of Urbut,
+  Wang, Carbonetto and Stephens 2019, _Nature Genetics_ 51(1):187-195, as stated
+  in `?flashier::gtex`). Tissues are not independent donors, so these tutorials
+  make no donor-level claims. The synthetic coefficient draws in `uncertainty`
+  only illustrate an input shape.
+- **Single-cell Jamboree pancreas data.** The `single-cell`, `multi-cohort`,
+  `holdout`, `contrasts`, `dataset-transfer`, `largest-distinctive`,
+  `program-annotation`, `program-diagnostics`, `enrichment` and
+  `pancreas-programs` tutorials are workflow adaptations and documentation
+  examples using data and published CEL-Seq2 NMF and semi-NMF factors from Peter
+  Carbonetto's single-cell Jamboree (stephenslab/single-cell-jamboree, revision
+  `6cf9aa720cc16dc543e93b36d57bc1a85555860d`). The CEL-Seq2 cells are from Muraro
+  et al. (2016), as assembled in the cross-technology benchmark of Luecken et al.
+  (2022); the Jamboree page links the original studies of the other technologies.
+  Data are read from local caches (`pancreas-worked-example.rds`,
+  `pancreas-cells.rds`) built by `.github/scripts/prepare-pancreas.R`, which is
+  not shipped in the package. The data have no donor IDs; tutorials make no
+  donor-independence claims. The native EBMF method credits Jason Willwerscheid,
+  Peter Carbonetto, Wei Wang and Matthew Stephens.
+- **Enrichment gene sets.** The marker sets in `enrichment` are constructed in
+  the tutorial from the published cell-type labels of SMART-Seq2, Fluidigm C1
+  and inDrop cells; no external gene-set database is used or redistributed.
+  fgsea and decoupleR credits are unchanged.

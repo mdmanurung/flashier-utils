@@ -22,3 +22,76 @@ Full original-author and dependency citation records appear in the installed
 article. Each function manual records its original source authors. Native engine
 implementations remain the work of their original package authors; this toolkit
 provides credited interfaces and orchestration.
+
+## Gene-program interpretation and transfer (development)
+
+These interfaces are independently written workflow adaptations; no ImmGen or
+STARCAT source is redistributed. Annotation retains user-authored labels and
+never assigns cell types automatically.
+
+- ImmGen-T program networks, Figure 2 diagnostics, Figure 5b displays and Figure 7
+  protein/gate workflows: [Ziang Zhang (AgueroZZ)](https://github.com/AgueroZZ),
+  repository author of [immgenT-GP-analysis](https://github.com/AgueroZZ/immgenT-GP-analysis).
+  Individual script authors and source-reuse licensing remain unresolved.
+  Existing David Zemmour and ZemmourLib credits above remain applicable to reused
+  package workflows. These are reusable adaptations, not exact panel reproduction.
+- Pancreas defining-feature and competitor comparisons: [Peter Carbonetto's
+  tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html).
+  Existing modified singlecelljamboreeR helpers credit Peter Carbonetto and
+  Matthew Stephens and retain their MIT notice.
+- Reference-program transfer: [STARCAT](https://github.com/immunogenomics/starCAT),
+  Dylan Kotliar and Michelle Curtis (verified in upstream setup.py). Conceptual
+  credit only; query-specific scaling and normalized usages are not adopted.
+- Native projection: flashier authors Jason Willwerscheid, Peter Carbonetto,
+  Wei Wang and Matthew Stephens, with contributors credited above.
+- Optional plotting engines: igraph, ggraph, ggrepel and patchwork. Classification:
+  pROC. Mixture candidates: mclust. Use `citation(package)` for installed method
+  references. Dependency author records below are taken from installed DESCRIPTION
+  metadata; wrappers do not claim authorship of these engines.
+
+## Published pancreas worked example
+
+`pancreas-programs` adapts Peter Carbonetto's [pancreas annotation
+tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html),
+using input data and NMF/semi-NMF coordinates from single-cell Jamboree revision
+`6cf9aa720cc16dc543e93b36d57bc1a85555860d`. The source reports CEL-Seq2 data
+from Muraro et al. (2016), assembled in the Luecken et al. (2022) benchmark.
+See [source preparation and study references](https://stephenslab.github.io/single-cell-jamboree/pancreas.html).
+The new tutorial code is independently written; upstream input data, model
+objects and scripts are downloaded explicitly into a local archive and are not
+redistributed in package sources. Saved posterior means are restored without
+claiming to restore posterior uncertainties or hyperparameters. All native
+flashier and STARCAT conceptual transfer credits above apply.
+
+## Real-data tutorial sources
+
+Tutorials use real data in place of simulations wherever the design supports it.
+No upstream data are redistributed in this package.
+
+- **GTEx example from flashier.** The `backprojection`, `representation-units`,
+  `stability-replicability`, `uncertainty` and `first-fit` tutorials load the
+  `gtex` matrix distributed with flashier (Jason Willwerscheid, Peter Carbonetto,
+  Wei Wang and Matthew Stephens), derived from the GTEx project (Lonsdale et al.
+  2013, _Nature Genetics_ 45(6):580-585; top-SNP-per-gene selection of Urbut,
+  Wang, Carbonetto and Stephens 2019, _Nature Genetics_ 51(1):187-195, as stated
+  in `?flashier::gtex`). Tissues are not independent donors, so these tutorials
+  make no donor-level claims. The synthetic coefficient draws in `uncertainty`
+  only illustrate an input shape.
+- **Single-cell Jamboree pancreas data.** The `single-cell`, `multi-cohort`,
+  `holdout`, `contrasts`, `dataset-transfer`, `largest-distinctive`,
+  `program-annotation`, `program-diagnostics`, `enrichment` and
+  `pancreas-programs` tutorials are workflow adaptations and documentation
+  examples using data and published CEL-Seq2 NMF and semi-NMF factors from Peter
+  Carbonetto's single-cell Jamboree (stephenslab/single-cell-jamboree, revision
+  `6cf9aa720cc16dc543e93b36d57bc1a85555860d`). The CEL-Seq2 cells are from Muraro
+  et al. (2016), as assembled in the cross-technology benchmark of Luecken et al.
+  (2022); the Jamboree page links the original studies of the other technologies.
+  Data are read from local caches (`pancreas-worked-example.rds`,
+  `pancreas-cells.rds`) built by `.github/scripts/prepare-pancreas.R`, which is
+  not shipped in the package. The data have no donor IDs; tutorials make no
+  donor-independence claims. The native EBMF method credits Jason Willwerscheid,
+  Peter Carbonetto, Wei Wang and Matthew Stephens.
+- **Enrichment gene sets.** The marker sets in `enrichment` are constructed in
+  the tutorial from the published cell-type labels of SMART-Seq2, Fluidigm C1
+  and inDrop cells; no external gene-set database is used or redistributed.
+  fgsea and decoupleR credits are unchanged.

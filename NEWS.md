@@ -1,3 +1,15 @@
+# flashier.utils 1.0.0.9000
+
+- Add signed program networks, annotation comparisons, descriptive diagnostics,
+  native ROC specificity, protein thresholds and equal-population gates.
+- Add native fixed-activity and fixed-program EBMF projection with explicit
+  units, preprocessing, coverage, rank and allocation checks.
+- Add workflow tutorials and a published-data pancreas example adapted from
+  Peter Carbonetto's single-cell Jamboree analysis. Tutorials now use real data
+  (flashier's GTEx matrix; pancreas caches from `.github/scripts/prepare-pancreas.R`,
+  built by the pkgdown workflow and gated off during package checks). These are
+  development changes, not a release.
+
 # flashier.utils 1.0.0
 
 * Added signed decoupleR source/target/mor networks through pathways, with native
