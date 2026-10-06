@@ -8,7 +8,7 @@
     correlation = if (length(o)>1L && stats::sd(o)>0 && stats::sd(p)>0) stats::cor(o,p) else NA_real_, n_scored_entries = length(o))
 }
 
-.native_projection <- function(Y, training, sample_side, priors, maxiter = 100L, S = NULL, var_type = 0L) {
+.native_projection <- function(Y, training, sample_side, priors, maxiter = 100L, S = NULL, var_type = 0L, return_fit = FALSE) {
   K <- ncol(training$effects)
   if (!K) return(matrix(numeric(), nrow(Y), 0L, dimnames = list(rownames(Y), character())))
   A0 <- matrix(0.1, nrow(Y), K, dimnames = list(rownames(Y), colnames(training$effects)))
@@ -28,7 +28,7 @@
   if (!isTRUE(all.equal(unname(fixed), unname(training$effects), tolerance = 1e-12))) stop("Native projection changed fixed feature programs")
   A <- if (sample_side == "rows") object$L_pm else object$F_pm
   colnames(A) <- colnames(training$effects)
-  A
+  if (return_fit) list(activity = A, fit = object) else A
 }
 
 #' Evaluate training programs on held-out biological units

@@ -10,7 +10,8 @@ factor_features(
   select = "both",
   n = 20L,
   direction = "absolute",
-  representation = NULL
+  representation = NULL,
+  compare_factors = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ factor_features(
 \item{direction}{absolute, positive or negative.}
 
 \item{representation}{Matched view or settings.}
+
+\item{compare_factors}{Optional competition pool; NULL uses all factors.}
 }
 \value{
 Tidy descriptive table with selection and tie rule metadata.

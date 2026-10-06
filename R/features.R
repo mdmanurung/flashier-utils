@@ -45,9 +45,10 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #' Compute least-extreme signed feature effects
 #'
 #' Adapted from singlecelljamboreeR compute_le_effects. The margin to the
-#' most extreme same-direction competitor includes zero. All factors compete.
+#' most extreme same-direction competitor includes zero. By default all factors compete.
 #' Distinctiveness depends on the recorded common scale and orientation.
 #' @inheritParams rank_features
+#' @param compare_factors Optional competition pool; NULL uses all factors.
 #' @param engine singlecelljamboreeR selects the audited local implementation.
 #' @param format long or matrix.
 #' @return Original estimate and distinctiveness separately, or margin matrix.
@@ -68,17 +69,22 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
 #' head(factor_distinctiveness(view))
-factor_distinctiveness <- function(fit, representation = NULL, engine = "singlecelljamboreeR", direction = "both", format = "long") {
+factor_distinctiveness <- function(fit, representation = NULL, engine = "singlecelljamboreeR", direction = "both", format = "long", compare_factors = NULL) {
   if (engine != "singlecelljamboreeR") stop("Unsupported distinctiveness engine")
   direction <- match.arg(direction, c("both", "positive", "negative"))
   format <- match.arg(format, c("long", "matrix"))
   view <- .resolve_view(fit, representation)
   if (is.null(view$manifest$orientation) || is.null(view$manifest$scaling)) stop("Distinctiveness requires declared common scaling and orientation")
   B <- view$effects
+  pool <- colnames(B)[.select_ids(compare_factors, colnames(B), "comparison factor")]
   margin <- .compute_le_effects(B)
+  if (!is.null(compare_factors)) for (k in seq_len(ncol(B))) {
+    competitors <- unique(c(colnames(B)[k], pool))
+    margin[, k] <- .compute_le_effects(B[, competitors, drop = FALSE])[, 1L]
+  }
   if (direction == "positive") margin[margin < 0] <- 0
   if (direction == "negative") margin[margin > 0] <- 0
-  metadata <- c(view$manifest, list(competition_factors = view$manifest$factor_ids,
+  metadata <- c(view$manifest, list(competition_factors = pool,
     definition = "singlecelljamboreeR_least_extreme", code_reuse = "modified"))
   if (format == "matrix") {
     attr(margin, "analysis_metadata") <- metadata
@@ -99,6 +105,7 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
 #' @inheritParams rank_features
 #' @param factor One unique factor ID.
 #' @param select largest, distinctive or both.
+#' @param compare_factors Optional competition pool; NULL uses all factors.
 #' @param n Nonnegative maximum number per selection.
 #' @return Tidy descriptive table with selection and tie rule metadata.
 #' @export
@@ -118,7 +125,7 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
 #' factor_features(view,"F1",select="both",n=3)
-factor_features <- function(fit, factor, select = "both", n = 20L, direction = "absolute", representation = NULL) {
+factor_features <- function(fit, factor, select = "both", n = 20L, direction = "absolute", representation = NULL, compare_factors = NULL) {
   select <- match.arg(select, c("largest", "distinctive", "both"))
   direction <- match.arg(direction, c("absolute", "positive", "negative"))
   if (length(factor) != 1L) stop("Select exactly one factor")
@@ -128,7 +135,7 @@ factor_features <- function(fit, factor, select = "both", n = 20L, direction = "
   selections <- if (select == "both") c("largest", "distinctive") else select
   parts <- lapply(selections, function(selection) {
     out <- if (selection == "largest") rank_features(view, factors = factor, direction = direction) else {
-      all <- factor_distinctiveness(view)
+      all <- factor_distinctiveness(view, compare_factors = compare_factors)
       all <- all[all$factor == factor, , drop = FALSE]
       score <- switch(direction, absolute = abs(all$distinctiveness), positive = all$distinctiveness, negative = -all$distinctiveness)
       all$rank <- rank(-score, ties.method = "average")
@@ -145,6 +152,6 @@ factor_features <- function(fit, factor, select = "both", n = 20L, direction = "
   })
   out <- do.call(rbind, parts)
   rownames(out) <- NULL
-  attr(out, "analysis_metadata") <- c(view$manifest, list(display_tie_rule = "rank_then_feature_ID", competition_factors = view$manifest$factor_ids))
+  attr(out, "analysis_metadata") <- c(view$manifest, list(display_tie_rule = "rank_then_feature_ID", competition_factors = colnames(view$effects)[.select_ids(compare_factors, colnames(view$effects), "comparison factor")]))
   .attach_provenance(out, "factor_features", match.call(), .resolved_parameters("factor_features", environment()))
 }

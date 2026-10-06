@@ -7,6 +7,12 @@
 #' @param factors Unique displayed factors.
 #' @param style heatmap or bar.
 #' @param engine ggplot2.
+#' @param compare_factors Optional competition pool.
+#' @param features Explicit feature IDs instead of ranked selection.
+#' @param direction absolute, positive or negative selection.
+#' @param display_normalization none (effect units) or max_abs (display only).
+#' @param transpose Flip display axes.
+#' @param annotation One named factor annotation vector, including correlations.
 #' @param ... Optional palette (negative, zero, positive) and limits.
 #' @return A ggplot with display and basis metadata attributes.
 #' @importFrom rlang .data
@@ -28,24 +34,37 @@
 #' view <- standardize_factors(fit)
 #' plot_factor_features(view,"F1",n=3)
 plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
-                                 style = "heatmap", engine = "ggplot2", representation = NULL, ...) {
+                                 style = "heatmap", engine = "ggplot2", representation = NULL, ..., compare_factors = NULL,
+                                 features = NULL, direction = "absolute", display_normalization = "none",
+                                 transpose = FALSE, annotation = NULL) {
   if (engine != "ggplot2") stop("Only the ggplot2 signed display engine is supported")
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
   .select_ids(factors, view$manifest$factor_ids, "factor")
-  selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n))
+  selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors))
   selected <- do.call(rbind, selected)
-  if (is.null(selected) || !nrow(selected)) stop("No nonzero selected feature effects to plot")
-  features <- unique(selected$feature)
+  if (is.null(features) && (is.null(selected) || !nrow(selected))) stop("No nonzero selected feature effects to plot")
+  if (is.null(features)) features <- unique(selected$feature)
   table <- factor_effects(view, factors = factors, features = features, format = "long")
+  display_normalization <- match.arg(display_normalization, c("none", "max_abs"))
+  if (display_normalization == "max_abs") {
+    B <- .display_scale(factor_effects(view, factors = factors), "max_abs")
+    table$estimate <- as.vector(B[features, , drop = FALSE])
+  }
+  if (!is.null(annotation)) {
+    annotation <- .factor_annotation(annotation, factors)
+    table$annotation <- annotation[match(table$factor, factors)]
+  }
   options <- list(...)
   if (any(!names(options) %in% c("palette", "limits"))) stop("Unknown display option")
   palette <- if (is.null(options$palette)) c("#2166ac", "white", "#b2182b") else options$palette
   if (length(palette) != 3L) stop("palette requires negative, zero and positive colors")
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$feature, fill = .data$estimate))
   if (style == "heatmap") p <- p + ggplot2::geom_tile() else p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$feature, y = .data$estimate, fill = .data$estimate)) + ggplot2::geom_col() + ggplot2::facet_wrap(~factor)
-  p <- p + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits) + ggplot2::labs(fill = "Feature effect", subtitle = paste("Feature scale:", view$manifest$feature_scale))
-  attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = "none", selected_features = features))
+  p <- p + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits) + ggplot2::labs(fill = if(display_normalization == "none") "Feature effect" else "Effect / max absolute effect", subtitle = paste("Feature scale:", view$manifest$feature_scale))
+  if (transpose) p <- p + ggplot2::coord_flip()
+  if (!is.null(annotation)) p <- p + ggplot2::facet_grid(~annotation, scales = "free_x", space = "free_x")
+  attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization, selected_features = features, annotation = annotation, competition_factors = colnames(view$effects)[.select_ids(compare_factors, colnames(view$effects), "comparison factor")], direction = direction, transpose = transpose))
   .attach_provenance(p, "plot_factor_features", match.call(), .resolved_parameters("plot_factor_features", environment()))
 }
 

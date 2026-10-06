@@ -9,7 +9,8 @@ factor_distinctiveness(
   representation = NULL,
   engine = "singlecelljamboreeR",
   direction = "both",
-  format = "long"
+  format = "long",
+  compare_factors = NULL
 )
 }
 \arguments{
@@ -22,13 +23,15 @@ factor_distinctiveness(
 \item{direction}{absolute, positive or negative.}
 
 \item{format}{long or matrix.}
+
+\item{compare_factors}{Optional competition pool; NULL uses all factors.}
 }
 \value{
 Original estimate and distinctiveness separately, or margin matrix.
 }
 \description{
 Adapted from singlecelljamboreeR compute_le_effects. The margin to the
-most extreme same-direction competitor includes zero. All factors compete.
+most extreme same-direction competitor includes zero. By default all factors compete.
 Distinctiveness depends on the recorded common scale and orientation.
 }
 \details{

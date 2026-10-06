@@ -12,7 +12,13 @@ plot_factor_features(
   style = "heatmap",
   engine = "ggplot2",
   representation = NULL,
-  ...
+  ...,
+  compare_factors = NULL,
+  features = NULL,
+  direction = "absolute",
+  display_normalization = "none",
+  transpose = FALSE,
+  annotation = NULL
 )
 }
 \arguments{
@@ -31,6 +37,18 @@ plot_factor_features(
 \item{representation}{Matched view or settings.}
 
 \item{...}{Optional palette (negative, zero, positive) and limits.}
+
+\item{compare_factors}{Optional competition pool.}
+
+\item{features}{Explicit feature IDs instead of ranked selection.}
+
+\item{direction}{absolute, positive or negative selection.}
+
+\item{display_normalization}{none (effect units) or max_abs (display only).}
+
+\item{transpose}{Flip display axes.}
+
+\item{annotation}{One named factor annotation vector, including correlations.}
 }
 \value{
 A ggplot with display and basis metadata attributes.

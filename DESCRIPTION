@@ -1,6 +1,6 @@
 Package: flashier.utils
 Title: Transparent Interpretation of Empirical Bayes Matrix Factorizations
-Version: 1.0.0
+Version: 1.0.0.9000
 Authors@R: c(person("Mikhael", "Manurung", role = c("aut", "cre"),
     email = "mikhael.manurung@gmail.com"),
     person("Peter", "Carbonetto", role = "ctb",
@@ -18,7 +18,7 @@ Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports: flashier, ebnm, Matrix, digest, ggplot2, rlang, stats, utils, methods, parallel
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown, limma, variancePartition,
-    mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot
+    mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot, igraph, ggraph, ggrepel, patchwork, pROC, mclust
 VignetteBuilder: knitr
 Remotes: willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683,
     kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3

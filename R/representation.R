@@ -161,6 +161,6 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     activity_center = rep(0, K), activity_scale = rep(1, K), offset_definition = "zero",
     feature_scale = if (is.null(metadata$feature_scale)) "unknown" else metadata$feature_scale,
     preprocessing = if (is.null(metadata$preprocessing)) list() else metadata$preprocessing,
-    independent_unit = metadata$independent_unit, constraints = support, native_pve = fit$pve), runtime)
+    independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve), runtime)
   .attach_provenance(.make_representation(pair[[1]], pair[[2]], manifest), "standardize_factors", match.call(), .resolved_parameters("standardize_factors", environment()))
 }

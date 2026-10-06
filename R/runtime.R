@@ -3,7 +3,7 @@
   arguments <- names(formals(get(function_name, envir = asNamespace("flashier.utils"))))
   # ponytail: large scientific inputs are identified by the basis/configuration;
   # do not duplicate complete data, native fits or annotations into every result.
-  arguments <- setdiff(arguments, c("...", "X", "fit", "object", "metadata", "results", "result", "reference", "target", "reference_fit", "representation", "pathways", "factor_effects", "reconstructed", "observed"))
+  arguments <- setdiff(arguments, c("...", "X", "fit", "object", "metadata", "results", "result", "reference", "target", "reference_fit", "representation", "pathways", "factor_effects", "reconstructed", "observed", "query", "measurements", "embedding", "network", "mean_expression", "marker", "x", "y"))
   out <- lapply(arguments, function(name) {
     tryCatch({
       value <- get(name, envir = frame, inherits = FALSE)
