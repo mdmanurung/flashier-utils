@@ -87,6 +87,25 @@ averaged over 48 cells of which eight are beta cells. Weights are divided by eac
 program's maximum absolute weight. Labels require
 absolute displayed weight at least 0.1, with ties ordered by feature ID.
 
+## Rank factors by metadata and check factor correlation
+
+`rank_factors_by_metadata()` ranks factors by the share of their activity variance
+that one metadata variable explains (R squared from a linear model). Use it to
+decide which factors to examine first, not to test them; see
+[Compare groups and test associations](contrasts.html) for inference.
+`factor_cor()` correlates factor activities across the same cells.
+
+```{r rank-correlate}
+rank_factors_by_metadata(view, metadata, "celltype")[, c("factor", "value", "rank")]
+round(factor_cor(view, "spearman")$correlation, 2)[1:4, 1:4]
+```
+
+Cell type explains most of the activity of `F4`, `F9` and `F5` (R squared above
+0.9), and little of `F7` or `F3`. The 48 cells carry no donor identifiers, so these
+R squared values and correlations describe the selected cells, not independent
+individuals. `factor_cor()` requires an `engine`: `"pearson"`, `"spearman"` or
+`"corshrink"`. It also accepts a `subset` of sample IDs and base `use` options.
+
 ## Declare thresholds once
 
 ```{r diagnostics}

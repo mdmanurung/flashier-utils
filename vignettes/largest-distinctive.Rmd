@@ -91,6 +91,24 @@ effect, because other programs also give these genes large effects. `F4`
 is the opposite case: the margins for `INS` and `IAPP` stay close to their
 effects.
 
+## Rank every feature
+
+`factor_features()` returns the top few. `rank_features()` ranks all genes for each
+factor, with rank 1 the strongest, and `factor_distinctiveness()` returns the
+competitor margin for every gene. Both keep the full table for your own filtering.
+
+```{r full-rankings}
+ranks <- rank_features(view, factors = "F4", direction = "positive")
+head(ranks[order(ranks$rank), c("feature", "estimate", "rank")], 5)
+
+margins <- factor_distinctiveness(view, direction = "positive")
+margins[margins$factor == "F4" & margins$feature %in% c("INS", "IAPP", "SST"),
+        c("feature", "estimate", "distinctiveness")]
+```
+
+`direction` is `"absolute"`, `"positive"` or `"negative"`. Ties take the average
+rank. Use `format = "matrix"` for a feature-by-factor matrix of margins.
+
 ## Plot selected features
 
 ```{r plot}

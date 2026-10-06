@@ -1,5 +1,10 @@
 # flashier.utils 1.1.0.9000
 
+- Add tutorial coverage for every exported function: a new "Reorder, remove, fix
+  and refit factors" article (`reorder_factors`, `remove_factors`, `fix_factors`,
+  `refit_factors`, `factor_pve`) and examples for `fit_nonnegative_ebmf` (GTEx),
+  `rank_features`, `factor_distinctiveness`, `rank_factors_by_metadata` and
+  `factor_cor` (pancreas programs).
 - `factor_gate_alignment()` gains `direction = c("high", "low")`; `"low"` compares
   a gate with the lowest-activity samples. The default is unchanged and the
   summary gains a `direction` column.

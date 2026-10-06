@@ -46,7 +46,7 @@ if you are new to the package.
 
 | Task | Vignettes |
 | --- | --- |
-| Fit and extract factors | [Fit and interpret factors](https://mdmanurung.github.io/flashier-utils/articles/first-fit.html); [Factor scales and measurement units](https://mdmanurung.github.io/flashier-utils/articles/representation-units.html) |
+| Fit and extract factors | [Fit and interpret factors](https://mdmanurung.github.io/flashier-utils/articles/first-fit.html); [Factor scales and measurement units](https://mdmanurung.github.io/flashier-utils/articles/representation-units.html); [Reorder, remove, fix and refit factors](https://mdmanurung.github.io/flashier-utils/articles/edit-fits.html) |
 | Identify features and pathways | [Find defining features](https://mdmanurung.github.io/flashier-utils/articles/largest-distinctive.html); [Annotate factors with pathways](https://mdmanurung.github.io/flashier-utils/articles/enrichment.html) |
 | Compare groups and conditions | [Compare groups and test associations](https://mdmanurung.github.io/flashier-utils/articles/contrasts.html); [Translate contrasts into feature effects](https://mdmanurung.github.io/flashier-utils/articles/backprojection.html); [Compare effects across conditions](https://mdmanurung.github.io/flashier-utils/articles/multi-cohort.html) |
 | Assess uncertainty, stability and prediction | [Understand uncertainty](https://mdmanurung.github.io/flashier-utils/articles/uncertainty.html); [Check factor stability](https://mdmanurung.github.io/flashier-utils/articles/stability-replicability.html); [Evaluate held-out prediction](https://mdmanurung.github.io/flashier-utils/articles/holdout.html) |

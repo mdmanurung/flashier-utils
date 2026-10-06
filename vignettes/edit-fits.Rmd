@@ -1,0 +1,96 @@
+---
+title: "Reorder, remove, fix and refit factors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reorder, remove, fix and refit factors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+An EBMF fit is a set of factors that you can edit. This tutorial reorders and
+removes factors, holds one factor fixed while the others are refined, and checks
+how much of the data each factor explains. Each function returns a new fit and
+leaves the original unchanged.
+
+## Start from a fit
+
+Use the GTEx example from flashier. Rows pair a single nucleotide polymorphism
+(SNP) with a gene, columns are tissues, and entries are association z-scores.
+
+```{r fit}
+library(flashier.utils)
+data("gtex", package = "flashier")
+fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 3,
+                backfit = TRUE, seed = 1, verbose = 0,
+                feature_scale = "association_z_score")
+colnames(factor_activity(fit))
+```
+
+## Reorder factors
+
+`reorder_factors()` takes an exact permutation of the retained factor IDs.
+
+```{r reorder}
+reordered <- reorder_factors(fit, c("F3", "F1", "F2"))
+colnames(factor_activity(reordered))
+```
+
+The IDs travel with their activity and feature effects. `F3` is still the factor
+that is strongest in whole blood; only its position changes.
+
+## Remove factors
+
+`remove_factors()` drops factors by ID.
+
+```{r remove}
+smaller <- remove_factors(fit, "F1")
+colnames(factor_activity(smaller))
+```
+
+The remaining factors keep their original IDs, here `F2` and `F3`. IDs are not
+renumbered, so results saved before the removal still refer to the same factors.
+Removing a factor changes the reconstruction, which no longer includes it. Refit
+afterwards if you want the remaining factors to absorb what it explained.
+
+## Fix a factor, then refit the others
+
+`fix_factors()` holds one side of a factor constant during later refinement. Fix
+either the feature effects or the activity of a factor; flashier 1.0.60 errors
+if both are fixed for the same factor.
+
+```{r fix-refit}
+fixed <- fix_factors(fit, "F2", side = "effects")
+refit <- refit_factors(fixed, factors = c("F1", "F3"),
+                       control = list(maxiter = 20, verbose = 0), seed = 1)
+max(abs(factor_effects(refit, factors = "F2") -
+        factor_effects(fit, factors = "F2")))
+```
+
+The difference is zero: the fixed effects were not changed. `refit_factors()`
+backfits only the listed factors, using a scoped seed. Use
+`fix_factors(..., action = "unfix")` to release a factor. Fixing is how you hold
+a published or previously fitted factor constant while estimating new ones.
+
+## Check variance explained
+
+`factor_pve()` reports flashier's proportion of variance explained by each factor.
+
+```{r pve}
+factor_pve(fit)
+factor_pve(refit)
+```
+
+The first factor explains most of the variance because it captures effects that
+are shared across tissues. A factor that explains little can still be
+biologically specific, as `F2` is for brain tissues. Proportions of variance
+describe the fitted matrix, not the evidence for a factor. Refitting the other
+two factors leaves the proportions almost unchanged here.
+
+## Sources
+
+The editing functions wrap `flash_factors_reorder`, `flash_factors_remove`,
+`flash_factors_fix`, `flash_factors_unfix` and `flash_backfit`, and `factor_pve`
+reads the native proportion of variance explained, all from flashier by
+Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens. The GTEx
+data ship with flashier and derive from the GTEx project (see `?flashier::gtex`).
+[Original authors and sources](credits.html) lists the full credits and citations.

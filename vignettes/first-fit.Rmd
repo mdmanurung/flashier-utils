@@ -59,6 +59,24 @@ features[, c("feature", "estimate")]
 the strongest contributors. Here, the feature IDs refer to SNP-gene pairs.
 For a gene-expression matrix, they would be the gene IDs you supplied.
 
+## Fit non-negative factors
+
+When activity and feature effects should both be non-negative, use
+`fit_nonnegative_ebmf()`. Association z-scores are signed, so fit their absolute
+values, which measure the strength of each association and drop its direction.
+
+```{r nonnegative}
+strength <- fit_nonnegative_ebmf(abs(gtex), sample_side = "columns",
+                                 max_factors = 3, seed = 1, verbose = 0,
+                                 feature_scale = "absolute_association_z_score")
+round(factor_activity(strength)[c("Brain_Cortex", "Testis", "Whole_Blood"), ], 2)
+```
+
+`F1` is a shared strength pattern, `F3` is active only in brain tissues and `F2`
+only in testis. Activity is never negative, so a factor adds strength and cannot
+cancel it. The non-negative fit uses a native greedy start and a fixed prior
+recipe; see [Reorder, remove, fix and refit factors](edit-fits.html) to edit it.
+
 See [Find defining features](largest-distinctive.html) for rankings and plots.
 Use [Compare groups and test associations](contrasts.html) to relate factors to sample metadata.
 These tissue summaries do not provide donor-level replication.

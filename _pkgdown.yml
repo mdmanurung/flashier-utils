@@ -17,6 +17,8 @@ navbar:
           href: articles/first-fit.html
         - text: Factor scales and measurement units
           href: articles/representation-units.html
+        - text: Reorder, remove, fix and refit factors
+          href: articles/edit-fits.html
         - text: -------
         - text: Identify features and pathways
         - text: Find defining features
@@ -74,6 +76,7 @@ articles:
     contents:
       - first-fit
       - representation-units
+      - edit-fits
   - title: Identify features and pathways
     desc: Rank the features that define each factor and annotate feature programs with gene sets or signed networks.
     contents:
