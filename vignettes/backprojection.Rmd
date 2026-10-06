@@ -8,35 +8,45 @@ vignette: >
 ---
 
 Backprojection expresses a factor-activity contrast as a difference in the
-original feature units. The example compares two groups in a simulated matrix.
+original feature units. The example compares brain tissues with all other
+tissues in the GTEx z-score matrix that ships with flashier.
 
-```{r setup, echo=FALSE}
+```{r setup}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
+data("gtex", package = "flashier")
+fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 3,
+                backfit = TRUE, seed = 1, verbose = 0,
+                feature_scale = "association_z_score")
 view <- standardize_factors(fit)
 ```
 
+Rows pair a SNP with a gene, and columns are 44 tissues. The entries are
+association z-scores, so feature estimates below are differences in mean
+z-score between tissue groups.
+
 ## Compare groups
 
+The groups come from tissue names alone: the ten tissues whose names start with
+`Brain_` against the other 34. Tissues are not independent donors, so the
+contrast is descriptive and has no donor-level replication or p-value.
+
 ```{r contrast}
+is_brain <- startsWith(colnames(gtex), "Brain_")
 metadata <- data.frame(
-  sample = rownames(X), group = rep(c("A", "B"), each = 12),
-  donor = rep(paste0("d", 1:12), each = 2)
+  sample = colnames(gtex), group = ifelse(is_brain, "Brain", "Other")
 )
-difference <- compare_factor_groups(view, metadata, "group", c("A", "B"),
-                                    unit_col = "donor")
-head(difference$feature_contrast)
+table(metadata$group)
+difference <- compare_factor_groups(view, metadata, "group",
+                                    c("Brain", "Other"))
+difference$factor_contrast[, c("factor", "estimate")]
+head(difference$feature_contrast[, c("feature", "estimate")])
 ```
 
 `compare_factor_groups()` returns both factor and feature contrasts.
-The direction here is A minus B. Feature estimates retain the input matrix's
-units. For arcsinh input, the estimates are differences in arcsinh units.
+The direction here is Brain minus Other, with each tissue weighted equally.
+F2 has the largest factor contrast, in agreement with its brain-specific
+activity in [Fit and interpret factors](first-fit.html).
+Feature estimates retain the input matrix's units: here, z-score differences.
 
 ## Check the reconstruction
 
@@ -45,22 +55,26 @@ from the same samples and weights.
 
 ```{r validation}
 observed <- data.frame(
-  feature = colnames(X),
-  estimate = colMeans(X[1:12, ]) - colMeans(X[13:24, ]),
-  contrast = "A - B"
+  feature = rownames(gtex),
+  estimate = rowMeans(gtex[, is_brain]) - rowMeans(gtex[, !is_brain]),
+  contrast = "Brain - Other"
 )
 validate_backprojection(difference$feature_contrast, observed,
-                        feature_scale = "simulated_intensity")$metrics
+                        feature_scale = "association_z_score")$metrics
 ```
 
 The factorization can omit residual patterns, so the differences need not
-agree exactly. Prediction R-squared can be negative if the reconstruction
-performs worse than a constant prediction.
+agree exactly. Here the three-factor reconstruction tracks the observed
+difference closely across the 1000 SNP-gene pairs, but the slope below one
+shows that it shrinks the observed differences on average.
+Prediction R-squared can be negative if the reconstruction performs worse than
+a constant prediction.
 
 ## Project coefficients from a model
 
 For detached factor coefficients, supply the representation used to fit the
 activity model. This example projects a one-unit increase in every factor.
+The coefficients are placeholders, not estimates from a model.
 
 ```{r coefficients}
 beta <- setNames(rep(1, ncol(view$activity)), colnames(view$activity))
@@ -74,6 +88,9 @@ alone produce point feature effects without p-values.
 See [Understand uncertainty](uncertainty.html) for coefficient draws and covariance.
 
 ## Sources
+
+The GTEx data ship with flashier (Jason Willwerscheid, Peter Carbonetto, Wei
+Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gtex`.
 
 Reconstruction follows the FlashierDGE and ImmGenT workflows by David Zemmour
 and the Zemmour Lab. The implementation uses independently written linear algebra.

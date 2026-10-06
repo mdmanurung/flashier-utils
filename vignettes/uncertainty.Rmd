@@ -13,31 +13,35 @@ Regression summaries condition on the estimated factor activities.
 
 ## Factor posterior intervals
 
-This simulated fit uses priors supported by flashier's posterior sampler.
+This fit uses the GTEx z-score matrix that ships with flashier and priors
+supported by flashier's posterior sampler: a point-Laplace prior for the
+SNP-gene pairs and a normal prior for the tissues.
 
-```{r fit, echo=FALSE}
+```{r fit}
 library(flashier.utils)
-set.seed(4)
-X <- tcrossprod(matrix(rnorm(40), 20, 2), matrix(rnorm(12), 6, 2)) +
-  matrix(rnorm(120, sd = 0.1), 20, 6)
-dimnames(X) <- list(paste0("s", 1:20), paste0("f", 1:6))
-fit <- fit_ebmf(X, sample_side = "rows", max_factors = 2, seed = 1,
+data("gtex", package = "flashier")
+fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 2, seed = 1,
                 nullcheck = FALSE, backfit = TRUE, verbose = 0,
-                feature_scale = "simulated_intensity",
-                ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace))
+                feature_scale = "association_z_score",
+                ebnm_fn = list(ebnm::ebnm_point_laplace, ebnm::ebnm_normal))
 view <- standardize_factors(fit)
 ```
 
 ```{r intervals}
-uncertainty <- factor_uncertainty(fit, "activity", factors = "F1", ids = "s1")
+tissues <- c("Whole_Blood", "Brain_Cortex")
+uncertainty <- factor_uncertainty(fit, "activity", factors = "F1", ids = tissues)
 uncertainty[, c("sample", "factor", "estimate", "posterior.sd")]
 
-intervals <- factor_intervals(fit, "activity", factors = "F1", ids = "s1",
+intervals <- factor_intervals(fit, "activity", factors = "F1", ids = tissues,
                               nsamp = 200, seed = 1)
 intervals[, c("sample", "factor", "lower", "upper")]
 ```
 
 The posterior standard deviation is not a regression standard error.
+Here it is the same for both tissues, which follows from the common normal
+prior on tissue activity, and the intervals are narrow relative to the
+estimates. Real data have no known truth, so these intervals show the fit's
+posterior uncertainty and not tested coverage.
 Intervals use native variational draws. Increasing `nsamp` reduces Monte Carlo
 variation in the reported quantiles.
 
@@ -45,11 +49,13 @@ variation in the reported quantiles.
 
 If a model supplies joint draws of factor coefficients, use `input = "draws"`.
 Name the columns by factor and supply the activity model's representation.
-The random draws below illustrate the required shape.
+The random draws below are synthetic. They illustrate the required shape and
+are not estimates from a model of the tissues, which are not independent
+replicates.
 
 ```{r draws}
 set.seed(1)
-draws <- matrix(rnorm(200 * ncol(view$activity)), nrow = 200,
+draws <- matrix(rnorm(200 * ncol(view$activity), sd = 0.1), nrow = 200,
                 dimnames = list(NULL, colnames(view$activity)))
 projected <- backproject_contrast(view, draws, input = "draws",
                                   factor_basis = view$manifest)
@@ -63,6 +69,9 @@ Marginal standard errors alone do not recover correlations between coefficients.
 Use a separately designed pipeline bootstrap to assess uncertainty from refitting.
 
 ## Sources
+
+The GTEx data ship with flashier (Jason Willwerscheid, Peter Carbonetto, Wei
+Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gtex`.
 
 Posterior sampling uses flashier by Jason Willwerscheid, Peter Carbonetto,
 Wei Wang and Matthew Stephens. Reconstruction credits David Zemmour's workflows.

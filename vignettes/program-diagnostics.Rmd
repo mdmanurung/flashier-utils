@@ -1,0 +1,151 @@
+---
+title: "Descriptive program diagnostics and specificity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Descriptive program diagnostics and specificity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+set.seed(9)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+```{r load-programs, include=FALSE}
+# Restore published factors as in the pancreas-programs article (means only).
+cache <- readRDS(cache_file)
+restore_programs <- function(ldf,signed_effects=FALSE) {
+  Y <- cache$reference_expression
+  factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+  A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+  B <- ldf$F
+  colnames(A) <- colnames(B) <- factor_ids
+  priors <- list(ebnm::ebnm_point_exponential,
+                 if(signed_effects) ebnm::ebnm_point_normal
+                 else ebnm::ebnm_point_exponential)
+  object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,seed=1,
+    feature_scale="shifted_log_reference_library_normalized_measurements",verbose=0)
+  metadata <- attr(object,"flashbridge_metadata")
+  metadata$factor_ids <- factor_ids
+  metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean,
+    source_sha256=cache$source_sha256)
+  object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+  object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+  attr(object,"flashbridge_metadata") <- metadata
+  standardize_factors(object,sample_side="rows",scaling="raw",
+    prior_support=c(activity="nonnegative",
+                    effects=if(signed_effects) "signed" else "nonnegative"))
+}
+view <- restore_programs(cache$reference)
+factors <- colnames(view$activity)
+```
+
+This independently written adaptation covers the computational
+[ImmGen Figure 2 workflow](https://github.com/AgueroZZ/immgenT-GP-analysis/blob/main/script/Figure2.R)
+(repository author Ziang Zhang; per-script authors unresolved). It describes
+programs in the declared population and does not establish biological replication.
+
+The examples use **published human-pancreas programs** from Peter Carbonetto's
+[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
+nine NMF programs learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled
+by Luecken et al., 2022), restored as `view` without refitting; see
+[Pancreas programs](pancreas-programs.html). The population here is **48 selected
+CEL-Seq2 cells**, eight from each of six published cell types, with the published
+cell-type labels as metadata. The code runs only when `FLASHIER_UTILS_PANCREAS_DIR`
+points to the local cache and otherwise shows without output; upstream data are not
+redistributed. Native EBMF methods credit Jason Willwerscheid, Peter Carbonetto,
+Wei Wang and Matthew Stephens.
+
+```{r cells}
+Y <- cache$reference_expression
+metadata <- cache$metadata[match(rownames(view$activity),cache$metadata$id),]
+metadata$sample <- as.character(metadata$id)
+metadata$celltype <- as.character(metadata$celltype)
+table(metadata$celltype)
+```
+
+## Signature weights and expression
+
+```{r signature}
+plot_factor_signature(view, "F4", Matrix::colMeans(Y),
+  expression_scale="mean shifted-log expression, 48 CEL-Seq2 cells", n_label=8)
+```
+
+The vertical axis is mean expression in these 48 cells, never significance.
+For `F4`, the labelled genes (`INS`, `IAPP`, `SLC30A8` among them) have high
+weights but only moderate mean expression, as expected for beta-cell genes
+averaged over 48 cells of which eight are beta cells. Weights are divided by each
+program's maximum absolute weight. Labels require
+absolute displayed weight at least 0.1, with ties ordered by feature ID.
+
+## Declare thresholds once
+
+```{r diagnostics}
+diagnostics <- factor_diagnostics(view)
+diagnostics$factors
+head(diagnostics$samples)
+ins <- setNames(as.numeric(Y[,"INS"]),rownames(Y))
+plots <- plot_factor_diagnostics(view, metadata, "celltype", factor="F4",
+                                 marker=ins, max_samples=40)
+plots$prevalence
+plots$features
+plots$programs_per_cell
+plots$groups
+plots$marker
+if (requireNamespace("patchwork",quietly=TRUE))
+  plots$prevalence + plots$features + patchwork::plot_layout(ncol=2)
+```
+
+In this selection `F1` is active in all 48 cells, `F7` and `F8` in only two, and
+cells carry a median of two (alpha) to 4.5 (beta) active programs.
+The selected cells include no endothelial or macrophage cells.
+
+Defaults count positive max-absolute-scaled activity strictly above 0.1 and
+absolute max-absolute-scaled feature effects strictly above 0.25. Zero columns
+remain zero. `activity_direction="negative"` counts activity below -0.1;
+`"absolute"` counts either sign. All counts and marker correlations use the full
+population (here, `INS` shifted-log expression against `F4` activity);
+`max_samples` only reduces scatter rendering.
+
+## One-versus-rest descriptive classification
+
+```{r specificity}
+have_proc <- requireNamespace("pROC",quietly=TRUE)
+if (have_proc)
+  factor_specificity(view, metadata, "celltype", groups=c("beta","acinar"),
+                     factors=c("F2","F4"))
+# F1 is active in every cell type; acinar cells have the lowest mean F1 activity,
+# so ask whether low activity identifies them.
+if (have_proc)
+  factor_specificity(view, metadata, "celltype", groups="acinar", factors="F1",
+                     direction="negative", threshold_method="youden")
+```
+
+pROC authors Xavier Robin and collaborators supply the native AUC and threshold
+engine. Direction is explicit: positive means higher activity predicts the target
+class, negative means lower activity predicts it. The default chooses the closest
+top-left optimum. Tied optima use the smallest finite threshold and record their
+count. Constants have AUC 0.5 with no threshold; absent classes are unavailable.
+Observation counts describe the 48 cells. The metadata carry no donor or other
+biological-unit identifier, so `unit_col` is not used and nothing here is
+independent of the individual from whom cells were taken. No cell-level
+inferential p-values are computed. These are descriptions of a small selected
+subset, not a calibrated classifier. See [credits](credits.html) for dependency
+authors.
+
+## Published-data example
+
+See [Pancreas programs from the single-cell Jamboree](pancreas-programs.html)
+for the full worked comparison of factors 4-6 and transfer to SMART-Seq2 cells.
+This article uses the same CEL-Seq2 programs (credit: Peter Carbonetto's
+single-cell Jamboree; Muraro et al., 2016; Luecken et al., 2022) to teach the
+diagnostic functions.

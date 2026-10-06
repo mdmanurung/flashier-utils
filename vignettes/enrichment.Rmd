@@ -7,20 +7,91 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+set.seed(3)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+cells_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file) && file.exists(cells_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+```{r load-programs, include=FALSE}
+# Restore published factors as in the pancreas-programs article (means only).
+cache <- readRDS(cache_file)
+restore_programs <- function(ldf,signed_effects=FALSE) {
+  Y <- cache$reference_expression
+  factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+  A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+  B <- ldf$F
+  colnames(A) <- colnames(B) <- factor_ids
+  priors <- list(ebnm::ebnm_point_exponential,
+                 if(signed_effects) ebnm::ebnm_point_normal
+                 else ebnm::ebnm_point_exponential)
+  object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,seed=1,
+    feature_scale="shifted_log_reference_library_normalized_measurements",verbose=0)
+  metadata <- attr(object,"flashbridge_metadata")
+  metadata$factor_ids <- factor_ids
+  metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean,
+    source_sha256=cache$source_sha256)
+  object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+  object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+  attr(object,"flashbridge_metadata") <- metadata
+  standardize_factors(object,sample_side="rows",scaling="raw",
+    prior_support=c(activity="nonnegative",
+                    effects=if(signed_effects) "signed" else "nonnegative"))
+}
+view <- restore_programs(cache$reference)
+signed_view <- restore_programs(cache$signed,signed_effects=TRUE)
+```
+
 Annotate a factor from its feature effects using gene sets or signed networks.
 Install fgsea for ranked enrichment, or decoupleR for network scores.
-The examples use simulated feature IDs and annotations with no biological meaning.
 
-```{r setup, echo=FALSE}
-library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
-view <- standardize_factors(fit)
+The examples use the **published human-pancreas programs** from Peter Carbonetto's
+[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
+NMF programs (`view`) and semi-NMF programs with signed effects (`signed_view`)
+learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled by Luecken et al.,
+2022), restored without refitting as described in
+[Pancreas programs](pancreas-programs.html). Their effects cover 14,528 genes. The
+code runs only when `FLASHIER_UTILS_PANCREAS_DIR` holds the local caches written by
+`.github/scripts/prepare-pancreas.R` in the source repository and otherwise shows
+without output. Upstream data are not redistributed.
+
+No external pathway database is bundled or used here. Instead, the gene sets are
+**marker sets built from the published cell-type labels**, in cells from three other
+technologies of the same benchmark (SMART-Seq2, Fluidigm C1 and inDrop), so they are
+defined without the CEL-Seq2 cells that the programs were learned from. They are not
+pathways, and the result is a check of agreement between programs and
+label-defined markers. These are different cells measured with different
+technologies, but the data carry no donor identifiers, so no donor-level
+independence is claimed.
+
+```{r marker-sets}
+cells <- readRDS(cells_file)
+stopifnot(nrow(cells$counts)==nrow(cells$metadata))
+rownames(cells$counts) <- as.character(cells$metadata$id)
+others <- c("smartseq2","fluidigmc1","inDrop3")
+meta <- cells$metadata[cells$metadata$tech %in% others,]
+counts <- cells$counts[as.character(meta$id),rownames(view$effects)]
+Z <- log1p(Matrix::Diagonal(x=cells$reference_library_mean/Matrix::rowSums(counts)) %*% counts)
+# Mean shifted-log difference between a cell type and all other types,
+# averaged over the three technologies.
+type_contrast <- function(type) rowMeans(vapply(others,function(tech) {
+  use <- meta$tech==tech
+  Matrix::colMeans(Z[use & meta$celltype==type,,drop=FALSE]) -
+    Matrix::colMeans(Z[use & meta$celltype!=type,,drop=FALSE])
+},numeric(ncol(Z))))
+types <- c("acinar","ductal","alpha","beta","delta","gamma")
+contrast <- sapply(types,type_contrast)
+pathways <- setNames(lapply(types,function(type)
+  names(sort(contrast[,type],decreasing=TRUE))[1:50]),paste0(types,"_markers"))
+vapply(pathways,function(set) paste(head(set,4),collapse=", "),"")
 ```
 
 ## Gene-set enrichment
@@ -28,42 +99,60 @@ view <- standardize_factors(fit)
 Supply a named list of feature sets. Set members must match the fit's feature IDs.
 
 ```{r gene-sets}
-pathways <- list(panelA = paste0("g", 1:6), panelB = paste0("g", 7:12))
-if (requireNamespace("fgsea", quietly = TRUE)) {
+have_fgsea <- requireNamespace("fgsea", quietly = TRUE)
+if (have_fgsea)
   enrichment <- enrich_factors(
-    view, pathways, engine = "fgsea", factors = "F1",
-    control = list(seed = 12, nPermSimple = 100L, eps = 1e-3, minSize = 3L)
+    view, pathways, engine = "fgsea", factors = c("F2","F4","F5","F9"),
+    control = list(seed = 12, scoreType = "pos", nPermSimple = 1000L, eps = 0,
+                   minSize = 10L)
   )
-  enrichment$table[, c("pathway", "factor", "NES", "padj")]
-}
+if (have_fgsea) enrichment$table[, c("pathway", "factor", "NES", "padj")]
 ```
 
 fgsea ranks features by their signed effects and reports enrichment statistics,
 p-values and adjusted p-values. For an analysis, record the gene-set source,
-organism and version. The small permutation budget here keeps the example short.
+organism and version; here the source is the marker construction above.
+The effects are non-negative, so `scoreType = "pos"` is used. For each program the
+set with the largest normalized enrichment score (NES) is the one expected from the
+program's top genes: acinar markers for `F2` (NES 1.45), beta markers for `F4`
+(1.42), alpha markers for `F5` (1.32) and ductal markers for `F9` (1.68).
+The margins are small, however. `F4` is also enriched for delta, gamma and alpha
+markers (NES 1.35 to 1.40) and `F2` for ductal markers (1.31), as these sets share
+endocrine or exocrine genes, so the table narrows candidates rather than assigning
+a cell type. Read it together with each program's top genes (`factor_features()`).
 
 ## Signed network scores
 
 A network needs `source` (program), `target` (feature ID) and `mor` (signed weight).
 The univariate linear model (ULM) scores each program separately.
-The multivariate linear model (MLM) fits programs jointly.
+The multivariate linear model (MLM) fits programs jointly. Here each source is a
+cell type, with the 50 genes highest and the 25 genes lowest in its contrast, signed
+by the mean expression difference (`mor`).
 
 ```{r network}
-network <- data.frame(
-  source = rep(c("programA", "programB"), each = 6),
-  target = paste0("g", 1:12),
-  mor = rep(c(1, -1, 0.5, -0.5, 2, -2), 2)
-)
-attr(network, "annotation_version") <- "simulated_v1"
-if (requireNamespace("decoupleR", quietly = TRUE)) {
-  annotation <- enrich_factors(view, network, engine = "decoupleR",
+network <- do.call(rbind,lapply(types,function(type) {
+  up <- names(sort(contrast[,type],decreasing=TRUE))[1:50]
+  down <- names(sort(contrast[,type]))[1:25]
+  data.frame(source=type,target=c(up,down),mor=contrast[c(up,down),type])
+}))
+rownames(network) <- NULL
+attr(network, "annotation_version") <- "marker contrasts v1 (smartseq2, fluidigmc1, inDrop3)"
+have_decoupler <- requireNamespace("decoupleR", quietly = TRUE)
+if (have_decoupler)
+  annotation <- enrich_factors(signed_view, network, engine = "decoupleR",
+                               factors = c("F2","F3","F4","F8"),
                                control = list(method = "ulm", minsize = 3L))
-  annotation$table[, c("source", "condition", "score", "p_value")]
-  annotation$analysis_metadata$pathway_sizes
-}
+if (have_decoupler) annotation$table[, c("source", "condition", "score", "p_value")]
+if (have_decoupler) annotation$analysis_metadata$pathway_sizes
 ```
 
-`condition` identifies the factor. Use `method = "mlm"` for joint scoring.
+`condition` identifies the factor. These are the semi-NMF programs of
+`signed_view`, whose IDs need not match the NMF IDs used above. The highest score of
+each shown program is for `F2` acinar (46.1) and ductal (44.8) with negative scores
+for the endocrine sets, `F3` alpha (55.1), `F4` beta (40.8) and `F8` delta (37.0),
+with gamma second for `F3` (24.0) and `F8` (16.6). The ULM p-values treat genes as
+independent observations and are extremely small throughout, so use the score and
+its sign rather than the p-value as the summary. Use `method = "mlm"` for joint scoring.
 Gene networks such as CollecTRI or PROGENy require gene-level features.
 For PROGENy, copy its `weight` column to `mor`. For CyTOF, supply a network
 that describes the measured markers.
@@ -87,3 +176,9 @@ fgsea is by Gennady Korotkevich, Vladimir Sukhov and Alexey Sergushichev.
 
 decoupleR is by Pau Badia-i-Mompel, Jesús Vélez-Santiago and colleagues.
 [Original authors and sources](credits.html) lists all authors and method citations.
+
+The pancreas data and factors come from Peter Carbonetto's single-cell Jamboree
+(CEL-Seq2 cells from Muraro et al., 2016, as assembled by Luecken et al., 2022);
+native EBMF methods credit Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens. The marker sets were constructed here from the published
+cell-type labels.

@@ -7,29 +7,77 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Use feature effects to identify measurements that describe a factor.
-The examples use a simulated fit, `view`, with two factors and 16 features.
-
-```{r setup, echo=FALSE}
+```{r setup, include=FALSE}
 library(flashier.utils)
+library(Matrix)
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
-view <- standardize_factors(fit)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=6, fig.height=4)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
 ```
+
+```{r load-programs, include=FALSE}
+# Restore published factors as in the pancreas-programs article (means only).
+cache <- readRDS(cache_file)
+ldf <- cache$reference
+Y <- cache$reference_expression
+factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+B <- ldf$F
+colnames(A) <- colnames(B) <- factor_ids
+priors <- list(ebnm::ebnm_point_exponential,ebnm::ebnm_point_exponential)
+object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,seed=1,
+  feature_scale="shifted_log_reference_library_normalized_measurements",verbose=0)
+metadata <- attr(object,"flashbridge_metadata")
+metadata$factor_ids <- factor_ids
+metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+  transformation="log1p(filtered measurement / library size * reference mean)",
+  reference_library_mean=cache$reference_library_mean,
+  source_sha256=cache$source_sha256)
+object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+attr(object,"flashbridge_metadata") <- metadata
+view <- standardize_factors(object,sample_side="rows",scaling="raw",
+  prior_support=c(activity="nonnegative",effects="nonnegative"))
+stopifnot(identical(unname(view$effects),unname(B)))
+```
+
+Use feature effects to identify measurements that describe a factor. The
+examples use **published human-pancreas programs** from Peter Carbonetto's
+[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
+nine non-negative matrix factors learned from CEL-Seq2 cells (Muraro et al.,
+2016, as assembled by Luecken et al., 2022). `view` holds these programs,
+with effects for all 14,528 published genes, restored without refitting; see
+[Pancreas programs](pancreas-programs.html) for how the local cache is prepared
+and restored. The code runs only when `FLASHIER_UTILS_PANCREAS_DIR` points to
+that cache and otherwise shows without output. Upstream data are not
+redistributed.
 
 ## Rank features
 
+Mean activity per published cell type (scaled to each program's maximum)
+shows what the programs describe in the 48 selected CEL-Seq2 cells. `F1` is
+active in every type, whereas `F2`, `F4` and `F9` are concentrated in acinar,
+beta and ductal cells, respectively.
+
+```{r activity-by-type}
+cell_info <- cache$metadata[match(rownames(view$activity),cache$metadata$id),]
+scaled <- sweep(view$activity,2,apply(view$activity,2,max),"/")
+round(apply(scaled[,c("F1","F2","F4","F9")],2,
+            function(a) tapply(a,droplevels(cell_info$celltype),mean)),2)
+```
+
 ```{r rankings}
-largest <- factor_features(view, factor = "F1", select = "largest", n = 4)
+largest <- factor_features(view, factor = "F1", select = "largest", n = 6)
 largest[, c("feature", "estimate")]
 
-distinctive <- factor_features(view, factor = "F1", select = "distinctive", n = 4)
+distinctive <- factor_features(view, factor = "F1", select = "distinctive", n = 6)
 distinctive[, c("feature", "estimate", "distinctiveness")]
+
+factor_features(view, factor = "F4", select = "distinctive", n = 6)[,
+  c("feature", "estimate", "distinctiveness")]
 ```
 
 `largest` selects the strongest absolute effects.
@@ -37,21 +85,50 @@ distinctive[, c("feature", "estimate", "distinctiveness")]
 effect among competing factors, with zero included as a competitor.
 A feature can contribute strongly to several factors without distinguishing one.
 The table keeps its signed effect in `estimate` and its competitor margin in
-`distinctiveness`.
+`distinctiveness`. For `F1`, `SST` is among the largest effects but not among
+the distinctive genes, and every distinctive margin is smaller than its
+effect, because other programs also give these genes large effects. `F4`
+is the opposite case: the margins for `INS` and `IAPP` stay close to their
+effects.
 
 ## Plot selected features
 
-```{r plot, fig.width=6, fig.height=4}
-plot_factor_features(view, factors = "F1", select = "largest", n = 4)
+```{r plot}
+plot_factor_features(view, factors = c("F1","F4"), select = "largest", n = 5)
+plot_factor_features(view, factors = c("F1","F4"), select = "distinctive", n = 5)
 ```
 
 Colors show the signed feature effects. Rankings are descriptive and depend
-on the factor scale and sign convention. Keep the same representation when
-comparing factors. See [Factor scales and measurement units](representation-units.html).
+on the factor scale and sign convention; here effects follow the published
+infinity-normalized coordinates, not log-fold changes. Keep the same
+representation when comparing factors. See
+[Factor scales and measurement units](representation-units.html).
 
 ## Sources
 
 The ranking functions adapt `rank_effects` and `compute_le_effects` from
 singlecelljamboreeR by Peter Carbonetto and Matthew Stephens.
 The plot follows a workflow by David Zemmour.
+The data and factors come from Peter Carbonetto's single-cell Jamboree
+(CEL-Seq2 cells from Muraro et al., 2016, as assembled by Luecken et al.,
+2022); native EBMF methods credit Jason Willwerscheid, Peter Carbonetto,
+Wei Wang and Matthew Stephens.
 [Original authors and sources](credits.html) lists licenses and citations.
+
+## Competitor comparisons
+
+[Peter Carbonetto's pancreas tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html)
+compares defining effects across programs. Choose `compare_factors` to restrict
+competition; NULL retains all-factor competition. Here `F2` and `F9` carry the
+exocrine genes of acinar and ductal cells, respectively, so competing only
+against `F9` asks which genes separate this pair.
+`plot_feature_rankings()` shows untruncated directional differences, separately
+from clipped least-extreme margins. See
+[worked comparisons and annotations](program-annotation.html).
+
+```{r pancreas-comparisons}
+factor_features(view, "F2", n = 5, compare_factors = "F9")[,
+  c("feature", "estimate", "distinctiveness", "selection")]
+plot_feature_rankings(view, "F2", compare_factors = "F9",
+                      direction = "positive", n = 5)
+```

@@ -1,0 +1,94 @@
+---
+title: "Protein interpretation and explicit marker gates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Protein interpretation and explicit marker gates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(flashier.utils)
+set.seed(9)
+A <- matrix(rnorm(160), 80, 2)
+B <- matrix(rnorm(40), 20, 2)
+X <- tcrossprod(A, B) + matrix(rnorm(1600, sd=0.2), 80, 20)
+dimnames(X) <- list(paste0("cell", 1:80), paste0("gene", 1:20))
+fit <- fit_ebmf(X, "rows", max_factors=2, nullcheck=FALSE, backfit=TRUE,
+                ebnm_fn=list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+                feature_scale="simulated_centered_expression", seed=10, verbose=0)
+view <- standardize_factors(fit, scaling="raw")
+factors <- colnames(view$activity)
+stopifnot(length(factors) == 2)
+metadata <- data.frame(sample=rownames(X), lineage=rep(c("A","B"),each=40),
+                       donor=rep(paste0("donor",1:20),each=4))
+```
+
+This independent adaptation follows computational
+[ImmGen Figure 7](https://github.com/AgueroZZ/immgenT-GP-analysis/blob/main/script/Figure7.R)
+(repository author Ziang Zhang; per-script authors unresolved). The original
+schematic is hand drawn. These worked examples use simulated proteins and gates,
+not biological labels. Existing contrast workflows credit David Zemmour.
+
+```{r proteins}
+proteins <- cbind(CD1=view$activity[,1]+rnorm(80,sd=0.3),
+                  CD2=view$activity[,2]+rnorm(80,sd=0.3))
+rownames(proteins) <- rownames(X)
+correlations <- correlate_factor_markers(view, proteins, method="spearman")
+correlations
+strip <- correlations[correlations$marker=="CD1",]
+annotation <- setNames(round(strip$correlation,2),strip$factor)
+plot_factor_features(view, factors, direction="positive", n=4, annotation=annotation)
+```
+
+Correlations use aligned sample IDs and the full declared population; they are
+descriptive and contain no cell-level p-values. For marker-positive versus
+marker-negative comparisons within lineages, supply corresponding metadata to
+`compare_factor_groups()` before comparing effects:
+
+```{r contrasts}
+metadata$marker <- ifelse(proteins[,"CD1"]>0,"positive","negative")
+# Conditional lineage-specific group labels on the same source basis.
+metadata$gate <- paste(metadata$lineage,metadata$marker)
+a <- compare_factor_groups(view,metadata,"gate",c("A positive","A negative"))
+b <- compare_factor_groups(view,metadata,"gate",c("B positive","B negative"))
+plot_factor_contrasts(a,b,n_label=2)
+```
+
+## Candidate mixture thresholds require review
+
+```{r mixtures}
+mixture_protein <- matrix(c(rnorm(40,2,0.1),rnorm(40,5,0.1)),80,1,
+                         dimnames=list(rownames(X),"CDmix"))
+if (requireNamespace("mclust",quietly=TRUE)) {
+  candidates <- estimate_marker_thresholds(mixture_protein, thresholds=c(CDmix=3))
+  candidates$thresholds
+  candidates$mixtures$CDmix
+  plot_marker_thresholds(candidates,mixture_protein)
+}
+```
+
+Native mclust defaults fit one- and two-component Gaussian models to values above
+0.5, requiring at least 50 observations and using scoped seed 42. Candidate is the
+largest eligible value assigned to the lower-mean component. Outputs retain sizes,
+parameters, warnings, exclusions, pooled-SD separation and BIC difference.
+Failures, empty components, separation below one SD or no BIC support require
+manual review. Supplied thresholds remain authoritative. Engine credit: Luca
+Scrucca, Chris Fraley, Adrian E. Raftery and collaborators; see [credits](credits.html).
+
+## Compare equal-size populations
+
+```{r gates}
+alignment <- factor_gate_alignment(view, proteins, factors[1], positive="CD1",
+                                   negative="CD2", thresholds=c(CD1=0,CD2=0))
+alignment$summary
+embedding <- view$activity[,1:2,drop=FALSE]
+plot_factor_gates(alignment,embedding)
+plot_factor_gates(alignment,embedding,display="density",bins=10)
+```
+
+Positive gates use `>` and negative gates use `<=`. Thresholds are explicit;
+missing markers or thresholds fail. The activity population contains exactly as
+many cells as the gate, with activity ties broken by sample ID. Empty gates report
+unavailable overlap. Both maps use the same full population and geometry.

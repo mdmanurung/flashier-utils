@@ -7,92 +7,134 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
 Use group summaries to describe activity, or fit a regression to test an
 association. In either case, metadata must identify samples by name.
-The example uses simulated activities for 12 donors measured at two visits.
 
-```{r setup, echo=FALSE}
-library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
+The example uses **real pancreas cells** from
+[Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
+(pinned revision 6cf9aa72): human pancreas cells from the cross-technology integration benchmark of
+Luecken et al. (2022) as assembled there; the CEL-Seq2 cells are from Muraro et
+al. (2016), and the Jamboree page links the original studies of the other
+technologies. A local cache holds up to 40 cells per technology and cell type
+(CEL-Seq2, SMART-Seq2, Fluidigm C1 and inDrop3; 896 cells). It is built outside
+package builds by the repository script `.github/scripts/prepare-pancreas.R`, so
+data chunks run only when `FLASHIER_UTILS_PANCREAS_DIR` points to that cache, and
+nothing is downloaded. The cells are not redistributed with the package. Native
+EBMF fitting credits Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens.
+
+## Fit factors and declare metadata
+
+Scale each cell to the CEL-Seq2 reference library mean, apply `log1p`, keep the
+1,000 genes with the largest variance and fit eight non-negative factors with
+`fit_ebmf()`. These are fitted here; they are not the published Jamboree factors.
+The gene selection uses every cell, so it is a global choice.
+
+```{r fit}
+cache <- readRDS(cache_file)
+metadata <- cache$metadata
+metadata$sample <- as.character(metadata$id)
+rownames(metadata) <- metadata$sample
+metadata$celltype <- droplevels(factor(metadata$celltype))
+metadata$tech <- droplevels(factor(metadata$tech))
+counts <- cache$counts
+stopifnot(identical(rownames(counts), metadata$sample))
+Y <- Diagonal(x = cache$reference_library_mean / rowSums(counts)) %*% counts
+Y <- log1p(Y)
+dimnames(Y) <- dimnames(counts)
+variance <- colMeans(Y^2) - colMeans(Y)^2
+genes <- names(sort(variance, decreasing = TRUE))[1:1000]
+X <- as.matrix(Y[, genes])
+fit <- fit_ebmf(X, sample_side = "rows", ebnm_fn = ebnm::ebnm_point_exponential,
+                max_factors = 8, backfit = TRUE, nullcheck = FALSE, seed = 1,
+                verbose = 0,
+                feature_scale = "shifted_log_reference_library_normalized_measurements")
 view <- standardize_factors(fit)
+dim(view$activity)
 ```
 
-```{r metadata}
-metadata <- data.frame(
-  sample = rownames(X),
-  donor = rep(paste0("d", 1:12), each = 2),
-  group = factor(rep(c("A", "B"), each = 12)),
-  visit = rep(0:1, 12)
-)
-```
+
+The cache has no donor identifiers. The two metadata columns that can define
+groups are the cell type and the measurement technology. Cells from one
+technology share a platform and batch, so they are not independent units.
 
 ## Describe group differences
 
 ```{r summaries}
-summary <- summarize_factor_activity(view, metadata, by = "group", unit_col = "donor")
-summary[, c("group", "factor", "n_units", "mean")]
-difference <- compare_factor_groups(view, metadata, "group", c("B", "A"),
-                                    unit_col = "donor")
+summary <- summarize_factor_activity(view, metadata, by = "celltype", unit_col = "tech")
+summary[summary$factor %in% c("F4", "F5"), c("celltype", "factor", "n", "n_units", "mean")]
+difference <- compare_factor_groups(view, metadata, "celltype", c("beta", "alpha"),
+                                    unit_col = "tech")
 difference$factor_contrast[, c("factor", "contrast", "estimate")]
 ```
 
-The contrast is B minus A. These summaries have no p-values.
-Means weight observations equally by default. `unit_col` counts donors but
-does not balance their contributions when they have different numbers of observations.
+The contrast is beta minus alpha. These summaries have no p-values.
+Means weight cells equally by default. `unit_col` counts the units in each group
+but does not balance their contributions: here the units are the four
+technologies, and Fluidigm C1 contributes fewer acinar, delta, ductal and gamma
+cells than the other technologies, so group sizes are unequal.
 
 ## Test an association
 
-For independent samples, use `lm`. Here, select one visit per donor and fit
-that sample matrix.
+`engine = "lm"` and `engine = "limma"` require **one record per independent
+unit**, declared through `unit_col`. This cache has no donor or other
+biological-unit identifier, and cells from one donor or one technology are
+correlated, so declaring each cell as an independent unit would be an assumption
+the data cannot support. This vignette therefore does not run those engines on
+cells. With independent donors, aggregate or select one record per donor and use
+`lm`; see `?test_factors`.
 
-```{r independent}
-independent <- metadata[seq(1, 24, 2), ]
-indfit <- fit_ebmf(X[independent$sample, ], sample_side = "rows", seed = 8,
-                   max_factors = 2, verbose = 0, nullcheck = FALSE,
-                   feature_scale = "simulated_intensity")
-result <- test_factors(indfit, independent, ~group, engine = "lm",
-                       unit_col = "donor", independence = "independent")
-result$table[, c("factor", "term", "estimate", "std.error", "adj.p.value", "status")]
-```
-
-The table reports estimates, standard errors, p-values and adjusted p-values
-for each factor. With A as the reference level, `groupB` estimates B minus A.
-`engine = "limma"` provides moderated tests when limma is installed.
-Moderation can be sensitive when there are few factors.
-
-## Account for repeated donors
-
-Install variancePartition to use `dream`. Include the declared donor in the
-random effects and retain all visits.
+What the data do support is a model that accounts for technology as a grouping
+factor. Install variancePartition to use `dream`. Declare the technology as the
+grouping unit with a random intercept and retain every cell. The reference
+level of `celltype` is alpha, so the `celltypebeta` term estimates beta minus alpha.
 
 ```{r repeated}
+metadata$celltype <- relevel(metadata$celltype, ref = "alpha")
 if (requireNamespace("variancePartition", quietly = TRUE)) {
   repeated <- test_factors(
-    view, metadata, ~visit + (1 | donor), engine = "dream",
-    unit_col = "donor", independence = "repeated",
+    view, metadata, ~celltype + (1 | tech), engine = "dream",
+    unit_col = "tech", independence = "repeated",
     control = list(dream = list(BPPARAM = BiocParallel::SerialParam()))
   )
-  repeated$table[, c("factor", "term", "estimate", "std.error", "adj.p.value", "status")]
-  repeated$diagnostics
+  beta_alpha <- repeated$table$term == "celltypebeta"
+  print(repeated$table[beta_alpha, c("factor", "term", "estimate", "std.error", "adj.p.value", "status")])
+  repeated$diagnostics[c("warnings", "errors")]
 }
 ```
 
-Check `status` and `diagnostics` before interpreting a test.
-All tests condition on the fitted activities and selected number of factors.
-They do not propagate uncertainty from learning the factorization.
-Treat donors as biological units when cells or visits share a donor.
+The `celltypebeta` estimates equal the descriptive beta-minus-alpha contrasts
+above, because the cell-type groups are balanced across technologies in this
+comparison. The clear differences are `F4` (negative, the alpha factor) and `F5`
+(positive, the beta factor); `F6`, one of the technology factors, has a small
+positive estimate, and the others are near zero. Check `status` and
+`diagnostics` before interpreting a test. All tests condition on the fitted activities and selected number of factors.
+They do not propagate uncertainty from learning the factorization. A technology
+random intercept absorbs shifts shared by all cells of a technology, but it
+does not model donor-level correlation among cells, and it is estimated from
+only four technologies. Adjusted p-values near zero reflect 320 cells in the
+contrast, not independent donors, so treat them as descriptive screening rather
+than donor-level inference.
 
 To express a contrast in feature units, see
 [Translate contrasts into feature effects](backprojection.html).
 
 ## Sources
 
+The data are from Peter Carbonetto's
+[single-cell Jamboree](https://github.com/stephenslab/single-cell-jamboree)
+(Muraro et al., 2016; Luecken et al., 2022, as assembled there).
 Group summaries follow workflows by David Zemmour and the Zemmour Lab.
-Tests call R Core Team's `lm`, Gordon Smyth and contributors' limma, or Gabriel
-Hoffman's dream. [Original authors and sources](credits.html) lists citations.
+Tests call Gabriel Hoffman's dream (variancePartition) or, for independent
+units, R Core Team's `lm` and Gordon Smyth and contributors' limma.
+[Original authors and sources](credits.html) lists citations.

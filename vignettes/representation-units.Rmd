@@ -9,17 +9,15 @@ vignette: >
 
 Keep activity and feature effects from the same representation.
 Their product reconstructs the fitted matrix with samples in rows.
-This example uses a simulated fit.
+This example fits the GTEx z-score matrix that ships with flashier. Its
+columns are tissues, so `sample_side = "columns"`.
 
-```{r setup, echo=FALSE}
+```{r setup}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
+data("gtex", package = "flashier")
+fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 2,
+                backfit = TRUE, seed = 1, verbose = 0,
+                feature_scale = "association_z_score")
 view <- standardize_factors(fit)
 ```
 
@@ -32,8 +30,9 @@ dim(A)
 dim(B)
 ```
 
-Rows of `A` are samples. Rows of `B` are features. Their columns are matching
-factors. `tcrossprod(A, B)` gives the represented sample-by-feature matrix.
+Rows of `A` are samples (the 44 tissues). Rows of `B` are features (the 1000
+SNP-gene pairs). Their columns are matching factors. `tcrossprod(A, B)` gives
+the represented sample-by-feature matrix, which is the transpose of `gtex`.
 
 ## Choose a scale
 
@@ -46,6 +45,8 @@ raw <- standardize_factors(fit, scaling = "raw")
 max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(A, B)))
 ```
 
+The difference is at the level of numerical rounding.
+
 Changing the scale or sign changes the meaning of an activity coefficient.
 Fit your activity model on the representation you will use for
 [backprojection](backprojection.html). Save `view` with the model results.
@@ -56,12 +57,16 @@ Fit your activity model on the representation you will use for
 view$manifest$feature_scale
 ```
 
-`feature_scale` records the units supplied to `fit_ebmf()`.
+`feature_scale` records the units supplied to `fit_ebmf()`; here they are
+GTEx association z-scores.
 The package does not normalize counts, invert nonlinear transformations or
 convert estimates to log2 fold changes. Centering or scaling activity outside
 the package requires matching changes to feature effects and any feature offset.
 
 ## Sources
+
+The GTEx data ship with flashier (Jason Willwerscheid, Peter Carbonetto, Wei
+Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gtex`.
 
 The representation uses flashier's LDF interface by Jason Willwerscheid,
 Peter Carbonetto, Wei Wang and Matthew Stephens.

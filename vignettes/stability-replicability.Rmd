@@ -7,63 +7,89 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Refit resampled donors to assess factor recovery, or compare feature programs
-from separate fits. This example uses simulated data with two visits per donor.
-Install psych and clue for factor matching.
+Refit resampled units to assess factor recovery, or compare feature programs
+from separate fits. This example uses the GTEx z-score matrix that ships with
+flashier. Install psych and clue for factor matching.
 
-```{r setup, echo=FALSE}
+The tissues in this matrix are not independent donors, so the example does not
+resample donors. It places the 1000 SNP-gene pairs in rows, so a factor is a
+program across the 44 tissues, and resamples SNP-gene pairs.
+Each pair comes from a different gene, but nearby or co-regulated genes need
+not be independent. The result describes sensitivity to which pairs were
+sampled. It is not donor-level replication. A donor-resampling analysis needs
+data with repeated samples from independent donors.
+
+```{r setup}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
+data("gtex", package = "flashier")
+fit <- fit_ebmf(gtex, sample_side = "rows", max_factors = 3,
+                backfit = TRUE, nullcheck = FALSE, seed = 1, verbose = 0,
+                feature_scale = "association_z_score")
 view <- standardize_factors(fit)
 ```
 
 ```{r metadata}
-metadata <- data.frame(sample = rownames(X),
-                       donor = rep(paste0("d", 1:12), each = 2))
+metadata <- data.frame(sample = rownames(gtex),
+                       gene = sub("\\..*$", "", rownames(gtex)))
+anyDuplicated(metadata$gene)
 ```
 
-## Resample donors
+The gene column is the Ensembl gene ID taken from each row name. The zero shows
+that no gene appears twice, so each unit contributes one row.
+
+## Resample units
 
 ```{r bootstrap}
 if (requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)) {
-  stability <- factor_stability(X, fit, metadata, unit_col = "donor",
-                                B = 2, min_congruence = 0.8, seed = 26)
-  stability$summary[, c("factor", "n_requested", "n_successful",
-                         "recovery_rate_all_requested", "median_congruence")]
-  stability$failures
+  stability <- factor_stability(gtex, fit, metadata, unit_col = "gene",
+                                B = 5, min_congruence = 0.8, seed = 26)
+  print(stability$summary[, c("factor", "n_requested", "n_successful",
+                              "recovery_rate_all_requested",
+                              "median_congruence", "native_pve_mean")])
+  print(stability$failures)
 }
 ```
 
-The bootstrap keeps each donor's visits together. `B = 2` shows how to run the
-function. Use more resamples to estimate recovery in an analysis.
+`B = 5` shows how to run the function. Use more resamples to estimate recovery
+in an analysis. The bootstrap resamples whole units with replacement, and F1
+and F2 were recovered in every resample here. F3 explains far less variance
+(`native_pve_mean`) and was recovered in only some resamples,
+although its congruence was high when it was matched.
 Choose `min_congruence` for your question. The appropriate matching threshold depends on the data and purpose.
 Report failed refits alongside recovery rates.
 
 ## Match separate fits
 
+Fit two disjoint random halves of the SNP-gene pairs. Both halves measure the
+same 44 tissues, so their tissue programs can be compared directly.
+
 ```{r matching}
 if (requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)) {
-  other <- fit_ebmf(X, sample_side = "rows", seed = 5, max_factors = 2,
-                    verbose = 0, backfit = TRUE, nullcheck = FALSE,
-                    feature_scale = "simulated_intensity")
-  factor_replicability(fit, other, min_congruence = 0.8)$matches
+  set.seed(2)
+  half <- sample(nrow(gtex), nrow(gtex) / 2)
+  fit_half <- function(rows) {
+    fit_ebmf(gtex[rows, ], sample_side = "rows", seed = 1, max_factors = 3,
+             verbose = 0, backfit = TRUE, nullcheck = FALSE,
+             feature_scale = "association_z_score")
+  }
+  factor_replicability(fit_half(half), fit_half(-half),
+                       min_congruence = 0.8)$matches
 }
 ```
 
 Factor numbers need not correspond across fits. Matching compares feature
 programs and can account for sign reversals in signed factors.
-Here, both fits use the same data. To assess replication, compare independently
+Here, F1 and F2 match across the two halves, with a lower congruence for F2,
+and F3 is not matched. The halves are random subsets of one dataset.
+To assess replication, compare independently
 collected data with compatible features and preprocessing.
 Similar programs alone do not establish that individual activity scores transfer
 between cohorts. Use [held-out prediction](holdout.html) to assess prediction.
 
 ## Sources
+
+The GTEx data ship with flashier (Jason Willwerscheid, Peter Carbonetto, Wei
+Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gtex`.
 
 Refits use flashier by Jason Willwerscheid, Peter Carbonetto, Wei Wang and
 Matthew Stephens. Matching uses William Revelle's psych and Kurt Hornik and

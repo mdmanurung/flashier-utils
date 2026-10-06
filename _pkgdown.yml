@@ -21,6 +21,16 @@ navbar:
         - text: Identify features and pathways
         - text: Find defining features
           href: articles/largest-distinctive.html
+        - text: Published pancreas programs
+          href: articles/pancreas-programs.html
+        - text: Program networks and annotations
+          href: articles/program-annotation.html
+        - text: Program diagnostics
+          href: articles/program-diagnostics.html
+        - text: Protein interpretation and gates
+          href: articles/protein-interpretation.html
+        - text: Transfer programs between datasets
+          href: articles/dataset-transfer.html
         - text: Annotate factors with pathways
           href: articles/enrichment.html
         - text: -------
@@ -69,6 +79,8 @@ articles:
     contents:
       - largest-distinctive
       - enrichment
+      - program-annotation
+      - pancreas-programs
   - title: Compare groups and conditions
     desc: Summarize group differences, test metadata associations, translate contrasts into feature effects, and shrink comparable effects across conditions.
     contents:
@@ -81,10 +93,13 @@ articles:
       - uncertainty
       - stability-replicability
       - holdout
+      - program-diagnostics
+      - dataset-transfer
   - title: Visualize single-cell factors
     desc: Store activities in Seurat, compute a factor embedding, and display activities or reference-cell percentiles.
     contents:
       - single-cell
+      - protein-interpretation
   - title: Find sources and cite methods
     desc: Identify original authors, trace function origins, and record method citations and dependency versions.
     contents:
@@ -111,6 +126,22 @@ reference:
       - plot_factor_features
       - plot_factor_activity
       - enrich_factors
+      - factor_network
+      - plot_factor_network
+      - plot_feature_rankings
+      - factor_diagnostics
+      - plot_factor_diagnostics
+      - plot_factor_signature
+      - factor_specificity
+      - summarize_factors
+      - correlate_factor_markers
+      - plot_factor_contrasts
+      - estimate_marker_thresholds
+      - plot_marker_thresholds
+      - factor_gate_alignment
+      - plot_factor_gates
+      - project_factor_features
+      - project_factor_activity
   - title: Compare samples and conditions
     contents:
       - summarize_factor_activity

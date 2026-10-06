@@ -7,37 +7,95 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
 Use mashr to shrink comparable factor coefficients across conditions.
 Coefficients must describe the same contrast in the same activity representation.
-The example uses simulated coefficients for two factors in two cohorts.
 
-```{r setup, echo=FALSE}
-library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
+The example uses **real pancreas cells** from
+[Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
+(pinned revision 6cf9aa72): human pancreas cells from the cross-technology integration benchmark of
+Luecken et al. (2022) as assembled there; the CEL-Seq2 cells are from Muraro et
+al. (2016), and the Jamboree page links the original studies of the other
+technologies. The conditions are the four measurement technologies (CEL-Seq2,
+SMART-Seq2, Fluidigm C1 and inDrop3), each treated as one cohort, and the shared
+contrast is beta minus alpha cells. A local cache holds up to 40 cells per
+technology and cell type. It is built outside package builds by the repository
+script `.github/scripts/prepare-pancreas.R`, so data chunks run only when
+`FLASHIER_UTILS_PANCREAS_DIR` points to that cache, and nothing is downloaded.
+The cells are not redistributed with the package. Native EBMF fitting credits
+Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+
+## Fit one shared set of factors
+
+Scale each cell to the CEL-Seq2 reference library mean, apply `log1p`, keep the
+1,000 genes with the largest variance and fit eight non-negative factors on all
+cells with `fit_ebmf()`. One shared fit gives every technology the same factors,
+scales and signs, which is what makes their coefficients comparable. These
+factors are fitted here; they are not the published Jamboree factors. The gene
+selection uses every cell, so it is a global choice.
+
+```{r fit}
+cache <- readRDS(cache_file)
+metadata <- cache$metadata
+metadata$sample <- as.character(metadata$id)
+rownames(metadata) <- metadata$sample
+metadata$celltype <- droplevels(factor(metadata$celltype))
+metadata$tech <- droplevels(factor(metadata$tech))
+counts <- cache$counts
+stopifnot(identical(rownames(counts), metadata$sample))
+Y <- Diagonal(x = cache$reference_library_mean / rowSums(counts)) %*% counts
+Y <- log1p(Y)
+dimnames(Y) <- dimnames(counts)
+variance <- colMeans(Y^2) - colMeans(Y)^2
+genes <- names(sort(variance, decreasing = TRUE))[1:1000]
+X <- as.matrix(Y[, genes])
+fit <- fit_ebmf(X, sample_side = "rows", ebnm_fn = ebnm::ebnm_point_exponential,
+                max_factors = 8, backfit = TRUE, nullcheck = FALSE, seed = 1,
+                verbose = 0,
+                feature_scale = "shifted_log_reference_library_normalized_measurements")
 view <- standardize_factors(fit)
+dim(view$activity)
 ```
+
 
 ## Prepare coefficients
 
-Include every eligible factor in every condition, including nonsignificant rows.
-Keep the activity representation attached to the table.
+Within each technology, regress each factor's activity on cell type using only
+alpha and beta cells. Include every eligible factor in every condition,
+including nonsignificant rows, and keep the activity representation attached to
+the table.
 
 ```{r coefficients}
 ids <- view$manifest$factor_ids
-coefficients <- data.frame(
-  factor = rep(ids, 2),
-  condition = rep(c("cohortA", "cohortB"), each = length(ids)),
-  term = "B-minus-A", estimate = seq_len(2 * length(ids)) / 5,
-  std.error = 0.5, basis_id = view$manifest$basis_id
-)
+contrast <- function(technology) {
+  cells <- metadata$tech == technology & metadata$celltype %in% c("alpha", "beta")
+  group <- factor(metadata$celltype[cells], levels = c("alpha", "beta"))
+  do.call(rbind, lapply(ids, function(id) {
+    model <- summary(lm(view$activity[cells, id] ~ group))$coefficients["groupbeta", ]
+    data.frame(factor = id, condition = technology, term = "beta-minus-alpha",
+               estimate = model[["Estimate"]], std.error = model[["Std. Error"]],
+               basis_id = view$manifest$basis_id)
+  }))
+}
+coefficients <- do.call(rbind, lapply(levels(metadata$tech), contrast))
 attr(coefficients, "analysis_metadata") <- view$manifest
+reshape(coefficients[, c("factor", "condition", "estimate")], idvar = "factor",
+        timevar = "condition", direction = "wide")
 ```
+
+Each technology contributes 80 cells to this contrast. The standard errors treat
+cells as independent. The cache has no donor identifiers and cells from one donor
+are correlated, so these standard errors are optimistic and the coefficients
+describe cells, not donors.
 
 Fits learned separately can have different factors, scales and signs.
 Their coefficients cannot be pooled directly.
@@ -47,23 +105,37 @@ Their coefficients cannot be pooled directly.
 ```{r shrink}
 if (requireNamespace("mashr", quietly = TRUE)) {
   result <- shrink_factor_effects(coefficients, condition = "condition",
-                                  term = "B-minus-A", independent_conditions = TRUE)
+                                  term = "beta-minus-alpha", independent_conditions = TRUE)
   result$table[, c("factor", "condition", "estimate", "posterior.sd", "lfsr")]
 }
 ```
 
 The table contains posterior means, posterior standard deviations and local
 false sign rates (`lfsr`). `independent_conditions = TRUE` declares independent
-estimation errors across conditions. If errors are correlated, supply their
-named correlation matrix as `V`.
+estimation errors across conditions. The four technologies contribute different
+cells, so this is a reasonable starting point, but they are not independent
+replicates of one population, and technology cannot be separated from study and
+sample effects in these data. If errors are correlated,
+supply their named correlation matrix as `V`.
 
-Two factors are enough to illustrate the interface but provide little
-information for learning patterns of shared effects.
-A pooled effect, heterogeneity and cross-condition sharing require different
-interpretations. See the function reference for covariance options.
+The shared contrast is concentrated in two factors. `F4`, the alpha factor, is
+lower in beta cells and `F5`, the beta factor, is higher, with the same sign and
+similar size in all four technologies (`lfsr` near zero). `F6`, one of the
+technology factors, is near zero after shrinkage in CEL-Seq2, SMART-Seq2 and
+inDrop3 but keeps a positive estimate in Fluidigm C1 only, where it separates
+beta from alpha cells. That is a condition-specific effect, not a shared one.
+Most remaining rows shrink toward zero with large `lfsr`.
+
+Eight factors in four conditions give mash limited information for learning
+patterns of shared effects, and the standard errors above ignore donor
+structure. A pooled effect, heterogeneity and cross-condition sharing require
+different interpretations. See the function reference for covariance options.
 
 ## Sources
 
+The data are from Peter Carbonetto's
+[single-cell Jamboree](https://github.com/stephenslab/single-cell-jamboree)
+(Muraro et al., 2016; Luecken et al., 2022, as assembled there).
 mashr is by Matthew Stephens, Sarah Urbut, Gao Wang, Yuxin Zou and
 Peter Carbonetto, with package contributors.
 [Original authors and sources](credits.html) lists citations and ashr credits.

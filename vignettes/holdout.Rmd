@@ -7,80 +7,141 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Learn feature programs on training samples, then evaluate held-out donors.
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+Learn feature programs on training samples, then evaluate held-out cohorts.
 Use projection to assess reconstruction from observed entries, or masked
 prediction to score features excluded from activity estimation.
-The example uses simulated data with two visits per donor.
 
-```{r setup, echo=FALSE}
-library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
-view <- standardize_factors(fit)
-```
+The example uses **real pancreas cells** from
+[Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
+(pinned revision 6cf9aa72): human pancreas cells from the cross-technology integration benchmark of
+Luecken et al. (2022) as assembled there; the CEL-Seq2 cells are from Muraro et
+al. (2016), and the Jamboree page links the original studies of the other
+technologies. Each of the four measurement technologies (CEL-Seq2, SMART-Seq2,
+Fluidigm C1 and inDrop3) is a cohort. A local cache holds up to 40 cells per
+technology and cell type. It is built outside package builds by the repository
+script `.github/scripts/prepare-pancreas.R`, so data chunks run only when
+`FLASHIER_UTILS_PANCREAS_DIR` points to that cache, and nothing is downloaded.
+The cells are not redistributed with the package. Native EBMF fitting and
+projection credit Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens.
 
 ## Define a split
 
-Keep all observations from a donor in the same fold.
+The cache has **no donor identifiers**, so individual cells cannot be treated as
+independent units, and holding out random cells would let cells from the same
+sample appear in training and test sets. The honest split here holds out a whole
+technology. Each technology is its own fold, and the unit for `factor_holdout()`
+is the technology, so no unit crosses folds.
+
+Scale each cell to the CEL-Seq2 reference library mean and apply `log1p`. Choose
+the 1,000 most variable genes from CEL-Seq2 cells only. CEL-Seq2 is never held
+out below, so this choice uses no held-out cell. Training fits program
+weights with `fit_ebmf()`; they are not the published Jamboree factors.
 
 ```{r folds}
-metadata <- data.frame(sample = rownames(X),
-                       donor = rep(paste0("d", 1:12), each = 2))
-folds <- data.frame(sample = metadata$sample,
-                    fold = rep(c("training", "held"), c(16, 8)))
+cache <- readRDS(cache_file)
+metadata <- cache$metadata
+metadata$sample <- as.character(metadata$id)
+rownames(metadata) <- metadata$sample
+metadata$tech <- as.character(metadata$tech)
+counts <- cache$counts
+stopifnot(identical(rownames(counts), metadata$sample))
+Y <- Diagonal(x = cache$reference_library_mean / rowSums(counts)) %*% counts
+Y <- log1p(Y)
+dimnames(Y) <- dimnames(counts)
+reference <- Y[metadata$tech == "celseq2", ]
+variance <- colMeans(reference^2) - colMeans(reference)^2
+genes <- names(sort(variance, decreasing = TRUE))[1:1000]
+X <- as.matrix(Y[, genes])
+folds <- data.frame(sample = metadata$sample, fold = metadata$tech)
+table(folds$fold)
 fit_training <- function(X, metadata, sample_side, seed, settings,
                          observation_aux = list()) {
-  fit_ebmf(X, sample_side = sample_side, seed = seed, max_factors = 2,
-            verbose = 0, backfit = TRUE, nullcheck = FALSE,
-            feature_scale = "simulated_intensity")
+  fit_ebmf(X, sample_side = sample_side, ebnm_fn = ebnm::ebnm_point_exponential,
+           seed = seed, max_factors = 8, verbose = 0, backfit = FALSE,
+           nullcheck = FALSE,
+           feature_scale = "shifted_log_reference_library_normalized_measurements")
 }
-control <- list(sample_side = "rows",
-                preprocessing_manifest = list(scope = "identity"),
-                evaluated_folds = "held")
+held <- c("smartseq2", "fluidigmc1", "inDrop3")
+control <- list(sample_side = "rows", cohort_col = "tech", evaluated_folds = held,
+                preprocessing_manifest = list(scope = "external_reference"))
 ```
 
-`identity` declares that this example performs no preprocessing.
-For an analysis, estimate normalization on training data and apply it to test
-data. If preprocessing uses all samples, label the results as conditional on
-that global preprocessing.
+`external_reference` declares that every cell is scaled by its own library size
+to one fixed constant (the CEL-Seq2 reference mean), so preprocessing never
+estimates anything from held-out cells. In an analysis with your own
+normalization, estimate it on training data and apply it to test data. If
+preprocessing uses all samples, label the results as conditional on that global
+preprocessing.
 
 ## Project held-out samples
 
-```{r projection}
-projection <- factor_holdout(X, metadata, "donor", folds, fit_training,
+```{r projection, warning=FALSE, message=FALSE}
+projection <- factor_holdout(X, metadata, "tech", folds, fit_training,
                              evaluation = "projection", seed = 1, control = control)
-projection$metrics
+observation <- projection$metrics$weighting == "observation"
+projection$metrics[observation, c("fold", "model", "rmse", "prediction_r2", "n_samples")]
 ```
 
 Feature programs stay fixed. The method estimates test activities from observed
 test entries. Noise and prior parameters can recalibrate on those entries.
 This evaluates reconstruction after observing the test features.
+`training_mean` is the baseline that predicts each gene's training mean. The
+`numerically zero` lines in either chunk are native flashier notes: a training
+fit that finds no further non-zero factor stops with fewer than eight.
 
 ## Predict masked features
 
-```{r masked}
+Split the 1,000 genes at random into two disjoint sets. Activities of held-out
+cells use only the first set, and the second set is scored.
+
+```{r masked, warning=FALSE, message=FALSE}
+set.seed(2)
+activity_features <- sample(genes, 500)
+scoring_features <- setdiff(genes, activity_features)
+control$preprocessing_manifest <- list(scope = "conditional_global")
 masked <- factor_holdout(
-  X, metadata, "donor", folds, fit_training, evaluation = "masked",
-  activity_features = paste0("g", 1:8), scoring_features = paste0("g", 9:16),
+  X, metadata, "tech", folds, fit_training, evaluation = "masked",
+  activity_features = activity_features, scoring_features = scoring_features,
   seed = 1, control = control
 )
-masked$metrics
+observation <- masked$metrics$weighting == "observation"
+masked$metrics[observation, c("fold", "model", "rmse", "prediction_r2", "n_samples")]
 ```
 
 The two feature sets must be disjoint. Scoring features are excluded from test
 activity estimation and noise or prior calibration. This is the appropriate
 comparison when the question concerns prediction of unobserved features.
+In both evaluations the fixed programs beat the training-mean baseline in all
+three held-out technologies (prediction R-squared about 0.26 to 0.37 against 0.10
+to 0.21), and the masked values are slightly lower than the projection values.
+The explained fraction is modest, and a program set learned on other
+technologies does not fully transfer. The preprocessing is labelled `conditional_global` here because each cell's
+library size sums counts over all 14,528 genes, including the scored ones, so
+the scaling of a held-out cell is not independent of the entries being scored.
 
-For a cohort split, use cohort labels as folds and donor IDs as units.
-Each donor must belong to one cohort.
+This design evaluates transfer to a **new technology** and says nothing about
+new donors, because the cache contains no donor identifiers. A design that
+needs independent donors, such as holding out donors within one technology,
+cannot be run on these data. With donor IDs, use the donor as `unit_col` so that
+all of a donor's cells stay in one fold, and use cohort labels as folds to
+hold out a cohort.
 
 ## Sources
 
+The data are from Peter Carbonetto's
+[single-cell Jamboree](https://github.com/stephenslab/single-cell-jamboree)
+(Muraro et al., 2016; Luecken et al., 2022, as assembled there).
 Projection uses public flashier functions by Jason Willwerscheid,
 Peter Carbonetto, Wei Wang and Matthew Stephens.
 [Original authors and sources](credits.html) lists method citations.

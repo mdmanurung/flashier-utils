@@ -1,0 +1,207 @@
+---
+title: "Native transfer of activities and feature programs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Native transfer of activities and feature programs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+set.seed(9)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+cells_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file) && file.exists(cells_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+```{r load-programs, include=FALSE}
+# Restore published factors as in the pancreas-programs article (means only).
+cache <- readRDS(cache_file)
+restore_programs <- function(ldf,signed_effects=FALSE) {
+  Y <- cache$reference_expression
+  factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+  A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+  B <- ldf$F
+  colnames(A) <- colnames(B) <- factor_ids
+  priors <- list(ebnm::ebnm_point_exponential,
+                 if(signed_effects) ebnm::ebnm_point_normal
+                 else ebnm::ebnm_point_exponential)
+  object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,seed=1,
+    feature_scale="shifted_log_reference_library_normalized_measurements",verbose=0)
+  metadata <- attr(object,"flashbridge_metadata")
+  metadata$factor_ids <- factor_ids
+  metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean,
+    source_sha256=cache$source_sha256)
+  object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+  object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+  attr(object,"flashbridge_metadata") <- metadata
+  standardize_factors(object,sample_side="rows",scaling="raw",
+    prior_support=c(activity="nonnegative",
+                    effects=if(signed_effects) "signed" else "nonnegative"))
+}
+view <- restore_programs(cache$reference)
+```
+
+Native projection delegates to flashier authors Jason Willwerscheid, Peter
+Carbonetto, Wei Wang and Matthew Stephens. Reference-program transfer receives
+conceptual credit to [STARCAT](https://github.com/immunogenomics/starCAT), Dylan
+Kotliar and Michelle Curtis. This is independently written EBMF glue; it does not
+introduce STARCAT query-specific scaling or normalized usages.
+
+The examples use **published human-pancreas programs** from Peter Carbonetto's
+[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
+nine NMF programs learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled
+by Luecken et al., 2022), restored as `view` without refitting; see
+[Pancreas programs](pancreas-programs.html). The reference measurements are 48
+CEL-Seq2 cells (eight per published cell type, shifted-log expression of 14,528
+genes). The code runs only when `FLASHIER_UTILS_PANCREAS_DIR` holds the local
+caches written by `.github/scripts/prepare-pancreas.R` in the source repository
+(`pancreas-worked-example.rds` and `pancreas-cells.rds`) and otherwise shows without
+output. Upstream data are not redistributed.
+
+## New measurements on the same cells
+
+Here a small marker panel stands in for newly measured features: shifted-log
+expression of eight genes in the same 48 cells. The genes are also among the
+published programs, so the projection can be compared with the published
+effects of the same genes.
+
+```{r new-effects}
+panel <- c("INS","IAPP","GCG","SST","PPY","REG1A","CTRB2","CFTR")
+new_features <- as.matrix(cache$reference_expression[,panel])
+projected <- project_factor_features(view,new_features,"rows",
+  feature_scale="shifted_log_reference_library_normalized_measurements")
+stopifnot(identical(projected$representation$activity,view$activity))
+projected$reconstruction
+# Estimated effect of each panel gene on its strongest published program.
+strongest <- apply(view$effects[panel,],1,which.max)
+data.frame(gene=panel,program=colnames(view$effects)[strongest],
+  published=round(view$effects[cbind(panel,colnames(view$effects)[strongest])],2),
+  projected=round(projected$representation$effects[cbind(panel,
+    colnames(view$effects)[strongest])],2))
+```
+
+Sample IDs align measured cells; a subset of reference cells is permitted if
+selected activities retain full rank. QR least squares initializes feature
+weights, followed by native EBMF with activities fixed, feature-specific residual
+variance, signed point-Laplace feature priors and 200 iterations by default.
+A rank-deficient initialization fails with a factor-selection error. Projected
+values are on the scale of the fixed activities. Here they track the published
+coordinates for `INS` (1.02 against 1.00) and `IAPP`, but differ for others, such
+as `SST` (0.57 against 1.00), because they are re-estimated from only 48 cells
+and eight genes. Native messages, such as a factor estimate that is numerically
+zero, are passed through.
+
+## New cells with fixed reference programs
+
+Query cells come from a different technology: inDrop (`inDrop3`) cells from the
+same benchmark, eight per published cell type, with the CEL-Seq2 library-size mean
+and the same 14,528 genes. Counts are transformed with the reference rule,
+`log1p(count / library size * reference mean)`.
+
+```{r new-cells}
+cells <- readRDS(cells_file)
+# Rows of the cached counts follow the order of the cached metadata.
+stopifnot(nrow(cells$counts)==nrow(cells$metadata))
+rownames(cells$counts) <- as.character(cells$metadata$id)
+meta <- cells$metadata[cells$metadata$tech=="inDrop3",]
+pick <- unlist(lapply(cells$cell_types,function(type)
+  head(sort(as.character(meta$id[meta$celltype==type])),8)))
+counts <- cells$counts[pick,rownames(view$effects),drop=FALSE]
+totals <- Matrix::rowSums(counts)
+stopifnot(all(totals>0))
+query <- log1p(Matrix::Diagonal(x=cells$reference_library_mean/totals) %*% counts)
+dimnames(query) <- dimnames(counts)
+preprocessing <- list(scope="external_reference",revision=cache$revision,
+  transformation="log1p(filtered measurement / library size * reference mean)",
+  reference_library_mean=cache$reference_library_mean)
+transfer <- project_factor_activity(view,query,"rows",
+  feature_scale="shifted_log_reference_library_normalized_measurements",
+  preprocessing=preprocessing)
+stopifnot(identical(transfer$representation$effects,view$effects),
+          identical(transfer$representation$offset,view$offset))
+transfer$reconstruction
+transfer$analysis_metadata$coverage
+```
+
+Declare compatible feature units and a preprocessing manifest. The caller is
+responsible for applying the same reference transform; projection does not learn
+or apply a transform. An equal transform does not establish biological
+equivalence across technologies. As a descriptive check, mean scaled activity of
+the transferred cells by their published cell type (five programs shown):
+
+```{r transferred-activity}
+query_info <- cells$metadata[match(rownames(transfer$representation$activity),
+                                   cells$metadata$id),]
+transferred <- sweep(transfer$representation$activity,2,
+                     apply(view$activity,2,max),"/")
+round(apply(transferred[,c("F2","F4","F5","F6","F9")],2,
+            function(a) tapply(a,droplevels(query_info$celltype),mean)),2)
+```
+
+In this table the largest mean activity falls in `F2` for acinar, `F5` for alpha,
+`F4` for beta, `F6` for delta and `F9` for ductal cells, matching the reference
+programs, but the values are modest and gamma cells have no clear dedicated program.
+The in-sample fit of the query (`fit_r2` above) is only moderate, and these
+descriptions are not a validated cell-type assignment.
+
+Matching defaults to exact gene sets. Explicit intersection records missing and
+excluded genes, requires at least 50% reference coverage by default, and rejects
+shared programs without full column rank. Here the first 2,500 published genes
+are dropped to mimic a smaller measured panel.
+
+```{r intersection}
+intersection <- project_factor_activity(view,query[,-seq_len(2500)],"rows",
+  feature_scale="shifted_log_reference_library_normalized_measurements",
+  preprocessing=preprocessing, feature_match="intersection", min_coverage=0.8)
+length(intersection$analysis_metadata$missing_reference_genes)
+# One-to-one mapping names query genes and values identify reference genes.
+mapped_query <- query
+colnames(mapped_query) <- paste0("query_gene",seq_len(ncol(query)))
+mapping <- setNames(colnames(query),colnames(mapped_query))
+mapped <- project_factor_activity(view,mapped_query,"rows",
+  feature_scale="shifted_log_reference_library_normalized_measurements",
+  preprocessing=preprocessing, gene_mapping=mapping)
+all.equal(mapped$representation$activity,transfer$representation$activity)
+```
+
+Source factor IDs, signs, order and fixed values are retained. Native priors are
+inferred from recorded source metadata; bare/custom sources require explicit
+`ebnm_fn` functions in native row/column order. For column-oriented samples use
+`sample_side="columns"` and transpose the query. Noise and prior hyperparameters
+may recalibrate on query observations, matching the holdout contract. Native
+warnings and iteration-limit diagnostics remain in the output.
+
+Sparse queries are supported where the native engine permits. Sparse plus
+explicit `S` is refused. Nonzero offsets require dense centering; QR and scoring
+allocations obey the default 256 MiB budget. Reconstruction metrics score all
+shared query measurements in blocks; they are conditional fit diagnostics, not
+independent validation. The returned representation retains even unmeasured
+reference genes, without imputing them into the fitting data.
+
+```{r serialization}
+path <- tempfile(fileext=".rds")
+saveRDS(view,path)
+stopifnot(identical(readRDS(path),view))
+unlink(path)
+```
+
+Use ordinary R objects and `saveRDS()` to retain the reference and preprocessing
+manifest. See [holdout evaluation](holdout.html) for independent prediction and
+[credits](credits.html) for upstream authors and citations.
+
+## Published-data example
+
+See [Pancreas programs from the single-cell Jamboree](pancreas-programs.html)
+for the factor 4-6 comparison, diagnostics and transfer to SMART-Seq2 cells. This
+article uses the same CEL-Seq2 programs (credit: Peter Carbonetto's single-cell
+Jamboree; Muraro et al., 2016; Luecken et al., 2022) and the benchmark's inDrop
+cells to teach the transfer functions. The article runs when the local data
+archive is configured, as in the website build; package checks skip it.

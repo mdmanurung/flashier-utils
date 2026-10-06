@@ -1,0 +1,240 @@
+---
+title: "Pancreas programs from the single-cell Jamboree"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pancreas programs from the single-cell Jamboree}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+This worked example adapts [Peter Carbonetto's pancreas annotation tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html)
+from the single-cell Jamboree. It uses **published CEL-Seq2 NMF and semi-NMF
+coordinates**, including the original factors 4–6 comparison, rather than fitting
+simulated gene names. CEL-Seq2 data come from Muraro et al. (2016), as assembled
+in the pancreas integration benchmark described by Luecken et al. (2022). See
+[the source data preparation](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
+and the original studies linked there.
+
+The workflow is independently written using flashier.utils and public flashier
+APIs. Peter Carbonetto receives tutorial credit; native EBMF methods credit
+Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens. Upstream
+workflow code and input data are not redistributed with this package.
+
+## Prepare a local example cache
+
+Download the published objects from a fixed repository revision. This step is
+explicit and runs outside package builds. Preparing the cache loads a roughly
+640 MiB sparse matrix; subsequent examples use only 48 reference cells and up to
+24 query cells, while retaining **all 14,528 reference genes**. The cell subset
+contains up to eight cells per acinar, ductal, alpha, beta, delta and gamma group,
+chosen by sample ID, and does not change published feature programs.
+
+```{r prepare-cache, eval=FALSE}
+# Choose a local archive outside package builds.
+pancreas_dir <- path.expand("~/pancreas-jamboree-example")
+dir.create(pancreas_dir,recursive=TRUE,showWarnings=FALSE)
+revision <- "6cf9aa720cc16dc543e93b36d57bc1a85555860d"
+base_url <- paste0("https://raw.githubusercontent.com/stephenslab/",
+                   "single-cell-jamboree/",revision,"/")
+files <- c("data/pancreas.RData", "output/pancreas_celseq2_factors.RData")
+for (file in files) {
+  destination <- file.path(pancreas_dir,basename(file))
+  if (!file.exists(destination))
+    download.file(paste0(base_url,file),destination,mode="wb")
+}
+original <- new.env(parent=emptyenv())
+coordinates <- new.env(parent=emptyenv())
+load(file.path(pancreas_dir,"pancreas.RData"),envir=original)
+load(file.path(pancreas_dir,"pancreas_celseq2_factors.RData"),envir=coordinates)
+metadata <- original$sample_info
+stopifnot(identical(rownames(original$counts),as.character(metadata$id)))
+reference <- coordinates$fl_nmf_ldf
+signed <- coordinates$fl_snmf_ldf
+genes <- rownames(reference$F)
+stopifnot(identical(rownames(signed$F),genes))
+cell_types <- c("acinar","ductal","alpha","beta","delta","gamma")
+select_cells <- function(technology,n) {
+  unlist(lapply(cell_types,function(type)
+    head(sort(as.character(metadata$id[metadata$tech==technology &
+                                       metadata$celltype==type])),n)),use.names=FALSE)
+}
+reference_ids <- select_cells("celseq2",8)
+query_ids <- select_cells("smartseq2",4)
+# Match the published gene filter before calculating library sizes.
+reference_totals <- Matrix::rowSums(original$counts[
+  metadata$id[metadata$tech=="celseq2"],genes,drop=FALSE])
+reference_library_mean <- mean(reference_totals)
+shifted_log <- function(ids) {
+  counts <- original$counts[ids,genes,drop=FALSE]
+  totals <- Matrix::rowSums(counts)
+  stopifnot(all(totals>0))
+  Y <- Matrix::Diagonal(x=reference_library_mean/totals) %*% counts
+  Y <- log1p(Y)
+  dimnames(Y) <- list(ids,genes)
+  Y
+}
+cache <- list(reference=reference,signed=signed,
+  reference_expression=shifted_log(reference_ids),
+  query_expression=shifted_log(query_ids),
+  metadata=metadata[match(c(reference_ids,query_ids),metadata$id),],
+  revision=revision,reference_library_mean=reference_library_mean,
+  source_files=files,
+  source_sha256=vapply(basename(files),function(file)
+    digest::digest(file=file.path(pancreas_dir,file),algo="sha256"),character(1)))
+saveRDS(cache,file.path(pancreas_dir,"pancreas-worked-example.rds"))
+```
+
+Set `FLASHIER_UTILS_PANCREAS_DIR` to this directory before rendering the tutorial.
+Package builds skip data-dependent execution when the cache is absent and never
+perform network downloads. These examples were also executed locally against the
+pinned published inputs.
+
+```{r load-cache}
+cache <- readRDS(cache_file)
+cache$revision
+dim(cache$reference_expression)
+dim(cache$query_expression)
+```
+
+## Restore published coordinates without refitting
+
+The upstream file contains `L`, `D`, and `F` rather than serialized native fits.
+Initialize a native object with the measured reference matrix, restore the
+published posterior means, and fix the feature side. flashier fixes one mode per
+factor; the activities are restored unchanged because no backfit follows. Absorbing `D` into activities keeps
+feature coordinates equal to the source tutorial's infinity-normalized `F`.
+This restores means only; it does not restore upstream posterior uncertainties or
+hyperparameters. No reference model is refitted.
+
+```{r restore-programs}
+restore_programs <- function(ldf,signed_effects=FALSE) {
+  Y <- cache$reference_expression
+  factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+  A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+  B <- ldf$F
+  colnames(A) <- colnames(B) <- factor_ids
+  priors <- list(ebnm::ebnm_point_exponential,
+                 if(signed_effects) ebnm::ebnm_point_normal
+                 else ebnm::ebnm_point_exponential)
+  object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,
+                     feature_scale="shifted_log_reference_library_normalized_measurements",
+                     verbose=0)
+  metadata <- attr(object,"flashbridge_metadata")
+  metadata$factor_ids <- factor_ids
+  metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean,
+    source_sha256=cache$source_sha256)
+  object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+  object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+  # Native calls replace the object; preserve the wrapper declarations.
+  attr(object,"flashbridge_metadata") <- metadata
+  view <- standardize_factors(object,sample_side="rows",scaling="raw",
+    prior_support=c(activity="nonnegative",
+                    effects=if(signed_effects) "signed" else "nonnegative"))
+  stopifnot(identical(unname(view$activity),unname(A)),
+            identical(unname(view$effects),unname(B)))
+  view
+}
+view <- restore_programs(cache$reference)
+signed_view <- restore_programs(cache$signed,signed_effects=TRUE)
+# The input matrix uses shifted log measurements. The unmodified tutorial F
+# has its own fixed coordinate normalization; it is not a log-fold change.
+```
+
+## Borrow the original factors 4–6 comparison
+
+Carbonetto's worked comparison focuses on factors 4, 5 and 6 and chooses eight
+genes per factor, competing within that same set. Here `F4`–`F6` preserve those
+source column indices. Compare largest effects, clipped distinctive margins,
+and untruncated differences in separate displays.
+
+```{r pancreas-annotation}
+islet_factors <- paste0("F",4:6)
+factor_features(view,"F4",select="both",direction="positive",n=8,
+                compare_factors=islet_factors)[,c("feature","estimate","selection")]
+plot_factor_features(view,islet_factors,n=8,direction="positive")
+plot_factor_features(view,islet_factors,select="distinctive",n=8,
+                     direction="positive",compare_factors=islet_factors)
+plot_feature_rankings(view,"F4",n=8,compare_factors=islet_factors)
+```
+
+Check `INS` and `IAPP` as beta-associated evidence and `GCG` as alpha-associated
+evidence, following the source tutorial. These are evidence to inspect alongside
+published cell metadata, not automatic cell-type assignments. In particular,
+shared endocrine genes and factors containing multiple cell types warrant
+cautious user-authored labels.
+
+```{r pancreas-explicit-markers}
+markers <- c("INS","IAPP","GCG","SST","PPY","ISL1","CPE")
+plot_factor_features(view,islet_factors,features=markers,
+                     annotation=c(F4="INS/IAPP evidence",F5="GCG evidence",
+                                  F6="Inspect SST/PPY overlap"))
+# Semi-NMF effects preserve both signs; choose competing factors explicitly.
+plot_factor_features(signed_view,paste0("F",4:7),direction="negative",n=5)
+```
+
+## Shared-gene networks and descriptive diagnostics
+
+```{r pancreas-networks}
+network <- factor_network(view,factors=islet_factors,n=5)
+network$edges[,c("factor","feature","estimate","weight","sign")]
+if(requireNamespace("igraph",quietly=TRUE) && requireNamespace("ggraph",quietly=TRUE))
+  plot_factor_network(network,highlight="F4",gene_labels="all")
+factor_diagnostics(view,factors=islet_factors)$factors
+reference_metadata <- cache$metadata[match(rownames(view$activity),cache$metadata$id),]
+reference_metadata$sample <- as.character(reference_metadata$id)
+if(requireNamespace("pROC",quietly=TRUE))
+  factor_specificity(view,reference_metadata,"celltype",groups=c("alpha","beta"),
+                     factors=islet_factors)
+```
+
+Prevalence and AUC describe the **selected 48 CEL-Seq2 cells**, not the full
+published 2,285-cell population. Feature selection uses every reference gene.
+This selected-cell demonstration is not a calibrated cell classifier.
+
+## Transfer the reference programs to another technology
+
+SMART-Seq2 query cells were not among the CEL-Seq2 cells used for the reference
+programs. They use the frozen CEL-Seq2 library-size mean, the same reference gene
+set and `log1p` transform. An equal mathematical transform does not establish
+biological equivalence across technologies: inspect reconstruction and metadata
+rather than treating transferred activities as validated annotations. The
+benchmark's entries are not uniformly raw counts; retain the input description
+from the source dataset.
+
+```{r pancreas-transfer}
+transfer <- project_factor_activity(view,cache$query_expression,"rows",
+  feature_scale="shifted_log_reference_library_normalized_measurements",
+  preprocessing=list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean))
+stopifnot(identical(transfer$representation$effects,view$effects),
+          identical(transfer$representation$offset,view$offset))
+transfer$reconstruction
+transfer$native_iteration_diagnostics
+query_metadata <- cache$metadata[match(rownames(transfer$representation$activity),
+                                      cache$metadata$id),]
+query_metadata$sample <- as.character(query_metadata$id)
+plot_factor_activity(transfer$representation,query_metadata,group="celltype",
+                     factors=islet_factors,style="distribution")
+```
+
+Transferred activity distributions are descriptive. Hyperparameters and noise may
+recalibrate on query observations; fixed feature programs and factor IDs remain
+unchanged. Reference-program transfer receives conceptual credit to STARCAT
+(Dylan Kotliar and Michelle Curtis), while estimation uses native flashier.
+
+For protein contrasts, mixture thresholds and gates, see [protein interpretation](protein-interpretation.html)
+and the [ImmGen Figure 7 source workflow](https://github.com/AgueroZZ/immgenT-GP-analysis/blob/main/script/Figure7.R).
+This RNA-only pancreas example does not invent protein measurements.

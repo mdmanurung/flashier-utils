@@ -7,60 +7,149 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Store factor activities as a Seurat reduction and plot an embedding
-with uniform manifold approximation and projection (UMAP).
-Install SeuratObject and uwot to run this example.
-Each simulated row represents a cell. Both objects use the same cell IDs.
-
-```{r setup, echo=FALSE}
+```{r setup, include=FALSE}
 library(flashier.utils)
-set.seed(3)
-X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
-  matrix(rnorm(384, sd = 0.2), 24, 16)
-dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-fit <- fit_ebmf(X, sample_side = "rows", seed = 1, max_factors = 2,
-                backfit = TRUE, nullcheck = FALSE, verbose = 0,
-                feature_scale = "simulated_intensity")
-view <- standardize_factors(fit)
+library(Matrix)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-cells.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
 ```
+
+Store factor activities as a Seurat reduction and plot an embedding with
+uniform manifold approximation and projection (UMAP). Install SeuratObject and
+uwot to run this example.
+
+The example uses **real pancreas cells** from
+[Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
+(pinned revision 6cf9aa72): human pancreas cells from the cross-technology integration benchmark of
+Luecken et al. (2022) as assembled there; the CEL-Seq2 cells are from Muraro et
+al. (2016), and the Jamboree page links the original studies of the other
+technologies. A local cache holds up to 40 cells per technology and cell type
+(CEL-Seq2, SMART-Seq2, Fluidigm C1 and inDrop3; 896 cells). It is built
+outside package builds by the repository script `.github/scripts/prepare-pancreas.R`,
+so this vignette runs its data chunks only when `FLASHIER_UTILS_PANCREAS_DIR`
+points to that cache, and it never downloads data. The cells are not
+redistributed with the package. Native EBMF fitting credits
+Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+
+## Fit factors on shifted-log expression
+
+Scale each cell to the CEL-Seq2 reference library mean, apply `log1p` and keep
+the 1,000 genes with the largest variance across all cells. The gene selection
+uses every cell, so it is a global choice for display, not a held-out one. The
+factors below are fitted here with `fit_ebmf()` using non-negative
+point-exponential priors; they are not the published Jamboree factors.
+
+```{r fit}
+cache <- readRDS(cache_file)
+metadata <- cache$metadata
+metadata$sample <- as.character(metadata$id)
+rownames(metadata) <- metadata$sample
+metadata$celltype <- droplevels(factor(metadata$celltype))
+metadata$tech <- droplevels(factor(metadata$tech))
+counts <- cache$counts
+stopifnot(identical(rownames(counts), metadata$sample))
+Y <- Diagonal(x = cache$reference_library_mean / rowSums(counts)) %*% counts
+Y <- log1p(Y)
+dimnames(Y) <- dimnames(counts)
+variance <- colMeans(Y^2) - colMeans(Y)^2
+genes <- names(sort(variance, decreasing = TRUE))[1:1000]
+X <- as.matrix(Y[, genes])
+fit <- fit_ebmf(X, sample_side = "rows", ebnm_fn = ebnm::ebnm_point_exponential,
+                max_factors = 8, backfit = TRUE, nullcheck = FALSE, seed = 1,
+                verbose = 0,
+                feature_scale = "shifted_log_reference_library_normalized_measurements")
+view <- standardize_factors(fit)
+dim(view$activity)
+```
+
+Mean activity by group, scaled so the largest group is 1, shows what each factor
+tracks.
+
+```{r group-means}
+group_means <- function(by) {
+  m <- rowsum(view$activity, metadata[[by]]) / as.vector(table(metadata[[by]]))
+  round(sweep(m, 2, apply(m, 2, max), "/"), 2)
+}
+group_means("celltype")
+group_means("tech")
+```
+
+Four factors follow cell types and four follow technologies. `F2` is acinar and
+`F3` is ductal. `F4` is alpha, with gamma at about 0.6 of its maximum, and `F5`
+is beta, with delta at about 0.8. `F1`, `F6`, `F7` and `F8` are each largest in a
+single technology (CEL-Seq2, Fluidigm C1, inDrop3 and SMART-Seq2, respectively),
+so they encode platform differences that remain after library-size scaling.
+Group means weight cells equally and the Fluidigm C1 groups are smaller, so
+a column such as `F6` can also show cell-type differences that come from that
+technology's composition.
 
 ## Add activities and compute an embedding
 
+Use raw counts for the same 1,000 genes as the Seurat assay, so feature
+identifiers match the factor effects and loadings are stored as well.
+
 ```{r seurat}
 if (requireNamespace("SeuratObject", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) {
-  counts <- Matrix::Matrix(
-    matrix(1, 16, 24, dimnames = list(colnames(X), rownames(X))), sparse = TRUE
-  )
-  object <- SeuratObject::CreateSeuratObject(counts)
+  object <- SeuratObject::CreateSeuratObject(
+    t(counts[, genes]), meta.data = metadata[, c("tech", "celltype")])
   object <- add_factors_to_seurat(object, view)
-  object <- embed_factors(object, seed = 15, n_neighbors = 4,
-                          n_epochs = 20, init = "random")
-  plot_factor_embedding(object, "ebmfumap", "F1")
+  object <- embed_factors(object, seed = 15, n_neighbors = 15, n_epochs = 100)
+  plot_factor_embedding(object, "ebmfumap", paste0("F", 1:8))
 }
 ```
 
-Replace the placeholder object with your existing Seurat object.
-Its cell IDs must exactly match the activity sample IDs.
-Feature loadings are included only when assay feature IDs match.
-UMAP visualizes factor-space geometry. It does not perform batch correction
-or establish replication.
+Replace the object with your existing Seurat object. Its cell IDs must exactly
+match the activity sample IDs. Feature loadings are included only when assay
+feature IDs match. Compare the embedding against the metadata it did not use:
+
+```{r embedding-metadata}
+if (requireNamespace("SeuratObject", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) {
+  umap <- as.data.frame(SeuratObject::Embeddings(object[["ebmfumap"]]))
+  colnames(umap) <- c("UMAP1", "UMAP2")
+  umap$celltype <- object$celltype
+  umap$tech <- object$tech
+  ggplot2::ggplot(umap, ggplot2::aes(UMAP1, UMAP2, color = celltype, shape = tech)) +
+    ggplot2::geom_point(size = 1)
+}
+```
+
+In the embedding, each combination of technology and cell type forms its own
+compact group, and the same cell type from different technologies is not merged.
+This is expected because the four technology factors are part of the coordinates.
+UMAP visualizes factor-space geometry. It does not perform batch correction or
+establish replication.
 
 ## Display activity percentiles
 
 A percentile expresses activity relative to a declared set of reference cells.
+Here the reference is the 240 CEL-Seq2 cells, so
+the percentile of a cell from another technology is partly a technology effect.
 
 ```{r percentiles}
-percentile <- factor_activity_percentile(view, reference_samples = rownames(X)[1:12])
+reference <- rownames(metadata)[metadata$tech == "celseq2"]
+percentile <- factor_activity_percentile(view, reference_samples = reference)
 head(percentile)
 ```
 
-Use `display = "percentile"` in `plot_factor_embedding()` to color an embedding
-by percentiles. Retain the original activities for association tests.
-Donor-level inference still requires a model that accounts for cells sharing
-a donor. See [Compare groups and test associations](contrasts.html).
+```{r percentile-embedding}
+if (requireNamespace("SeuratObject", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) {
+  plot_factor_embedding(object, "ebmfumap", c("F4", "F5"), display = "percentile",
+                        reference_samples = reference)
+}
+```
+
+Retain the original activities for association tests. The cache
+carries no donor identifiers, so cells are not independent units and donor-level
+inference is not possible here. See [Compare groups and test associations](contrasts.html).
 
 ## Sources
 
+The data are from Peter Carbonetto's
+[single-cell Jamboree](https://github.com/stephenslab/single-cell-jamboree)
+(Muraro et al., 2016; Luecken et al., 2022, as assembled there).
 The reduction and display workflows credit David Zemmour and the Zemmour Lab.
 SeuratObject is maintained by Paul Hoffman and the Seurat contributors.
 uwot is by James Melville and contributors.

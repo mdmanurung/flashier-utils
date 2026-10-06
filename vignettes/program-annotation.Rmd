@@ -1,0 +1,162 @@
+---
+title: "Program networks and evidence for annotations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Program networks and evidence for annotations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(flashier.utils)
+library(Matrix)
+set.seed(9)
+knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
+have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
+knitr::opts_chunk$set(eval=have_pancreas)
+```
+
+```{r load-programs, include=FALSE}
+# Restore published factors as in the pancreas-programs article (means only).
+cache <- readRDS(cache_file)
+restore_programs <- function(ldf,signed_effects=FALSE) {
+  Y <- cache$reference_expression
+  factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
+  A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")
+  B <- ldf$F
+  colnames(A) <- colnames(B) <- factor_ids
+  priors <- list(ebnm::ebnm_point_exponential,
+                 if(signed_effects) ebnm::ebnm_point_normal
+                 else ebnm::ebnm_point_exponential)
+  object <- fit_ebmf(Y,"rows",ebnm_fn=priors,max_factors=0,var_type=2,seed=1,
+    feature_scale="shifted_log_reference_library_normalized_measurements",verbose=0)
+  metadata <- attr(object,"flashbridge_metadata")
+  metadata$factor_ids <- factor_ids
+  metadata$preprocessing <- list(scope="external_reference",revision=cache$revision,
+    transformation="log1p(filtered measurement / library size * reference mean)",
+    reference_library_mean=cache$reference_library_mean,
+    source_sha256=cache$source_sha256)
+  object <- flashier::flash_factors_init(object,list(A,B),ebnm_fn=priors)
+  object <- flashier::flash_factors_fix(object,seq_along(factor_ids),"factors")
+  attr(object,"flashbridge_metadata") <- metadata
+  standardize_factors(object,sample_side="rows",scaling="raw",
+    prior_support=c(activity="nonnegative",
+                    effects=if(signed_effects) "signed" else "nonnegative"))
+}
+view <- restore_programs(cache$reference)
+signed_view <- restore_programs(cache$signed,signed_effects=TRUE)
+factors <- colnames(view$activity)
+```
+
+These examples use **published human-pancreas programs** from Peter Carbonetto's
+[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
+nine NMF programs (`view`) and nine semi-NMF programs with signed gene effects
+(`signed_view`), both learned from CEL-Seq2 cells (Muraro et al., 2016, as
+assembled by Luecken et al., 2022) and restored without refitting as described in
+[Pancreas programs](pancreas-programs.html). The code runs only when
+`FLASHIER_UTILS_PANCREAS_DIR` points to the local cache, and otherwise shows
+without output. Upstream data are not redistributed.
+
+The workflows are inspired by ImmGen Figures 1c and 5b and the pancreas
+annotation tutorial.
+ImmGen workflow repository credit: [Ziang Zhang / AgueroZZ](https://github.com/AgueroZZ/immgenT-GP-analysis);
+individual script authors remain unresolved. No upstream workflow source was copied.
+Existing ranking helpers credit Peter Carbonetto and Matthew Stephens; native EBMF
+methods credit Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+
+## Signed programs and shared genes
+
+```{r network}
+islet <- c("F1","F3","F4","F8")
+network <- factor_network(signed_view, factors=islet, direction="both", n=4)
+network$edges[,c("factor","feature","estimate","sign")]
+if (requireNamespace("igraph",quietly=TRUE) && requireNamespace("ggraph",quietly=TRUE)) {
+  plot_factor_network(network, highlight="F4", gene_labels="all", seed=42)
+}
+```
+
+Factor IDs in `signed_view` index the semi-NMF programs and need not match the
+NMF IDs in `view`. In these four programs the top genes of both signs overlap:
+`GCG` is a positive gene of `F1` and `F3` and a negative gene of `F4` and `F8`,
+and `INS` is positive in `F4` and negative in `F3`. Shared neighbors,
+not sign agreement, create the links, so read the edge sign when interpreting them.
+
+Each factor and gene has a separate internal ID, including when a gene name
+matches a factor name. Shared gene neighbors connect programs. Per-factor maximum
+absolute scaling affects display and selection only; edge tables retain original
+signed effects and the source basis. `layout="stress"` uses the ggraph engine;
+`layout="fr"` uses igraph. A scoped seed restores caller RNG state.
+
+## Compare against a chosen set of programs
+
+`F3` and `F7` are two non-epithelial programs whose top genes overlap
+(`SPARC`, `IGFBP7`). Restricting the competition to `F3` shows which `F7` genes
+remain after the shared ones are accounted for.
+
+```{r comparisons}
+pool <- "F3"
+factor_features(view, "F7", n=3, compare_factors=pool)[,
+  c("feature","estimate","distinctiveness","selection")]
+plot_feature_rankings(view, "F7", compare_factors=pool, direction="positive", n=4)
+```
+
+The scatter shows the effect and its **untruncated** difference from the largest
+positive-direction competitor (or smallest negative-direction competitor).
+It labels the union of top effect and top difference candidates. Clipped
+least-extreme margins instead include zero in competition and clip opposing
+margins to zero. `compare_factors=NULL` retains competition against every factor;
+the target always excludes itself. An empty competitor set uses zero.
+
+## Record user-authored labels
+
+Collect evidence first: the highest-weighted distinctive gene of each program and
+the published cell type with the highest mean scaled activity among the 48
+selected cells.
+
+```{r evidence}
+cell_info <- cache$metadata[match(rownames(view$activity),cache$metadata$id),]
+scaled <- sweep(view$activity,2,apply(view$activity,2,max),"/")
+mean_activity <- apply(scaled,2,function(a) tapply(a,droplevels(cell_info$celltype),mean))
+evidence <- data.frame(factor=factors,
+  distinctive_genes=vapply(factors,function(f) paste(
+    factor_features(view,f,select="distinctive",n=3)$feature,collapse=", "),""),
+  top_cell_type=rownames(mean_activity)[apply(mean_activity,2,which.max)],
+  top_mean_activity=round(apply(mean_activity,2,max),2))
+evidence
+```
+
+Labels below are written by the analyst from this evidence; a question mark marks
+a candidate. `F1` is active in every cell type; `F6` has `PPY` among its distinctive genes and, in the
+activity table, gamma cells also carry activity. Programs with weak activity in these
+48 cells, and no cell type of that kind in the selection, stay unresolved.
+
+```{r annotations, fig.width=9}
+labels <- c(F1="Broad", F2="Acinar?", F3="Unresolved", F4="Beta?", F5="Alpha?",
+            F6="SST/PPY?", F7="Unresolved", F8="Unresolved", F9="Ductal?")
+stopifnot(identical(names(labels),factors))
+plot_factor_features(view, factors, direction="positive", n=3, annotation=labels)
+shown <- c("F2","F4","F5","F6","F9")
+plot_factor_features(view, shown,
+                     features=c("REG1A","INS","GCG","SST"),
+                     display_normalization="max_abs", transpose=TRUE,
+                     annotation=labels[shown])
+summary <- summarize_factors(view, n=3, annotations=labels)
+summary[,c("factor","active_proportion","active_features","annotation")]
+```
+
+The heatmap defaults to matched feature-effect units. A log-fold-change label is
+appropriate only when the supplied input and representation have those units;
+these published effects are infinity-normalized factor coordinates.
+The annotation strip records evidence or labels supplied by the analyst. It does
+not assign cell types, and the 48-cell summary is not a calibrated classifier.
+See [credits](credits.html) and `provenance(result=network)`.
+
+## Published-data example
+
+See [Pancreas programs from the single-cell Jamboree](pancreas-programs.html)
+for the full worked comparison of factors 4-6, diagnostics and transfer to
+SMART-Seq2 cells. This article uses the same CEL-Seq2 programs (credit: Peter
+Carbonetto's single-cell Jamboree; Muraro et al., 2016; Luecken et al., 2022) to
+teach network and annotation functions.
