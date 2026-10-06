@@ -39,6 +39,14 @@ jobs:
           working-directory: package
           dependencies: '"all"'
           extra-packages: any::rcmdcheck, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683, github::kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3
+      - name: Verify optional dependencies load
+        shell: Rscript {0}
+        run: |
+          packages <- trimws(strsplit(read.dcf("package/DESCRIPTION")[1, "Suggests"], ",", fixed = TRUE)[[1]])
+          for (engine in sub(" *\\(.*\\)$", "", packages)) {
+            cat("Loading", engine, "\n")
+            loadNamespace(engine)
+          }
       - uses: r-lib/actions/check-r-package@v2
         with:
           working-directory: package
