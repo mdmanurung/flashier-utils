@@ -1,0 +1,36 @@
+---
+title: "First signed fit to interpretation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{First signed fit to interpretation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(24),12,2),matrix(rnorm(16),8,2)) + matrix(rnorm(96,sd=0.2),12,8)
+dimnames(X) <- list(paste0("s",1:12),paste0("g",1:8))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+factor_features(view,"F1",n=3)
+plot_factor_activity(view)
+```
+
+Rows are samples, not implicitly independent donors. No biological replication
+or inferential p-value is established by this example. The same interface takes
+a named, user-preprocessed pseudobulk matrix with its scale and independent unit
+recorded. Signed scores stay signed.
+
+```{r}
+beta <- setNames(rep(1,ncol(view$activity)),colnames(view$activity))
+backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest)$effects
+factor_uncertainty(fit, "activity")
+provenance("backproject_contrast")
+```
+
+These feature effects represent a declared activity contrast in arcsinh units.
+Factor posterior SD is conditional on fitted EBMF priors and differs from
+regression standard error. This workflow credits flashier, singlecelljamboreeR
+and the ZemmourLib/ImmGenT backprojection recipe; see the installed NOTICE.

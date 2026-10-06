@@ -1,0 +1,15 @@
+test_that("runtime records resolve parameters without altering basis identities", {
+  view<-fixture_view()
+  before<-view$manifest$basis_id
+  result<-factor_activity(view,factors="F1",samples="s2",format="long")
+  metadata<-attr(result,"analysis_metadata")
+  required<-c("schema_version","package_version","function","engine","engine_version","call","parameters","basis_id","sample_side","factor_order","feature_scale","independent_unit")
+  expect_true(all(required %in% names(metadata)))
+  expect_equal(metadata[["function"]],"factor_activity")
+  expect_equal(metadata$parameters$factors,"F1")
+  expect_equal(metadata$parameters$samples,"s2")
+  expect_equal(metadata$basis_id,before)
+  expect_equal(.validate_view(view)$manifest$basis_id,before)
+  expect_false(anyDuplicated(names(metadata))>0)
+  expect_error(.with_seed(.Machine$integer.max+1,TRUE),"nonnegative integer")
+})

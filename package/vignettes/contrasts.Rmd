@@ -1,0 +1,43 @@
+---
+title: "Descriptive and inferential contrasts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Descriptive and inferential contrasts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+Cells and visits are observations; donors are biological units. Descriptive group means provide no p-values. Factor-response tests condition on the estimated activities and selected rank.
+```{r}
+summarize_factor_activity(view,metadata,by="group",unit_col="donor")
+compare_factor_groups(view,metadata,"group",c("B","A"),unit_col="donor")
+independent <- metadata[seq(1,24,2),]
+# One observation per donor; explicit sample selection creates a native fit.
+indfit <- fit_ebmf(X[independent$sample,],"rows",seed=8,max_factors=2,verbose=0,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+result <- test_factors(indfit,independent,~group,"lm",unit_col="donor",independence="independent")
+result$table
+```
+Repeated records must use the declared donor term. Native dream diagnostics, including errors, are preserved.
+```{r}
+if (requireNamespace("variancePartition",quietly=TRUE)) {
+  repeated <- test_factors(view,metadata,~visit+(1|donor),"dream",unit_col="donor",independence="repeated",control=list(dream=list(BPPARAM=BiocParallel::SerialParam())))
+  repeated$table
+  repeated$diagnostics
+}
+```
+Limma moderation is optional and sensitive with few factors. No voom or count transformation is applied to continuous scores. The repeated-donor benchmark observed 84% interval coverage at 25 seeds (Monte Carlo SE 7.3%); calibration is not established.
+
+```{r}
+nonnegative <- fit_nonnegative_ebmf(abs(X),"rows",seed=12,max_factors=2,verbose=0,nullcheck=FALSE)
+stopifnot(all(factor_activity(nonnegative)>=0),all(factor_effects(nonnegative)>=0))
+```

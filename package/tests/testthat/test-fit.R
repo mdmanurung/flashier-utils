@@ -1,0 +1,35 @@
+test_that("native default and signed wrappers preserve numerical results and RNG", {
+  X <- fixture_matrix()
+  expect_error(fit_ebmf(X),"explicitly")
+  set.seed(31); old <- .Random.seed
+  wrapped <- fit_ebmf(X,"rows",max_factors=2L,verbose=0L,seed=6)
+  expect_identical(.Random.seed,old)
+  set.seed(6)
+  native <- flashier::flash(X,greedy_Kmax=2L,verbose=0L)
+  for (name in c("L_pm","F_pm","pve")) expect_equal(wrapped[[name]],native[[name]],tolerance=1e-10)
+  for (side in c("rows","columns")) {
+    wrapped <- fixture_fit(side)
+    prior <- list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace)
+    data <- if (side=="rows") X else t(X)
+    if(side=="columns") prior <- rev(prior)
+    set.seed(12)
+    native <- flashier::flash(data,ebnm_fn=prior,greedy_Kmax=2L,backfit=TRUE,nullcheck=FALSE,verbose=0L)
+    expect_equal(wrapped$L_pm,native$L_pm,tolerance=1e-10)
+    expect_equal(wrapped$F_pm,native$F_pm,tolerance=1e-10)
+    expect_equal(attr(wrapped,"flashbridge_metadata")$prior_support,c(activity="signed",effects="signed"))
+  }
+  sparse <- methods::as(Matrix::Matrix(X,sparse=TRUE),"dgCMatrix")
+  expect_s3_class(fit_ebmf(sparse,"rows",max_factors=1L,verbose=0L),"flash")
+  expect_error(fit_ebmf(X,"rows",control=list(unknown=1)),"Unknown")
+})
+
+test_that("advanced controls agree with the same public pipeline", {
+  X <- fixture_matrix()
+  control <- list(S_dim=1L,greedy=list(maxiter=50L,extrapolate=FALSE),backfit=list(maxiter=50L,extrapolate=FALSE))
+  wrapped <- fit_ebmf(X,"rows",S=rep(0.2,nrow(X)),max_factors=1L,backfit=TRUE,nullcheck=FALSE,control=control,verbose=0L,seed=10)
+  set.seed(10)
+  native <- flashier::flash_init(X,S=rep(0.2,nrow(X)),S_dim=1L)
+  native <- flashier::flash_greedy(native,Kmax=1L,maxiter=50L,extrapolate=FALSE,verbose=0L)
+  native <- flashier::flash_backfit(native,maxiter=50L,extrapolate=FALSE,verbose=0L)
+  expect_equal(wrapped$L_pm,native$L_pm,tolerance=1e-10)
+})

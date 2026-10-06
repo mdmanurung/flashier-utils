@@ -1,0 +1,7 @@
+.Rhistory
+.RData
+*.tar.gz
+*.Rcheck/
+package/inst/doc/
+package/doc/
+package/Meta/

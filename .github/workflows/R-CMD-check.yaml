@@ -1,0 +1,45 @@
+name: R CMD check
+on: [push, pull_request]
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, r: release}
+          - {os: ubuntu-latest, r: devel}
+          - {os: macos-latest, r: release}
+          - {os: windows-latest, r: release}
+    runs-on: ${{ matrix.os }}
+    env:
+      _R_CHECK_FORCE_SUGGESTS_: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r }}
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: package
+          dependencies: '"hard"'
+          extra-packages: any::rcmdcheck, any::knitr, any::rmarkdown, any::testthat, any::psych, any::clue, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          working-directory: package
+          args: 'c("--no-manual")'
+
+  full-engines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: package
+          dependencies: '"all"'
+          extra-packages: any::rcmdcheck, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683, github::kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          working-directory: package
+          args: 'c("--no-manual")'

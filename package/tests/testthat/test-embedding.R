@@ -1,0 +1,22 @@
+test_that("native UMAP parity and sampled display retain original coordinates", {
+  skip_if_not_installed("SeuratObject");skip_if_not_installed("uwot")
+  d<-association_fixture(K=6)
+  counts<-matrix(1,6,12,dimnames=list(rownames(d$view$effects),rownames(d$view$activity)))
+  object<-add_factors_to_seurat(SeuratObject::CreateSeuratObject(Matrix::Matrix(counts,sparse=TRUE)),d$view)
+  set.seed(1); rng<-.Random.seed
+  out<-embed_factors(object,dims=1:3,seed=27,n_neighbors=3,n_epochs=20,init="random")
+  expect_identical(.Random.seed,rng)
+  native<-.with_seed(27,uwot::umap(d$view$activity[,1:3],seed=27,n_neighbors=3,n_epochs=20,init="random",n_components=2,n_threads=1,n_sgd_threads=1,verbose=FALSE,metric="euclidean"))
+  expect_equal(unname(SeuratObject::Embeddings(out[["ebmfumap"]])),unname(native))
+  expect_equal(SeuratObject::Embeddings(out[["ebmf"]]),SeuratObject::Embeddings(object[["ebmf"]]))
+  expect_error(embed_factors(out,seed=27),"already exists")
+  expect_error(embed_factors(object,dims=c(1,1)),"unique")
+  p<-plot_factor_embedding(out,"ebmfumap",c("F1","F2"),max_samples=5,seed=8)
+  expect_equal(nrow(p$data),10L)
+  expect_true(any(p$data$estimate<0))
+  expect_equal(length(attr(p,"analysis_metadata")$included_samples),5L)
+  pct<-plot_factor_embedding(out,"ebmfumap","F1",display="percentile",reference_samples=c("s1","s2"),max_samples=5,seed=8)
+  ids<-pct$data$sample
+  expect_equal(pct$data$estimate,100*ecdf(d$view$activity[c("s1","s2"),"F1"])(d$view$activity[ids,"F1"]))
+  expect_true(attr(pct,"analysis_metadata")$display_only)
+})

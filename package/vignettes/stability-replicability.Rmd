@@ -1,0 +1,30 @@
+---
+title: "Donor stability and independent-fit replicability"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Donor stability and independent-fit replicability}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+The bootstrap draws donors and preserves both visits, with unique occurrence IDs. Threshold-free assignments are candidates. A caller-chosen congruence criterion gives accepted matches without a universal stable/unstable label.
+```{r}
+if (requireNamespace("psych",quietly=TRUE) && requireNamespace("clue",quietly=TRUE)) {
+  stability <- factor_stability(X,fit,metadata,"donor",B=2,min_congruence=0.8,seed=26)
+  stability$summary
+  stability$failures
+  other <- fit_ebmf(X,"rows",seed=5,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+  factor_replicability(fit,other,min_congruence=0.8)$matches
+}
+```
+This tiny bootstrap demonstrates execution; it cannot estimate recovery reliably. Full fixed-budget benchmark results live outside the vignette. Report both successful-fit and all-requested denominators. Concordance between independently fitted programs does not establish measurement invariance, individual-level transportability or biological replication by itself.

@@ -1,0 +1,28 @@
+---
+title: "Method-specific pathway summaries"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Method-specific pathway summaries}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+Ranked fgsea enrichment and decoupleR network scores are different estimands. Feature effects and least-extreme distinctiveness are explicit alternative signals. Annotation universes, sizes and losses are retained.
+```{r}
+pathways <- list(panelA=paste0("g",1:6),panelB=paste0("g",7:12))
+if (requireNamespace("fgsea",quietly=TRUE)) {
+  enrichment <- enrich_factors(view,pathways,"fgsea",factors="F1",control=list(seed=12,nPermSimple=100L,eps=1e-3,minSize=3L))
+  enrichment$table
+}
+```
+For real gene sets attach a version and source to the named list. These simulated labels are a structural example without biological meaning. SuSiE is explicitly unsupported until its optional source and native API gates are completed.

@@ -1,0 +1,12 @@
+test_that("limma moderation and transposition are native-equivalent", {
+  skip_if_not_installed("limma")
+  d <- association_fixture()
+  out <- test_factors(d$view,d$metadata,~group,"limma",unit_col="donor",independence="independent")
+  native <- limma::lmFit(t(d$view$activity),model.matrix(~group,d$metadata))
+  C <- matrix(c(0,1),2,dimnames=list(colnames(native$coefficients),"groupB"))
+  native <- limma::eBayes(limma::contrasts.fit(native,C))
+  expect_equal(out$table$estimate,unname(drop(native$coefficients)))
+  expect_equal(out$table$std.error,unname(drop(native$stdev.unscaled)*sqrt(native$s2.post)))
+  expect_equal(out$table$p.value,unname(drop(native$p.value)))
+  expect_equal(out$table$adj.p.value,p.adjust(unname(drop(native$p.value)),"BH"))
+})

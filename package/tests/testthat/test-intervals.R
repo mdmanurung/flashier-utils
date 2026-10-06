@@ -1,0 +1,27 @@
+test_that("native intervals transform identical selected sampler draws", {
+  fit <- fixture_fit(); view <- standardize_factors(fit,d_location="activity")
+  out <- factor_intervals(fit,"activity",representation=view,factors="F1",ids="s2",nsamp=20L,seed=123)
+  set.seed(123); draws <- fit$sampler(20L)
+  values <- vapply(draws,function(d) d[[1]][2,1],numeric(1)) * view$manifest$activity_multiplier[1]
+  expect_equal(out$mean,mean(values),tolerance=1e-10)
+  expect_equal(out$lower,unname(quantile(values,0.025)),tolerance=1e-10)
+  expect_equal(out$prob_positive,mean(values > 0))
+  expect_equal(attr(out,"analysis_metadata")$nsamp,20L)
+  expect_error(factor_intervals(flashier::flash_init(fixture_matrix()),"activity"),"sampler")
+})
+
+test_that("conditional covariance and draws use full signed feature algebra", {
+  view <- fixture_view(); beta <- c(F1=2,F2=-1)
+  Sigma <- matrix(c(2,-0.5,-0.5,1),2,dimnames=list(names(beta),names(beta)))
+  out <- backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest,coefficient_covariance=Sigma)
+  expected_variance <- c(11,4,16,2)
+  expect_equal(out$effects$std.error,sqrt(expected_variance),tolerance=1e-10)
+  expect_error(backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest,coefficient_covariance=c(1,1)),"covariance")
+  D <- rbind(c(F1=1,F2=-1),c(F1=2,F2=0),c(F1=0,F2=2))
+  out <- backproject_contrast(view,D,"draws",factor_basis=view$manifest,keep_draws=TRUE,feature_block_size=1L)
+  expected <- rbind(c(-1,1,-4,1),c(4,-2,0,2),c(6,-4,8,0))
+  expect_equal(unname(out$draws),expected)
+  expect_equal(out$effects$estimate,colMeans(expected))
+  expect_equal(out$effects$lower,apply(expected,2,quantile,probs=0.025),ignore_attr=TRUE)
+  expect_false("p.value" %in% names(out$effects))
+})
