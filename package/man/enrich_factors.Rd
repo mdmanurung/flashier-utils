@@ -18,7 +18,10 @@ enrich_factors(
 \arguments{
 \item{fit}{Native fit or matched representation.}
 
-\item{pathways}{Named feature-set list with organism/annotation attributes.}
+\item{pathways}{Named feature-set list with organism/annotation attributes,
+or, for decoupleR, a data frame with source, target and finite signed mor
+weights. Source-target edges must be unique; target IDs must match features
+after feature_map. Extra network columns are ignored.}
 
 \item{engine}{Required fgsea or decoupleR (susie is explicitly unsupported).}
 
@@ -45,6 +48,12 @@ Origin: WRAPPER / call_only.
   Credits perform_gsea; later fgsea/decoupleR adapters; use provenance("enrich_factors")
   for audited sources and runtime versions. Input units and basis are retained;
   display/conditional results do not establish biological replication.
+  Network scores annotate estimated feature weights, not sample activities.
+  Their sign depends on factor orientation and native p-values do not account
+  for uncertainty in the EBMF fit. Network targets absent from the feature
+  universe are excluded; the full mapped feature universe is retained in mat.
+  By default center=FALSE: centering across factors changes the annotation
+  signal and makes scores depend on the selected factors.
 }
 \examples{
 \dontshow{if (requireNamespace("fgsea",quietly=TRUE) && requireNamespace("BiocParallel",quietly=TRUE)) withAutoprint(\{ # examplesIf}

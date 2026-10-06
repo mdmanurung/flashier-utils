@@ -8,8 +8,9 @@ remotes::install_github("mdmanurung/flashier-utils", subdir = "package")
 ```
 
 Interpret signed empirical Bayes matrix factorizations using matched sample
-activities and feature programs. No preprocessing or biological annotation is
-performed. Feature units are the units of the supplied matrix.
+activities and feature programs. No preprocessing is performed. Biological
+annotation uses explicitly supplied feature sets or networks. Feature units are
+the units of the supplied matrix.
 
 ```r
 library(flashier.utils)
@@ -54,14 +55,36 @@ rcmdcheck::rcmdcheck("package", args = "--no-manual")
 
 ## Later modules
 
+Annotate EBMF feature weights with signed decoupleR networks (ULM by default):
+
+```r
+# network is a data frame with source, target (feature ID), and mor (signed weight).
+# For gene-based fits, e.g. network <- decoupleR::get_collectri(organism = "human")
+annotation <- enrich_factors(view, network, engine = "decoupleR",
+                             control = list(method = "ulm", minsize = 5L))
+annotation$table  # source, condition (factor ID), score, native p_value, basis_id
+annotation$analysis_metadata$pathway_sizes  # input and overlapping target counts
+```
+
+Use `method = "mlm"` for multivariate network scoring. Targets must match the
+fit's feature IDs; `feature_map` provides an explicit one-to-one mapping.
+Scores describe estimated factor programs and depend on factor orientation.
+The complete mapped feature universe is retained; network hashes, excluded
+targets, mapping losses and annotation metadata are recorded. Duplicate edges
+and nonfinite weights are rejected. Native filtering and errors are retained;
+centering across factors defaults to FALSE. Native p-values do not propagate
+EBMF uncertainty or establish biological replication. Supply custom marker networks for non-gene features such as CyTOF
+markers; gene regulatory networks require gene-level features.
+
 The 34 exports cover explicit lm/limma/dream association, native fgsea and
 decoupleR enrichment, donor bootstrap/checkpoints, named program assignment,
 new-sample projection and masked scoring, native mash/correlation, and exact-ID
 Seurat/uwot displays. Optional dependencies load only when requested.
 
 All downstream inference conditions on estimated factor scores unless stated
-otherwise. Repeated-donor benchmark coverage was below nominal; calibration is
-not established. brms/uncertain-response and SuSiE modes are deferred. CorShrink
+otherwise. Known-activity repeated-donor dream coverage was 21/25 seeds (84%, Monte Carlo
+SE 7.33%) in both null and planted scenarios. The 25-seed budget does not
+establish calibration and excludes learned-factor uncertainty. brms/uncertain-response and SuSiE modes are deferred. CorShrink
 supports its audited default only; native dosym=TRUE fails and is refused.
 
 Source notices are installed with the package. Executable vignettes describe

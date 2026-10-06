@@ -26,3 +26,41 @@ if (requireNamespace("fgsea",quietly=TRUE)) {
 }
 ```
 For real gene sets attach a version and source to the named list. These simulated labels are a structural example without biological meaning. SuSiE is explicitly unsupported until its optional source and native API gates are completed.
+
+Signed network weights can annotate factor feature programs directly. The rows
+of the input are features and the columns are factors, as required by decoupleR.
+Supply a network with `source`, `target`, and `mor` columns; for gene-based
+features, native resources such as `decoupleR::get_collectri()` or
+`decoupleR::get_progeny()` can provide these networks. PROGENy returns a `weight`
+column: set `network$mor <- network$weight` before passing it here. Cache and
+version real annotations before use. Feature IDs must match network targets, or be mapped
+explicitly with a one-to-one `feature_map`.
+
+```{r}
+network <- data.frame(source=rep(c("programA","programB"),each=6),
+                      target=paste0("g",1:12),
+                      mor=rep(c(1,-1,0.5,-0.5,2,-2),2))
+attr(network,"annotation_version") <- "simulated_v1"
+if (requireNamespace("decoupleR",quietly=TRUE)) {
+  annotation <- enrich_factors(view,network,"decoupleR",
+                                control=list(method="ulm",minsize=3L))
+  annotation$table
+  annotation$analysis_metadata$pathway_sizes
+}
+```
+
+`condition` identifies the factor in the native result. ULM and MLM return native
+scores and p-values. The entire mapped feature universe is passed to the native
+method, including features without network edges. Missing targets and mapping
+losses are recorded, along with a hash of the signed network. Duplicate edges
+are rejected rather than silently summed. Native `minsize` filtering and errors
+are retained. Use `control=list(method="mlm",minsize=3L)` for multivariate scoring.
+
+Scores describe the estimated feature program, not per-sample pathway activity.
+Reversing a factor's sign reverses its annotation score. By default the input is
+not centered across factors; `center=TRUE` changes the signal and makes the
+result depend on which factors were selected. Native p-values condition on the
+estimated weights and do not propagate EBMF uncertainty. These simulated
+programs have no biological meaning. For CyTOF or other non-gene features, use
+networks matched to those measured features rather than assuming a gene network
+applies to a marker panel.

@@ -4,7 +4,17 @@
   signal <- match.arg(signal, c("effects", "distinctiveness"))
   B <- if (signal == "effects") view$effects else factor_distinctiveness(view, format = "matrix")
   B <- B[, .select_ids(factors, view$manifest$factor_ids, "factor"), drop = FALSE]
-  if (!is.list(pathways) || is.null(names(pathways))) stop("pathways must be a named list of feature IDs")
+  network <- NULL
+  if (is.data.frame(pathways)) {
+    if (!all(c("source", "target", "mor") %in% names(pathways))) stop("Network requires source, target and mor columns")
+    network <- as.data.frame(pathways[, c("source", "target", "mor")])
+    .validate_ids(unique(network$source), "Network source")
+    .validate_ids(unique(network$target), "Network target")
+    if (!is.numeric(network$mor) || any(!is.finite(network$mor))) stop("Network mor weights must be finite numeric values")
+    if (anyDuplicated(network[, c("source", "target")])) stop("Network source-target edges must be unique")
+    pathways <- stats::setNames(lapply(unique(network$source), function(source) network$target[network$source == source]), unique(network$source))
+  }
+  if (!is.list(pathways) || is.null(names(pathways))) stop("pathways must be a named list of feature IDs or a decoupleR network")
   .validate_ids(names(pathways), "Pathway")
   for (set in pathways) if (!is.character(set) || anyNA(set) || any(!nzchar(set))) stop("Pathway members must be nonempty feature IDs")
   pathways <- lapply(pathways, unique)
@@ -20,7 +30,7 @@
   }
   sizes <- data.frame(pathway = names(pathways), input_size = lengths(pathways),
                        overlap_size = vapply(pathways, function(set) length(intersect(set, rownames(B))), integer(1)))
-  list(view = view, B = B, pathways = pathways, sizes = sizes, mapping_excluded = excluded, signal = signal)
+  list(view = view, B = B, pathways = pathways, network = network, sizes = sizes, mapping_excluded = excluded, signal = signal)
 }
 
 #' Enrich or score feature programs with a chosen native method
@@ -29,7 +39,10 @@
 #' ULM/MLM yields network activity scores. These are different estimands. SuSiE
 #' is unsupported until its missing backend and audit gate are resolved.
 #' @param fit Native fit or matched representation.
-#' @param pathways Named feature-set list with organism/annotation attributes.
+#' @param pathways Named feature-set list with organism/annotation attributes,
+#'   or, for decoupleR, a data frame with source, target and finite signed mor
+#'   weights. Source-target edges must be unique; target IDs must match features
+#'   after feature_map. Extra network columns are ignored.
 #' @param engine Required fgsea or decoupleR (susie is explicitly unsupported).
 #' @param factors Optional factor IDs.
 #' @param representation Matched view or settings.
@@ -42,6 +55,12 @@
 #'   Credits perform_gsea; later fgsea/decoupleR adapters; use provenance("enrich_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
+#'   Network scores annotate estimated feature weights, not sample activities.
+#'   Their sign depends on factor orientation and native p-values do not account
+#'   for uncertainty in the EBMF fit. Network targets absent from the feature
+#'   universe are excluded; the full mapped feature universe is retained in mat.
+#'   By default center=FALSE: centering across factors changes the annotation
+#'   signal and makes scores depend on the selected factors.
 #' @examplesIf requireNamespace("fgsea",quietly=TRUE) && requireNamespace("BiocParallel",quietly=TRUE)
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
@@ -59,6 +78,7 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
   if (missing(engine)) stop("Choose enrichment engine explicitly")
   engine <- match.arg(engine, c("fgsea", "decoupleR", "susie"))
   if (engine == "susie") stop("SuSiE mode is unsupported: install and audit susieR/singlecelljamboreeR before enabling this capability")
+  if (is.data.frame(pathways) && engine != "decoupleR") stop("Weighted networks require engine='decoupleR'")
   if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control))))) stop("control must be a uniquely named list")
   data <- .enrichment_input(fit, pathways, factors, representation, signal, feature_map)
   eligible <- data$sizes$overlap_size > 0L
@@ -68,6 +88,11 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
     mapping_excluded = data$mapping_excluded, duplicate_policy = "unique_pathway_members_one_to_one_feature_map",
     pathway_sizes = data$sizes, organism = attr(pathways, "organism"), annotation_version = attr(pathways, "annotation_version"),
     control = control, seed = seed, ranking_ties = "native_fgsea_warning_retained"))
+  if (!is.null(data$network)) {
+    metadata$network_hash <- digest::digest(data$network, algo = "sha256")
+    metadata$network_targets_excluded <- setdiff(data$network$target, rownames(data$B))
+    metadata$duplicate_policy <- "unique_source_target_edges_one_to_one_feature_map"
+  }
   if (!length(sets) || !nrow(data$B) || !ncol(data$B)) {
     table <- if (engine == "fgsea") data.frame(pathway = character(), factor = character(), NES = numeric(), pval = numeric(), padj = numeric(), size = integer()) else data.frame(source = character(), condition = character(), statistic = character(), score = numeric(), p_value = numeric())
     return(.attach_provenance(list(table = table, native = list(), analysis_metadata = c(metadata, list(status = "no_overlapping_pathways"))), "enrich_factors", match.call(), .resolved_parameters("enrich_factors", environment())))
@@ -94,9 +119,14 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
     .check_engine("decoupleR", symbol)
     fn <- getExportedValue("decoupleR", symbol)
     if (any(!names(control) %in% setdiff(names(formals(fn)), c("mat", "network", ".source", ".target", ".mor", ".likelihood")))) stop("Unsupported decoupleR control")
-    network <- do.call(rbind, lapply(names(sets), function(name) data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1)))
+    network <- if (is.null(data$network)) do.call(rbind, lapply(names(sets), function(name) data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1))) else
+      data$network[data$network$target %in% rownames(data$B), , drop = FALSE]
     native <- do.call(fn, c(list(mat = data$B, network = network), control))
     table <- as.data.frame(native)
+    if (!is.null(data$network) || !is.null(factors)) {
+      table <- table[order(match(table$condition, colnames(data$B))), , drop = FALSE]
+      rownames(table) <- NULL
+    }
     metadata$method <- symbol
     metadata$interpretation <- "network_activity_score"
   }

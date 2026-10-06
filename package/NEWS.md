@@ -1,5 +1,10 @@
 # flashier.utils 1.0.0
 
+* Added signed decoupleR source/target/mor networks through pathways, with native
+  ULM/MLM scoring, no default centering, explicit one-to-one feature mapping,
+  network hashes and retained annotation losses. Duplicate edges and invalid
+  weights are refused; weighted networks cannot use fgsea. Scores annotate
+  estimated feature programs and condition on the EBMF fit.
 * Implemented the 34 planned exports around public flashier and optional engines.
 * Enforced named coordinates, biological units and fixed-basis backprojection.
 * Added donor resampling/checkpoints, independent-fit matching and leakage-safe
