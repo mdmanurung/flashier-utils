@@ -28,6 +28,12 @@ jobs:
           dependencies: '"all"'
           extra-packages: any::pkgdown, local::.
           needs: website
+      - name: Prepare published pancreas example data
+        # Explicit download of upstream single-cell Jamboree data; not part of the package.
+        run: |
+          mkdir -p "$RUNNER_TEMP/pancreas"
+          FLASHIER_UTILS_PANCREAS_DIR="$RUNNER_TEMP/pancreas" Rscript .github/scripts/prepare-pancreas.R
+          echo "FLASHIER_UTILS_PANCREAS_DIR=$RUNNER_TEMP/pancreas" >> "$GITHUB_ENV"
       - name: Build documentation
         shell: Rscript {0}
         run: |
