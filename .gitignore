@@ -2,6 +2,7 @@
 .RData
 *.tar.gz
 *.Rcheck/
-package/inst/doc/
-package/doc/
-package/Meta/
+inst/doc/
+doc/
+Meta/
+docs/

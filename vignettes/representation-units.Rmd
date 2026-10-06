@@ -1,0 +1,35 @@
+---
+title: "Representation and measurement units"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Representation and measurement units}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+D is absorbed exactly once. Both canonical coordinates reconstruct the same native posterior mean.
+```{r}
+raw <- standardize_factors(fit,scaling="raw")
+ldf <- standardize_factors(fit,d_location="activity")
+stopifnot(isTRUE(all.equal(tcrossprod(raw$activity,raw$effects),tcrossprod(ldf$activity,ldf$effects),tolerance=1e-10)))
+ldf$manifest[c("basis_id","feature_scale","d_location","orientation")]
+```
+Changing normalization changes the coefficient basis. For a baseline-standardization recipe, compute means and SD on the declared baseline reference samples, transform activity, divide its matched coefficient scale accordingly and reconstruct with effects multiplied by the reference SD. A centered basis also requires an explicit feature offset. This package does not silently create that transformed basis or transport external coefficients into it.
+
+
+## Source credits
+
+Original function and package authors are named in each function manual and in
+[Original authors and sources](credits.html). The installed `provenance()` registry
+records source pins, authors, licenses and reuse. Please cite the upstream methods
+used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.

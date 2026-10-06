@@ -1,0 +1,18 @@
+url: https://mdmanurung.github.io/flashier-utils/
+template:
+  bootstrap: 5
+navbar:
+  structure:
+    left: [intro, reference, articles, news, credits]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/first-fit.html
+    credits:
+      text: Original authors
+      href: articles/credits.html
+reference:
+  - title: All functions
+    contents:
+      - matches(".")

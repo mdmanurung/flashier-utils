@@ -1,0 +1,26 @@
+Package: flashier.utils
+Title: Transparent Interpretation of Empirical Bayes Matrix Factorizations
+Version: 1.0.0
+Authors@R: c(person("Mikhael", "Manurung", role = c("aut", "cre"),
+    email = "mikhael.manurung@gmail.com"),
+    person("Peter", "Carbonetto", role = "ctb",
+        comment = "Original singlecelljamboreeR feature helpers"),
+    person("Matthew", "Stephens", role = "ctb",
+        comment = "Original singlecelljamboreeR feature helpers"))
+Description: Toolkit around public flashier interfaces for named,
+    signed factor representations, interpretation and reconstruction. Preserves
+    sample orientation, coordinate basis and conditional uncertainty semantics.
+License: MIT + file LICENSE
+URL: https://mdmanurung.github.io/flashier-utils/,
+    https://github.com/mdmanurung/flashier-utils
+BugReports: https://github.com/mdmanurung/flashier-utils/issues
+Encoding: UTF-8
+Depends: R (>= 4.3.0)
+Imports: flashier, ebnm, Matrix, digest, ggplot2, rlang, stats, utils, methods, parallel
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown, limma, variancePartition,
+    mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot
+VignetteBuilder: knitr
+Remotes: willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683,
+    kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0

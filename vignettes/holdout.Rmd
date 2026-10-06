@@ -1,0 +1,40 @@
+---
+title: "Held-out projection and masked prediction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Held-out projection and masked prediction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+Named folds keep both visits from each donor together. The callback fits programs on training data only. Identity preprocessing is declared explicitly; globally fitted normalization must be labelled conditional-global.
+```{r}
+folds <- data.frame(sample=metadata$sample,fold=rep(c("training","held"),c(16,8)))
+callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()) {
+  fit_ebmf(X,sample_side,seed=seed,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+}
+control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="held")
+projection <- factor_holdout(X,metadata,"donor",folds,callback,evaluation="projection",seed=1,control=control)
+projection$metrics
+masked <- factor_holdout(X,metadata,"donor",folds,callback,evaluation="masked",activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),seed=1,control=control)
+masked$metrics
+```
+Projection uses observed test entries to estimate activities. Masked scoring excludes the scoring entries from that estimation and from test noise/prior calibration. They are different evaluations. Programs remain fixed; nuisance parameters can recalibrate on permitted test entries. Freezing training noise is unsupported. Leave-one-cohort-out uses cohort IDs as fold labels and donor IDs as units, provided each donor belongs to one cohort.
+
+
+## Source credits
+
+Original function and package authors are named in each function manual and in
+[Original authors and sources](credits.html). The installed `provenance()` registry
+records source pins, authors, licenses and reuse. Please cite the upstream methods
+used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.

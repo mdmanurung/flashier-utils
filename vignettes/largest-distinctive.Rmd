@@ -1,0 +1,34 @@
+---
+title: "Largest and distinctive feature effects"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Largest and distinctive feature effects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup}
+library(flashier.utils)
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48),24,2),matrix(rnorm(32),16,2)) + matrix(rnorm(384,sd=0.2),24,16)
+dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
+fit <- fit_ebmf(X,"rows",seed=1,max_factors=2,verbose=0,backfit=TRUE,nullcheck=FALSE,feature_scale="arcsinh_intensity")
+view <- standardize_factors(fit)
+metadata <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:12),each=2),group=rep(c("A","B"),each=12),visit=rep(0:1,12))
+```
+
+Largest absolute effects answer which measurements contribute most. Least-extreme distinctiveness compares each factor with all other factors in the same declared basis. These rankings have different meanings and have no significance test.
+```{r}
+factor_features(view,"F1",select="largest",n=4)
+factor_features(view,"F1",select="distinctive",n=4)
+plot_factor_features(view,"F1",select="largest",n=4)
+```
+The two ranking helpers are licensed adaptations of singlecelljamboreeR, not new statistical estimators. Ties are deterministic by feature ID for display.
+
+
+## Source credits
+
+Original function and package authors are named in each function manual and in
+[Original authors and sources](credits.html). The installed `provenance()` registry
+records source pins, authors, licenses and reuse. Please cite the upstream methods
+used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.

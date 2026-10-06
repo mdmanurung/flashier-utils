@@ -1,0 +1,212 @@
+# Original authors and sources
+
+Mikhael Manurung maintains the orchestration and interfaces in flashier.utils.
+The original methods and adapted functions remain credited to their authors.
+Wrapping an upstream method does not transfer authorship of that method.
+
+## Function origins
+
+| Function | Original authors / workflow credit | Upstream function or method | Reuse |
+|---|---|---|---|
+| `fit_ebmf` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash | WRAPPER / call_only |
+| `standardize_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | ldf | ADAPTED / call_only |
+| `factor_activity` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native means / ldf | NEW_QOL / none |
+| `factor_effects` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native means / ldf | NEW_QOL / none |
+| `factor_uncertainty` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native posterior moments / public accessors | WRAPPER / call_only |
+| `factor_pve` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native pve field | WRAPPER / none |
+| `rank_features` | Peter Carbonetto; Matthew Stephens | rank_effects | ADAPTED / modified |
+| `factor_distinctiveness` | Peter Carbonetto; Matthew Stephens | compute_le_effects | ADAPTED / modified |
+| `factor_features` | Peter Carbonetto; Matthew Stephens | rank_effects; compute_le_effects | NEW_QOL / none |
+| `plot_factor_features` | David Zemmour | MyGeneTilePlot workflow; native flashier optional | ADAPTED / none |
+| `plot_factor_activity` | David Zemmour | MyStructurePlot / ImmGenT display workflow | ADAPTED / none |
+| `backproject_contrast` | David Zemmour | FlashierDGE reconstruction workflow | ADAPTED / none |
+| `provenance` | Mikhael Manurung | new registry interface | NEW_QOL / none |
+| `fit_nonnegative_ebmf` | Peter Carbonetto; Matthew Stephens | flashier_nmf workflow; bounded native recipe | ADAPTED / call_only |
+| `refit_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_backfit | WRAPPER / call_only |
+| `fix_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_factors_fix; flash_factors_unfix | WRAPPER / call_only |
+| `remove_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_factors_remove | WRAPPER / call_only |
+| `reorder_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_factors_reorder | WRAPPER / call_only |
+| `factor_intervals` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | sampler | WRAPPER / call_only |
+| `summarize_factor_activity` | David Zemmour / Zemmour Lab (ImmGenT workflows) | metadata grouping workflow | NEW_QOL / none |
+| `rank_factors_by_metadata` | Stephens Lab; individual script authors not verified | ANOVA_factors / stats::lm workflow | ADAPTED / none |
+| `compare_factor_groups` | David Zemmour | FlashierDGE group contrast workflow | ADAPTED / none |
+| `validate_backprojection` | Mikhael Manurung | new reconstruction diagnostics; no exact upstream function claimed | NEW_ORCHESTRATION / none |
+| `test_factors` | Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream) | stats::lm; limma; dream; later brms | NEW_ORCHESTRATION / call_only |
+| `enrich_factors` | Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR) | perform_gsea; later fgsea/decoupleR adapters | WRAPPER / call_only |
+| `factor_stability` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash refits with existing congruence/assignment APIs | NEW_ORCHESTRATION / call_only |
+| `factor_replicability` | Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue) | psych::factor.congruence; clue::solve_LSAP (probe pending) | NEW_ORCHESTRATION / call_only |
+| `factor_holdout` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_init; flash_factors_init; flash_factors_fix; flash_backfit | NEW_ORCHESTRATION / call_only |
+| `shrink_factor_effects` | Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors | mashr public API (implementation audit pending) | WRAPPER / call_only |
+| `factor_cor` | Mikhael Manurung; R Core Team (stats::cor); Kushal Dey; Matthew Stephens; Peter Carbonetto (CorShrink) | stats::cor; CorShrink entrypoints pending audit | WRAPPER / call_only |
+| `add_factors_to_seurat` | David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject) | CreateDimReducObject workflow; AddLatentData conceptual context | ADAPTED / call_only |
+| `embed_factors` | David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article) | Seurat/uwot public embedding APIs | WRAPPER / call_only |
+| `plot_factor_embedding` | David Zemmour / Zemmour Lab (ImmGenT workflows) | factor-space activity display workflow | NEW_QOL / call_only |
+| `factor_activity_percentile` | David Zemmour / Zemmour Lab (ImmGenT workflows) | stats::ecdf display workflow | ADAPTED / call_only |
+
+The two modified singlecelljamboreeR helpers, `rank_effects` and
+`compute_le_effects`, are by Peter Carbonetto and Matthew Stephens. Their full
+MIT notice is retained in `inst/licenses/singlecelljamboreeR.txt`. Audited commits,
+source paths, licenses and reuse classifications are installed in `provenance.csv`.
+ZemmourLib and ImmGenT supply credited conceptual workflows; no implementation
+source was copied from them. The Stephens Lab ANOVA script has no verified
+individual author; that uncertainty is retained rather than inventing attribution.
+
+## Dependency authors and citations
+
+Author and contributor records below come from installed package DESCRIPTION
+metadata at the documentation snapshot. Cite the original method when using it;
+`citation("package_name")` returns the citation for your installed version.
+
+### flashier (1.0.60)
+
+Jason Willwerscheid [aut, cre],   Peter Carbonetto [aut],   Wei Wang [aut],   Matthew Stephens [aut],   Eric Weine [ctb],   Annie Xie [ctb],   Gao Wang [ctb]
+
+Willwerscheid J, Carbonetto P, Wang W, Stephens M (2026). _flashier: Empirical Bayes Matrix Factorization_. R package version 1.0.60, commit fd44811ab22d61ee905e1964175571c452fe7683, <https://github.com/willwerscheid/flashier>.
+
+### ebnm (1.1-42)
+
+Jason Willwerscheid [aut],   Matthew Stephens [aut],   Peter Carbonetto [aut, cre],   Andrew Goldstein [ctb],   Yusha Liu [ctb]
+
+Willwerscheid J, Carbonetto P, Stephens M (2025). “ebnm: An R Package for Solving the Empirical Bayes Normal Means Problem Using a Variety of Prior Families.” _Journal of Statistical Software_, *114*(3), 1-33. doi:10.18637/jss.v114.i03 <https://doi.org/10.18637/jss.v114.i03>.
+
+### Matrix (1.7-6)
+
+Douglas Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>),   Martin Maechler [aut, cre] (ORCID:     <https://orcid.org/0000-0002-8685-9910>),   Mikael Jagan [aut] (ORCID: <https://orcid.org/0000-0002-3542-2938>),   Timothy A. Davis [ctb] (ORCID: <https://orcid.org/0000-0001-7614-6899>,     SuiteSparse libraries, collaborators listed in     dir(system.file("doc", "SuiteSparse", package="Matrix"),     pattern="License", full.names=TRUE, recursive=TRUE)),   George Karypis [ctb] (ORCID: <https://orcid.org/0000-0003-2753-1437>,     METIS library, Copyright: Regents of the University of Minnesota),   Jason Riedy [ctb] (ORCID: <https://orcid.org/0000-0002-4345-4200>, GNU     Octave's condest() and onenormest(), Copyright: Regents of the     University of California),   Jens Oehlschlägel [ctb] (initial nearPD()),   R Core Team [ctb] (ROR: <https://ror.org/02zz1nj61>, base R's matrix     implementation)
+
+Bates D, Maechler M, Jagan M (2026). _Matrix: Sparse and Dense Matrix Classes and Methods_. doi:10.32614/CRAN.package.Matrix <https://doi.org/10.32614/CRAN.package.Matrix>, R package version 1.7-6, <https://CRAN.R-project.org/package=Matrix>.
+
+### digest (0.6.39)
+
+Dirk Eddelbuettel [aut, cre] (ORCID:     <https://orcid.org/0000-0001-6419-907X>),   Antoine Lucas [ctb] (ORCID: <https://orcid.org/0000-0002-8059-9767>),   Jarek Tuszynski [ctb],   Henrik Bengtsson [ctb] (ORCID: <https://orcid.org/0000-0002-7579-5165>),   Simon Urbanek [ctb] (ORCID: <https://orcid.org/0000-0003-2297-1732>),   Mario Frasca [ctb],   Bryan Lewis [ctb],   Murray Stokely [ctb],   Hannes Muehleisen [ctb] (ORCID:     <https://orcid.org/0000-0001-8552-0029>),   Duncan Murdoch [ctb],   Jim Hester [ctb] (ORCID: <https://orcid.org/0000-0002-2739-7082>),   Wush Wu [ctb] (ORCID: <https://orcid.org/0000-0001-5180-0567>),   Qiang Kou [ctb] (ORCID: <https://orcid.org/0000-0001-6786-5453>),   Thierry Onkelinx [ctb] (ORCID: <https://orcid.org/0000-0001-8804-4216>),   Michel Lang [ctb] (ORCID: <https://orcid.org/0000-0001-9754-0393>),   Viliam Simko [ctb],   Kurt Hornik [ctb] (ORCID: <https://orcid.org/0000-0003-4198-9911>),   Radford Neal [ctb] (ORCID: <https://orcid.org/0000-0002-2473-3407>),   Kendon Bell [ctb] (ORCID: <https://orcid.org/0000-0002-9093-8312>),   Matthew de Queljoe [ctb],   Dmitry Selivanov [ctb] (ORCID: <https://orcid.org/0000-0003-0492-6647>),   Ion Suruceanu [ctb] (ORCID: <https://orcid.org/0009-0005-6446-4909>),   Bill Denney [ctb] (ORCID: <https://orcid.org/0000-0002-5759-428X>),   Dirk Schumacher [ctb],   András Svraka [ctb] (ORCID: <https://orcid.org/0009-0008-8480-1329>),   Sergey Fedorov [ctb] (ORCID: <https://orcid.org/0000-0002-5970-7233>),   Will Landau [ctb] (ORCID: <https://orcid.org/0000-0003-1878-3253>),   Floris Vanderhaeghe [ctb] (ORCID:     <https://orcid.org/0000-0002-6378-6229>),   Kevin Tappe [ctb],   Harris McGehee [ctb],   Tim Mastny [ctb],   Aaron Peikert [ctb] (ORCID: <https://orcid.org/0000-0001-7813-818X>),   Mark van der Loo [ctb] (ORCID: <https://orcid.org/0000-0002-9807-4686>),   Chris Muir [ctb] (ORCID: <https://orcid.org/0000-0003-2555-3878>),   Moritz Beller [ctb] (ORCID: <https://orcid.org/0000-0003-4852-0526>),   Sebastian Campbell [ctb] (ORCID:     <https://orcid.org/0009-0000-5948-4503>),   Winston Chang [ctb] (ORCID: <https://orcid.org/0000-0002-1576-2126>),   Dean Attali [ctb] (ORCID: <https://orcid.org/0000-0002-5645-3493>),   Michael Chirico [ctb] (ORCID: <https://orcid.org/0000-0003-0787-087X>),   Kevin Ushey [ctb] (ORCID: <https://orcid.org/0000-0003-2880-7407>),   Carl Pearson [ctb] (ORCID: <https://orcid.org/0000-0003-0701-7860>)
+
+Eddelbuettel D (2025). _digest: Create Compact Hash Digests of R Objects_. doi:10.32614/CRAN.package.digest <https://doi.org/10.32614/CRAN.package.digest>, R package version 0.6.39.
+
+### ggplot2 (4.0.3)
+
+Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>),   Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>),   Lionel Henry [aut],   Thomas Lin Pedersen [aut, cre] (ORCID:     <https://orcid.org/0000-0002-5147-4711>),   Kohske Takahashi [aut],   Claus Wilke [aut] (ORCID: <https://orcid.org/0000-0002-7470-9261>),   Kara Woo [aut] (ORCID: <https://orcid.org/0000-0002-5125-4188>),   Hiroaki Yutani [aut] (ORCID: <https://orcid.org/0000-0002-3385-7233>),   Dewey Dunnington [aut] (ORCID: <https://orcid.org/0000-0002-9415-4582>),   Teun van den Brand [aut] (ORCID:     <https://orcid.org/0000-0002-9335-7468>),   Posit, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
+
+Wickham H (2016). _ggplot2: Elegant Graphics for Data Analysis_. Springer-Verlag New York. ISBN 978-3-319-24277-4, <https://ggplot2.tidyverse.org>.
+
+### rlang (1.3.0)
+
+Lionel Henry [aut, cre],   Hadley Wickham [aut],   mikefc [cph] (Hash implementation based on Mike's xxhashlite),   Yann Collet [cph] (Author of the embedded xxHash library),   Posit, PBC [cph, fnd]
+
+Henry L, Wickham H (2026). _rlang: Functions for Base Types and Core R and 'Tidyverse' Features_. doi:10.32614/CRAN.package.rlang <https://doi.org/10.32614/CRAN.package.rlang>, R package version 1.3.0, <https://CRAN.R-project.org/package=rlang>.
+
+### stats (4.5.1)
+
+R Core Team and contributors worldwide
+
+R Core Team (2025). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. <https://www.R-project.org/>.
+
+### utils (4.5.1)
+
+R Core Team and contributors worldwide
+
+R Core Team (2025). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. <https://www.R-project.org/>.
+
+### methods (4.5.1)
+
+R Core Team
+
+R Core Team (2025). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. <https://www.R-project.org/>.
+
+### parallel (4.5.1)
+
+R Core Team
+
+R Core Team (2025). _R: A Language and Environment for Statistical Computing_. R Foundation for Statistical Computing, Vienna, Austria. <https://www.R-project.org/>.
+
+### limma (3.66.0)
+
+Gordon Smyth [cre,aut], Yifang Hu [ctb], Matthew Ritchie [ctb], Jeremy Silver [ctb], James Wettenhall [ctb], Davis McCarthy [ctb], Di Wu [ctb], Wei Shi [ctb], Belinda Phipson [ctb], Aaron Lun [ctb], Natalie Thorne [ctb], Alicia Oshlack [ctb], Carolyn de Graaf [ctb], Yunshun Chen [ctb], Goknur Giner [ctb], Mette Langaas [ctb], Egil Ferkingstad [ctb], Marcus Davy [ctb], Francois Pepin [ctb], Dongseok Choi [ctb], Charity Law [ctb], Mengbo Li [ctb], Lizhong Chen [ctb]
+
+Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W, Smyth GK (2015). “limma powers differential expression analyses for RNA-sequencing and microarray studies.” _Nucleic Acids Research_, *43*(7), e47. doi:10.1093/nar/gkv007 <https://doi.org/10.1093/nar/gkv007>.
+
+### variancePartition (1.40.2)
+
+Gabriel Hoffman [aut, cre] (ORCID:     <https://orcid.org/0000-0002-0957-0224>)
+
+Hoffman GE, al. e (2024). “Efficient differential expression analysis of large-scale single cell transcriptomics data using dreamlet.” _bioRxiv_. doi:10.1101/2023.03.17.533005 <https://doi.org/10.1101/2023.03.17.533005>.  Hoffman GE, Roussos P (2020). “dream: Powerful differential expression analysis for repeated measures designs.” _Bioinformatics_. doi:10.1093/bioinformatics/btaa687 <https://doi.org/10.1093/bioinformatics/btaa687>.  Hoffman GE, Schadt EE (2016). “variancePartition: Interpreting drivers of variation in complex gene expression studies.” _BMC Bioinformatics_, *17*. doi:10.1186/s12859-016-1323-z <https://doi.org/10.1186/s12859-016-1323-z>.
+
+### mashr (0.2.79)
+
+Matthew Stephens [aut],   Sarah Urbut [aut],   Gao Wang [aut],   Yuxin Zou [aut],   Yunqi Yang [ctb],   Sam Roweis [cph],   David Hogg [cph],   Jo Bovy [cph],   Peter Carbonetto [aut, cre]
+
+Sarah Urbut, Gao Wang, Peter Carbonetto, Matthew Stephens (2019). “Flexible statistical methods for estimating and testing effects in genomic studies with multiple conditions.” _Nature Genetics_, *51*(1), 187-195.
+
+### ashr (2.2-63)
+
+Matthew Stephens [aut],   Peter Carbonetto [aut, cre],   Chaoxing Dai [ctb],   David Gerard [aut],   Mengyin Lu [aut],   Lei Sun [aut],   Jason Willwerscheid [aut],   Nan Xiao [aut],   Mazon Zeng [ctb]
+
+Stephens M, Carbonetto P, Gerard D, Lu M, Sun L, Willwerscheid J, Xiao N (2023). _ashr: Methods for Adaptive Shrinkage, using Empirical Bayes_. doi:10.32614/CRAN.package.ashr <https://doi.org/10.32614/CRAN.package.ashr>, R package version 2.2-63, <https://CRAN.R-project.org/package=ashr>.
+
+### CorShrink (0.1-6)
+
+c(person("Kushal","Dey",role=c("aut","cre"), email="kkdey@uchicago.edu"),           person("Matthew","Stephens",role="aut"), 	        person("Peter","Carbonetto",role="ctb"))
+
+Stephens M (2016). “False discovery rates: a new deal.” _Biostatistics_, *18*(2).
+
+### psych (2.6.5)
+
+William Revelle [aut, cre] (ORCID:     <https://orcid.org/0000-0003-4880-9610>)
+
+William Revelle (2026). _psych: Procedures for Psychological, Psychometric, and Personality Research_. Northwestern University, Evanston, Illinois. R package version 2.6.4, <https://CRAN.R-project.org/package=psych>.
+
+### clue (0.3-68)
+
+Kurt Hornik [aut, cre] (ORCID: <https://orcid.org/0000-0003-4198-9911>),   Walter Böhm [ctb]
+
+Hornik K (2026). _clue: Cluster Ensembles_. doi:10.32614/CRAN.package.clue <https://doi.org/10.32614/CRAN.package.clue>, R package version 0.3-68, <https://CRAN.R-project.org/package=clue>.  Hornik K (2005). “A CLUE for CLUster Ensembles.” _Journal of Statistical Software_, *14*(12). doi:10.18637/jss.v014.i12 <https://doi.org/10.18637/jss.v014.i12>.
+
+### reformulas (0.4.4)
+
+Ben Bolker [aut, cre] (ORCID: <https://orcid.org/0000-0002-2127-0443>),   Anna Ly [ctb] (ORCID: <https://orcid.org/0000-0002-0210-0342>)
+
+Bolker B (2026). _reformulas: Machinery for Processing Random Effect Formulas_. doi:10.32614/CRAN.package.reformulas <https://doi.org/10.32614/CRAN.package.reformulas>, R package version 0.4.4, <https://CRAN.R-project.org/package=reformulas>.
+
+### BiocParallel (1.44.0)
+
+Jiefei Wang [aut, cre],   Martin Morgan [aut],   Valerie Obenchain [aut],   Michel Lang [aut],   Ryan Thompson [aut],   Nitesh Turaga [aut],   Aaron Lun [ctb],   Henrik Bengtsson [ctb],   Madelyn Carlson [ctb] (Translated 'Random Numbers' vignette from Sweave     to RMarkdown / HTML.),   Phylis Atieno [ctb] (Translated 'Introduction to BiocParallel' vignette     from Sweave to Rmarkdown / HTML.),   Sergio Oller [ctb] (Improved bpmapply() efficiency., ORCID:     <https://orcid.org/0000-0002-8994-1549>)
+
+Wang J, Morgan M, Obenchain V, Lang M, Thompson R, Turaga N (2025). _BiocParallel: Bioconductor facilities for parallel evaluation_. doi:10.18129/B9.bioc.BiocParallel <https://doi.org/10.18129/B9.bioc.BiocParallel>, R package version 1.44.0, <https://bioconductor.org/packages/BiocParallel>.
+
+### fgsea (1.36.2)
+
+Gennady Korotkevich [aut],   Vladimir Sukhov [aut],   Nikolay Budin [ctb],   Nikita Gusak [ctb],   Zieman Mark [ctb],   Alexey Sergushichev [aut, cre]
+
+Korotkevich G, Sukhov V, Sergushichev A (2019). “Fast gene set enrichment analysis.” _bioRxiv_. doi:10.1101/060012 <https://doi.org/10.1101/060012>, <http://biorxiv.org/content/early/2016/06/20/060012>.
+
+### decoupleR (2.16.0)
+
+Pau Badia-i-Mompel [aut, cre] (ORCID:     <https://orcid.org/0000-0002-1004-3923>),   Jesús Vélez-Santiago [aut] (ORCID:     <https://orcid.org/0000-0001-5128-3838>),   Jana Braunger [aut] (ORCID: <https://orcid.org/0000-0003-0820-9987>),   Celina Geiss [aut] (ORCID: <https://orcid.org/0000-0002-8740-706X>),   Daniel Dimitrov [aut] (ORCID: <https://orcid.org/0000-0002-5197-2112>),   Sophia Müller-Dott [aut] (ORCID:     <https://orcid.org/0000-0002-9710-1865>),   Petr Taus [aut] (ORCID: <https://orcid.org/0000-0003-3764-9033>),   Aurélien Dugourd [aut] (ORCID: <https://orcid.org/0000-0002-0714-028X>),   Christian H. Holland [aut] (ORCID:     <https://orcid.org/0000-0002-3060-5786>),   Ricardo O. Ramirez Flores [aut] (ORCID:     <https://orcid.org/0000-0003-0087-371X>),   Julio Saez-Rodriguez [aut] (ORCID:     <https://orcid.org/0000-0002-8552-8976>)
+
+Badia-i-Mompel P, Santiago JV, Braunger J, Geiss C, Dimitrov D, Müller-Dott S, Taus P, Dugourd A, Holland CH, Flores ROR, Saez-Rodriguez J (2022). “decoupleR: ensemble of computational methods to infer biological activities from omics data.” _Bioinformatics Advances_. doi:10.1093/bioadv/vbac016 <https://doi.org/10.1093/bioadv/vbac016>.
+
+### SeuratObject (5.4.0)
+
+Paul Hoffman [aut] (ORCID: <https://orcid.org/0000-0002-7693-8957>),   Rahul Satija [aut, cre] (ORCID:     <https://orcid.org/0000-0001-9448-8833>),   David Collins [aut] (ORCID: <https://orcid.org/0000-0001-9243-7821>),   Yuhan Hao [aut] (ORCID: <https://orcid.org/0000-0002-1810-0822>),   Austin Hartman [aut] (ORCID: <https://orcid.org/0000-0001-7278-1852>),   Gesmira Molla [aut] (ORCID: <https://orcid.org/0000-0002-8628-5056>),   Andrew Butler [aut] (ORCID: <https://orcid.org/0000-0003-3608-0463>),   Tim Stuart [aut] (ORCID: <https://orcid.org/0000-0002-3044-0897>),   Madeline Kowalski [ctb] (ORCID:     <https://orcid.org/0000-0002-5655-7620>),   Saket Choudhary [ctb] (ORCID: <https://orcid.org/0000-0001-5202-7633>),   Skylar Li [ctb],   Longda Jiang [ctb] (ORCID: <https://orcid.org/0000-0003-4964-6497>),   Anagha Shenoy [ctb] (ORCID: <https://orcid.org/0000-0002-0537-6862>),   Jeff Farrell [ctb],   Shiwei Zheng [ctb] (ORCID: <https://orcid.org/0000-0001-6682-6743>),   Christoph Hafemeister [ctb] (ORCID:     <https://orcid.org/0000-0001-6365-8254>),   Patrick Roelli [ctb]
+
+Hoffman P, Satija R, Collins D, Hao Y, Hartman A, Molla G, Butler A, Stuart T (2026). _SeuratObject: Data Structures for Single Cell Data_. doi:10.32614/CRAN.package.SeuratObject <https://doi.org/10.32614/CRAN.package.SeuratObject>, R package version 5.4.0, <https://CRAN.R-project.org/package=SeuratObject>.
+
+### uwot (0.2.5)
+
+James Melville [aut, cre, cph],   Aaron Lun [ctb],   Mohamed Nadhir Djekidel [ctb],   Yuhan Hao [ctb],   Dirk Eddelbuettel [ctb],   Wouter van der Bijl [ctb],   Hugo Gruson [ctb]
+
+Melville J (2026). _uwot: The Uniform Manifold Approximation and Projection (UMAP) Method for Dimensionality Reduction_. doi:10.32614/CRAN.package.uwot <https://doi.org/10.32614/CRAN.package.uwot>, R package version 0.2.5, <https://CRAN.R-project.org/package=uwot>.
+
+### pkgdown (2.2.1)
+
+Hadley Wickham [aut, cre] (ORCID:     <https://orcid.org/0000-0003-4757-117X>),   Jay Hesselberth [aut] (ORCID: <https://orcid.org/0000-0002-6299-179X>),   Maëlle Salmon [aut] (ORCID: <https://orcid.org/0000-0002-2815-0399>),   Olivier Roy [aut],   Salim Brüggemann [aut] (ORCID: <https://orcid.org/0000-0002-5329-5987>),   Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
+
+Wickham H, Hesselberth J, Salmon M, Roy O, Brüggemann S (2026). _pkgdown: Make Static HTML Documentation for a Package_. doi:10.32614/CRAN.package.pkgdown <https://doi.org/10.32614/CRAN.package.pkgdown>, R package version 2.2.1, <https://CRAN.R-project.org/package=pkgdown>.
+
+
+## Audited workflow repositories
+
+- [willwerscheid/flashier](https://github.com/willwerscheid/flashier), commit `fd44811ab22d61ee905e1964175571c452fe7683`; authors: Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
+- [stephenslab/singlecelljamboreeR](https://github.com/stephenslab/singlecelljamboreeR), commit `df62f8d169fcac07cd0cb294a3c15051f573ccd5`; authors: Peter Carbonetto; Matthew Stephens.
+- [stephenslab/single-cell-jamboree](https://github.com/stephenslab/single-cell-jamboree), commit `6254dc7458d13172992096d62d1ba275c12511a3`; authors: Stephens Lab; individual script authors not verified.
+- [dzemmour/ZemmourLib](https://github.com/dzemmour/ZemmourLib), commit `4ba5bb9c0bbb1ab1d5a5ac4a6a12eb97badd0902`; authors: David Zemmour.
+- [zemmourlab/immgent_integration_git](https://github.com/zemmourlab/immgent_integration_git), commit `1e60500adb229ee0b98ba038437b6a847be21763`; authors: zemmourlab; scripts identify David Zemmour.
+- [stephenslab/fastTopics](https://github.com/stephenslab/fastTopics), commit `5cf9a448b17a7eb8f139cc916e22cb3ad1766b70`; authors: Peter Carbonetto; Kevin Luo; Kushal Dey; Matthew Stephens.

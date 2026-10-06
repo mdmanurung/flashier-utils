@@ -1,0 +1,13 @@
+^\.git$
+^\.github$
+^\.gitignore$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^benchmarks$
+^development$
+^flashbridge_plan$
+^scripts$
+^validation$
+^CREDITS\.md$
+^AGENTS\.md$

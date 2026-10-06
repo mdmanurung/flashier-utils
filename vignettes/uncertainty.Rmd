@@ -1,0 +1,37 @@
+---
+title: "Conditional factor and coefficient uncertainty"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Conditional factor and coefficient uncertainty}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(flashier.utils)
+set.seed(4)
+X <- tcrossprod(matrix(rnorm(40),20,2),matrix(rnorm(12),6,2)) + matrix(rnorm(120,sd=0.1),20,6)
+dimnames(X) <- list(paste0("s",1:20),paste0("f",1:6))
+fit <- fit_ebmf(X,"rows",max_factors=2,seed=1,nullcheck=FALSE,backfit=TRUE,verbose=0,
+                ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace))
+view <- standardize_factors(fit)
+factor_intervals(fit,"activity",factors="F1",ids="s1",nsamp=20,seed=1)
+D <- matrix(rnorm(20*ncol(view$activity)),20,dimnames=list(NULL,colnames(view$activity)))
+backproject_contrast(view,D,"draws",factor_basis=view$manifest)$effects
+```
+
+Native variational draws condition on learned priors. Coefficient draws hold
+feature programs fixed and are a separate source of uncertainty. Their arbitrary
+pairing is not a joint posterior. For covariance inputs supply the full named
+factor covariance; marginal SE alone cannot recover it. Bootstrap uncertainty is
+a separately declared pipeline workflow. Exact quantile storage is bounded at
+256 MiB, and projected draws process one selected contrast per call in feature
+blocks. Sign probability means P(theta greater than zero).
+
+
+## Source credits
+
+Original function and package authors are named in each function manual and in
+[Original authors and sources](credits.html). The installed `provenance()` registry
+records source pins, authors, licenses and reuse. Please cite the upstream methods
+used in your analysis; `citation("flashier")` and `citation("ebnm")` give core citations.

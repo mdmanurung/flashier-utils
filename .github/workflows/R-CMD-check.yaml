@@ -21,12 +21,10 @@ jobs:
           use-public-rspm: true
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          working-directory: package
           dependencies: '"hard"'
           extra-packages: any::rcmdcheck, any::knitr, any::rmarkdown, any::testthat, any::psych, any::clue, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683
       - uses: r-lib/actions/check-r-package@v2
         with:
-          working-directory: package
           args: 'c("--no-manual")'
 
   full-engines:
@@ -40,18 +38,16 @@ jobs:
           sudo apt-get install -y libgsl-dev
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          working-directory: package
           dependencies: '"all"'
           extra-packages: any::rcmdcheck, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683, github::kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3
       - name: Verify optional dependencies load
         shell: Rscript {0}
         run: |
-          packages <- trimws(strsplit(read.dcf("package/DESCRIPTION")[1, "Suggests"], ",", fixed = TRUE)[[1]])
+          packages <- trimws(strsplit(read.dcf("DESCRIPTION")[1, "Suggests"], ",", fixed = TRUE)[[1]])
           for (engine in sub(" *\\(.*\\)$", "", packages)) {
             cat("Loading", engine, "\n")
             loadNamespace(engine)
           }
       - uses: r-lib/actions/check-r-package@v2
         with:
-          working-directory: package
           args: 'c("--no-manual")'
