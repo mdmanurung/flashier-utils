@@ -102,7 +102,7 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
 #' @author Mikhael Manurung; pROC authors Xavier Robin and collaborators.
 #' @export
 factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NULL, direction = "positive", threshold_method = "closest.topleft", unit_col = NULL) {
-  .need_program_engine("pROC"); view <- .resolve_view(fit)
+  .check_engine("pROC"); view <- .resolve_view(fit)
   A <- factor_activity(view,factors=factors)
   md <- .match_ids(rownames(A),metadata,required_columns=c("sample",group,unit_col))$metadata
   direction <- match.arg(direction,c("positive","negative")); threshold_method <- match.arg(threshold_method,c("closest.topleft","youden"))

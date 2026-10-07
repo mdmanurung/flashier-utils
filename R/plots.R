@@ -15,7 +15,7 @@
 #' @param annotation One named factor annotation vector, including correlations.
 #' @param ... Optional palette (negative, zero, positive) and limits.
 #' @return A ggplot with display and basis metadata attributes.
-#' @importFrom rlang .data
+#' @importFrom ggplot2 .data
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.

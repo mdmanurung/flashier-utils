@@ -66,7 +66,7 @@ plot_factor_contrasts <- function(x, y, n_label = 15L) {
 #'   Adrian E. Raftery and collaborators. Conceptual ImmGen-T Figure 7 workflow.
 #' @export
 estimate_marker_thresholds <- function(measurements, eligible_above = 0.5, min_observations = 50L, seed = 42L, thresholds = NULL) {
-  .need_program_engine("mclust"); M <- .validate_matrix(measurements,allow_missing=FALSE)
+  .check_engine("mclust"); M <- .validate_matrix(measurements,allow_missing=FALSE)
   .program_number(min_observations,"min_observations",TRUE,2)
   if(length(eligible_above)!=1 || !is.finite(eligible_above)) stop("eligible_above must be finite")
   if(!is.null(thresholds)) {

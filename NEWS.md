@@ -1,5 +1,8 @@
 # flashier.utils 1.1.0.9000
 
+- Internal simplification, no user-visible change: one engine check for optional
+  packages, `.data` imported from ggplot2 instead of rlang, and the pancreas
+  restore code shared across tutorials.
 - Add tutorial coverage for every exported function: a new "Reorder, remove, fix
   and refit factors" article (`reorder_factors`, `remove_factors`, `fix_factors`,
   `refit_factors`, `factor_pve`) and examples for `fit_nonnegative_ebmf` (GTEx),

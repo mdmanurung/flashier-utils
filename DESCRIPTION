@@ -16,7 +16,7 @@ URL: https://mdmanurung.github.io/flashier-utils/,
 BugReports: https://github.com/mdmanurung/flashier-utils/issues
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
-Imports: flashier, ebnm, Matrix, digest, ggplot2, rlang, stats, utils, methods, parallel
+Imports: flashier, ebnm, Matrix, digest, ggplot2, stats, utils, methods, parallel
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown, limma, variancePartition,
     mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot, igraph, ggraph, ggrepel, patchwork, pROC, mclust
 VignetteBuilder: knitr

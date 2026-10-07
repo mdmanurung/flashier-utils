@@ -22,9 +22,6 @@
   if(requireNamespace("ggrepel",quietly=TRUE)) ggrepel::geom_text_repel(ggplot2::aes(label=.data$label),seed=42,max.overlaps=Inf)
   else ggplot2::geom_text(ggplot2::aes(label=.data$label))
 }
-.need_program_engine <- function(package) {
-  if (!requireNamespace(package, quietly = TRUE)) stop("Install optional package '", package, "' for this workflow")
-}
 
 #' Build a signed bipartite program network
 #' @param fit Native fit or representation.
@@ -66,7 +63,7 @@ factor_network <- function(fit, factors = NULL, n = 5L, direction = "positive", 
 #'   Layouts by igraph and ggraph authors; see credits.
 #' @export
 plot_factor_network <- function(network, layout = "fr", seed = 42L, highlight = NULL, groups = NULL, gene_labels = "highlighted") {
-  .need_program_engine("igraph"); .need_program_engine("ggraph")
+  .check_engine("igraph"); .check_engine("ggraph")
   layout <- match.arg(layout,c("fr","stress"))
   nodes <- network$nodes; edges <- network$edges
   if(!nrow(nodes)) stop("No network nodes to plot")
