@@ -61,6 +61,26 @@ Group summaries are descriptive. Association tests condition on the fitted
 factors and require you to identify the independent biological units, such as
 donors. Factor posterior uncertainty does not replace a regression standard error.
 
+### Where each tutorial's data come from
+
+Every tutorial has a "Data and objects" section or an opening paragraph that says
+which objects it uses and where they come from. In short:
+
+| Data | Tutorials | How to get it |
+| --- | --- | --- |
+| GTEx association z-scores shipped with flashier | [Fit and interpret](https://mdmanurung.github.io/flashier-utils/articles/first-fit.html); [Scales](https://mdmanurung.github.io/flashier-utils/articles/representation-units.html); [Edit fits](https://mdmanurung.github.io/flashier-utils/articles/edit-fits.html); [Backprojection](https://mdmanurung.github.io/flashier-utils/articles/backprojection.html); [Uncertainty](https://mdmanurung.github.io/flashier-utils/articles/uncertainty.html); [Stability](https://mdmanurung.github.io/flashier-utils/articles/stability-replicability.html) | `data("gtex", package = "flashier")`; nothing to download |
+| Published human-pancreas programs (Jamboree CEL-Seq2) | [Pancreas programs](https://mdmanurung.github.io/flashier-utils/articles/pancreas-programs.html); [Defining features](https://mdmanurung.github.io/flashier-utils/articles/largest-distinctive.html); [Annotations](https://mdmanurung.github.io/flashier-utils/articles/program-annotation.html); [Diagnostics](https://mdmanurung.github.io/flashier-utils/articles/program-diagnostics.html); [Transfer](https://mdmanurung.github.io/flashier-utils/articles/dataset-transfer.html); [Pathways](https://mdmanurung.github.io/flashier-utils/articles/enrichment.html) | Run `.github/scripts/prepare-pancreas.R` once; it writes `pancreas-worked-example.rds` |
+| Pancreas cells from four technologies (Jamboree) | [Contrasts](https://mdmanurung.github.io/flashier-utils/articles/contrasts.html); [Held-out prediction](https://mdmanurung.github.io/flashier-utils/articles/holdout.html); [Conditions](https://mdmanurung.github.io/flashier-utils/articles/multi-cohort.html); [Seurat](https://mdmanurung.github.io/flashier-utils/articles/single-cell.html); [Pathways](https://mdmanurung.github.io/flashier-utils/articles/enrichment.html); [Transfer](https://mdmanurung.github.io/flashier-utils/articles/dataset-transfer.html) | The same script also writes `pancreas-cells.rds` |
+| Simulated | [Protein interpretation](https://mdmanurung.github.io/flashier-utils/articles/protein-interpretation.html) | Created inside the article |
+
+The pancreas data are not shipped with the package. From a clone of this repository,
+run the following once (it downloads about 86 MB), then set the same variable
+before running the tutorial code:
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
+```
+
 ## Original authors and citations
 
 flashier is by Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew

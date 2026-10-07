@@ -20,18 +20,22 @@ knitr::opts_chunk$set(eval=have_pancreas)
 Use group summaries to describe activity, or fit a regression to test an
 association. In either case, metadata must identify samples by name.
 
-The example uses **real pancreas cells** from
-[Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
-(pinned revision 6cf9aa72): human pancreas cells from the cross-technology integration benchmark of
-Luecken et al. (2022) as assembled there; the CEL-Seq2 cells are from Muraro et
-al. (2016), and the Jamboree page links the original studies of the other
-technologies. A local cache holds up to 40 cells per technology and cell type
-(CEL-Seq2, SMART-Seq2, Fluidigm C1 and inDrop3; 896 cells). It is built outside
-package builds by the repository script `.github/scripts/prepare-pancreas.R`, so
-data chunks run only when `FLASHIER_UTILS_PANCREAS_DIR` points to that cache, and
-nothing is downloaded. The cells are not redistributed with the package. Native
-EBMF fitting credits Jason Willwerscheid, Peter Carbonetto, Wei Wang and
-Matthew Stephens.
+## Data and objects
+
+**Data.** Human pancreas cells from the cross-technology integration benchmark of Luecken et al. (2022) as assembled in [Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas.html) (pinned revision 6cf9aa72). The CEL-Seq2 cells are from Muraro et al. (2016); the Jamboree page links the original studies of the other technologies. The cache holds up to 40 cells per technology (CEL-Seq2, SMART-Seq2, Fluidigm C1 and inDrop3) and cell type: 896 cells. Native EBMF fitting credits Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+
+**Get the data.** The package does not ship these data. From a clone of the
+[repository](https://github.com/mdmanurung/flashier-utils), run this once; it downloads about 86 MB from a pinned
+revision of the Jamboree repository ([details](pancreas-programs.html#prepare-a-local-example-cache)):
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
+```
+
+This article reads `pancreas-cells.rds`. Set `FLASHIER_UTILS_PANCREAS_DIR` to the same directory before running the
+code below; without it the code chunks are skipped. This website was built with the data.
+
+**Objects.** `cache` is the list read from `pancreas-cells.rds`: raw counts, cell metadata and the CEL-Seq2 reference library mean. `fit` and `view` are created in the next section.
 
 ## Fit factors and declare metadata
 
@@ -41,7 +45,8 @@ Scale each cell to the CEL-Seq2 reference library mean, apply `log1p`, keep the
 The gene selection uses every cell, so it is a global choice.
 
 ```{r fit}
-cache <- readRDS(cache_file)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache <- readRDS(file.path(pancreas_dir, "pancreas-cells.rds"))
 metadata <- cache$metadata
 metadata$sample <- as.character(metadata$id)
 rownames(metadata) <- metadata$sample
@@ -138,3 +143,23 @@ Group summaries follow workflows by David Zemmour and the Zemmour Lab.
 Tests call Gabriel Hoffman's dream (variancePartition) or, for independent
 units, R Core Team's `lm` and Gordon Smyth and contributors' limma.
 [Original authors and sources](credits.html) lists citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

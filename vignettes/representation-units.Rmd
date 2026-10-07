@@ -9,7 +9,7 @@ vignette: >
 
 Keep activity and feature effects from the same representation.
 Their product reconstructs the fitted matrix with samples in rows.
-This example fits the GTEx z-score matrix that ships with flashier. Its
+This example fits the GTEx z-score matrix that ships with flashier (`data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html))). Its
 columns are tissues, so `sample_side = "columns"`.
 
 ```{r setup}
@@ -71,3 +71,23 @@ Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gte
 The representation uses flashier's LDF interface by Jason Willwerscheid,
 Peter Carbonetto, Wei Wang and Matthew Stephens.
 [Original authors and sources](credits.html) lists method citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

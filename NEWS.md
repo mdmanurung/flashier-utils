@@ -1,5 +1,11 @@
 # flashier.utils 1.1.0.9000
 
+- Tutorials state where their data and objects come from: a visible "Data and objects"
+  section with the command to obtain the pancreas data, explicit reads of the cached
+  files, a visible simulation in the protein article, and a README table of data
+  sources. `restore-programs.R` now takes the cache as an argument.
+- Every tutorial ends with a "Function credits" table built from `provenance()`,
+  listing the functions it calls and their original authors.
 - Internal simplification, no user-visible change: one engine check for optional
   packages, `.data` imported from ggplot2 instead of rlang, and the pancreas
   restore code shared across tutorials.

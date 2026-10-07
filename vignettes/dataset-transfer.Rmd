@@ -19,29 +19,35 @@ have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file) && file.exists(
 knitr::opts_chunk$set(eval=have_pancreas)
 ```
 
-```{r load-programs, include=FALSE}
-# Restore published factors as in the pancreas-programs article (means only).
-cache <- readRDS(cache_file)
-source("restore-programs.R", local=knitr::knit_global())
-view <- restore_programs(cache$reference)
-```
-
 Native projection delegates to flashier authors Jason Willwerscheid, Peter
 Carbonetto, Wei Wang and Matthew Stephens. Reference-program transfer receives
 conceptual credit to [STARCAT](https://github.com/immunogenomics/starCAT), Dylan
 Kotliar and Michelle Curtis. This is independently written EBMF glue; it does not
 introduce STARCAT query-specific scaling or normalized usages.
 
-The examples use **published human-pancreas programs** from Peter Carbonetto's
-[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
-nine NMF programs learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled
-by Luecken et al., 2022), restored as `view` without refitting; see
-[Pancreas programs](pancreas-programs.html). The reference measurements are 48
-CEL-Seq2 cells (eight per published cell type, shifted-log expression of 14,528
-genes). The code runs only when `FLASHIER_UTILS_PANCREAS_DIR` holds the local
-caches written by `.github/scripts/prepare-pancreas.R` in the source repository
-(`pancreas-worked-example.rds` and `pancreas-cells.rds`) and otherwise shows without
-output. Upstream data are not redistributed.
+## Data and objects
+
+**Data.** Nine non-negative matrix factorization (NMF) programs learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled by Luecken et al., 2022), published in [Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html). The reference measurements are 48 CEL-Seq2 cells (eight per published cell type, shifted-log expression of 14,528 genes). The new measurements are cells from other technologies in the same benchmark.
+
+**Get the data.** The package does not ship these data. From a clone of the
+[repository](https://github.com/mdmanurung/flashier-utils), run this once; it downloads about 86 MB from a pinned
+revision of the Jamboree repository ([details](pancreas-programs.html#prepare-a-local-example-cache)):
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
+```
+
+This article reads `pancreas-worked-example.rds` and, for new cells, `pancreas-cells.rds`. Set `FLASHIER_UTILS_PANCREAS_DIR` to the same directory before running the
+code below; without it the code chunks are skipped. This website was built with the data.
+
+**Objects.** `cache` is the list read from `pancreas-worked-example.rds`: the published programs (`reference`, and `signed` for the semi-NMF programs), 48 reference cells (eight per published cell type), their shifted-log expression and metadata. `view` is the nine-program representation. `cells` is read from `pancreas-cells.rds` where it is first used. `restore_programs()` is defined in [restore-programs.R](https://github.com/mdmanurung/flashier-utils/blob/main/vignettes/restore-programs.R) and explained in [Pancreas programs](pancreas-programs.html#restore-published-coordinates-without-refitting).
+
+```{r load-programs}
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache <- readRDS(file.path(pancreas_dir, "pancreas-worked-example.rds"))
+source("restore-programs.R")  # from vignettes/ in the repository
+view <- restore_programs(cache$reference, cache)
+```
 
 ## New measurements on the same cells
 
@@ -84,7 +90,7 @@ and the same 14,528 genes. Counts are transformed with the reference rule,
 `log1p(count / library size * reference mean)`.
 
 ```{r new-cells}
-cells <- readRDS(cells_file)
+cells <- readRDS(file.path(pancreas_dir, "pancreas-cells.rds"))
 # Rows of the cached counts follow the order of the cached metadata.
 stopifnot(nrow(cells$counts)==nrow(cells$metadata))
 rownames(cells$counts) <- as.character(cells$metadata$id)
@@ -182,3 +188,23 @@ article uses the same CEL-Seq2 programs (credit: Peter Carbonetto's single-cell
 Jamboree; Muraro et al., 2016; Luecken et al., 2022) and the benchmark's inDrop
 cells to teach the transfer functions. The article runs when the local data
 archive is configured, as in the website build; package checks skip it.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

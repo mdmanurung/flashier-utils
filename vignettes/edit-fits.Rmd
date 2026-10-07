@@ -14,7 +14,7 @@ leaves the original unchanged.
 
 ## Start from a fit
 
-Use the GTEx example from flashier. Rows pair a single nucleotide polymorphism
+Use the GTEx example from flashier, loaded with `data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html)). Rows pair a single nucleotide polymorphism
 (SNP) with a gene, columns are tissues, and entries are association z-scores.
 
 ```{r fit}
@@ -94,3 +94,23 @@ reads the native proportion of variance explained, all from flashier by
 Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens. The GTEx
 data ship with flashier and derive from the GTEx project (see `?flashier::gtex`).
 [Original authors and sources](credits.html) lists the full credits and citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

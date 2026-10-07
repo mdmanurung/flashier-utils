@@ -9,6 +9,21 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## Data and objects
+
+**Data.** None are downloaded. The examples use a small simulated expression matrix
+`X` (80 cells by 20 genes, two lineages of 40 cells) and simulated protein values
+and gates, so no biological labels are implied. The simulation below is the only
+source of data in this article.
+
+**Objects.** `X` is the simulated matrix, `fit` its two-factor EBMF fit and `view`
+the matching representation. `metadata` holds the lineage and donor labels. The
+protein matrix `proteins` is simulated from the factor activities in the next
+chunk.
+
+```{r simulate}
 library(flashier.utils)
 set.seed(9)
 A <- matrix(rnorm(160), 80, 2)
@@ -110,4 +125,24 @@ alignment_low <- factor_gate_alignment(view, proteins, factors[1], positive="CD1
                                        negative="CD2", thresholds=c(CD1=0,CD2=0),
                                        direction="low")
 alignment_low$summary
+```
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
 ```

@@ -19,26 +19,33 @@ have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file) && file.exists(
 knitr::opts_chunk$set(eval=have_pancreas)
 ```
 
-```{r load-programs, include=FALSE}
-# Restore published factors as in the pancreas-programs article (means only).
-cache <- readRDS(cache_file)
-source("restore-programs.R", local=knitr::knit_global())
-view <- restore_programs(cache$reference)
-signed_view <- restore_programs(cache$signed,signed_effects=TRUE)
-```
-
 Annotate a factor from its feature effects using gene sets or signed networks.
 Install fgsea for ranked enrichment, or decoupleR for network scores.
 
-The examples use the **published human-pancreas programs** from Peter Carbonetto's
-[single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html):
-NMF programs (`view`) and semi-NMF programs with signed effects (`signed_view`)
-learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled by Luecken et al.,
-2022), restored without refitting as described in
-[Pancreas programs](pancreas-programs.html). Their effects cover 14,528 genes. The
-code runs only when `FLASHIER_UTILS_PANCREAS_DIR` holds the local caches written by
-`.github/scripts/prepare-pancreas.R` in the source repository and otherwise shows
-without output. Upstream data are not redistributed.
+## Data and objects
+
+**Data.** Nine non-negative matrix factorization (NMF) programs learned from CEL-Seq2 cells (Muraro et al., 2016, as assembled by Luecken et al., 2022), published in [Peter Carbonetto's single-cell Jamboree](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html). The article uses NMF programs (`view`) and semi-NMF programs with signed effects (`signed_view`), both restored without refitting. Their effects cover 14,528 genes. The gene sets are built from cells of three other technologies in the same benchmark, as shown below.
+
+**Get the data.** The package does not ship these data. From a clone of the
+[repository](https://github.com/mdmanurung/flashier-utils), run this once; it downloads about 86 MB from a pinned
+revision of the Jamboree repository ([details](pancreas-programs.html#prepare-a-local-example-cache)):
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
+```
+
+This article reads `pancreas-worked-example.rds` and, for the gene sets, `pancreas-cells.rds`. Set `FLASHIER_UTILS_PANCREAS_DIR` to the same directory before running the
+code below; without it the code chunks are skipped. This website was built with the data.
+
+**Objects.** `cache` is the list read from `pancreas-worked-example.rds`: the published programs (`reference`, and `signed` for the semi-NMF programs), 48 reference cells (eight per published cell type), their shifted-log expression and metadata. `view` and `signed_view` are the NMF and semi-NMF representations. `cells` is read from `pancreas-cells.rds` where it is first used. `restore_programs()` is defined in [restore-programs.R](https://github.com/mdmanurung/flashier-utils/blob/main/vignettes/restore-programs.R) and explained in [Pancreas programs](pancreas-programs.html#restore-published-coordinates-without-refitting).
+
+```{r load-programs}
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache <- readRDS(file.path(pancreas_dir, "pancreas-worked-example.rds"))
+source("restore-programs.R")  # from vignettes/ in the repository
+view <- restore_programs(cache$reference, cache)
+signed_view <- restore_programs(cache$signed, cache, signed_effects = TRUE)
+```
 
 No external pathway database is bundled or used here. Instead, the gene sets are
 **marker sets built from the published cell-type labels**, in cells from three other
@@ -50,7 +57,7 @@ technologies, but the data carry no donor identifiers, so no donor-level
 independence is claimed.
 
 ```{r marker-sets}
-cells <- readRDS(cells_file)
+cells <- readRDS(file.path(pancreas_dir, "pancreas-cells.rds"))
 stopifnot(nrow(cells$counts)==nrow(cells$metadata))
 rownames(cells$counts) <- as.character(cells$metadata$id)
 others <- c("smartseq2","fluidigmc1","inDrop3")
@@ -159,3 +166,23 @@ The pancreas data and factors come from Peter Carbonetto's single-cell Jamboree
 native EBMF methods credit Jason Willwerscheid, Peter Carbonetto, Wei Wang and
 Matthew Stephens. The marker sets were constructed here from the published
 cell-type labels.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

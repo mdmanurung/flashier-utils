@@ -13,7 +13,7 @@ contribute to a factor.
 
 ## Fit a matrix
 
-Use the GTEx example from flashier. Its rows pair a single nucleotide polymorphism (SNP) with a gene. Its columns
+Use the GTEx example from flashier, loaded with `data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html)). Its rows pair a single nucleotide polymorphism (SNP) with a gene. Its columns
 are tissues, and its entries are association z-scores.
 
 ```{r fit}
@@ -92,3 +92,23 @@ Urbut, Wang, Carbonetto and Stephens (2019). See the
 Feature ranking adapts singlecelljamboreeR helpers by Peter Carbonetto and
 Matthew Stephens. The display workflow credits David Zemmour.
 [Original authors and sources](credits.html) lists the full credits and citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

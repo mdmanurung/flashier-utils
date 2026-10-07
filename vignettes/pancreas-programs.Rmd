@@ -94,13 +94,25 @@ cache <- list(reference=reference,signed=signed,
 saveRDS(cache,file.path(pancreas_dir,"pancreas-worked-example.rds"))
 ```
 
-Set `FLASHIER_UTILS_PANCREAS_DIR` to this directory before rendering the tutorial.
-Package builds skip data-dependent execution when the cache is absent and never
-perform network downloads. These examples were also executed locally against the
-pinned published inputs.
+The repository script
+[`.github/scripts/prepare-pancreas.R`](https://github.com/mdmanurung/flashier-utils/blob/main/.github/scripts/prepare-pancreas.R)
+runs this code and also writes a second file, `pancreas-cells.rds`, with raw counts
+for up to 40 cells per technology and cell type (896 cells from CEL-Seq2,
+SMART-Seq2, Fluidigm C1 and inDrop3). Other tutorials read it. From a clone of the
+repository, run it once (about 86 MB are downloaded):
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
+```
+
+Set `FLASHIER_UTILS_PANCREAS_DIR` to this directory before running the code below
+or rendering any tutorial that uses these data. Package builds skip
+data-dependent execution when the cache is absent and never perform network
+downloads. This website was built with the data.
 
 ```{r load-cache}
-cache <- readRDS(cache_file)
+pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+cache <- readRDS(file.path(pancreas_dir, "pancreas-worked-example.rds"))
 cache$revision
 dim(cache$reference_expression)
 dim(cache$query_expression)
@@ -120,8 +132,8 @@ hyperparameters. No reference model is refitted.
 ```
 
 ```{r restore-calls}
-view <- restore_programs(cache$reference)
-signed_view <- restore_programs(cache$signed,signed_effects=TRUE)
+view <- restore_programs(cache$reference,cache)
+signed_view <- restore_programs(cache$signed,cache,signed_effects=TRUE)
 # The input matrix uses shifted log measurements. The unmodified tutorial F
 # has its own fixed coordinate normalization; it is not a log-fold change.
 ```
@@ -212,3 +224,23 @@ unchanged. Reference-program transfer receives conceptual credit to STARCAT
 For protein contrasts, mixture thresholds and gates, see [protein interpretation](protein-interpretation.html)
 and the [ImmGen Figure 7 source workflow](https://github.com/AgueroZZ/immgenT-GP-analysis/blob/main/script/Figure7.R).
 This RNA-only pancreas example does not invent protein measurements.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

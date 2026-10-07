@@ -1,4 +1,4 @@
-restore_programs <- function(ldf,signed_effects=FALSE) {
+restore_programs <- function(ldf,cache,signed_effects=FALSE) {
   Y <- cache$reference_expression
   factor_ids <- paste0("F",seq_len(ncol(ldf$F)))
   A <- sweep(ldf$L[rownames(Y),,drop=FALSE],2,ldf$D,"*")

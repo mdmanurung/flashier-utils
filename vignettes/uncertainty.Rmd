@@ -13,7 +13,7 @@ Regression summaries condition on the estimated factor activities.
 
 ## Factor posterior intervals
 
-This fit uses the GTEx z-score matrix that ships with flashier and priors
+This fit uses the GTEx z-score matrix that ships with flashier (`data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html))) and priors
 supported by flashier's posterior sampler: a point-Laplace prior for the
 SNP-gene pairs and a normal prior for the tissues.
 
@@ -76,3 +76,23 @@ Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gte
 Posterior sampling uses flashier by Jason Willwerscheid, Peter Carbonetto,
 Wei Wang and Matthew Stephens. Reconstruction credits David Zemmour's workflows.
 [Original authors and sources](credits.html) lists method citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```

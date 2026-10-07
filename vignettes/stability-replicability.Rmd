@@ -8,8 +8,7 @@ vignette: >
 ---
 
 Refit resampled units to assess factor recovery, or compare feature programs
-from separate fits. This example uses the GTEx z-score matrix that ships with
-flashier. Install psych and clue for factor matching.
+from separate fits. This example uses the GTEx z-score matrix that ships with flashier (`data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html))). Install psych and clue for factor matching.
 
 The tissues in this matrix are not independent donors, so the example does not
 resample donors. It places the 1000 SNP-gene pairs in rows, so a factor is a
@@ -94,3 +93,23 @@ Wang and Matthew Stephens) and derive from the GTEx project; see `?flashier::gte
 Refits use flashier by Jason Willwerscheid, Peter Carbonetto, Wei Wang and
 Matthew Stephens. Matching uses William Revelle's psych and Kurt Hornik and
 Walter Böhm's clue. [Original authors and sources](credits.html) lists citations.
+
+## Function credits
+
+These are the functions from this package that the article calls, with the people
+who wrote the upstream code or method behind each one. Use is this package's
+classification and code reuse for the function; `provenance()` returns the full
+registry. [Original authors and sources](credits.html) gives the full credits,
+citations and licenses.
+
+```{r function-credits, echo=FALSE, eval=TRUE}
+code <- knitr::knit_code$get()
+used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
+  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
+registry <- provenance()
+credits <- registry[registry[["function"]] %in% used, ]
+credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
+knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
+             col.names = c("Function", "Original authors", "Upstream", "Use"),
+             row.names = FALSE)
+```
