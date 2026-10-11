@@ -47,6 +47,22 @@ test_that("partial ids fix exactly the named entries in both orientations and ax
   expect_error(remove_factors(f,NULL),"factors is required")
 })
 
+test_that("reorder gives a new identity so a stale view is refused", {
+  fit <- fixture_fit()
+  view <- standardize_factors(fit)
+  reordered <- reorder_factors(fit,c("F2","F1"))
+  expect_false(identical(attr(reordered,"flashbridge_metadata")$fit_id,attr(fit,"flashbridge_metadata")$fit_id))
+  expect_error(factor_uncertainty(reordered,"effects",representation=view),"different fit")
+  expect_s3_class(factor_uncertainty(reordered,"effects",representation=standardize_factors(reordered)),"data.frame")
+})
+
+test_that("provenance engine fields are single strings", {
+  meta <- attr(fixture_fit(),"analysis_metadata")
+  expect_type(meta[["engine"]],"character")
+  expect_type(meta[["engine_version"]],"character")
+  expect_length(meta[["engine_version"]],1L)
+})
+
 test_that("nonnegative wrapper agrees with bounded native point-exponential fit", {
   X <- abs(fixture_matrix())
   wrapped <- fit_nonnegative_ebmf(X,"rows",max_factors=2L,verbose=0L,seed=2)

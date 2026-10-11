@@ -1,5 +1,9 @@
 # flashier.utils 1.1.0.9000
 
+- `reorder_factors()` now returns a fit with a new identity, so a view made before
+  the reorder is refused instead of silently pairing posterior SDs with the wrong
+  factor. Provenance `engine` and `engine_version` are single strings (a partial
+  `$` match had turned them into lists).
 - Fix `fix_factors(ids = )`: partial IDs now fix exactly the named samples or
   features in both orientations (a single ID previously fixed the whole axis and
   several IDs errored). `fix_factors()` and `remove_factors()` now require

@@ -10,8 +10,8 @@
   metadata <- attr(original, "flashbridge_metadata")
   if (is.null(metadata)) metadata <- list()
   metadata$factor_ids <- ids
-  metadata$fit_id <- if (operation == "reorder" && !is.null(metadata$fit_id)) metadata$fit_id else
-    digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
+  # every edit, including reorder, gets a new identity so views of the original fit are refused
+  metadata$fit_id <- digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
   metadata$parent_fit_id <- attr(original, "flashbridge_metadata")$fit_id
   metadata$operation <- operation
   attr(updated, "flashbridge_metadata") <- metadata
