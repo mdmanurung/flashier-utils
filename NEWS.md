@@ -1,5 +1,9 @@
 # flashier.utils 1.1.0.9000
 
+- Fix `fix_factors(ids = )`: partial IDs now fix exactly the named samples or
+  features in both orientations (a single ID previously fixed the whole axis and
+  several IDs errored). `fix_factors()` and `remove_factors()` now require
+  `factors` instead of treating `NULL` as every factor.
 - Tutorials state where their data and objects come from: a visible "Data and objects"
   section with the command to obtain the pancreas data, explicit reads of the cached
   files, a visible simulation in the protein article, and a README table of data

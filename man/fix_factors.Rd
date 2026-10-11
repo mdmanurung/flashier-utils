@@ -20,7 +20,7 @@ fix_factors(
 
 \item{side}{activity or effects.}
 
-\item{ids}{Optional sample/feature IDs for partial fixing.}
+\item{ids}{Optional sample/feature IDs for partial fixing; NULL fixes every entry of the side.}
 
 \item{use_fixed_in_ebnm}{Native handling of fixed values in prior estimation.}
 

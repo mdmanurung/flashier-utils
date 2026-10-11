@@ -24,6 +24,29 @@ test_that("native operations preserve identity and numerical native equivalence"
   }
 })
 
+test_that("partial ids fix exactly the named entries in both orientations and axes", {
+  for(side in c("rows","columns")) {
+    f <- fixture_fit(side)
+    view <- standardize_factors(f,scaling="raw")
+    for(axis in c("activity","effects")) {
+      all_ids <- rownames(view[[axis]])
+      for(ids in list(all_ids[c(2,5)],all_ids[3])) {
+        fixed <- fix_factors(f,"F1",axis,ids=ids)
+        mode <- if((axis=="activity")==(side=="rows")) "loadings" else "factors"
+        native <- flashier::flash_factors_fix(f,1,which_dim=mode,fixed_idx=all_ids %in% ids)
+        expect_equal(flashier:::get.fix.idx(flashier:::get.fit(fixed))[[1]],which(all_ids %in% ids))
+        expect_equal(fixed$L_pm,native$L_pm)
+        expect_equal(fixed$F_pm,native$F_pm)
+      }
+    }
+  }
+  f <- fixture_fit()
+  expect_error(fix_factors(f,"F1","effects",ids=character()),"at least one")
+  expect_error(fix_factors(f,"F1","effects",ids="nope"),"Unknown")
+  expect_error(fix_factors(f,NULL,"effects"),"factors is required")
+  expect_error(remove_factors(f,NULL),"factors is required")
+})
+
 test_that("nonnegative wrapper agrees with bounded native point-exponential fit", {
   X <- abs(fixture_matrix())
   wrapped <- fit_nonnegative_ebmf(X,"rows",max_factors=2L,verbose=0L,seed=2)

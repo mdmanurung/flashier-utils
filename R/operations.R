@@ -91,7 +91,7 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' @param fit Native fit with recorded sample side.
 #' @param factors Required factor IDs.
 #' @param side activity or effects.
-#' @param ids Optional sample/feature IDs for partial fixing.
+#' @param ids Optional sample/feature IDs for partial fixing; NULL fixes every entry of the side.
 #' @param use_fixed_in_ebnm Native handling of fixed values in prior estimation.
 #' @param action fix or unfix; native unfix operates on the selected pair.
 #' @return New native fit retaining named factor identity.
@@ -114,6 +114,7 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' fixed <- fix_factors(fit,"F1","effects")
 #' factor_effects(fixed,factors="F1",features="g1")
 fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL, action = "fix") {
+  if (is.null(factors)) stop("factors is required; supply the factor IDs to ", action)
   action <- match.arg(action, c("fix", "unfix"))
   side <- match.arg(side, c("activity", "effects"))
   all_ids <- .factor_ids(fit)
@@ -126,7 +127,10 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
     result <- flashier::flash_factors_unfix(fit, kset = kset)
   } else {
     view <- standardize_factors(fit, scaling = "raw")
-    fixed_idx <- if (is.null(ids)) NULL else .select_ids(ids, rownames(view[[side]]), side)
+    axis_ids <- rownames(view[[side]])
+    if (!is.null(ids) && !length(ids)) stop("ids must name at least one ", side, " ID; use NULL to fix every entry")
+    # native fixed_idx is a full-axis logical mask, not integer positions
+    fixed_idx <- if (is.null(ids)) NULL else seq_along(axis_ids) %in% .select_ids(ids, axis_ids, side)
     result <- flashier::flash_factors_fix(fit, kset = kset, which_dim = mode, fixed_idx = fixed_idx, use_fixed_in_ebnm = use_fixed_in_ebnm)
   }
   .attach_provenance(.native_changed(fit, result, all_ids, action), "fix_factors", match.call(), .resolved_parameters("fix_factors", environment()))
@@ -155,6 +159,7 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #' remaining <- remove_factors(fit,"F1")
 #' colnames(factor_activity(remaining))
 remove_factors <- function(fit, factors) {
+  if (is.null(factors)) stop("factors is required; supply the factor IDs to remove")
   ids <- .factor_ids(fit)
   kset <- .select_ids(factors, ids, "factor")
   if (!length(kset)) stop("No factors selected")
