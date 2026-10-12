@@ -1,0 +1,30 @@
+{
+  "project": "flashier-utils consensus reference and projection",
+  "bundle_version": "2.0.0",
+  "reference_schema_target": "1.0.0",
+  "audit_snapshot": {
+    "flashier_utils": "75a1709e9979f66fa46beaee994443b804f9ca64",
+    "starcat": "5399183aa6093ff972bb605d2e33d64ce41b944c",
+    "flashier_pin_from_description": "fd44811ab22d61ee905e1964175571c452fe7683"
+  },
+  "milestones": {
+    "M0": {"name": "baseline", "depends_on": []},
+    "M1": {"name": "comparison profiles", "depends_on": ["M0"]},
+    "M2": {"name": "all-pairs similarity", "depends_on": ["M1"]},
+    "M3": {"name": "graph and clustering", "depends_on": ["M2"]},
+    "M4": {"name": "consensus and factor_reference", "depends_on": ["M3"]},
+    "M5": {"name": "top-level builder", "depends_on": ["M4"]},
+    "M6": {"name": "native reference projection", "depends_on": ["M5"]},
+    "M7": {"name": "residual feasibility gate", "depends_on": ["M6"]},
+    "M8": {"name": "residual program discovery", "depends_on": ["M7"], "conditional": "M7=GO"},
+    "M9": {"name": "stability integration", "depends_on": ["M5"]},
+    "M10": {"name": "scientific validation", "depends_on": ["M5", "M6"]},
+    "M11": {"name": "experimental prior transport", "depends_on": ["M6"], "experimental": true},
+    "M12": {"name": "documentation and release", "depends_on": ["M10"]}
+  },
+  "release_tracks": {
+    "core": ["M0", "M1", "M2", "M3", "M4", "M5", "M6", "M10", "M12"],
+    "residual_extension": ["M7", "M8"],
+    "experimental_prior": ["M11"]
+  }
+}

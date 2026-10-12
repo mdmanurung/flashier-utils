@@ -1,0 +1,115 @@
+{
+  "bundle_name": "flashier-utils consensus reference and projection implementation bundle",
+  "bundle_version": "2.0.0-revised",
+  "created_date": "2026-10-07",
+  "supersedes": "flashier-utils-consensus-reference-development-bundle.zip",
+  "audit_snapshot": {
+    "flashier_utils_main": "75a1709e9979f66fa46beaee994443b804f9ca64",
+    "starcat_main": "5399183aa6093ff972bb605d2e33d64ce41b944c",
+    "flashier_pin_from_flashier_utils_DESCRIPTION": "fd44811ab22d61ee905e1964175571c452fe7683"
+  },
+  "validation": {
+    "static_checks": "38/38 passed",
+    "report": "09_BUNDLE_VALIDATION.md",
+    "note": "Static consistency only; native feasibility probes and scientific benchmarks remain implementation tasks."
+  },
+  "tracker": {
+    "tasks": 69,
+    "status_counts": {
+      "DEFERRED": 4,
+      "TODO": 65
+    },
+    "priority_counts": {
+      "P0": 37,
+      "P1": 19,
+      "P2": 9,
+      "P3": 4
+    },
+    "core_release_path": [
+      "M0",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M10",
+      "M12"
+    ],
+    "conditional_residual_path": [
+      "M7",
+      "M8"
+    ],
+    "experimental_prior_path": [
+      "M11"
+    ]
+  },
+  "files": [
+    {
+      "name": "00_REVIEW_NOTES.md",
+      "bytes": 6456,
+      "sha256": "564d5223d353a32001eee71920b18b983fda865b094df44febd25d164afaeef2"
+    },
+    {
+      "name": "01_IMPLEMENTATION_SPEC.md",
+      "bytes": 26944,
+      "sha256": "3cf26a5e51c8182dc173d6fcce070daee00b356af5663a2b8d20408381f7f986"
+    },
+    {
+      "name": "02_MILESTONES.md",
+      "bytes": 12738,
+      "sha256": "5ce5f8a8f7b44a51788d89d630ee1c9ecf4a13490ffa3a130026c6f81fef6eed"
+    },
+    {
+      "name": "03_EXECUTION_TRACKER.csv",
+      "bytes": 6081,
+      "sha256": "d4791b822890bbdd048be92485f64fce12d617bf3de0ed0007dea6718e8d4e12"
+    },
+    {
+      "name": "03_EXECUTION_TRACKER.md",
+      "bytes": 7404,
+      "sha256": "1488305f98032fe75bb21c50e6dd10d00d1a1f78e79b7c90999a1d54b87b7b00"
+    },
+    {
+      "name": "04_API_AND_DATA_CONTRACTS.md",
+      "bytes": 10200,
+      "sha256": "98af05ad9cb89b2d49a81c9f9be3d0e6c46965332192cb077c8293402ecb2753"
+    },
+    {
+      "name": "05_TEST_BENCHMARK_PLAN.md",
+      "bytes": 10487,
+      "sha256": "0d90dda70e24f92c684bd88ceb2917bdbea143295287078e6bc000fe4b1ce23f"
+    },
+    {
+      "name": "06_FLASHIER_FEASIBILITY_PROBES.md",
+      "bytes": 4764,
+      "sha256": "2c637dd917808b42eb99be42891877a2721ee3e9aa76e187e019ec999aea9cfe"
+    },
+    {
+      "name": "07_SOURCE_AUDIT_AND_DECISIONS.md",
+      "bytes": 8505,
+      "sha256": "658c8371198b08d55d61babc8af66040d8422847763051fc5cfecf3608f06cc9"
+    },
+    {
+      "name": "08_AGENT_HANDOFF.md",
+      "bytes": 7803,
+      "sha256": "c585939817986a6177eb09d9a159f3946e6c9c5a58fcf57bc89cae0fd2613da2"
+    },
+    {
+      "name": "09_BUNDLE_VALIDATION.md",
+      "bytes": 3059,
+      "sha256": "b5b538aba203168df190dbd0cfa802c0e6450bcb955920feff5a287ea7f9ad7d"
+    },
+    {
+      "name": "README.md",
+      "bytes": 2439,
+      "sha256": "5dc268203fcc9184f36d6ce5cc397dba5341bb81b2f8c188a737764b01a26cbb"
+    },
+    {
+      "name": "milestones.json",
+      "bytes": 1498,
+      "sha256": "673301f2c7565b31bd06305c6a911a2d63cc011b488152ac5319e0da1c35fa07"
+    }
+  ],
+  "manifest_self_hash": "omitted_by_design"
+}
