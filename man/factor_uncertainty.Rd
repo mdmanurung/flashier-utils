@@ -38,6 +38,8 @@ Table with estimate, posterior.sd, uncertainty_type and basis_id.
 \description{
 Native variational uncertainty is conditional on estimated priors. Posterior
 SD is not a downstream regression standard error. Missing moments are NA.
+Unmeasured reference features have status unavailable and reason
+not_in_native_fit; uncertainty is never borrowed from the source fit.
 }
 \details{
 Origin: WRAPPER / call_only.

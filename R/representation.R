@@ -32,6 +32,17 @@
   for (ids in list(rownames(A), rownames(B), if (ncol(A)) colnames(A) else character())) .validate_ids(ids, "Representation")
   if (any(!is.finite(A)) || any(!is.finite(B))) stop("Representation contains nonfinite values")
   if (length(offset) != nrow(B) || !identical(names(offset), rownames(B)) || any(!is.finite(offset))) stop("Offset must be finite and named by feature")
+  indices <- manifest$native_indices
+  if (!is.numeric(indices) || length(indices) != ncol(A) || anyNA(indices) ||
+      any(!is.finite(indices)) || any(indices < 1 | indices != floor(indices)) || anyDuplicated(indices)) {
+    stop("native_indices must be unique positive integers, one per factor")
+  }
+  for (key in c("activity_multiplier", "effects_multiplier")) {
+    value <- manifest[[key]]
+    if (!is.null(value) && (!is.numeric(value) || length(value) != ncol(A) || any(!is.finite(value)))) {
+      stop(key, " must contain one finite multiplier per factor")
+    }
+  }
   manifest$sample_ids <- rownames(A)
   manifest$feature_ids <- rownames(B)
   manifest$factor_ids <- if (ncol(A)) colnames(A) else character()
@@ -61,6 +72,10 @@
     view <- .validate_view(representation)
     raw <- standardize_factors(fit, sample_side = sample_side, scaling = "raw")
     if (!identical(view$manifest$fit_id, raw$manifest$fit_id)) stop("Representation belongs to a different fit")
+    if (any(view$manifest$native_indices > fit$n_factors) ||
+        !identical(raw$manifest$factor_ids[view$manifest$native_indices], view$manifest$factor_ids)) {
+      stop("Representation native_indices do not match the native factor IDs")
+    }
     return(view)
   }
   if (!is.null(representation) && !is.list(representation)) stop("representation must be a view or named settings")
@@ -72,6 +87,7 @@
 #' Uses public flashier LDF normalization, placing D on exactly one side.
 #' Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 #' requires declared signed support on both sides. No model is refitted.
+#' A projected fit retains its declared external offset on measured native axes.
 #' @param fit A native flashier fit.
 #' @param sample_side Explicit rows or columns for bare native fits.
 #' @param scaling Raw or ldf coordinates.
@@ -162,5 +178,13 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     feature_scale = if (is.null(metadata$feature_scale)) "unknown" else metadata$feature_scale,
     preprocessing = if (is.null(metadata$preprocessing)) list() else metadata$preprocessing,
     independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve), runtime)
-  .attach_provenance(.make_representation(pair[[1]], pair[[2]], manifest), "standardize_factors", match.call(), .resolved_parameters("standardize_factors", environment()))
+  offset <- metadata$offset
+  if (is.null(offset)) offset <- stats::setNames(rep(0, nrow(pair[[2]])), rownames(pair[[2]]))
+  else {
+    .validate_ids(names(offset), "Offset feature")
+    if (!all(rownames(pair[[2]]) %in% names(offset))) stop("Native features are absent from the recorded offset")
+    offset <- offset[rownames(pair[[2]])]
+    if (any(offset != 0)) manifest$offset_definition <- "external_projection_offset"
+  }
+  .attach_provenance(.make_representation(pair[[1]], pair[[2]], manifest, offset), "standardize_factors", match.call(), .resolved_parameters("standardize_factors", environment()))
 }

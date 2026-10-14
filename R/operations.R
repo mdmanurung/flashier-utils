@@ -14,6 +14,7 @@
   metadata$fit_id <- digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
   metadata$parent_fit_id <- attr(original, "flashbridge_metadata")$fit_id
   metadata$operation <- operation
+  if (operation != "reorder") metadata$refit_policy <- "callback_required"
   attr(updated, "flashbridge_metadata") <- metadata
   updated
 }

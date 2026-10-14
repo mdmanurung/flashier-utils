@@ -35,3 +35,31 @@ test_that("donor occurrences preserve visits, auxiliary maps and serial/parallel
   expect_equal(nrow(failed$failures),2)
   expect_true(all(failed$summary$recovery_rate_all_requested==0))
 })
+
+test_that("donor strata cannot hide different metadata tuples", {
+  metadata <- data.frame(sample = c("s1", "s2"), donor = "d1",
+    first = c("x.y", "x"), second = c("z", "y.z"))
+  expect_error(.bootstrap_units(metadata, "donor", c("first", "second"), seed = 7), "crosses strata")
+})
+
+test_that("automatic resampling preserves ordinary recipes and guards edited fits", {
+  fit <- fixture_fit()
+  attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
+  metadata <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2))
+  run <- function(reference, ...) factor_stability(fixture_matrix(), reference, metadata,
+    "donor", B = 1L, seed = 7, ...)
+  reordered <- reorder_factors(fit, c("F2", "F1"))
+  expect_identical(attr(reordered, "flashbridge_metadata")$refit_policy, "ordinary")
+  expect_no_error(run(reordered))
+  removed <- remove_factors(fit, "F2")
+  expect_error(run(removed), "explicit fit_fn")
+  fixed <- fix_factors(fit, "F1", "effects")
+  expect_error(run(fixed), "explicit fit_fn")
+  reordered_edit <- reorder_factors(fixed, c("F2", "F1"))
+  expect_error(run(reordered_edit), "explicit fit_fn")
+  projected <- suppressWarnings(project_factor_activity(fit, fixture_matrix(), "rows", "intensity",
+    list(scope = "identity"), maxiter = 200))
+  expect_error(run(projected$fit), "explicit fit_fn")
+  custom <- run(removed, fit_fn = function(...) stop("deliberate custom failure"))
+  expect_equal(nrow(custom$failures), 1L)
+})

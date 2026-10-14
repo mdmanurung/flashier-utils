@@ -95,6 +95,7 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
     sample_side = sample_side, row_ids = rownames(X), column_ids = colnames(X),
     generated_ids = generated & id_policy == "generate", feature_scale = feature_scale,
     independent_unit = independent_unit, preprocessing = list(), prior_support = support,
+    recipe_version = "1.0.0", refit_policy = "ordinary",
     prior_identifiers = vapply(priors, function(fn) {
       exports <- getNamespaceExports("ebnm")
       matches <- exports[vapply(exports, function(n) identical(fn, getExportedValue("ebnm", n)), logical(1))]

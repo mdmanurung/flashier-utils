@@ -1,5 +1,15 @@
 # flashier.utils 1.1.0.9000
 
+- Projected fits now use their own native factor indices, scaling, PVE,
+  posterior SDs and sampler coordinates. Intersection projection reports
+  unmeasured-feature uncertainty as unavailable, and returned native fits retain
+  external offsets through standardization and serialization.
+- Metadata tuples remain distinct when labels contain punctuation; the same
+  identity rule protects donor bootstrap strata.
+- Automatic stability fitting now requires an explicit callback for edited,
+  projected or custom fits. Ordinary fits and pure reorders retain their recipes.
+- Validate native factor maps and return typed empty summaries, rankings,
+  specificity and marker correlations for valid zero-factor fits.
 - `reorder_factors()` now returns a fit with a new identity, so a view made before
   the reorder is refused instead of silently pairing posterior SDs with the wrong
   factor. Provenance `engine` and `engine_version` are single strings (a partial

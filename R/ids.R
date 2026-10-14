@@ -55,6 +55,15 @@
   match(requested, available)
 }
 
+.tuple_groups <- function(metadata) {
+  columns <- lapply(metadata, function(column) {
+    column <- as.factor(column)
+    levels(column) <- as.character(seq_len(nlevels(column)))
+    column
+  })
+  do.call(interaction, c(columns, list(drop = TRUE, lex.order = TRUE)))
+}
+
 .with_seed <- function(seed, code) {
   if (is.null(seed)) return(force(code))
   if (length(seed) != 1L || !is.numeric(seed) || !is.finite(seed) || seed < 0 || seed > .Machine$integer.max || seed != as.integer(seed)) stop("seed must be a nonnegative integer")

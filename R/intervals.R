@@ -12,6 +12,8 @@
 #' Uses fit$sampler batches with fixed representation multipliers, conditional on
 #' empirical priors. Quantiles are exact sample quantiles. Draws do not include
 #' rank, optimization or biological resampling uncertainty.
+#' Selected IDs must be present in the native fit; unmeasured reference features
+#' have no native sampler entries and are refused explicitly.
 #' @inheritParams factor_uncertainty
 #' @param level Coverage strictly between zero and one.
 #' @param nsamp At least two native draws.
@@ -47,8 +49,11 @@ factor_intervals <- function(fit, side, representation = NULL, factors = NULL, i
   if (8 * nsamp * nrow(out) > 256 * 1024^2) stop("Selected interval draws exceed 256 MiB; reduce nsamp or select fewer factors/IDs")
   native_side <- if ((side == "activity") == (view$manifest$sample_side == "rows")) 1L else 2L
   id_col <- if (side == "activity") "sample" else "feature"
-  index <- cbind(match(out[[id_col]], rownames(view[[side]])), match(out$factor, view$manifest$factor_ids))
-  multiplier <- view$manifest[[paste0(side, "_multiplier")]][index[, 2L]]
+  native <- .raw_pair(fit)[[native_side]]
+  columns <- match(out$factor, view$manifest$factor_ids)
+  index <- cbind(match(out[[id_col]], rownames(native)), view$manifest$native_indices[columns])
+  if (anyNA(index)) stop("Native sampler entries are unavailable for selected IDs")
+  multiplier <- view$manifest[[paste0(side, "_multiplier")]][columns]
   values <- .with_seed(seed, {
     values <- matrix(NA_real_, nsamp, nrow(out))
     for (start in seq.int(1L, nsamp, by = 64L)) {
@@ -57,7 +62,7 @@ factor_intervals <- function(fit, side, representation = NULL, factors = NULL, i
       if (!is.list(draws) || length(draws) != length(rows)) stop("Unprobed native sampler layout")
       for (j in seq_along(draws)) {
         draw <- draws[[j]]
-        if (!is.list(draw) || length(draw) != 2L || !identical(dim(draw[[native_side]]), dim(view[[side]]))) stop("Unprobed native sampler dimensions")
+        if (!is.list(draw) || length(draw) != 2L || !identical(dim(draw[[native_side]]), dim(native))) stop("Unprobed native sampler dimensions")
         values[rows[j], ] <- draw[[native_side]][index] * multiplier
       }
     }

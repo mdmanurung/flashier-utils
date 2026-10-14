@@ -85,3 +85,81 @@ test_that("inferred priors, subsets, nonzero offsets and S retain declared coord
   zero <- .make_representation(v$activity,bad,v$manifest)
   expect_error(project_factor_activity(zero,Y,"rows","simulated",list(scope="identity")),"rank-deficient")
 })
+
+test_that("projected F2 uses new native coordinates, moments, PVE and draws", {
+  for (orientation in c("rows", "columns")) {
+    fit <- fixture_fit(orientation)
+    for (scaling in c("raw", "ldf")) {
+      view <- standardize_factors(fit, scaling = scaling, d_location = "activity")
+      view <- .make_representation(view$activity, view$effects,
+        utils::modifyList(view$manifest, list(feature_scale = "simulated")))
+      Y <- fixture_matrix()
+      query <- if (orientation == "rows") Y else t(Y)
+      result <- suppressWarnings(project_factor_activity(view, query, orientation,
+        "simulated", list(scope = "identity"), factors = "F2", maxiter = 200))
+      projected <- result$representation
+      expect_identical(projected$manifest$native_indices, 1L)
+      expect_identical(projected$manifest$scaling, "raw")
+      expect_equal(projected$manifest$activity_multiplier, 1)
+      expect_equal(projected$manifest$effects_multiplier, 1)
+      expect_equal(factor_pve(projected)$pve, unname(result$fit$pve), tolerance = 1e-8)
+      for (side in c("activity", "effects")) {
+        prefix <- if ((side == "activity") == (orientation == "rows")) "L" else "F"
+        out <- factor_uncertainty(result$fit, side, representation = projected)
+        expect_equal(out$posterior.sd, as.vector(result$fit[[paste0(prefix, "_psd")]]), tolerance = 1e-8)
+      }
+      intervals <- factor_intervals(result$fit, "activity", representation = projected,
+        factors = "F2", ids = "s2", nsamp = 20, seed = 39)
+      set.seed(39)
+      draws <- result$fit$sampler(20)
+      native_side <- if (orientation == "rows") 1L else 2L
+      values <- vapply(draws, function(d) d[[native_side]][2, 1], numeric(1))
+      expect_equal(intervals$mean, mean(values), tolerance = 1e-8)
+      expect_equal(intervals$lower, unname(quantile(values, .025)), tolerance = 1e-8)
+      restored <- standardize_factors(result$fit, scaling = "raw")
+      expect_equal(restored$activity, projected$activity)
+      expect_equal(restored$effects, projected$effects)
+    }
+  }
+})
+
+test_that("intersection moments match native IDs and absent features are unavailable", {
+  view <- fixture_view()
+  Y <- tcrossprod(view$activity, view$effects)[, c("g3", "g1", "g2")]
+  priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+  for (orientation in c("rows", "columns")) {
+    result <- suppressWarnings(project_factor_activity(view,
+      if (orientation == "rows") Y else t(Y), orientation, "arcsinh_intensity",
+      list(scope = "identity"), ebnm_fn = if (orientation == "rows") priors else rev(priors),
+      feature_match = "intersection", maxiter = 200))
+    out <- factor_uncertainty(result$fit, "effects", representation = result$representation)
+    expect_true(all(is.na(out$posterior.sd[out$feature == "g4"])))
+    expect_true(all(out$status[out$feature == "g4"] == "unavailable"))
+    expect_true(all(out$reason[out$feature == "g4"] == "not_in_native_fit"))
+    native <- if (orientation == "rows") result$fit$F_psd else result$fit$L_psd
+    measured <- out[out$feature != "g4", ]
+    index <- cbind(match(measured$feature, rownames(native)), match(measured$factor, colnames(view$effects)))
+    expect_equal(measured$posterior.sd, native[index], tolerance = 1e-8)
+    expect_error(factor_uncertainty(result$fit, "effects", representation = result$representation,
+      require_uncertainty = TRUE), "unavailable")
+    expect_error(factor_intervals(result$fit, "effects", representation = result$representation,
+      ids = "g4", nsamp = 20), "unavailable")
+  }
+})
+
+test_that("projected native fits retain declared external offsets after serialization", {
+  view <- fixture_view()
+  offset <- setNames(c(1, 2, -1, .5), rownames(view$effects))
+  shifted <- .make_representation(view$activity, view$effects, view$manifest, offset)
+  query <- sweep(tcrossprod(view$activity, view$effects), 2, offset, "+")
+  priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+  result <- suppressWarnings(project_factor_activity(shifted, query, "rows", "arcsinh_intensity",
+    list(scope = "identity"), ebnm_fn = priors, maxiter = 200))
+  path <- tempfile(fileext = ".rds")
+  on.exit(unlink(path))
+  saveRDS(result$fit, path)
+  restored <- standardize_factors(readRDS(path), scaling = "raw")
+  expect_identical(restored$offset, offset)
+  expect_equal(sweep(tcrossprod(restored$activity, restored$effects), 2, restored$offset, "+"),
+    sweep(tcrossprod(result$representation$activity, result$representation$effects), 2, offset, "+"))
+})

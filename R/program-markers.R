@@ -5,6 +5,7 @@
   as.matrix(measurements[ids,,drop=FALSE])
 }
 #' Correlate activities with aligned external markers
+#' @details A zero-factor fit returns a typed empty correlation table.
 #' @param fit Native fit or representation.
 #' @param measurements Named sample-by-marker matrix.
 #' @param factors Optional factor IDs.
@@ -20,7 +21,9 @@ correlate_factor_markers <- function(fit, measurements, factors = NULL, method =
     variable <- nrow(A)>1 && stats::sd(A[,k])>0 && stats::sd(M[,j])>0
     out[[length(out)+1L]] <- data.frame(factor=colnames(A)[k],marker=colnames(M)[j],correlation=if(variable) stats::cor(A[,k],M[,j],method=method) else NA_real_,n_samples=nrow(A),status=if(variable) "available" else "constant_predictor")
   }
-  .program_result(do.call(rbind,out),view,"correlate_factor_markers",match.call(),list(method=method,population=rownames(A),inference="descriptive_no_p_values"))
+  table <- if (length(out)) do.call(rbind, out) else data.frame(factor = character(), marker = character(),
+    correlation = numeric(), n_samples = integer(), status = character())
+  .program_result(table,view,"correlate_factor_markers",match.call(),list(method=method,population=rownames(A),inference="descriptive_no_p_values"))
 }
 
 #' Compare two existing descriptive factor contrasts

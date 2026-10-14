@@ -18,7 +18,7 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, fe
   .program_number(activity_threshold,"activity_threshold"); .program_number(feature_threshold,"feature_threshold")
   score <- switch(activity_direction,positive=A,negative=-A,absolute=abs(A))
   active <- score > activity_threshold
-  per_factor <- data.frame(factor=colnames(A),active_proportion=colMeans(active),active_cells=colSums(active),active_features=colSums(abs(B)>feature_threshold),n_samples=rep(nrow(A),ncol(A)),n_features=rep(nrow(B),ncol(A)))
+  per_factor <- data.frame(factor=if(ncol(A)) colnames(A) else character(),active_proportion=colMeans(active),active_cells=colSums(active),active_features=colSums(abs(B)>feature_threshold),n_samples=rep(nrow(A),ncol(A)),n_features=rep(nrow(B),ncol(A)))
   per_sample <- data.frame(sample=rownames(A),programs=rowSums(active))
   .program_result(list(factors=per_factor,samples=per_sample),view,"factor_diagnostics",match.call(),list(activity_threshold=activity_threshold,feature_threshold=feature_threshold,activity_direction=activity_direction,display_normalization=display_normalization,threshold_operator=">",population=rownames(A),selection_factors=colnames(A),inference="descriptive"))
 }
@@ -89,6 +89,7 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
 }
 
 #' Measure descriptive one-versus-rest factor specificity
+#' @details A zero-factor fit returns a typed empty specificity table.
 #' @param fit Native fit or representation.
 #' @param metadata Metadata matching every sample.
 #' @param group Grouping column.
@@ -128,7 +129,11 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
     }
     out[[length(out)+1L]] <- row
   }
-  .program_result(do.call(rbind,out),view,"factor_specificity",match.call(),list(engine="pROC",direction=direction,threshold_method=threshold_method,tie_rule="smallest_finite_threshold",unit_col=unit_col,inference="descriptive",groups=groups))
+  table <- if (length(out)) do.call(rbind, out) else data.frame(factor = character(), group = character(),
+    auc = numeric(), threshold = numeric(), sensitivity = numeric(), specificity = numeric(),
+    threshold_ties = integer(), n_samples = integer(), n_positive = integer(), n_negative = integer(),
+    n_units = integer(), n_positive_units = integer(), n_negative_units = integer(), status = character())
+  .program_result(table,view,"factor_specificity",match.call(),list(engine="pROC",direction=direction,threshold_method=threshold_method,tie_rule="smallest_finite_threshold",unit_col=unit_col,inference="descriptive",groups=groups))
 }
 
 #' Summarize defining features and descriptive program diagnostics

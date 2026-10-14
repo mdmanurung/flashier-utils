@@ -63,6 +63,9 @@ stability_result with summaries, replicates, matches, resamples, failures.
 Donor occurrences preserve all their visits/cells and get unique synthetic
 IDs. Similarity quantiles summarize successful perturbations, not posterior
 uncertainty. No threshold gives candidate similarities without recovery rates.
+Automatic fitting is supported for ordinary wrapper fits and pure reorders.
+Edited, projected and custom fits require an explicit fit_fn that reproduces
+their fitting procedure; supplying settings alone does not remove this guard.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.

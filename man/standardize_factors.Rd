@@ -36,6 +36,7 @@ A serializable factor_representation with basis manifest.
 Uses public flashier LDF normalization, placing D on exactly one side.
 Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 requires declared signed support on both sides. No model is refitted.
+A projected fit retains its declared external offset on measured native axes.
 }
 \details{
 Origin: ADAPTED / call_only.

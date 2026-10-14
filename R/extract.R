@@ -84,6 +84,8 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #'
 #' Native variational uncertainty is conditional on estimated priors. Posterior
 #' SD is not a downstream regression standard error. Missing moments are NA.
+#' Unmeasured reference features have status unavailable and reason
+#' not_in_native_fit; uncertainty is never borrowed from the source fit.
 #' @inheritParams factor_activity
 #' @param side activity or effects.
 #' @param ids Optional sample or feature IDs.
@@ -118,19 +120,23 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), representat
   multiplier <- view$manifest[[paste0(side, "_multiplier")]]
   psd <- fit[[paste0(prefix, "_psd")]]
   id_col <- if (side == "activity") "sample" else "feature"
+  native <- .raw_pair(fit)[[if (prefix == "L") 1L else 2L]]
+  columns <- match(selected$factor, view$manifest$factor_ids)
+  index <- cbind(match(selected[[id_col]], rownames(native)), view$manifest$native_indices[columns])
   lookup <- function(mat, transform = FALSE) {
     if (is.null(mat)) return(rep(NA_real_, nrow(selected)))
-    if (!identical(dim(mat), dim(view[[side]]))) stop("Native uncertainty dimensions do not match basis")
-    if (transform) mat <- sweep(mat, 2L, abs(multiplier), "*")
-    index <- cbind(match(selected[[id_col]], rownames(view[[side]])), match(selected$factor, view$manifest$factor_ids))
-    mat[index]
+    if (!identical(dim(mat), dim(native))) stop("Native uncertainty dimensions do not match native means")
+    values <- mat[index]
+    if (transform) values <- values * abs(multiplier[columns])
+    values
   }
   selected$posterior.sd <- lookup(psd, TRUE)
   if (require_uncertainty && anyNA(selected$posterior.sd)) stop("Native posterior uncertainty is unavailable")
   if (include_lfsr && !is.null(fit[[paste0(prefix, "_lfsr")]])) selected$lfsr <- lookup(fit[[paste0(prefix, "_lfsr")]])
   selected$uncertainty_type <- rep("conditional_variational_ebmf", nrow(selected))
   selected$status <- ifelse(is.na(selected$posterior.sd), "unavailable", "supported")
-  selected$reason <- ifelse(is.na(selected$posterior.sd), "native moments unavailable", NA_character_)
+  selected$reason <- ifelse(is.na(selected$posterior.sd),
+    ifelse(is.na(index[, 1L]), "not_in_native_fit", "native moments unavailable"), NA_character_)
   .attach_provenance(selected, "factor_uncertainty", match.call(), .resolved_parameters("factor_uncertainty", environment()))
 }
 

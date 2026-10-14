@@ -35,6 +35,7 @@ Factor rank, statistic, value and sample count with basis metadata.
 \description{
 Independently written stats::lm calculation, conceptually from jamboree
 ANOVA_factors. No arbitrary top-percent filter or inferential p-values.
+A zero-factor fit returns a typed empty ranking table.
 }
 \details{
 Origin: ADAPTED / none.

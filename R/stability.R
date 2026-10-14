@@ -5,13 +5,15 @@
   if (anyNA(units) || any(!nzchar(trimws(units)))) stop("Unit IDs must be nonempty")
   if (!all(strata %in% names(metadata))) stop("Missing strata columns")
   unique_units <- unique(units)
-  labels <- if (!length(strata)) rep("all", nrow(metadata)) else as.character(do.call(interaction, c(metadata[strata], list(drop = TRUE, lex.order = TRUE))))
+  groups <- if (!length(strata)) factor(rep("all", nrow(metadata))) else .tuple_groups(metadata[strata])
+  labels <- as.character(groups)
   if (anyNA(labels)) stop("Strata cannot be missing")
   unit_strata <- vapply(unique_units, function(unit) {
     values <- unique(labels[units == unit])
     if (length(values) != 1L) stop("A biological unit crosses strata; define a valid donor-level stratum")
     values
   }, character(1))
+  unit_strata <- factor(unit_strata, levels = levels(groups))
   drawn <- .with_seed(seed, unlist(lapply(split(unique_units, unit_strata), function(group) group[sample.int(length(group), length(group), replace = TRUE)]), use.names = FALSE))
   md <- list(); mapping <- list()
   for (i in seq_along(drawn)) {
@@ -86,6 +88,9 @@
 #' Donor occurrences preserve all their visits/cells and get unique synthetic
 #' IDs. Similarity quantiles summarize successful perturbations, not posterior
 #' uncertainty. No threshold gives candidate similarities without recovery rates.
+#' Automatic fitting is supported for ordinary wrapper fits and pure reorders.
+#' Edited, projected and custom fits require an explicit fit_fn that reproduces
+#' their fitting procedure; supplying settings alone does not remove this guard.
 #' @param X Named input matrix in recorded native sample orientation.
 #' @param reference_fit Native reference fit with wrapper metadata.
 #' @param metadata Explicit sample and biological unit metadata.
@@ -142,6 +147,17 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
   settings <- control$settings
   if (is.null(fit_fn)) {
     native_metadata <- attr(reference_fit, "flashbridge_metadata")
+    policy <- native_metadata$refit_policy
+    if (is.null(policy)) {
+      ordinary <- !is.null(native_metadata$configuration) &&
+        (is.null(native_metadata$operation) || identical(native_metadata$operation, "reorder")) &&
+        is.null(native_metadata$projection)
+      policy <- if (ordinary) "ordinary" else "callback_required"
+    }
+    if (policy != "ordinary" ||
+        (isTRUE(native_metadata$configuration$max_factors == 0) && reference_fit$n_factors > 0L)) {
+      stop("Edited, projected or custom fits require an explicit fit_fn to reproduce their fitting procedure")
+    }
     prior_names <- native_metadata$prior_identifiers
     if (is.null(prior_names) || any(prior_names == "custom_callback_required")) stop("Reference custom/unknown priors require an explicit fit_fn")
     priors <- lapply(prior_names, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))

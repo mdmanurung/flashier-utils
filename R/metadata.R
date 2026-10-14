@@ -20,6 +20,8 @@
 #' Per-observation weighting is the default; cells are not donor-balanced.
 #' With weights, only means are supported: SD and quantiles are NA and labelled
 #' unavailable. Descriptive SD never estimates uncertainty of the group mean.
+#' Group identity uses metadata tuples, so punctuation cannot merge groups.
+#' A zero-factor fit returns a typed empty summary table.
 #' @param fit Native fit or view.
 #' @param metadata Explicit sample metadata.
 #' @param by One or more grouping columns.
@@ -53,7 +55,7 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
   md <- data$metadata
   w <- .weights(weights, as.character(md[[id_col]]))
   if (!nrow(md)) stop("No samples remain after metadata omissions")
-  groups <- do.call(interaction, c(md[by], list(drop = TRUE, lex.order = TRUE)))
+  groups <- .tuple_groups(md[by])
   parts <- lapply(split(seq_len(nrow(md)), groups), function(rows) {
     if (sum(w[rows]) <= 0) stop("A group has zero total weight")
     stats <- lapply(seq_len(ncol(data$A)), function(k) {
@@ -64,7 +66,9 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
         mean = stats::weighted.mean(values, w[rows]), sd = if (is.null(weights)) stats::sd(values) else NA_real_,
         median = quantiles[2], q25 = quantiles[1], q75 = quantiles[3])
     })
-    table <- do.call(rbind, stats)
+    table <- if (length(stats)) do.call(rbind, stats) else data.frame(
+      factor = character(), n = integer(), n_units = integer(), mean = numeric(),
+      sd = numeric(), median = numeric(), q25 = numeric(), q75 = numeric())
     cbind(md[rep(rows[1], nrow(table)), by, drop = FALSE], table)
   })
   out <- do.call(rbind, parts)
@@ -78,6 +82,7 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
 #'
 #' Independently written stats::lm calculation, conceptually from jamboree
 #' ANOVA_factors. No arbitrary top-percent filter or inferential p-values.
+#' A zero-factor fit returns a typed empty ranking table.
 #' @param fit Native fit or view.
 #' @param metadata Sample metadata.
 #' @param variable One explanatory metadata column.
@@ -120,7 +125,8 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
     }
     data.frame(factor = colnames(data$A)[k], statistic = "r2", value = value, n_samples = length(y), basis_id = data$view$manifest$basis_id)
   })
-  out <- do.call(rbind, out)
+  out <- if (length(out)) do.call(rbind, out) else data.frame(factor = character(),
+    statistic = character(), value = numeric(), n_samples = integer(), basis_id = character())
   out$rank <- rank(-out$value, ties.method = "average", na.last = "keep")
   attr(out, "analysis_metadata") <- c(data$view$manifest, list(formula = formula, matching = data$matching, exclusions = data$exclusions, inference = "descriptive_in_sample"))
   .attach_provenance(out, "rank_factors_by_metadata", match.call(), .resolved_parameters("rank_factors_by_metadata", environment()))
@@ -162,6 +168,7 @@ compare_factor_groups <- function(fit, metadata, group, contrast, id_col = "samp
   .validate_ids(contrast, "Contrast group")
   if (length(contrast) != 2L) stop("contrast requires exactly two different groups: first minus second")
   data <- .metadata_activity(fit, metadata, c(group, unit_col), id_col, na_action)
+  if (!ncol(data$A)) stop("No factors to compare")
   md <- data$metadata
   w <- .weights(weights, as.character(md[[id_col]]))
   means <- lapply(contrast, function(label) {

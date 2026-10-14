@@ -121,7 +121,7 @@ backproject_contrast <- function(fit, factor_effects, input, representation = NU
   table$basis_id <- rep(view$manifest$basis_id, nrow(table))
   attr(table, "analysis_metadata") <- metadata
   .attach_provenance(structure(list(schema_version = "1.0.0", effects = table,
-                 factor_mapping = data.frame(factor = rownames(C), native_index = match(rownames(C), ids)),
+                 factor_mapping = data.frame(factor = rownames(C), native_index = view$manifest$native_indices[match(rownames(C), ids)]),
                  analysis_metadata = metadata), class = "backprojection_result"), "backproject_contrast", match.call(), .resolved_parameters("backproject_contrast", environment()))
 }
 
@@ -169,7 +169,7 @@ backproject_contrast <- function(fit, factor_effects, input, representation = NU
     prob_positive_definition = "P(theta>0)", quantile_type = 7L))
   out <- do.call(rbind, tables)
   attr(out, "analysis_metadata") <- metadata
-  result <- list(schema_version = "1.0.0", effects = out, factor_mapping = data.frame(factor = colnames(D), native_index = selected), analysis_metadata = metadata)
+  result <- list(schema_version = "1.0.0", effects = out, factor_mapping = data.frame(factor = colnames(D), native_index = view$manifest$native_indices[selected]), analysis_metadata = metadata)
   if (keep_draws) result$draws <- retained
   structure(result, class = "backprojection_result")
 }

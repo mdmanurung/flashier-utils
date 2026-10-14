@@ -36,6 +36,8 @@ Group/factor/n/n_units/mean/sd/median/q25/q75 table; no p-values.
 Per-observation weighting is the default; cells are not donor-balanced.
 With weights, only means are supported: SD and quantiles are NA and labelled
 unavailable. Descriptive SD never estimates uncertainty of the group mean.
+Group identity uses metadata tuples, so punctuation cannot merge groups.
+A zero-factor fit returns a typed empty summary table.
 }
 \details{
 Origin: NEW_QOL / none.

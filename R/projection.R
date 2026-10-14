@@ -79,13 +79,23 @@
 .projection_output <- function(native, source, A, B, offset, query, side, scale, preprocessing, settings, name, call, budget) {
   manifest <- source$manifest
   manifest$source_basis_id <- source$manifest$basis_id
+  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve")]
+  object <- native$value$fit
+  K <- ncol(A)
+  manifest$native_indices <- seq_len(K)
+  manifest$native_pve <- object$pve
+  manifest$scaling <- "raw"; manifest$ldf_type <- NULL; manifest$d_location <- NULL
+  manifest$activity_multiplier <- manifest$effects_multiplier <- rep(1, K)
+  manifest$orientation <- "as_fit"; manifest$orientation_sign <- rep(1, K)
+  manifest$orientation_anchor <- rep(NA_character_, K)
+  manifest$activity_center <- rep(0, K); manifest$activity_scale <- rep(1, K)
+  manifest$offset_definition <- if (any(offset != 0)) "external_projection_offset" else "zero"
   manifest$sample_side <- side; manifest$feature_scale <- scale; manifest$preprocessing <- preprocessing
   manifest$projection <- settings
   manifest$prior_sample_side <- side
-  manifest$fit_id <- digest::digest(list(source$manifest$basis_id,A,B,offset),algo="sha256")
+  manifest$fit_id <- digest::digest(list(source$manifest$basis_id,A,B,offset,settings,Sys.time()),algo="sha256")
   view <- .make_representation(A,B,manifest,offset)
-  object <- native$value$fit
-  attr(object,"flashbridge_metadata") <- list(sample_side=side,factor_ids=colnames(A),fit_id=view$manifest$fit_id,feature_scale=scale,preprocessing=preprocessing,prior_support=view$manifest$constraints,prior_identifiers=view$manifest$prior_identifiers)
+  attr(object,"flashbridge_metadata") <- list(sample_side=side,factor_ids=colnames(A),fit_id=view$manifest$fit_id,feature_scale=scale,preprocessing=preprocessing,prior_support=view$manifest$constraints,prior_identifiers=view$manifest$prior_identifiers,offset=offset,source_basis_id=source$manifest$basis_id,projection=settings,recipe_version="1.0.0",refit_policy="callback_required")
   native_fit <- flashier::flash_fit(object)
   iteration_fields <- native_fit[grep("iter|converg|backfit",names(native_fit))]
   iteration_fields$iteration_limit <- settings$maxiter

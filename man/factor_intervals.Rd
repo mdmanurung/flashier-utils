@@ -42,6 +42,8 @@ Selected posterior means, SDs, quantiles and sign/zero probabilities.
 Uses fit$sampler batches with fixed representation multipliers, conditional on
 empirical priors. Quantiles are exact sample quantiles. Draws do not include
 rank, optimization or biological resampling uncertainty.
+Selected IDs must be present in the native fit; unmeasured reference features
+have no native sampler entries and are refused explicitly.
 }
 \details{
 Origin: WRAPPER / call_only.

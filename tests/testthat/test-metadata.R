@@ -17,3 +17,16 @@ test_that("descriptive summaries match IDs, units, weights and first-minus-secon
   native <- lm(view$activity[,1] ~ md$age[match(rownames(view$activity),md$sample)])
   expect_equal(rank$value[1],summary(native)$r.squared)
 })
+
+test_that("metadata tuples remain distinct when display separators collide", {
+  view <- fixture_view()
+  metadata <- data.frame(sample = c("s1", "s2", "s3"),
+    first = c("x.y", "x", "x.y"), second = c("z", "y.z", "z"))
+  out <- summarize_factor_activity(view, metadata, c("first", "second"))
+  expect_equal(nrow(out), 4)
+  first <- out[out$factor == "F1", ]
+  expect_equal(first$n[first$first == "x"], 1L)
+  expect_equal(first$mean[first$first == "x"], 2)
+  expect_equal(first$n[first$first == "x.y"], 2L)
+  expect_equal(first$mean[first$first == "x.y"], 2.5)
+})
