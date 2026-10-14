@@ -1,4 +1,197 @@
-# Handoff: flashier.utils package and completed G1 consensus EBMF pilot
+# Handoff: flashier.utils improvements 1–3
+
+## Committed implementation and delivery (2026-10-14)
+
+The user authorized commit and push. The completed software stages after
+1dbf193 are now recorded as five focused commits:
+
+- 91c9fc8: projection coordinates, metadata identity and foundation boundaries.
+- 54c80a3: feature intercepts, affine projection and semi-nonnegative fitting.
+- f09fc74: initialized and one-side anchored native fitting.
+- 76a1fb3: versioned factor support, zero-rank guards and intercept replay.
+- 0e0bdc0: seeded native multistart comparison.
+
+Each staged tree was exported without changing the working files and tested
+through scripts/run-r.sh. Focused checks passed 180, 216, 109, 305 and 105
+assertions respectively, with zero failures/errors/skips. Only the foundation
+checks emitted the 11 existing native projection iteration warnings. All 151
+package source, manual, test, vignette and attribution files match the sealed
+multistart snapshot that passed the full 1,170-assertion suite. Scientific
+archives and validation receipts remain excluded from Git and package builds.
+
+Delivery evidence is local at
+validation/gbcd-starcat-implementation/commit-push-20261014-v1/; its final receipt
+records HEAD, remote verification and the clean-tree check after delivery.
+Check that receipt and the live remote before resuming publication work.
+The limited package-check and rendering limitations below still apply. This
+delivery does not establish scientific GO or release qualification.
+
+The user also asked about Rcpp feasibility. Source inspection identified
+.draw_summary() and correlate_factor_markers() as profiling candidates. No
+performance profile, speedup measurement or C++ implementation has been made.
+Profile representative data before replacing kernels; retain scientific results,
+quantile definitions, missing-value behavior and upstream attribution.
+
+## Verified multistart stage (2026-10-14)
+
+User resumed during foundation closeout; continued directly to GB-006. The full
+three-improvement goal remains open. At stage closeout, main had inherited and
+new uncommitted changes after 1dbf193; no commit, push or release had been performed.
+
+`fit_multistart_ebmf()` is implemented around public native FLASH initializers and
+fits. Unique initializer seeds and explicit native sign constraints are recorded.
+softImpute/IRLBA require signed priors; IRLBA requires dense complete input. Candidate
+failures, native ELBO, rank and numerical/initializer digests are retained. Maximum
+finite ELBO wins, exact ties choose the smallest start ID, and select=none leaves
+no selected best fit. keep_fits=FALSE keeps the selected fit and diagnostics.
+Initializer traces include native validation probes. All-fail conditions expose
+candidate reasons. All candidate fits require explicit stability replay callbacks;
+legacy serialized multistart metadata also refuses automatic ordinary replay.
+Initializer arguments are forced eagerly so saved callbacks cannot retain the
+caller data/candidate list. Large-versus-small payload checks and native-fit RDS
+round trips pass. The earlier functional pass and failed size-threshold attempt
+are preserved; developer source metadata is not mistaken for retained input.
+
+Final source-loaded R4_51 suite: **1,170 passed**, zero failures/errors/skips,
+11 unchanged native projection iteration warnings. Native parity covers both
+orientations, constrained starts and installed spectral helpers. Initializer seeds
+and constraints are observed at actual native calls; failures, RNG restoration,
+finite selection/ties and numerical reproducibility have independent fixtures.
+Current engines: pinned flashier 1.0.60 and ebnm 1.1-42; optional softImpute 1.4-3
+and irlba 2.3.7. Original authors are credited in source, manuals, provenance,
+CREDITS and the credits/first-fit articles. NOTICE is unchanged.
+
+Evidence: `validation/gbcd-starcat-implementation/multistart-20261014-v1/`.
+Legacy real replay `legacy-v10` matches `legacy-v2` at 1e-8 for all published
+coordinates, rankings, contrasts and query projection. Final staged package build
+and content/metadata audit passed. Final R CMD check completed with zero errors
+and two warnings for unbuilt vignette outputs/absent inst/doc. Installation,
+code/docs and all examples passed; tests/manual/vignettes were skipped there,
+and the complete source suite is separately recorded. delivery-receipt.json and
+SHA256SUMS bind final source/evidence; verify manifests before continuation.
+The support/refit archive below is sealed and checksum-verified; do not modify it.
+No site render, scientific GO, release or CE study action follows.
+
+Next: GB-005 activity prevalence and bounded within-group MDS ordering, then excluded
+fixed-B/profile candidates before SCI-004a/b-gated core reference integration.
+Optional GBCD still needs exact-pin installed-engine qualification and nonnative
+mapping contracts. Follow development/major-improvements-progress.md; preserve the
+full original 1–3 scope and every frozen study/failed attempt.
+
+---
+
+## Verified support/refit stage (2026-10-14)
+
+Continue the authorized three major improvements; the full goal remains open.
+Existing uncommitted changes on main after 1dbf193 were preserved, and the next
+foundation stage has been implemented. No commit, push or release was performed.
+
+Completed in this continuation: versioned per-factor native support/role records
+for intercept, initialized and projected fits, with exact ID/native-position
+validation, conservative global summaries and hashed serialization. Ordinary legacy
+manifests and basis hashes remain unchanged. Native edits preserve records by ID;
+projection retains fixed-side support and records the estimated-side prior.
+Support/role overrides in a supplied view are refused for a versioned native fit.
+Nonnative-engine mapping remains with the optional GBCD adapter; do not invent
+FLASH indices for such outputs.
+
+FND-005/GB-002 zero-rank and replay boundaries are complete: supported extraction
+and summaries stay typed/empty; selection-based feature ranking, association,
+backprojection, network/display/reduction and stability fail early without biological
+factors. Default intercept-only native backfitting remains available. Automatic
+intercept bootstrap and pure reorder match direct native FLASH recipes in both
+orientations. An incomplete stored intercept recipe requires an explicit callback.
+
+Final source-loaded R4_51 suite: **1,065 passed**, zero failures/errors/skips,
+11 unchanged native projection iteration-limit warnings. Current source, logs,
+RDS/TSV results and preserved attempts are under
+`validation/gbcd-starcat-implementation/support-refit-20261014-v1/`.
+Real replay `legacy-v8` matches frozen `legacy-v2` at 1e-8 for reference/signed
+coordinates, rankings, contrasts and query projection, with all 14,528 genes and
+48/24 cells. These real data have no independent donors or affine examples.
+Final staged source build and exact R/man/inst/tests content audit passed, retaining
+NOTICE and excluding scientific/planning payload. Final R CMD check completed
+with zero errors and two warnings for unbuilt vignette outputs/absent inst/doc.
+Installation, code/docs and all examples passed; tests/manual/vignettes were skipped
+there. The complete source suite is recorded separately. No site or release
+qualification. delivery-receipt.json and SHA256SUMS bind final sources and evidence.
+
+Next: follow `development/major-improvements-progress.md` for GB-006 multistart,
+then GB-005 and excluded fixed-B/profile candidates. SCI-004a/b GO is still required
+before core reference integration; optional GBCD needs exact-pin installed-engine
+qualification. Do not narrow the full 1–3 goal to completed wrappers/foundations.
+
+Live scheduler inspection found no queued/running CE study jobs. Its G2 completion
+marker is absent; no final scientific verdict/accounting audit was run. Frozen CE
+roots and source were not modified, restarted or resubmitted. Older G2 counts below
+are historical. The evaluator binds frozen hashes despite reading the live checkout.
+
+---
+
+## Previous verified package progress (2026-10-13)
+
+User authorization: "work on the above major improvements from 1-3 please",
+followed by "resume". Scope remains correctness repairs, expanded native fitting
+(semi-nonnegative, intercept, initialized/anchored, multistart and optional GBCD),
+and reusable cross-dataset program references/projection. Scientific gates in the
+audited plan still apply. This authorization supersedes older statements below
+that package implementation was not authorized. Keep the full goal open.
+
+Current source changes remain uncommitted on main after 1dbf193. The latest
+source-loaded R4_51 full suite passed **942 checks**, zero failures/errors/skips,
+and the same 11 pre-existing native projection iteration-limit warnings. Evidence:
+`validation/gbcd-starcat-implementation/native-fitting-20261013-v1/tests.log`,
+`tests.rds`, `tests.tsv` and receipt.txt. Documentation and the initialized-fit
+manual example ran successfully. Source and failed attempts are archived with SHA256SUMS. A package-only staged
+source build passed exact R/man/inst/tests content parity and retained NOTICE, with
+no scientific/archive/planning payload. Root R CMD build was interrupted during
+its whole-checkout archive copy before exclusions; its log remains. R CMD check
+completed with no errors and two warnings for unbuilt vignette outputs/inst/doc.
+Code/docs/install/all examples passed; tests/manual/vignettes were skipped in that
+limited check (the full source suite is recorded separately). No site render or
+release qualification follows.
+
+Implemented: projection-native maps/scaling/PVE/PSD/draws; measured-axis lookup
+and explicit unavailable uncertainty; external-offset serialization; map validation;
+metadata/bootstrap tuple identity; stability recipe guards; typed empty summaries;
+audited prior families; opt-in feature intercepts; affine new-feature projection;
+`fit_seminonnegative_ebmf()`; `fit_initialized_ebmf()` with one-side anchoring,
+mandatory backfits, stable IDs/roles, compact input hashes and selected-only safe
+nullchecking. Direct public-native comparisons cover both orientations, new-factor
+addition/removal, moments/draws, raw/LDF reconstruction with D on either side,
+intercept-only cases and RNG restoration on native success/failure. Intercept and
+initialized selectors preserve the native map; the protected intercept is hidden
+from semantic factor IDs. Manuals, exports, provenance and author credits match.
+
+The full versioned per-factor support schema and remaining zero-rank refusal/
+automatic intercept-bootstrap boundaries remain open. Native parity is software
+qualification, not calibration, predictive benefit or consensus recovery GO.
+
+Published real outputs were frozen under legacy-v2; latest legacy-v5 replay passed
+at 1e-8 for reference/signed coordinates, rankings, group contrasts and two-factor
+query projection, all 14,528 genes and 48/24 cells. The data have no independent
+donors or affine examples. Earlier legacy-v1 transient basis IDs were corrected
+in v2 and all attempted receipts remain.
+
+SP-v1 claims/gates/seed reservations are frozen in protocol-v1. fixtures-v1 adds
+independent hand/source/query truths and masks. native-v2 verifies native hand
+reconstruction, intercept ones, protected lifecycle and semi-nonnegative capability.
+SCI-001/002/003 remain partial; stress/profile/real/residual cases and all core
+claim-specific SCI-004a/b gates are pending. No scientific GO, release or push.
+
+Next: follow `development/major-improvements-progress.md`; finish FND-003/005
+schema/zero-rank/refit boundaries, then GB-006/005 and excluded fixed-B/profile
+candidate gates before SC integration. Optional GBCD requires installed exact-pin
+qualification. Do not narrow the full 1–3 goal to completed fitting wrappers.
+
+Read-only scheduler inspection of 181 distinct submitted G2 study IDs found no
+queued/running jobs. Its evaluator uses the live checkout with frozen source hash
+checks. No terminal scientific verdict/accounting audit was run. Older G2 counts
+below are historical; do not restart/resubmit or rewrite frozen study roots.
+
+---
+
+## Historical G1/G2 handoff (read-only study context)
 
 Last checked: 2026-10-10 12:12 UTC (14:12 Europe/Amsterdam). G1 artifacts are finalized; read them without overwriting.
 Workspace: `/exports/para-lipg-hpc/mdmanurung/flashier-utils`.
