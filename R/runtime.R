@@ -20,7 +20,7 @@
   if (is.null(metadata)) metadata <- list()
   if (anyDuplicated(names(metadata))) metadata <- metadata[!duplicated(names(metadata),fromLast=TRUE)]
   if (is.null(metadata[["engine"]])) {
-    native_functions <- c("fit_ebmf","fit_nonnegative_ebmf","standardize_factors","factor_uncertainty","factor_intervals","factor_pve","fix_factors","refit_factors","remove_factors","reorder_factors")
+    native_functions <- c("fit_ebmf","fit_nonnegative_ebmf","fit_seminonnegative_ebmf","standardize_factors","factor_uncertainty","factor_intervals","factor_pve","fix_factors","refit_factors","remove_factors","reorder_factors")
     metadata[["engine"]] <- if (function_name %in% native_functions) "flashier" else if (grepl("^plot_",function_name)) "ggplot2" else "flashbridge_glue"
     metadata[["engine_version"]] <- if(metadata[["engine"]] %in% c("flashier","ggplot2")) as.character(utils::packageVersion(metadata[["engine"]])) else as.character(utils::packageVersion("flashier.utils"))
   }

@@ -18,7 +18,8 @@ fit_ebmf(
   independent_unit = NULL,
   seed = NULL,
   verbose = 1L,
-  control = list()
+  control = list(),
+  intercept = c("none", "feature")
 )
 }
 \arguments{
@@ -49,13 +50,17 @@ fit_ebmf(
 \item{verbose}{Native verbosity.}
 
 \item{control}{Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.}
+
+\item{intercept}{none (default) or feature. A feature intercept has fixed
+sample-side ones and a signed native point-normal feature offset. It is
+excluded from semantic factor IDs; max_factors counts adaptive factors.}
 }
 \value{
 A native flash object with flashbridge_metadata attribute. Sparse input
   with explicit S is unsupported by the audited native engine and refused.
 }
 \description{
-Delegates to flashier::flash. max_factors is an upper bound. Priors in a
+Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
 list are in native row/column order, independent of sample_side. A supplied
 seed restores the caller's RNG state; NULL consumes it. No preprocessing.
 }

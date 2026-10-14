@@ -1,5 +1,16 @@
 # flashier.utils 1.1.0.9000
 
+- Add opt-in feature intercepts to `fit_ebmf()`. Their sample-side ones are
+  protected, offsets remain separate from semantic factors, and adaptive
+  selection/reordering uses explicit native maps. Ordinary fitting is unchanged.
+- New-measurement projection estimates signed feature offsets for affine
+  sources using fixed activities and an augmented ones column. Intercept-only
+  sources are supported; dependent columns and excessive allocations are refused.
+- Recognize audited generalized-binary and nonnegative-unimodal EBNM support;
+  zero-factor native interval extraction returns a typed empty table.
+- Add `fit_seminonnegative_ebmf()` with semantic sample/feature priors, native
+  nonnegative activity and signed effects, both input orientations, and explicit
+  support/refit handling for custom effect priors.
 - Projected fits now use their own native factor indices, scaling, PVE,
   posterior SDs and sampler coordinates. Intersection projection reports
   unmeasured-feature uncertainty as unavailable, and returned native fits retain

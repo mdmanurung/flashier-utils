@@ -38,13 +38,20 @@
 #' factor_intervals(fit,"activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
 factor_intervals <- function(fit, side, representation = NULL, factors = NULL, ids = NULL,
                              level = 0.95, nsamp = 2000L, seed = NULL, sample_side = NULL) {
-  if (!inherits(fit, "flash") || !is.function(fit$sampler)) stop("Native sampler is unavailable for this fit/prior")
+  if (!inherits(fit, "flash")) stop("Native sampler requires a native fit")
+  if (!is.function(fit$sampler) && is.null(attr(fit, "flashbridge_metadata")$factor_ids)) stop("Native sampler is unavailable for this fit/prior")
   side <- match.arg(side, c("activity", "effects"))
   if (length(level) != 1L || !is.finite(level) || level <= 0 || level >= 1) stop("level must be between zero and one")
   if (length(nsamp) != 1L || !is.finite(nsamp) || nsamp < 2 || nsamp != as.integer(nsamp)) stop("nsamp must be an integer of at least two")
   view <- .resolve_view(fit, representation, sample_side)
   out <- .extract(view, side, factors = factors, ids = ids, format = "long")
-  if (!nrow(out)) stop("No factor entries selected")
+  if (!nrow(out)) {
+    for (key in c("mean", "posterior.sd", "lower", "upper", "prob_positive", "prob_zero")) out[[key]] <- numeric()
+    out$uncertainty_type <- character()
+    attr(out, "analysis_metadata") <- c(view$manifest, list(level = level, nsamp = nsamp, seed = seed, interval = "equal_tail", quantile_type = 7L, prob_positive_definition = "P(theta>0)"))
+    return(.attach_provenance(out, "factor_intervals", match.call(), .resolved_parameters("factor_intervals", environment())))
+  }
+  if (!is.function(fit$sampler)) stop("Native sampler is unavailable for this fit/prior")
   # ponytail: 256 MiB exact-quantile storage; select fewer entries or add a file backend.
   if (8 * nsamp * nrow(out) > 256 * 1024^2) stop("Selected interval draws exceed 256 MiB; reduce nsamp or select fewer factors/IDs")
   native_side <- if ((side == "activity") == (view$manifest$sample_side == "rows")) 1L else 2L

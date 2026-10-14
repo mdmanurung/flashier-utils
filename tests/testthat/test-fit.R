@@ -33,3 +33,10 @@ test_that("advanced controls agree with the same public pipeline", {
   native <- flashier::flash_backfit(native,maxiter=50L,extrapolate=FALSE,verbose=0L)
   expect_equal(wrapped$L_pm,native$L_pm,tolerance=1e-10)
 })
+
+test_that("audited prior exports retain support and custom callbacks remain unknown", {
+  expect_identical(.prior_support(ebnm::ebnm_generalized_binary), "nonnegative")
+  expect_identical(.prior_support(ebnm::ebnm_unimodal_nonnegative), "nonnegative")
+  expect_identical(.prior_support(ebnm::ebnm_normal_scale_mixture), "signed")
+  expect_identical(.prior_support(function(...) ebnm::ebnm_point_normal(...)), "unknown")
+})

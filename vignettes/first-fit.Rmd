@@ -81,6 +81,34 @@ See [Find defining features](largest-distinctive.html) for rankings and plots.
 Use [Compare groups and test associations](contrasts.html) to relate factors to sample metadata.
 These tissue summaries do not provide donor-level replication.
 
+## Fit nonnegative activities with signed effects
+
+Use `fit_seminonnegative_ebmf()` when sample activities should be nonnegative
+and feature effects may have either sign. On the original signed GTEx z-scores,
+a program can contain both positive and negative associations.
+
+```{r seminonnegative}
+semi <- fit_seminonnegative_ebmf(gtex, sample_side = "columns",
+  max_factors = 3, backfit = TRUE, seed = 1, verbose = 0,
+  feature_scale = "association_z_score")
+range(factor_activity(semi))
+range(factor_effects(semi))
+```
+
+The default activity prior is native point-exponential; the effect prior is
+native signed point-Laplace. `activity_prior` and `effect_prior` refer to samples
+and features for either input orientation. Custom effect priors retain unknown
+support and require an explicit callback for stability refits. FLASH and EBNM
+perform the estimation; this wrapper does not add an optimizer.
+
+Add `intercept = "feature"` to `fit_ebmf()` when measurements need a fitted
+feature offset. Native `flash_add_intercept()` fixes the sample side to ones;
+the offset is available as `standardize_factors(fit)$offset` and is excluded
+from program IDs. `max_factors` counts adaptive programs. An intercept-only fit
+uses `max_factors = 0`. The existing default fits no intercept. These calls use
+the public FLASH implementation by Jason Willwerscheid, Peter Carbonetto,
+Wei Wang and Matthew Stephens.
+
 ## Sources
 
 This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).

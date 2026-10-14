@@ -155,7 +155,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
       policy <- if (ordinary) "ordinary" else "callback_required"
     }
     if (policy != "ordinary" ||
-        (isTRUE(native_metadata$configuration$max_factors == 0) && reference_fit$n_factors > 0L)) {
+        (isTRUE(native_metadata$configuration$max_factors == 0) && ncol(reference$activity) > 0L)) {
       stop("Edited, projected or custom fits require an explicit fit_fn to reproduce their fitting procedure")
     }
     prior_names <- native_metadata$prior_identifiers
@@ -190,7 +190,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
         view <- standardize_factors(fitted, sample_side = side)
         if (!identical(view$manifest$sample_ids, as.character(prepared$metadata$sample))) stop("Refit callback did not preserve prepared sample IDs")
         alignment <- .align_programs(reference, view, min_congruence)
-        list(status = "supported", matches = alignment$matches, pve = factor_pve(fitted), rank = fitted$n_factors,
+        list(status = "supported", matches = alignment$matches, pve = factor_pve(fitted), rank = ncol(view$activity),
              preparation = prepared$manifest, fit = if (keep_fits) fitted else NULL, alignment_metadata = alignment$analysis_metadata)
       }, error = function(e) list(status = "failed", reason = conditionMessage(e)))
       c(result, list(replicate = i, seed = seeds[i], resamples = mapping, elapsed_seconds = proc.time()[[3L]] - started))

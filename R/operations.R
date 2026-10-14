@@ -6,10 +6,41 @@
   ids
 }
 
+.native_factor_indices <- function(fit) {
+  metadata <- attr(fit, "flashbridge_metadata")
+  indices <- metadata$native_indices
+  if (is.null(indices)) indices <- seq_along(.factor_ids(fit))
+  if (length(indices) != length(.factor_ids(fit)) || anyNA(indices) ||
+      any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) || anyDuplicated(indices)) {
+    stop("Invalid native factor mapping")
+  }
+  if (!is.null(metadata$native_factor_ids)) {
+    .validate_ids(metadata$native_factor_ids, "Native factor")
+    if (length(metadata$native_factor_ids) != fit$n_factors ||
+        !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
+        !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
+        anyNA(metadata$factor_roles) ||
+        any(!metadata$factor_roles %in% c("offset", "factor", "initialized"))) {
+      stop("Invalid native factor identity/role mapping")
+    }
+    if (!is.null(metadata$intercept_index) &&
+        (!identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
+         unname(metadata$factor_roles[metadata$intercept_index]) != "offset")) stop("Invalid protected intercept role")
+  }
+  indices
+}
+
 .native_changed <- function(original, updated, ids, operation) {
   metadata <- attr(original, "flashbridge_metadata")
   if (is.null(metadata)) metadata <- list()
   metadata$factor_ids <- ids
+  if (!is.null(metadata$native_indices)) {
+    metadata$native_indices <- setdiff(seq_len(updated$n_factors), metadata$intercept_index)
+  }
+  if (!is.null(metadata$native_factor_ids)) {
+    metadata$native_factor_ids <- c(if (!is.null(metadata$intercept_index)) "Intercept", ids)
+    metadata$factor_roles <- metadata$factor_roles[metadata$native_factor_ids]
+  }
   # every edit, including reorder, gets a new identity so views of the original fit are refused
   metadata$fit_id <- digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
   metadata$parent_fit_id <- attr(original, "flashbridge_metadata")$fit_id
@@ -55,6 +86,54 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
     ebnm_fn = ebnm::ebnm_point_exponential, seed = seed, control = control), args)), "fit_nonnegative_ebmf", match.call(), .resolved_parameters("fit_nonnegative_ebmf", environment()))
 }
 
+#' Fit nonnegative activities with signed feature effects
+#'
+#' A thin wrapper around native FLASH priors. Activity and effect priors are
+#' declared in semantic sample/feature order, then mapped to native axes once.
+#' Observations may be negative. No centering or sign flipping is performed.
+#' @inheritParams fit_ebmf
+#' @param activity_prior Recognized nonnegative native EBNM prior.
+#' @param effect_prior Signed native EBNM prior, or a custom function whose
+#'   support remains unknown and whose stability refits require a callback.
+#' @param initialization Only native_greedy is supported.
+#' @param ... Other fit_ebmf arguments, excluding ebnm_fn.
+#' @return A native flash fit with nonnegative activity and declared effect support.
+#' @author Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
+#'   Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
+#' @details Origin: WRAPPER / call_only. No upstream implementation source copied.
+#'   Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
+#' @export
+#' @examples
+#' set.seed(3)
+#' A <- matrix(rexp(24), 12, 2)
+#' B <- matrix(rnorm(16), 8, 2)
+#' X <- tcrossprod(A, B) + matrix(rnorm(96, sd = .2), 12, 8)
+#' dimnames(X) <- list(paste0("s", 1:12), paste0("g", 1:8))
+#' fit <- fit_seminonnegative_ebmf(X, "rows", max_factors = 2,
+#'   backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity")
+#' factor_activity(fit)
+fit_seminonnegative_ebmf <- function(X, sample_side,
+                                   activity_prior = ebnm::ebnm_point_exponential,
+                                   effect_prior = ebnm::ebnm_point_laplace,
+                                   initialization = "native_greedy", ...) {
+  sample_side <- match.arg(sample_side, c("rows", "columns"))
+  if (!identical(initialization, "native_greedy")) stop("Only native_greedy initialization is supported")
+  if (!is.function(activity_prior) || .prior_support(activity_prior) != "nonnegative") {
+    stop("activity_prior must be a recognized nonnegative native EBNM function")
+  }
+  if (!is.function(effect_prior)) stop("effect_prior must be an EBNM function")
+  effect_support <- .prior_support(effect_prior)
+  if (effect_support == "nonnegative") stop("Use fit_nonnegative_ebmf for nonnegative effects")
+  args <- list(...)
+  if ("ebnm_fn" %in% names(args)) stop("Use activity_prior and effect_prior instead of ebnm_fn")
+  priors <- list(activity_prior, effect_prior)
+  if (sample_side == "columns") priors <- rev(priors)
+  fit <- do.call(fit_ebmf, c(list(X = X, sample_side = sample_side, ebnm_fn = priors), args))
+  if (effect_support == "unknown") attr(fit, "flashbridge_metadata")$refit_policy <- "callback_required"
+  .attach_provenance(fit, "fit_seminonnegative_ebmf", match.call(),
+    .resolved_parameters("fit_seminonnegative_ebmf", environment()))
+}
+
 #' Backfit named existing factors
 #' @param fit Native fit with retained native data.
 #' @param factors Optional factor IDs; defaults to all.
@@ -81,7 +160,8 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
 #' factor_pve(refitted)
 refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
   ids <- .factor_ids(fit)
-  kset <- .select_ids(factors, ids, "factor")
+  kset <- .native_factor_indices(fit)[.select_ids(factors, ids, "factor")]
+  if (is.null(factors)) kset <- c(attr(fit, "flashbridge_metadata")$intercept_index, kset)
   if (!length(kset)) stop("No factors to refit")
   if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control)))) || any(!names(control) %in% setdiff(names(formals(flashier::flash_backfit)), c("flash", "kset")))) stop("Unknown or protected backfit control")
   result <- .with_seed(seed, do.call(flashier::flash_backfit, c(list(flash = fit, kset = kset), control)))
@@ -119,7 +199,7 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
   action <- match.arg(action, c("fix", "unfix"))
   side <- match.arg(side, c("activity", "effects"))
   all_ids <- .factor_ids(fit)
-  kset <- .select_ids(factors, all_ids, "factor")
+  kset <- .native_factor_indices(fit)[.select_ids(factors, all_ids, "factor")]
   if (!length(kset)) stop("No factors selected")
   sample_side <- .resolve_sample_side(fit)
   mode <- if ((side == "activity") == (sample_side == "rows")) "loadings" else "factors"
@@ -162,9 +242,10 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 remove_factors <- function(fit, factors) {
   if (is.null(factors)) stop("factors is required; supply the factor IDs to remove")
   ids <- .factor_ids(fit)
-  kset <- .select_ids(factors, ids, "factor")
+  selected <- .select_ids(factors, ids, "factor")
+  kset <- .native_factor_indices(fit)[selected]
   if (!length(kset)) stop("No factors selected")
-  .attach_provenance(.native_changed(fit, flashier::flash_factors_remove(fit, kset), ids[-kset], "remove"), "remove_factors", match.call(), .resolved_parameters("remove_factors", environment()))
+  .attach_provenance(.native_changed(fit, flashier::flash_factors_remove(fit, kset), ids[-selected], "remove"), "remove_factors", match.call(), .resolved_parameters("remove_factors", environment()))
 }
 
 #' Reorder native factors by exact named permutation
@@ -193,5 +274,7 @@ reorder_factors <- function(fit, order) {
   ids <- .factor_ids(fit)
   kset <- .select_ids(order, ids, "factor")
   if (length(kset) != length(ids)) stop("order must be an exact permutation of all factors")
+  native <- .native_factor_indices(fit)
+  kset <- c(setdiff(seq_len(fit$n_factors), native), native[kset])
   .attach_provenance(.native_changed(fit, flashier::flash_factors_reorder(fit, kset), order, "reorder"), "reorder_factors", match.call(), .resolved_parameters("reorder_factors", environment()))
 }

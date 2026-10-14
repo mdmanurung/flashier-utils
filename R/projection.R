@@ -79,23 +79,32 @@
 .projection_output <- function(native, source, A, B, offset, query, side, scale, preprocessing, settings, name, call, budget) {
   manifest <- source$manifest
   manifest$source_basis_id <- source$manifest$basis_id
-  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve")]
+  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve", "intercept_index", "offset_model", "native_factor_ids", "factor_roles")]
+  intercept_index <- native$value[["intercept_index"]]
+  manifest$intercept_index <- intercept_index
   object <- native$value$fit
   K <- ncol(A)
-  manifest$native_indices <- seq_len(K)
-  manifest$native_pve <- object$pve
+  manifest$native_factor_ids <- c(if (!is.null(intercept_index)) "Intercept", if (K) colnames(A) else character())
+  manifest$factor_roles <- stats::setNames(c(if (!is.null(intercept_index)) "offset", rep("factor", K)), manifest$native_factor_ids)
+  manifest$native_indices <- if (is.null(intercept_index)) seq_len(K) else setdiff(seq_len(object$n_factors), intercept_index)
+  manifest$native_pve <- object$pve[manifest$native_indices]
   manifest$scaling <- "raw"; manifest$ldf_type <- NULL; manifest$d_location <- NULL
   manifest$activity_multiplier <- manifest$effects_multiplier <- rep(1, K)
   manifest$orientation <- "as_fit"; manifest$orientation_sign <- rep(1, K)
   manifest$orientation_anchor <- rep(NA_character_, K)
   manifest$activity_center <- rep(0, K); manifest$activity_scale <- rep(1, K)
-  manifest$offset_definition <- if (any(offset != 0)) "external_projection_offset" else "zero"
+  manifest$offset_definition <- if (!is.null(intercept_index)) "native_feature_intercept" else if (any(offset != 0)) "external_projection_offset" else "zero"
+  if (!is.null(intercept_index)) manifest$offset_model <- "feature"
   manifest$sample_side <- side; manifest$feature_scale <- scale; manifest$preprocessing <- preprocessing
   manifest$projection <- settings
   manifest$prior_sample_side <- side
   manifest$fit_id <- digest::digest(list(source$manifest$basis_id,A,B,offset,settings,Sys.time()),algo="sha256")
   view <- .make_representation(A,B,manifest,offset)
-  attr(object,"flashbridge_metadata") <- list(sample_side=side,factor_ids=colnames(A),fit_id=view$manifest$fit_id,feature_scale=scale,preprocessing=preprocessing,prior_support=view$manifest$constraints,prior_identifiers=view$manifest$prior_identifiers,offset=offset,source_basis_id=source$manifest$basis_id,projection=settings,recipe_version="1.0.0",refit_policy="callback_required")
+  attr(object,"flashbridge_metadata") <- list(sample_side=side,factor_ids=if(K) colnames(A) else character(),fit_id=view$manifest$fit_id,feature_scale=scale,preprocessing=preprocessing,prior_support=view$manifest$constraints,prior_identifiers=view$manifest$prior_identifiers,offset=if(is.null(intercept_index)) offset else NULL,offset_model=manifest$offset_model,intercept_index=intercept_index,native_indices=manifest$native_indices,source_basis_id=source$manifest$basis_id,projection=settings,recipe_version="1.0.0",refit_policy="callback_required")
+  metadata <- attr(object, "flashbridge_metadata")
+  metadata$native_factor_ids <- manifest$native_factor_ids
+  metadata$factor_roles <- manifest$factor_roles
+  attr(object, "flashbridge_metadata") <- metadata
   native_fit <- flashier::flash_fit(object)
   iteration_fields <- native_fit[grep("iter|converg|backfit",names(native_fit))]
   iteration_fields$iteration_limit <- settings$maxiter
@@ -121,6 +130,9 @@
 #'   basis. Cells are matched by ID; QR initialization rejects rank deficiency.
 #' @details Feature-specific residual variance is estimated. Native noise/prior
 #'   hyperparameters may recalibrate. Fixed activities retain their exact values.
+#'   Sources with an intercept or external offset use an augmented ones/activity
+#'   basis to estimate new signed point-normal feature offsets. Offsets are kept
+#'   separate from semantic factors; dependent augmented columns are refused.
 #' @author Mikhael Manurung; native engine Jason Willwerscheid, Peter Carbonetto,
 #'   Wei Wang and Matthew Stephens. Conceptual transfer: STARCAT authors.
 #' @export
@@ -131,14 +143,18 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
   Y <- .projection_query(query,side,S)
   requested <- .select_ids(factors,colnames(source$activity),"factor")
   index <- which(seq_len(ncol(source$activity)) %in% requested)
-  if(!length(index)) stop("Select at least one factor")
+  affine <- any(source$offset != 0) || identical(source$manifest[["offset_model"]], "feature") ||
+    isTRUE(source$manifest[["offset_definition"]] %in% c("native_feature_intercept", "external_projection_offset"))
+  if(!length(index) && !isTRUE(affine)) stop("Select at least one factor")
   if(!all(rownames(Y) %in% rownames(source$activity))) stop("Query contains cells absent from reference activities")
-  .projection_budget(8*(length(Y)*4+nrow(Y)*length(index)*3+ncol(Y)*length(index)*4),dense_budget_bytes)
+  rank <- length(index) + as.integer(isTRUE(affine))
+  .projection_budget(8*(length(Y)*4+nrow(Y)*rank*6+ncol(Y)*rank*4),dense_budget_bytes)
   A <- source$activity[rownames(Y),index,drop=FALSE]
   S <- .projection_S(S,Y,side)
-  qrA <- qr(A)
-  if(qrA$rank<ncol(A)) stop("Rank-deficient activity initialization; select fewer independent factors or more measured cells")
-  B0 <- t(qr.coef(qrA,as.matrix(Y))); colnames(B0) <- colnames(A)
+  design <- if (isTRUE(affine)) cbind("(Intercept)" = rep(1, nrow(A)), A) else A
+  qrA <- qr(design)
+  if(qrA$rank<ncol(design)) stop("Rank-deficient activity/intercept initialization; select fewer independent factors or more measured cells")
+  B0 <- t(qr.coef(qrA,as.matrix(Y))); colnames(B0) <- colnames(design)
   if(is.null(ebnm_fn)) {
     priors <- .projection_priors(source,side,NULL)
     priors[[if(side=="rows") 2 else 1]] <- ebnm::ebnm_point_laplace
@@ -147,21 +163,37 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
     native_data <- if(side=="rows") Y else Matrix::t(Y)
     S_dim <- if(!is.null(S) && is.null(dim(S)) && length(S)>1) { if(setequal(names(S),rownames(native_data))) 1L else 2L } else NULL
     object <- flashier::flash_init(native_data,S=S,S_dim=S_dim,var_type=if(side=="rows") 2L else 1L)
-    pair <- if(side=="rows") list(A,B0) else list(B0,A)
-    object <- flashier::flash_factors_init(object,pair,ebnm_fn=priors)
-    object <- flashier::flash_factors_fix(object,seq_len(ncol(A)),which_dim=if(side=="rows") "loadings" else "factors")
+    if (isTRUE(affine)) {
+      offset_priors <- priors
+      offset_priors[[if(side=="rows") 2 else 1]] <- ebnm::ebnm_point_normal
+      pair <- list(design[, 1, drop=FALSE], B0[, 1, drop=FALSE])
+      object <- flashier::flash_factors_init(object,if(side=="rows") pair else rev(pair),ebnm_fn=offset_priors)
+      if (ncol(A)) {
+        pair <- list(A, B0[, -1, drop=FALSE])
+        object <- flashier::flash_factors_init(object,if(side=="rows") pair else rev(pair),ebnm_fn=priors)
+      }
+    } else {
+      pair <- if(side=="rows") list(A,B0) else list(B0,A)
+      object <- flashier::flash_factors_init(object,pair,ebnm_fn=priors)
+    }
+    object <- flashier::flash_factors_fix(object,seq_len(ncol(design)),which_dim=if(side=="rows") "loadings" else "factors")
     object <- flashier::flash_backfit(object,maxiter=maxiter,extrapolate=FALSE,verbose=0)
     fixed <- if(side=="rows") object$L_pm else object$F_pm
-    if(!identical(unname(fixed),unname(A))) stop("Native projection changed fixed activities")
+    if(!identical(unname(fixed),unname(design))) stop("Native projection changed fixed activities")
     B <- if(side=="rows") object$F_pm else object$L_pm
+    offset <- stats::setNames(rep(0, nrow(B)), rownames(B))
+    if (isTRUE(affine)) {
+      offset <- B[, 1]
+      B <- B[, -1, drop=FALSE]
+    }
     colnames(B) <- colnames(A)
-    list(fit=object,effects=B)
+    list(fit=object,effects=B,offset=offset,intercept_index=if(isTRUE(affine)) 1L else NULL)
   })
   B <- native$value$effects
   source <- .projection_source_subset(source,colnames(A))
   source$manifest$prior_identifiers <- .projection_prior_ids(priors)
   source$manifest$constraints["effects"] <- .prior_support(priors[[if(side=="rows") 2 else 1]])
-  .projection_output(native,source,A,B,stats::setNames(rep(0,nrow(B)),rownames(B)),Y,side,feature_scale,list(scope="new_measurements_user_declared",reference_preprocessing=source$manifest$preprocessing),list(fixed="activity",maxiter=maxiter,dense_budget_bytes=dense_budget_bytes,var_type=if(side=="rows") 2L else 1L),"project_factor_features",match.call(),dense_budget_bytes)
+  .projection_output(native,source,A,B,native$value$offset,Y,side,feature_scale,list(scope="new_measurements_user_declared",reference_preprocessing=source$manifest$preprocessing),list(fixed="activity",maxiter=maxiter,dense_budget_bytes=dense_budget_bytes,var_type=if(side=="rows") 2L else 1L),"project_factor_features",match.call(),dense_budget_bytes)
 }
 
 #' Transfer fixed reference programs to a new dataset

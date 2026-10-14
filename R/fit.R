@@ -1,7 +1,9 @@
 # Public flashier calls only; native prior list order is never reinterpreted.
 .prior_support <- function(fn) {
-  signed <- c("ebnm_normal", "ebnm_point_normal", "ebnm_point_laplace", "ebnm_unimodal", "ebnm_ash")
-  nonnegative <- c("ebnm_point_exponential", "ebnm_point_gamma", "ebnm_exponential")
+  signed <- c("ebnm_normal", "ebnm_point_normal", "ebnm_point_laplace", "ebnm_unimodal",
+    "ebnm_unimodal_symmetric", "ebnm_normal_scale_mixture", "ebnm_horseshoe",
+    "ebnm_npmle", "ebnm_flat", "ebnm_ash")
+  nonnegative <- c("ebnm_point_exponential", "ebnm_unimodal_nonnegative", "ebnm_generalized_binary")
   for (name in c(signed, nonnegative)) {
     if (name %in% getNamespaceExports("ebnm") && identical(fn, getExportedValue("ebnm", name)))
       return(if (name %in% signed) "signed" else "nonnegative")
@@ -9,9 +11,33 @@
   "unknown"
 }
 
+.nullcheck_adaptive <- function(fit, kset, control = list(), verbose = 0) {
+  retained <- seq_len(fit$n_factors)
+  if (!is.null(control$kset)) {
+    if (any(!control$kset %in% kset)) stop("Nullcheck cannot select protected factors")
+    kset <- control$kset
+  }
+  remove <- if (is.null(control$remove)) TRUE else control$remove
+  if (!is.logical(remove) || length(remove) != 1L || is.na(remove)) stop("remove must be TRUE or FALSE")
+  control$kset <- control$remove <- NULL
+  if (!length(kset)) return(list(fit = fit, retained = retained))
+  fit <- do.call(flashier::flash_nullcheck,
+    c(list(flash = fit, kset = kset, remove = FALSE, verbose = verbose), control))
+  if (remove) {
+    moments <- lapply(1:2, function(n) flashier::flash_fit_get_p2m(flashier::flash_fit(fit), n))
+    for (k in sort(unique(kset), decreasing = TRUE)) {
+      if (all(moments[[1]][, k] == 0) && all(moments[[2]][, k] == 0)) {
+        fit <- flashier::flash_factors_remove(fit, kset = k)
+        retained <- retained[-k]
+      }
+    }
+  }
+  list(fit = fit, retained = retained)
+}
+
 #' Fit a named matrix using native empirical Bayes factorization
 #'
-#' Delegates to flashier::flash. max_factors is an upper bound. Priors in a
+#' Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
 #' list are in native row/column order, independent of sample_side. A supplied
 #' seed restores the caller's RNG state; NULL consumes it. No preprocessing.
 #' @param X Named numeric matrix or double sparse Matrix; NA is observed missingness.
@@ -28,6 +54,9 @@
 #' @param seed Optional scoped seed.
 #' @param verbose Native verbosity.
 #' @param control Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.
+#' @param intercept none (default) or feature. A feature intercept has fixed
+#'   sample-side ones and a signed native point-normal feature offset. It is
+#'   excluded from semantic factor IDs; max_factors counts adaptive factors.
 #' @return A native flash object with flashbridge_metadata attribute. Sparse input
 #'   with explicit S is unsupported by the audited native engine and refused.
 #' @importClassesFrom Matrix sparseMatrix dMatrix
@@ -51,9 +80,10 @@
 fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm_point_normal,
                      S = NULL, var_type = 0L, max_factors = 50L, backfit = FALSE, nullcheck = TRUE,
                      id_policy = "require", feature_scale = "unknown", independent_unit = NULL,
-                     seed = NULL, verbose = 1L, control = list()) {
+                     seed = NULL, verbose = 1L, control = list(), intercept = c("none", "feature")) {
   if (missing(sample_side)) stop("sample_side must be explicitly chosen")
   sample_side <- match.arg(sample_side)
+  intercept <- match.arg(intercept)
   generated <- c(rows = is.null(rownames(X)), columns = is.null(colnames(X)))
   X <- .validate_matrix(X, id_policy)
   if (inherits(X, "sparseMatrix") && !is.null(S)) stop("Sparse observations with explicit S are unsupported by native flashier (S4 subscript); supply explicitly dense input within your memory budget")
@@ -69,8 +99,28 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
   greedy <- validate_control(control$greedy, flashier::flash_greedy, c("flash", "Kmax", "ebnm_fn", "verbose"))
   refit <- validate_control(control$backfit, flashier::flash_backfit, c("flash", "verbose"))
   check <- validate_control(control$nullcheck, flashier::flash_nullcheck, c("flash", "verbose"))
+  if (intercept == "feature" && !is.null(check$kset)) stop("Intercept fitting selects adaptive nullcheck factors; kset is protected")
+  priors <- if (is.list(ebnm_fn)) ebnm_fn else rep(list(ebnm_fn), 2L)
+  if (length(priors) != 2L) stop("Native prior list must contain row and column functions")
+  intercept_ids <- NULL
   fit <- .with_seed(seed, {
-    if (max_factors == 0L) {
+    if (intercept == "feature") {
+      object <- flashier::flash_init(X, S = S, var_type = var_type, S_dim = control$S_dim)
+      object <- flashier::flash_set_verbose(object, verbose = verbose)
+      object <- flashier::flash_add_intercept(object, rowwise = sample_side == "rows")
+      if (max_factors > 0L) {
+        object <- do.call(flashier::flash_greedy, c(list(flash = object, Kmax = max_factors,
+          ebnm_fn = ebnm_fn, verbose = verbose), greedy))
+      }
+      intercept_ids <- if (object$n_factors > 1L) paste0("F", seq_len(object$n_factors - 1L)) else character()
+      if (backfit) object <- do.call(flashier::flash_backfit, c(list(flash = object, verbose = verbose), refit))
+      if (nullcheck) {
+        checked <- .nullcheck_adaptive(object, seq_len(object$n_factors)[-1L], check, verbose)
+        object <- checked$fit
+        intercept_ids <- intercept_ids[checked$retained[checked$retained != 1L] - 1L]
+      }
+      object
+    } else if (max_factors == 0L) {
       flashier::flash_init(X, S = S, var_type = var_type, S_dim = control$S_dim)
     } else if (!length(control)) {
       flashier::flash(X, S = S, ebnm_fn = ebnm_fn, var_type = var_type,
@@ -83,8 +133,6 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
       object
     }
   })
-  priors <- if (is.list(ebnm_fn)) ebnm_fn else rep(list(ebnm_fn), 2L)
-  if (length(priors) != 2L) stop("Native prior list must contain row and column functions")
   support <- vapply(priors, .prior_support, character(1))
   if (sample_side == "columns") support <- rev(support)
   names(support) <- c("activity", "effects")
@@ -105,5 +153,16 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
     configuration = list(S = S, var_type = var_type, max_factors = max_factors,
                          backfit = backfit, nullcheck = nullcheck, id_policy = id_policy,
                          verbose = verbose, control = control)), .engine_metadata())
+  if (intercept == "feature") {
+    metadata <- attr(fit, "flashbridge_metadata")
+    metadata$factor_ids <- intercept_ids
+    metadata$native_indices <- seq_len(fit$n_factors)[-1L]
+    metadata$intercept_index <- 1L
+    metadata$native_factor_ids <- c("Intercept", intercept_ids)
+    metadata$factor_roles <- stats::setNames(c("offset", rep("factor", length(intercept_ids))), metadata$native_factor_ids)
+    metadata$offset_model <- "feature"
+    metadata$configuration$intercept <- "feature"
+    attr(fit, "flashbridge_metadata") <- metadata
+  }
   .attach_provenance(fit, "fit_ebmf", match.call(), .resolved_parameters("fit_ebmf", environment()))
 }

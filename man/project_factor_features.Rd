@@ -46,6 +46,9 @@ Estimate effects for new measurements with fixed existing activities
 \details{
 Feature-specific residual variance is estimated. Native noise/prior
   hyperparameters may recalibrate. Fixed activities retain their exact values.
+  Sources with an intercept or external offset use an augmented ones/activity
+  basis to estimate new signed point-normal feature offsets. Offsets are kept
+  separate from semantic factors; dependent augmented columns are refused.
 }
 \author{
 Mikhael Manurung; native engine Jason Willwerscheid, Peter Carbonetto,

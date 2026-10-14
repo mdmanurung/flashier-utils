@@ -72,8 +72,8 @@
     view <- .validate_view(representation)
     raw <- standardize_factors(fit, sample_side = sample_side, scaling = "raw")
     if (!identical(view$manifest$fit_id, raw$manifest$fit_id)) stop("Representation belongs to a different fit")
-    if (any(view$manifest$native_indices > fit$n_factors) ||
-        !identical(raw$manifest$factor_ids[view$manifest$native_indices], view$manifest$factor_ids)) {
+    mapped <- raw$manifest$native_indices[match(view$manifest$factor_ids, raw$manifest$factor_ids)]
+    if (anyNA(mapped) || any(mapped != view$manifest$native_indices)) {
       stop("Representation native_indices do not match the native factor IDs")
     }
     return(view)
@@ -128,16 +128,30 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   order <- if (sample_side == "rows") c(1L, 2L) else c(2L, 1L)
   raw <- raw[order]
   metadata <- attr(fit, "flashbridge_metadata")
-  K <- ncol(raw[[1]])
+  native_indices <- .native_factor_indices(fit)
+  intercept_index <- metadata$intercept_index
+  native_offset <- NULL
+  if (!is.null(intercept_index)) {
+    moments <- flashier::flash_fit_get_p2m(flashier::flash_fit(fit), order[1])
+    # Native second moments include a 1e-10 numerical floor on fixed ones.
+    if (length(intercept_index) != 1L || !intercept_index %in% seq_len(fit$n_factors) ||
+        any(abs(raw[[1]][, intercept_index] - 1) > 1e-12) ||
+        any(abs(moments[, intercept_index] - 1) > 1e-8)) {
+      stop("Native feature intercept must retain deterministic sample-side ones")
+    }
+    native_offset <- raw[[2]][, intercept_index]
+  }
+  raw <- lapply(raw, function(x) x[, native_indices, drop = FALSE])
+  K <- length(native_indices)
   factors <- if (is.null(metadata$factor_ids)) paste0("F", seq_len(K)) else metadata$factor_ids
   if (K == 0L) factors <- character()
   pair <- raw
   multipliers <- list(rep(1, K), rep(1, K))
   if (scaling == "ldf" && K > 0L) {
     native <- flashier::ldf(fit, type = type)
-    pair <- list(native$L, native$F)[order]
+    pair <- lapply(list(native$L, native$F)[order], function(x) x[, native_indices, drop = FALSE])
     target <- if (d_location == "effects") 2L else 1L
-    pair[[target]] <- sweep(pair[[target]], 2L, native$D, "*")
+    pair[[target]] <- sweep(pair[[target]], 2L, native$D[native_indices], "*")
     # The ratio uses a nonzero mean entry to recover each fixed native multiplier.
     # For an entirely zero native side use zero, matching native zero normalization.
     multipliers <- lapply(1:2, function(side) vapply(seq_len(K), function(k) {
@@ -169,7 +183,7 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   if (is.null(fit_id)) fit_id <- digest::digest(list(raw, sample_side), algo = "sha256")
   runtime <- .engine_metadata()
   manifest <- c(list(schema_version = "1.0.0", representation_version = "1.0.0", fit_id = fit_id,
-    sample_side = sample_side, native_indices = seq_len(K), scaling = scaling,
+    sample_side = sample_side, native_indices = native_indices, scaling = scaling,
     ldf_type = if (scaling == "ldf") type else NULL,
     d_location = if (scaling == "ldf") d_location else NULL,
     activity_multiplier = multipliers[[1]], effects_multiplier = multipliers[[2]],
@@ -177,14 +191,24 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     activity_center = rep(0, K), activity_scale = rep(1, K), offset_definition = "zero",
     feature_scale = if (is.null(metadata$feature_scale)) "unknown" else metadata$feature_scale,
     preprocessing = if (is.null(metadata$preprocessing)) list() else metadata$preprocessing,
-    independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve), runtime)
-  offset <- metadata$offset
+    independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve[native_indices]), runtime)
+  offset <- metadata[["offset"]]
   if (is.null(offset)) offset <- stats::setNames(rep(0, nrow(pair[[2]])), rownames(pair[[2]]))
   else {
     .validate_ids(names(offset), "Offset feature")
     if (!all(rownames(pair[[2]]) %in% names(offset))) stop("Native features are absent from the recorded offset")
     offset <- offset[rownames(pair[[2]])]
     if (any(offset != 0)) manifest$offset_definition <- "external_projection_offset"
+  }
+  if (!is.null(native_offset)) {
+    offset <- offset + native_offset
+    manifest$intercept_index <- intercept_index
+    manifest$offset_definition <- "native_feature_intercept"
+  }
+  if (!is.null(metadata$offset_model)) manifest$offset_model <- metadata$offset_model
+  if (!is.null(metadata$native_factor_ids)) {
+    manifest$native_factor_ids <- metadata$native_factor_ids
+    manifest$factor_roles <- metadata$factor_roles
   }
   .attach_provenance(.make_representation(pair[[1]], pair[[2]], manifest, offset), "standardize_factors", match.call(), .resolved_parameters("standardize_factors", environment()))
 }

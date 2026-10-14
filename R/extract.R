@@ -134,9 +134,11 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), representat
   if (require_uncertainty && anyNA(selected$posterior.sd)) stop("Native posterior uncertainty is unavailable")
   if (include_lfsr && !is.null(fit[[paste0(prefix, "_lfsr")]])) selected$lfsr <- lookup(fit[[paste0(prefix, "_lfsr")]])
   selected$uncertainty_type <- rep("conditional_variational_ebmf", nrow(selected))
-  selected$status <- ifelse(is.na(selected$posterior.sd), "unavailable", "supported")
-  selected$reason <- ifelse(is.na(selected$posterior.sd),
-    ifelse(is.na(index[, 1L]), "not_in_native_fit", "native moments unavailable"), NA_character_)
+  selected$status <- rep("supported", nrow(selected))
+  missing <- is.na(selected$posterior.sd)
+  selected$status[missing] <- "unavailable"
+  selected$reason <- rep(NA_character_, nrow(selected))
+  selected$reason[missing] <- ifelse(is.na(index[missing, 1L]), "not_in_native_fit", "native moments unavailable")
   .attach_provenance(selected, "factor_uncertainty", match.call(), .resolved_parameters("factor_uncertainty", environment()))
 }
 
@@ -173,7 +175,7 @@ factor_pve <- function(fit, factors = NULL) {
     if (!inherits(fit, "flash")) stop("Expected a native flash fit")
     ids <- attr(fit, "flashbridge_metadata")$factor_ids
     if (is.null(ids)) ids <- if (fit$n_factors == 0L) character() else paste0("F", seq_len(fit$n_factors))
-    pve <- fit$pve
+    pve <- fit$pve[.native_factor_indices(fit)]
   }
   if (length(ids) && (is.null(pve) || length(pve) != length(ids))) stop("Native PVE is unavailable")
   index <- .select_ids(factors, ids, "factor")
