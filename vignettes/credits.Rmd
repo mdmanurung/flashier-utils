@@ -21,6 +21,7 @@ citations for your installed versions.
 | `fit_ebmf` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash | WRAPPER / call_only |
 | `fit_seminonnegative_ebmf` | Mikhael Manurung; Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash; semantic prior mapping | WRAPPER / call_only |
 | `fit_initialized_ebmf` | Mikhael Manurung; Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_factors_init; public initialized pipeline | WRAPPER / call_only |
+| `fit_multistart_ebmf` | Mikhael Manurung; Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens; Trevor Hastie; Rahul Mazumder; Balasubramanian Narasimhan; Jim Baglama; Lothar Reichel; B. W. Lewis | native greedy initializers; native ELBO | NEW_ORCHESTRATION / call_only |
 | `standardize_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | ldf | ADAPTED / call_only |
 | `factor_activity` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native means / ldf | NEW_QOL / none |
 | `factor_effects` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native means / ldf | NEW_QOL / none |

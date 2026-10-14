@@ -115,6 +115,7 @@ reference:
       - fit_nonnegative_ebmf
       - fit_seminonnegative_ebmf
       - fit_initialized_ebmf
+      - fit_multistart_ebmf
       - standardize_factors
       - factor_activity
       - factor_effects

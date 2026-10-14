@@ -125,6 +125,21 @@ association, networks, embeddings and stability require biological factors.
 Biological bootstrap replays an ordinary fit's recorded intercept recipe.
 Initialized and projected fits require an explicit fitting callback.
 
+Use `fit_multistart_ebmf()` to compare distinct native initialization seeds.
+Its `candidates` table records failures, rank and native ELBO; `best_fit` selects
+the largest finite ELBO, with the earliest start breaking exact ties. Set
+`select = "none"` to inspect candidates without choosing a fit, or
+`keep_fits = FALSE` to retain only the selected fit and diagnostics. Native-random
+starts preserve recognized prior sign constraints. softImpute and IRLBA starts
+require signed priors on both sides; IRLBA also requires dense complete input.
+This is optimization sensitivity, not biological replication or uncertainty.
+Stability needs an explicit callback that repeats the full multistart procedure.
+Mikhael Manurung wrote this orchestration around the public FLASH initializers
+and ELBO accessor credited above; no upstream source is copied.
+Optional initializer packages are by Trevor Hastie, Rahul Mazumder and
+Balasubramanian Narasimhan (softImpute), and Jim Baglama, Lothar Reichel and
+B. W. Lewis (irlba).
+
 ## Sources
 
 This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).

@@ -1,5 +1,9 @@
 # flashier.utils 1.1.0.9000
 
+- Add native `fit_multistart_ebmf()` with distinct initializer seeds, explicit
+  sign constraints, candidate failure/ELBO/digest records, deterministic ties,
+  optional candidate retention and callback-required stability replay. Selection
+  measures optimization sensitivity and does not establish biological certainty.
 - Intercept, initialized and projected views now retain validated per-factor
   support and roles in their basis hashes. Ordinary legacy manifests remain
   unchanged; projection preserves fixed-side support and records estimated priors.

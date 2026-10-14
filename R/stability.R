@@ -158,6 +158,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
       policy <- if (ordinary) "ordinary" else "callback_required"
     }
     if (policy != "ordinary" ||
+        !is.null(native_metadata$multistart) ||
         (!is.null(native_metadata$intercept_index) &&
          !identical(native_metadata$configuration$intercept, "feature")) ||
         (isTRUE(native_metadata$configuration$max_factors == 0) && ncol(reference$activity) > 0L)) {
