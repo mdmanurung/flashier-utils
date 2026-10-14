@@ -36,6 +36,7 @@
 #' @export
 factor_network <- function(fit, factors = NULL, n = 5L, direction = "positive", display_normalization = "max_abs", threshold = 0.1) {
   view <- .resolve_view(fit)
+  .require_biological_factors(view$manifest$factor_ids)
   B <- factor_effects(view, factors = factors)
   W <- .display_scale(B, display_normalization)
   direction <- match.arg(direction, c("positive", "negative", "both"))
@@ -68,6 +69,7 @@ plot_factor_network <- function(network, layout = "fr", seed = 42L, highlight = 
   nodes <- network$nodes; edges <- network$edges
   if(!nrow(nodes)) stop("No network nodes to plot")
   factors <- nodes$label[nodes$type == "factor"]
+  .require_biological_factors(factors)
   .select_ids(highlight, factors,"highlight factor")
   nodes$group <- nodes$type
   if (!is.null(groups)) nodes$group[nodes$type=="factor"] <- .factor_annotation(groups,factors)
@@ -101,6 +103,7 @@ plot_factor_network <- function(network, layout = "fr", seed = 42L, highlight = 
 #' @export
 plot_feature_rankings <- function(fit, factor, n = 15L, direction = "positive", representation = NULL, compare_factors = NULL) {
   view <- .resolve_view(fit,representation)
+  .require_biological_factors(view$manifest$factor_ids)
   .select_ids(factor,colnames(view$effects),"factor")
   if(length(factor)!=1) stop("Select exactly one factor")
   direction <- match.arg(direction,c("positive","negative")); .program_number(n,"n",TRUE)

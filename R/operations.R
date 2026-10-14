@@ -10,27 +10,39 @@
   metadata <- attr(fit, "flashbridge_metadata")
   indices <- metadata$native_indices
   if (is.null(indices)) indices <- seq_along(.factor_ids(fit))
-  if (length(indices) != length(.factor_ids(fit)) || anyNA(indices) ||
+  if (!is.numeric(indices) || length(indices) != length(.factor_ids(fit)) || anyNA(indices) ||
       any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) || anyDuplicated(indices)) {
     stop("Invalid native factor mapping")
   }
   if (!is.null(metadata$native_factor_ids)) {
     .validate_ids(metadata$native_factor_ids, "Native factor")
+    if (!is.null(metadata$intercept_index) &&
+        (!identical(metadata$intercept_index, 1L) ||
+         !identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
+         !identical(unname(metadata$factor_roles[metadata$intercept_index]), "offset"))) {
+      stop("Invalid protected intercept role")
+    }
     if (length(metadata$native_factor_ids) != fit$n_factors ||
         !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
         !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
         anyNA(metadata$factor_roles) ||
-        any(!metadata$factor_roles %in% c("offset", "factor", "initialized"))) {
+        any(!metadata$factor_roles %in% c("offset", "factor", "initialized")) ||
+        any(metadata$factor_roles[indices] == "offset") ||
+        !setequal(indices, setdiff(seq_len(fit$n_factors), metadata$intercept_index)) ||
+        !setequal(which(metadata$factor_roles == "offset"), metadata$intercept_index)) {
       stop("Invalid native factor identity/role mapping")
     }
-    if (!is.null(metadata$intercept_index) &&
-        (!identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
-         unname(metadata$factor_roles[metadata$intercept_index]) != "offset")) stop("Invalid protected intercept role")
+  }
+  if (!is.null(metadata$factor_support) || !is.null(metadata$support_version)) {
+    .factor_support(list(factor_ids = .factor_ids(fit), native_indices = indices,
+      factor_roles = metadata$factor_roles, constraints = metadata$prior_support,
+      support_version = metadata$support_version, factor_support = metadata$factor_support))
   }
   indices
 }
 
 .native_changed <- function(original, updated, ids, operation) {
+  .native_factor_indices(original)
   metadata <- attr(original, "flashbridge_metadata")
   if (is.null(metadata)) metadata <- list()
   metadata$factor_ids <- ids
@@ -40,6 +52,13 @@
   if (!is.null(metadata$native_factor_ids)) {
     metadata$native_factor_ids <- c(if (!is.null(metadata$intercept_index)) "Intercept", ids)
     metadata$factor_roles <- metadata$factor_roles[metadata$native_factor_ids]
+  }
+  if (!is.null(metadata$factor_support)) {
+    records <- metadata$factor_support[match(ids, metadata$factor_support$factor), , drop = FALSE]
+    rownames(records) <- NULL
+    records$native_index <- metadata$native_indices
+    metadata$factor_support <- records
+    metadata$prior_support <- .support_summary(records, metadata$prior_support)
   }
   # every edit, including reorder, gets a new identity so views of the original fit are refused
   metadata$fit_id <- digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
@@ -137,6 +156,8 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' Backfit named existing factors
 #' @param fit Native fit with retained native data.
 #' @param factors Optional factor IDs; defaults to all.
+#'   Default refitting can update an intercept-only fit. Explicit adaptive
+#'   selections require at least one biological factor.
 #' @param control Named public flash_backfit settings.
 #' @param seed Optional scoped seed.
 #' @return New native fit with retained factor identity and new numerical identity.
@@ -160,6 +181,7 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' factor_pve(refitted)
 refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
   ids <- .factor_ids(fit)
+  if (!is.null(factors) || is.null(attr(fit, "flashbridge_metadata")$intercept_index)) .require_biological_factors(ids)
   kset <- .native_factor_indices(fit)[.select_ids(factors, ids, "factor")]
   if (is.null(factors)) kset <- c(attr(fit, "flashbridge_metadata")$intercept_index, kset)
   if (!length(kset)) stop("No factors to refit")

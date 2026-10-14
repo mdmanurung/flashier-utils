@@ -17,7 +17,8 @@ factor_features(
 \arguments{
 \item{fit}{Native fit or matched view.}
 
-\item{factor}{One unique factor ID.}
+\item{factor}{One unique factor ID.
+A fit with no biological factors cannot supply a feature selection.}
 
 \item{select}{largest, distinctive or both.}
 

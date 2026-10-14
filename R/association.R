@@ -12,6 +12,7 @@
   random <- grepl("|", paste(deparse(formula), collapse = ""), fixed = TRUE)
   if (random && engine != "dream") stop("Random effects require an explicitly supported repeated-subject engine")
   data <- .metadata_activity(fit, metadata, c(all.vars(formula), unit_col), id_col, na_action)
+  .require_biological_factors(colnames(data$A))
   .select_ids(factors, colnames(data$A), "factor")
   data$A <- data$A[, .select_ids(factors, colnames(data$A), "factor"), drop = FALSE]
   if (!ncol(data$A)) stop("No factor responses selected")

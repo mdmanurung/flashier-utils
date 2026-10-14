@@ -31,6 +31,7 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
   if (ties != "average") stop("Only native average ties are supported")
   direction <- match.arg(direction, c("absolute", "positive", "negative"))
   view <- .resolve_view(fit, representation)
+  if (!is.null(factors)) .require_biological_factors(view$manifest$factor_ids)
   B <- factor_effects(view, factors = factors)
   values <- switch(direction, absolute = abs(B), positive = B, negative = -B)
   ranks <- if (ncol(B)) .rank_effects(values) else B
@@ -104,6 +105,7 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
 #' ordered by feature ID, with signed nonzero eligibility. No biological labels.
 #' @inheritParams rank_features
 #' @param factor One unique factor ID.
+#'   A fit with no biological factors cannot supply a feature selection.
 #' @param select largest, distinctive or both.
 #' @param compare_factors Optional competition pool; NULL uses all factors.
 #' @param n Nonnegative maximum number per selection.
@@ -131,6 +133,7 @@ factor_features <- function(fit, factor, select = "both", n = 20L, direction = "
   if (length(factor) != 1L) stop("Select exactly one factor")
   if (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 0 || n != as.integer(n)) stop("n must be a nonnegative integer")
   view <- .resolve_view(fit, representation)
+  .require_biological_factors(view$manifest$factor_ids)
   .select_ids(factor, view$manifest$factor_ids, "factor")
   selections <- if (select == "both") c("largest", "distinctive") else select
   parts <- lapply(selections, function(selection) {

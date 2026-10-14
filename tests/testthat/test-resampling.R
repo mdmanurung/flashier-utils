@@ -63,3 +63,41 @@ test_that("automatic resampling preserves ordinary recipes and guards edited fit
   custom <- run(removed, fit_fn = function(...) stop("deliberate custom failure"))
   expect_equal(nrow(custom$failures), 1L)
 })
+
+test_that("automatic intercept bootstrap replays the direct native recipe", {
+  X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
+  metadata <- data.frame(sample = rownames(X), donor = rep(paste0("d", 1:6), each = 2))
+  for (side in c("rows", "columns")) {
+    Y <- if (side == "rows") X else t(X)
+    priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+    if (side == "columns") priors <- rev(priors)
+    fit <- fit_ebmf(Y, side, ebnm_fn = priors, intercept = "feature", max_factors = 2,
+      backfit = TRUE, nullcheck = FALSE, verbose = 0, seed = 12, feature_scale = "intensity")
+    incomplete <- fit
+    attr(incomplete, "flashbridge_metadata")$configuration$intercept <- NULL
+    expect_error(factor_stability(Y, incomplete, metadata, "donor", B = 1L, seed = 7), "explicit fit_fn")
+    for (reference in list(fit, reorder_factors(fit, c("F2", "F1")))) {
+      result <- factor_stability(Y, reference, metadata, "donor", B = 1L,
+        seed = 7, keep_fits = TRUE)
+      expect_equal(nrow(result$failures), 0L)
+      expect_identical(result$replicates$rank, 2L)
+      map <- result$resamples
+      resampled <- X[match(map$original_sample, rownames(X)), , drop = FALSE]
+      rownames(resampled) <- map$sample
+      native <- .with_seed(result$replicates$seed, {
+        object <- flashier::flash_init(if (side == "rows") resampled else t(resampled))
+        object <- flashier::flash_set_verbose(object, verbose = 0)
+        object <- flashier::flash_add_intercept(object, rowwise = side == "rows")
+        object <- flashier::flash_greedy(object, Kmax = 2, ebnm_fn = priors, verbose = 0)
+        flashier::flash_backfit(object, verbose = 0)
+      })
+      refit <- result$fits[[1]]
+      expect_equal(refit$L_pm, native$L_pm, tolerance = 1e-10)
+      expect_equal(refit$F_pm, native$F_pm, tolerance = 1e-10)
+      expect_equal(refit$elbo, native$elbo, tolerance = 1e-10)
+      view <- standardize_factors(refit, scaling = "raw")
+      expect_identical(view$manifest$native_indices, 2:3)
+      expect_equal(view$offset, if (side == "rows") native$F_pm[, 1] else native$L_pm[, 1])
+    }
+  }
+})

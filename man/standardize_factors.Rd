@@ -37,6 +37,9 @@ Uses public flashier LDF normalization, placing D on exactly one side.
 Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 requires declared signed support on both sides. No model is refitted.
 A projected fit retains its declared external offset on measured native axes.
+Intercept, initialized and projected views carry versioned per-factor support
+and roles. Ordinary legacy views retain their manifests; homogeneous support
+is derived from their global constraints without changing the basis hash.
 }
 \details{
 Origin: ADAPTED / call_only.

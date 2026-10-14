@@ -16,7 +16,8 @@ plot_feature_rankings(
 \arguments{
 \item{fit}{Native fit or matched view.}
 
-\item{factor}{One unique factor ID.}
+\item{factor}{One unique factor ID.
+A fit with no biological factors cannot supply a feature selection.}
 
 \item{n}{Nonnegative maximum number per selection.}
 

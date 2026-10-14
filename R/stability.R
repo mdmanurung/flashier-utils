@@ -89,6 +89,8 @@
 #' IDs. Similarity quantiles summarize successful perturbations, not posterior
 #' uncertainty. No threshold gives candidate similarities without recovery rates.
 #' Automatic fitting is supported for ordinary wrapper fits and pure reorders.
+#' Recorded feature-intercept recipes are replayed with a protected intercept;
+#' a reference with no biological factors is refused before resampling.
 #' Edited, projected and custom fits require an explicit fit_fn that reproduces
 #' their fitting procedure; supplying settings alone does not remove this guard.
 #' @param X Named input matrix in recorded native sample orientation.
@@ -138,6 +140,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
   if (!is.list(control) || any(!names(control) %in% c("settings", "observation_aux", "callback_configuration"))) stop("Unsupported stability control")
   X <- .validate_matrix(X)
   reference <- .resolve_view(reference_fit)
+  .require_biological_factors(reference$manifest$factor_ids)
   side <- reference$manifest$sample_side
   samples <- if (side == "rows") rownames(X) else colnames(X)
   features <- if (side == "rows") colnames(X) else rownames(X)
@@ -155,6 +158,8 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
       policy <- if (ordinary) "ordinary" else "callback_required"
     }
     if (policy != "ordinary" ||
+        (!is.null(native_metadata$intercept_index) &&
+         !identical(native_metadata$configuration$intercept, "feature")) ||
         (isTRUE(native_metadata$configuration$max_factors == 0) && ncol(reference$activity) > 0L)) {
       stop("Edited, projected or custom fits require an explicit fit_fn to reproduce their fitting procedure")
     }

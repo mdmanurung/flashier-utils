@@ -55,6 +55,11 @@
   match(requested, available)
 }
 
+.require_biological_factors <- function(ids) {
+  if (!length(ids)) stop("No factors: no biological factors available")
+  invisible(NULL)
+}
+
 .tuple_groups <- function(metadata) {
   columns <- lapply(metadata, function(column) {
     column <- as.factor(column)

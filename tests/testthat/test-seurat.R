@@ -17,3 +17,14 @@ test_that("Seurat reductions align cells and loadings without overwriting", {
   expect_equal(nrow(SeuratObject::Loadings(out[["ebmf"]])),0L)
   expect_equal(d$view$activity,association_fixture()$view$activity)
 })
+
+test_that("zero-factor views cannot create embedding reductions", {
+  skip_if_not_installed("SeuratObject")
+  X <- fixture_matrix()
+  object <- SeuratObject::CreateSeuratObject(Matrix::Matrix(t(X), sparse = TRUE))
+  for (intercept in c("none", "feature")) {
+    fit <- fit_ebmf(X, "rows", max_factors = 0, intercept = intercept, verbose = 0)
+    expect_error(add_factors_to_seurat(object, fit), "no biological factors")
+    expect_false("ebmf" %in% SeuratObject::Reductions(object))
+  }
+})

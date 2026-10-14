@@ -27,6 +27,48 @@
   pair
 }
 
+.support_records <- function(ids, indices, support, roles = NULL) {
+  data.frame(factor = ids, native_index = indices,
+    role = if (is.null(roles)) rep("factor", length(ids)) else unname(roles[ids]),
+    activity_support = rep(unname(support["activity"]), length(ids)),
+    effect_support = rep(unname(support["effects"]), length(ids)))
+}
+
+.factor_support <- function(manifest) {
+  records <- manifest$factor_support
+  if (is.null(records)) {
+    if (!is.null(manifest$support_version)) stop("Missing factor_support records")
+    return(.support_records(manifest$factor_ids, manifest$native_indices,
+      manifest$constraints, manifest$factor_roles))
+  }
+  required <- c("factor", "native_index", "role", "activity_support", "effect_support")
+  if (!identical(manifest$support_version, "1.0.0") || !is.data.frame(records) ||
+      !identical(names(records), required) || anyNA(records) ||
+      !identical(records$factor, manifest$factor_ids) ||
+      !is.numeric(records$native_index) ||
+      !identical(as.numeric(records$native_index), as.numeric(manifest$native_indices)) ||
+      any(!records$role %in% c("factor", "initialized")) ||
+      any(!records$activity_support %in% c("signed", "nonnegative", "unknown")) ||
+      any(!records$effect_support %in% c("signed", "nonnegative", "unknown"))) {
+    stop("Invalid versioned factor_support records")
+  }
+  if (!is.null(manifest$factor_roles) &&
+      !identical(records$role, unname(manifest$factor_roles[records$factor]))) {
+    stop("factor_support roles differ from native roles")
+  }
+  summary <- .support_summary(records, manifest$constraints)
+  if (!identical(summary, manifest$constraints)) stop("Global constraints must conservatively summarize factor_support")
+  records
+}
+
+.support_summary <- function(records, empty_support) {
+  if (!nrow(records)) return(empty_support)
+  stats::setNames(vapply(records[c("activity_support", "effect_support")], function(values) {
+    values <- unique(values)
+    if (length(values) == 1L) values else "unknown"
+  }, character(1)), c("activity", "effects"))
+}
+
 .make_representation <- function(A, B, manifest, offset = stats::setNames(rep(0, nrow(B)), rownames(B))) {
   if (!is.matrix(A) || !is.matrix(B) || ncol(A) != ncol(B) || !identical(colnames(A), colnames(B))) stop("Activity/effects factor axes differ")
   for (ids in list(rownames(A), rownames(B), if (ncol(A)) colnames(A) else character())) .validate_ids(ids, "Representation")
@@ -46,11 +88,21 @@
   manifest$sample_ids <- rownames(A)
   manifest$feature_ids <- rownames(B)
   manifest$factor_ids <- if (ncol(A)) colnames(A) else character()
+  if (!is.null(manifest$native_factor_ids)) {
+    .validate_ids(manifest$native_factor_ids, "Native factor")
+    if (any(indices > length(manifest$native_factor_ids)) ||
+        !identical(manifest$native_factor_ids[indices], manifest$factor_ids) ||
+        !identical(names(manifest$factor_roles), manifest$native_factor_ids) ||
+        anyNA(manifest$factor_roles) ||
+        any(!manifest$factor_roles %in% c("offset", "factor", "initialized")) ||
+        any(manifest$factor_roles[indices] == "offset")) stop("Invalid native factor identity/role mapping")
+  }
+  support <- .factor_support(manifest)
   manifest$basis_id <- NULL
   manifest$basis_id <- digest::digest(list(manifest = manifest, activity = A, effects = B, offset = offset), algo = "sha256")
   structure(list(activity = A, effects = B, offset = offset,
                  factors = data.frame(factor = if (ncol(A)) colnames(A) else character(), native_index = manifest$native_indices,
-                                      constraints = rep(paste(manifest$constraints, collapse = "/"), ncol(A)),
+                                      constraints = if (is.null(manifest$factor_support)) rep(paste(manifest$constraints, collapse = "/"), ncol(A)) else paste(support$activity_support, support$effect_support, sep = "/"),
                                       zeroed = colSums(abs(A)) == 0 | colSums(abs(B)) == 0),
                  manifest = manifest), class = "factor_representation")
 }
@@ -76,6 +128,14 @@
     if (anyNA(mapped) || any(mapped != view$manifest$native_indices)) {
       stop("Representation native_indices do not match the native factor IDs")
     }
+    if (!is.null(raw$manifest$factor_support)) {
+      expected <- .factor_support(raw$manifest)
+      expected <- expected[match(view$manifest$factor_ids, expected$factor), , drop = FALSE]
+      rownames(expected) <- NULL
+      if (!identical(.factor_support(view$manifest), expected)) {
+        stop("Representation support/roles do not match the native factors")
+      }
+    }
     return(view)
   }
   if (!is.null(representation) && !is.list(representation)) stop("representation must be a view or named settings")
@@ -88,6 +148,9 @@
 #' Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 #' requires declared signed support on both sides. No model is refitted.
 #' A projected fit retains its declared external offset on measured native axes.
+#' Intercept, initialized and projected views carry versioned per-factor support
+#' and roles. Ordinary legacy views retain their manifests; homogeneous support
+#' is derived from their global constraints without changing the basis hash.
 #' @param fit A native flashier fit.
 #' @param sample_side Explicit rows or columns for bare native fits.
 #' @param scaling Raw or ldf coordinates.
@@ -166,7 +229,8 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   sign <- rep(1, K)
   anchors <- rep(NA_character_, K)
   if (orientation == "anchor_feature") {
-    if (any(support != "signed")) stop("Anchor flips require signed prior support on both sides")
+    declared <- if (is.null(metadata$factor_support)) support else unlist(metadata$factor_support[c("activity_support", "effect_support")])
+    if (any(declared != "signed")) stop("Anchor flips require signed prior support on both sides")
     for (k in seq_len(K)) {
       maximum <- max(abs(pair[[2]][, k]))
       candidates <- rownames(pair[[2]])[abs(pair[[2]][, k]) == maximum]
@@ -209,6 +273,14 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   if (!is.null(metadata$native_factor_ids)) {
     manifest$native_factor_ids <- metadata$native_factor_ids
     manifest$factor_roles <- metadata$factor_roles
+  }
+  if (!is.null(metadata$factor_support)) {
+    if (!is.null(prior_support) && !identical(prior_support, metadata$prior_support)) {
+      stop("prior_support cannot override versioned per-factor support")
+    }
+    manifest$schema_version <- manifest$representation_version <- "1.1.0"
+    manifest$support_version <- metadata$support_version
+    manifest$factor_support <- metadata$factor_support
   }
   .attach_provenance(.make_representation(pair[[1]], pair[[2]], manifest, offset), "standardize_factors", match.call(), .resolved_parameters("standardize_factors", environment()))
 }

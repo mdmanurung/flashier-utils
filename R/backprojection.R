@@ -55,6 +55,7 @@ backproject_contrast <- function(fit, factor_effects, input, representation = NU
   if (uncertainty != "conditional") stop("Only fixed-program conditional uncertainty is supported")
   if (length(feature_block_size) != 1L || !is.finite(feature_block_size) || feature_block_size < 1 || feature_block_size != as.integer(feature_block_size)) stop("feature_block_size must be a positive integer")
   view <- .resolve_view(fit, representation)
+  .require_biological_factors(view$manifest$factor_ids)
   basis <- if (is.null(factor_basis)) attr(factor_effects, "analysis_metadata") else factor_basis
   .validate_basis(basis, view$manifest)
   if (length(level) != 1L || !is.finite(level) || level <= 0 || level >= 1) stop("level must be between zero and one")

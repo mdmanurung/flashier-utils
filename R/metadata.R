@@ -168,7 +168,7 @@ compare_factor_groups <- function(fit, metadata, group, contrast, id_col = "samp
   .validate_ids(contrast, "Contrast group")
   if (length(contrast) != 2L) stop("contrast requires exactly two different groups: first minus second")
   data <- .metadata_activity(fit, metadata, c(group, unit_col), id_col, na_action)
-  if (!ncol(data$A)) stop("No factors to compare")
+  .require_biological_factors(colnames(data$A))
   md <- data$metadata
   w <- .weights(weights, as.character(md[[id_col]]))
   means <- lapply(contrast, function(label) {

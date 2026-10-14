@@ -117,6 +117,14 @@ programs; native backfitting always runs. Initialized IDs survive automatic
 nullchecking of new factors. Mikhael Manurung wrote this wrapper around the
 public FLASH initialization, fixing and fitting calls credited above.
 
+Intercept, initialized and projected views record each biological factor's
+support, role and native position in `view$manifest$factor_support`. Ordinary
+views keep their existing global constraints and basis hashes. An intercept-only
+fit still supplies its offset and empty factor summaries; feature selection,
+association, networks, embeddings and stability require biological factors.
+Biological bootstrap replays an ordinary fit's recorded intercept recipe.
+Initialized and projected fits require an explicit fitting callback.
+
 ## Sources
 
 This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).

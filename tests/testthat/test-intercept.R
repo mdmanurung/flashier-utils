@@ -113,3 +113,30 @@ test_that("adaptive nullchecking preserves a pre-zeroed protected factor", {
   retained <- .nullcheck_adaptive(zeroed, 2L, control = list(remove = FALSE))
   expect_equal(retained$fit$n_factors, 2L)
 })
+
+test_that("zero biological rank refuses factor consumers before native calls", {
+  X <- fixture_matrix()
+  metadata <- data.frame(sample = rownames(X), donor = rownames(X), group = rep(c("A", "B"), 6))
+  for (side in c("rows", "columns")) {
+    Y <- if (side == "rows") X else t(X)
+    for (intercept in c("none", "feature")) {
+      fit <- fit_ebmf(Y, side, max_factors = 0, intercept = intercept, verbose = 0)
+      view <- standardize_factors(fit)
+      expect_error(factor_features(view, "F1"), "no biological factors")
+      expect_error(rank_features(view, factors = "F1"), "no biological factors")
+      expect_equal(nrow(rank_features(view)), 0L)
+      expect_error(backproject_contrast(view, numeric(), "coefficients", factor_basis = view$manifest), "no biological factors")
+      expect_error(test_factors(view, metadata, ~group, "lm", unit_col = "donor", independence = "independent"), "no biological factors")
+      expect_error(factor_network(view), "no biological factors")
+      expect_error(plot_feature_rankings(view, "F1"), "no biological factors")
+      expect_error(plot_factor_features(view, "F1"), "no biological factors")
+      expect_error(plot_factor_activity(view), "no biological factors")
+      expect_error(factor_activity_percentile(view), "no biological factors")
+      expect_error(factor_cor(view, "pearson"), "no biological factors")
+      expect_error(factor_stability(Y, fit, metadata, "donor", B = 1L, seed = 7), "no biological factors")
+      expect_error(refit_factors(fit, factors = "F1"), "no biological factors")
+      if (intercept == "none") expect_error(refit_factors(fit), "no biological factors")
+      else expect_equal(refit_factors(fit, control = list(verbose = 0))$n_factors, 1L)
+    }
+  }
+})

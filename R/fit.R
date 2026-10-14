@@ -162,6 +162,9 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
     metadata$factor_roles <- stats::setNames(c("offset", rep("factor", length(intercept_ids))), metadata$native_factor_ids)
     metadata$offset_model <- "feature"
     metadata$configuration$intercept <- "feature"
+    metadata$support_version <- "1.0.0"
+    metadata$factor_support <- .support_records(metadata$factor_ids,
+      metadata$native_indices, metadata$prior_support, metadata$factor_roles)
     attr(fit, "flashbridge_metadata") <- metadata
   }
   .attach_provenance(fit, "fit_ebmf", match.call(), .resolved_parameters("fit_ebmf", environment()))

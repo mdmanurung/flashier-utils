@@ -57,6 +57,9 @@
 }
 .projection_source_subset <- function(source, factors) {
   index <- match(factors,source$manifest$factor_ids)
+  source$manifest$factor_support <- .factor_support(source$manifest)[index, , drop = FALSE]
+  rownames(source$manifest$factor_support) <- NULL
+  source$manifest$support_version <- "1.0.0"
   for(key in c("native_indices","activity_multiplier","effects_multiplier","orientation_sign","orientation_anchor","activity_center","activity_scale","native_pve")) {
     if(!is.null(source$manifest[[key]])) source$manifest[[key]] <- source$manifest[[key]][index]
   }
@@ -79,7 +82,7 @@
 .projection_output <- function(native, source, A, B, offset, query, side, scale, preprocessing, settings, name, call, budget) {
   manifest <- source$manifest
   manifest$source_basis_id <- source$manifest$basis_id
-  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve", "intercept_index", "offset_model", "native_factor_ids", "factor_roles")]
+  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve", "intercept_index", "offset_model", "native_factor_ids", "factor_roles", "support_version", "factor_support")]
   intercept_index <- native$value[["intercept_index"]]
   manifest$intercept_index <- intercept_index
   object <- native$value$fit
@@ -87,6 +90,14 @@
   manifest$native_factor_ids <- c(if (!is.null(intercept_index)) "Intercept", if (K) colnames(A) else character())
   manifest$factor_roles <- stats::setNames(c(if (!is.null(intercept_index)) "offset", rep("factor", K)), manifest$native_factor_ids)
   manifest$native_indices <- if (is.null(intercept_index)) seq_len(K) else setdiff(seq_len(object$n_factors), intercept_index)
+  records <- manifest$factor_support
+  records$native_index <- manifest$native_indices
+  records$role <- rep("factor", K)
+  estimated_side <- if (settings$fixed == "activity") "effects" else "activity"
+  records[[if (estimated_side == "effects") "effect_support" else "activity_support"]] <- rep(unname(manifest$constraints[estimated_side]), K)
+  manifest$factor_support <- records
+  manifest$constraints <- .support_summary(records, manifest$constraints)
+  manifest$schema_version <- manifest$representation_version <- "1.1.0"
   manifest$native_pve <- object$pve[manifest$native_indices]
   manifest$scaling <- "raw"; manifest$ldf_type <- NULL; manifest$d_location <- NULL
   manifest$activity_multiplier <- manifest$effects_multiplier <- rep(1, K)
@@ -104,6 +115,8 @@
   metadata <- attr(object, "flashbridge_metadata")
   metadata$native_factor_ids <- manifest$native_factor_ids
   metadata$factor_roles <- manifest$factor_roles
+  metadata$support_version <- manifest$support_version
+  metadata$factor_support <- manifest$factor_support
   attr(object, "flashbridge_metadata") <- metadata
   native_fit <- flashier::flash_fit(object)
   iteration_fields <- native_fit[grep("iter|converg|backfit",names(native_fit))]

@@ -9,7 +9,9 @@ refit_factors(fit, factors = NULL, control = list(), seed = NULL)
 \arguments{
 \item{fit}{Native fit with retained native data.}
 
-\item{factors}{Optional factor IDs; defaults to all.}
+\item{factors}{Optional factor IDs; defaults to all.
+Default refitting can update an intercept-only fit. Explicit adaptive
+selections require at least one biological factor.}
 
 \item{control}{Named public flash_backfit settings.}
 

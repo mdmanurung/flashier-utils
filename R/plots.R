@@ -40,6 +40,7 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
   if (engine != "ggplot2") stop("Only the ggplot2 signed display engine is supported")
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
+  .require_biological_factors(view$manifest$factor_ids)
   .select_ids(factors, view$manifest$factor_ids, "factor")
   selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors))
   selected <- do.call(rbind, selected)
@@ -111,7 +112,7 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "he
   if (length(max_samples) != 1L || !is.finite(max_samples) || max_samples < 1 || max_samples != as.integer(max_samples)) stop("max_samples must be a positive integer")
   view <- .resolve_view(fit)
   A <- factor_activity(view, factors = factors)
-  if (!ncol(A)) stop("No factors to display")
+  .require_biological_factors(colnames(A))
   ids <- rownames(A)
   if (is.null(metadata)) {
     if (!is.null(group)) stop("group requires metadata")

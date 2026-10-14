@@ -34,6 +34,7 @@ factor_cor <- function(fit, engine, factors = NULL, metadata = NULL, subset = NU
   engine <- match.arg(engine, c("pearson", "spearman", "corshrink"))
   use <- match.arg(use, c("complete.obs", "pairwise.complete.obs", "everything"))
   view <- .resolve_view(fit)
+  .require_biological_factors(view$manifest$factor_ids)
   A <- factor_activity(view, factors = factors, samples = subset)
   if (!ncol(A) || nrow(A) < 3L) stop("Correlation needs selected factors and at least three observations")
   if (!is.null(metadata)) .match_ids(rownames(view$activity), metadata)

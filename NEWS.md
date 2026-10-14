@@ -1,5 +1,13 @@
 # flashier.utils 1.1.0.9000
 
+- Intercept, initialized and projected views now retain validated per-factor
+  support and roles in their basis hashes. Ordinary legacy manifests remain
+  unchanged; projection preserves fixed-side support and records estimated priors.
+- Zero-factor selection, association, backprojection, network, display and
+  stability consumers fail with a clear biological-factor error. Empty extraction
+  and summaries remain available, as does default intercept-only backfitting.
+- Automatic biological bootstrap replays recorded feature-intercept recipes in
+  both orientations; incomplete intercept recipes require an explicit callback.
 - Add `fit_initialized_ebmf()` for named sample/feature initialization and
   optional one-side anchoring. Initial IDs are retained, additional IDs avoid
   collisions, and automatic nullchecking only removes new adaptive factors.

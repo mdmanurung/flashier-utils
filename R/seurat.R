@@ -36,7 +36,7 @@ add_factors_to_seurat <- function(object, fit, reduction = "ebmf", assay = NULL,
   view <- .resolve_view(fit)
   cells <- colnames(object)
   if (!setequal(cells, rownames(view$activity))) stop("Cell IDs must exactly match activity sample IDs; donor-to-cell expansion is unsupported")
-  if (!ncol(view$activity)) stop("A reduction requires at least one factor")
+  .require_biological_factors(view$manifest$factor_ids)
   if (is.null(assay)) assay <- SeuratObject::DefaultAssay(object)
   if (length(assay) != 1L || !assay %in% SeuratObject::Assays(object)) stop("Unknown assay")
   A <- view$activity[cells, , drop = FALSE]
@@ -98,6 +98,7 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
   metadata <- SeuratObject::Misc(object[[reduction]], "flashier.utils")
   if (!is.list(metadata) || isTRUE(metadata$display_only)) stop("Embedding requires original factor activity coordinates")
   A <- SeuratObject::Embeddings(object[[reduction]])
+  .require_biological_factors(colnames(A))
   if (is.null(dims)) dims <- seq_len(ncol(A))
   if (!is.numeric(dims) || !length(dims) || anyNA(dims) || anyDuplicated(dims) || any(dims != as.integer(dims)) || any(!dims %in% seq_len(ncol(A)))) stop("dims must identify unique source dimensions")
   settings <- list(...)
@@ -167,6 +168,7 @@ plot_factor_embedding <- function(object, reduction, factors, display = "activit
   metadata <- SeuratObject::Misc(object[[source]], "flashier.utils")
   if (!is.list(metadata) || isTRUE(metadata$display_only)) stop("Source must contain original activity")
   A <- SeuratObject::Embeddings(object[[source]])
+  .require_biological_factors(colnames(A))
   colnames(A) <- unname(metadata$dimension_factor_map)
   A <- A[, .select_ids(factors, colnames(A), "factor"), drop = FALSE]
   if (!setequal(rownames(A), rownames(geometry))) stop("Activity and embedding cells differ")
@@ -222,7 +224,7 @@ factor_activity_percentile <- function(fit, reference_samples = NULL, factors = 
   if (na_action != "fail") stop("Only finite activities with na_action='fail' are supported")
   view <- .resolve_view(fit)
   A <- factor_activity(view,factors=factors)
-  if (!ncol(A)) stop("No selected factors")
+  .require_biological_factors(colnames(A))
   if (is.null(reference_samples)) reference_samples <- rownames(A)
   .select_ids(reference_samples,rownames(A),"reference sample")
   result <- matrix(vapply(seq_len(ncol(A)),function(k)100*stats::ecdf(A[reference_samples,k])(A[,k]),numeric(nrow(A))),

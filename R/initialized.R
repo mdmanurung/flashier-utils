@@ -116,6 +116,9 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
   metadata$factor_ids <- metadata$native_factor_ids <- ids
   metadata$native_indices <- seq_along(ids)
   metadata$factor_roles <- roles
+  metadata$support_version <- "1.0.0"
+  metadata$factor_support <- .support_records(ids, metadata$native_indices,
+    metadata$prior_support, roles)
   metadata$generated_ids <- generated & id_policy == "generate"
   metadata$refit_policy <- "callback_required"
   metadata$seed <- seed

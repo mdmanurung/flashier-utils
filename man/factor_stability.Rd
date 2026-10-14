@@ -64,6 +64,8 @@ Donor occurrences preserve all their visits/cells and get unique synthetic
 IDs. Similarity quantiles summarize successful perturbations, not posterior
 uncertainty. No threshold gives candidate similarities without recovery rates.
 Automatic fitting is supported for ordinary wrapper fits and pure reorders.
+Recorded feature-intercept recipes are replayed with a protected intercept;
+a reference with no biological factors is refused before resampling.
 Edited, projected and custom fits require an explicit fit_fn that reproduces
 their fitting procedure; supplying settings alone does not remove this guard.
 }
