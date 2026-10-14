@@ -19,7 +19,10 @@ standardize_factors(
 
 \item{sample_side}{Explicit rows or columns for bare native fits.}
 
-\item{scaling}{Raw or ldf coordinates.}
+\item{scaling}{Raw, ldf, or rms coordinates. \code{rms} rescales each
+activity column to unit root-mean-square and compensates on the effects
+side, preserving the reconstruction exactly; it is a coordinate change
+(factor units), not a change to the fitted model or its uncertainty.}
 
 \item{type}{Native LDF norm: f, o, i (2, 1, m aliases).}
 

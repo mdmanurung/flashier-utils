@@ -153,7 +153,10 @@
 #' is derived from their global constraints without changing the basis hash.
 #' @param fit A native flashier fit.
 #' @param sample_side Explicit rows or columns for bare native fits.
-#' @param scaling Raw or ldf coordinates.
+#' @param scaling Raw, ldf, or rms coordinates. \code{rms} rescales each
+#'   activity column to unit root-mean-square and compensates on the effects
+#'   side, preserving the reconstruction exactly; it is a coordinate change
+#'   (factor units), not a change to the fitted model or its uncertainty.
 #' @param type Native LDF norm: f, o, i (2, 1, m aliases).
 #' @param d_location Absorb native D into effects or activity.
 #' @param orientation as_fit or anchor_feature.
@@ -180,7 +183,7 @@
 standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type = "f",
                                 d_location = "effects", orientation = "as_fit", prior_support = NULL) {
   sample_side <- .resolve_sample_side(fit, sample_side)
-  scaling <- match.arg(scaling, c("ldf", "raw"))
+  scaling <- match.arg(scaling, c("ldf", "raw", "rms"))
   d_location <- match.arg(d_location, c("effects", "activity"))
   orientation <- match.arg(orientation, c("as_fit", "anchor_feature"))
   aliases <- c("2" = "f", "1" = "o", "m" = "i")
@@ -210,6 +213,20 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   if (K == 0L) factors <- character()
   pair <- raw
   multipliers <- list(rep(1, K), rep(1, K))
+  s_k <- rep(1, K)   # RMS scale; populated only when scaling == "rms" and K > 0
+  if (scaling == "rms" && K > 0L) {
+    # RMS scaling: shrink each activity column to unit root-mean-square and
+    # compensate on the effects side, preserving tcrossprod(activity, effects)
+    # exactly. s_k = sqrt(mean(A[,k]^2)); a zero-activity column keeps s_k = 1
+    # (degenerate guard) so the factor is left unchanged rather than divided
+    # by zero. pair[[1]] is the activity side, pair[[2]] the effects side.
+    s_k <- sqrt(colMeans(pair[[1]]^2))
+    s_k[s_k == 0] <- 1
+    pair[[1]] <- sweep(pair[[1]], 2L, s_k, "/")
+    pair[[2]] <- sweep(pair[[2]], 2L, s_k, "*")
+    multipliers[[1]] <- multipliers[[1]] / s_k
+    multipliers[[2]] <- multipliers[[2]] * s_k
+  }
   if (scaling == "ldf" && K > 0L) {
     native <- flashier::ldf(fit, type = type)
     pair <- lapply(list(native$L, native$F)[order], function(x) x[, native_indices, drop = FALSE])
@@ -250,6 +267,7 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     sample_side = sample_side, native_indices = native_indices, scaling = scaling,
     ldf_type = if (scaling == "ldf") type else NULL,
     d_location = if (scaling == "ldf") d_location else NULL,
+    rms_scale = if (scaling == "rms") s_k else NULL,
     activity_multiplier = multipliers[[1]], effects_multiplier = multipliers[[2]],
     orientation = orientation, orientation_sign = sign, orientation_anchor = anchors,
     activity_center = rep(0, K), activity_scale = rep(1, K), offset_definition = "zero",
