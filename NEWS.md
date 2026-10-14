@@ -1,5 +1,9 @@
 # flashier.utils 1.1.0.9000
 
+- Add `fit_initialized_ebmf()` for named sample/feature initialization and
+  optional one-side anchoring. Initial IDs are retained, additional IDs avoid
+  collisions, and automatic nullchecking only removes new adaptive factors.
+  Input hashes are recorded; stability refits require an explicit callback.
 - Add opt-in feature intercepts to `fit_ebmf()`. Their sample-side ones are
   protected, offsets remain separate from semantic factors, and adaptive
   selection/reordering uses explicit native maps. Ordinary fitting is unchanged.

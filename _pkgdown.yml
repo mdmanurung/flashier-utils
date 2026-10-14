@@ -114,6 +114,7 @@ reference:
       - fit_ebmf
       - fit_nonnegative_ebmf
       - fit_seminonnegative_ebmf
+      - fit_initialized_ebmf
       - standardize_factors
       - factor_activity
       - factor_effects

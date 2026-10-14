@@ -109,6 +109,14 @@ uses `max_factors = 0`. The existing default fits no intercept. These calls use
 the public FLASH implementation by Jason Willwerscheid, Peter Carbonetto,
 Wei Wang and Matthew Stephens.
 
+Use `fit_initialized_ebmf()` to start from named `activity_init` and `effect_init`
+matrices. Their factor names must match exactly, and rows are matched to the
+input sample and feature IDs. Set `fixed_side = "activity"` or `"effects"` to
+anchor the whole initial set on one side. `add_factors` bounds additional greedy
+programs; native backfitting always runs. Initialized IDs survive automatic
+nullchecking of new factors. Mikhael Manurung wrote this wrapper around the
+public FLASH initialization, fixing and fitting calls credited above.
+
 ## Sources
 
 This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).
