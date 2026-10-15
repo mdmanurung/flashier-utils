@@ -26,18 +26,23 @@ jobs:
           r-version: release
           use-public-rspm: true
 
+      # any::remotes is needed by the explicit install steps below; it is not
+      # pulled in by needs: check.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck, any::remotes
           needs: check
+
+      # Install the downstream package first: its Remotes field pulls
+      # flashier-utils from the pinned ref. The PR head is force-installed
+      # last so it is what the tests actually exercise.
+      - name: Install cellprograms (sync/stage-a branch)
+        shell: Rscript {0}
+        run: remotes::install_github("mdmanurung/cellprograms@sync/stage-a", upgrade = "never")
 
       - name: Install this flashier-utils
         shell: Rscript {0}
         run: remotes::install_local(".", upgrade = "never", force = TRUE)
-
-      - name: Install cellprograms (sync/stage-a branch)
-        shell: Rscript {0}
-        run: remotes::install_github("mdmanurung/cellprograms@sync/stage-a", upgrade = "never")
 
       - name: Run cellprograms sync + core tests against this flashier-utils
         shell: Rscript {0}
