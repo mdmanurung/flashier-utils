@@ -1,5 +1,13 @@
 # flashier.utils 1.1.0.9000
 
+- Add opt-in `standardize_factors(scaling = "rms")`: rescales each activity
+  column to unit root-mean-square and compensates on the effects side,
+  preserving the reconstruction exactly. This is a factor-coordinate change
+  (units), not a change to the fitted model or its uncertainty; the per-factor
+  scale is recorded in the basis manifest as `rms_scale`. Defaults
+  (`raw`/`ldf`) are unchanged. Added to support downstream `cellprograms`
+  canonicalization parity (SYNC-1A).
+
 - Add native `fit_multistart_ebmf()` with distinct initializer seeds, explicit
   sign constraints, candidate failure/ELBO/digest records, deterministic ties,
   optional candidate retention and callback-required stability replay. Selection
