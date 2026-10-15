@@ -36,9 +36,9 @@ jobs:
       # Install the downstream package first: its Remotes field pulls
       # flashier-utils from the pinned ref. The PR head is force-installed
       # last so it is what the tests actually exercise.
-      - name: Install cellprograms (sync/stage-a branch)
+      - name: Install cellprograms (main branch)
         shell: Rscript {0}
-        run: remotes::install_github("mdmanurung/cellprograms@sync/stage-a", upgrade = "never")
+        run: remotes::install_github("mdmanurung/cellprograms@main", upgrade = "never")
 
       - name: Install this flashier-utils
         shell: Rscript {0}
