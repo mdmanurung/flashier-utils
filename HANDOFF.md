@@ -1,5 +1,35 @@
 # Handoff: flashier.utils improvements 1–3
 
+## FND-001/FND-002 fresh-native verification receipt (2026-10-16)
+
+The five delivered commits (91c9fc8..0e0bdc0) were re-verified against fresh
+oracles written from public flashier calls only, because the original delivery
+receipts were session-local and are lost (reality check below):
+
+- FND-001: activity and feature projections in both orientations reproduce a
+  from-scratch native pipeline (flash_init -> flash_factors_init ->
+  flash_factors_fix -> flash_backfit) bit-for-bit in posterior means, posterior
+  SDs, native PVE and seeded posterior draws; projection manifests reset
+  scaling/multipliers/orientation and carry the projection fit's own native PVE
+  while source provenance is preserved under source_coordinates. Oracle:
+  tests/testthat/test-fnd-oracles.R (tracked, runs in CI).
+- FND-002: partial fixing pins exactly the named entries as a full-axis logical
+  mask in both orientations and axes, and the pinned values survive a full
+  backfit that matches a fresh native mask-fix plus backfit.
+- October 8 raw-helper counterexample: the public multistart primitive
+  fit_multistart_ebmf() is invariant to init_seeds input order (candidates
+  match by seed; the selected solution is identical). Exact-ELBO ties resolve
+  to the smallest start ID, a deterministic relabeling of the same seed set.
+- GB-005 delivered: M6 activity prevalence thresholds in
+  summarize_factor_activity() and M8 structure within-group 1D MDS ordering in
+  plot_factor_activity(), with manual-calculation and deterministic plot tests.
+- Source-loaded suite: 1,230 passed, 0 failures/errors, 11 pre-existing native
+  projection iteration warnings, 6 optional-dependency skips. R CMD build with
+  vignettes succeeds; R CMD check on the built tarball: 0 errors, 0 warnings,
+  1 NOTE for optional Suggests absent from the sandbox (covered in CI). The two
+  historical unbuilt-vignette warnings are cleared by checking the built
+  tarball; the sandbox has no pdflatex, so local checks use --no-manual.
+
 ## Reality check 2026-10-16 — session-local evidence trees are gone
 
 The following HANDOFF references are NOT in the repository, and their
