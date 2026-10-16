@@ -1,5 +1,25 @@
 # Handoff: flashier.utils improvements 1–3
 
+## Reality check 2026-10-16 — session-local evidence trees are gone
+
+The following HANDOFF references are NOT in the repository, and their
+session-local copies are lost: `validation/` (all gbcd-starcat implementation
+receipts; the consensus-ebmf CE study roots including `ce04-g2-ceiling-v2`
+with its 180-fold results, receipts and SHA256SUMS manifests),
+`development/major-improvements-progress.md`, `docs/plans/*` (including the
+2026-10-07 audited 46-task gbcd-starcat plan and the consensus-ebmf
+plan/proposal docs), `scripts/run-r.sh`, and the `benchmarks/consensus-ebmf-*.R`
+plus `benchmarks/workflow/consensus-ebmf-*.smk` helpers. Consequences:
+
+- The CE G2 ceiling study has no recoverable results; any verdict requires a
+  full reconstruction and rerun (~550 CPU-h originally reserved). No
+  scientific verdict from CE G2 exists or is claimable.
+- `flashier-gbcd/` and `flashier-starcat/` (tracked) are the authoritative
+  specs/trackers; SCI-004a/b evidence must be regenerated from them.
+- The five delivered commits (91c9fc8..0e0bdc0) are on this main; their
+  FND-001/FND-002 closure is being verified by fresh oracles rather than by
+  the lost receipts.
+
 ## Committed implementation and delivery (2026-10-14)
 
 The user authorized commit and push. The completed software stages after
