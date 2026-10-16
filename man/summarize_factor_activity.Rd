@@ -11,7 +11,9 @@ summarize_factor_activity(
   id_col = "sample",
   unit_col = NULL,
   weights = NULL,
-  na_action = "fail"
+  na_action = "fail",
+  activity_threshold = NULL,
+  activity_direction = c("positive", "negative", "absolute")
 )
 }
 \arguments{
@@ -28,9 +30,17 @@ summarize_factor_activity(
 \item{weights}{Optional nonnegative named sample weights.}
 
 \item{na_action}{fail or explicit omit with recorded exclusions.}
+
+\item{activity_threshold}{Optional single nonnegative finite threshold on the
+resolved representation coordinates; no display scaling is performed.}
+
+\item{activity_direction}{positive, negative or absolute coordinate side
+compared against the threshold with a strict > operator.}
 }
 \value{
-Group/factor/n/n_units/mean/sd/median/q25/q75 table; no p-values.
+Group/factor/n/n_units/mean/sd/median/q25/q75 table, plus active_n,
+  active_proportion and (with weights) active_weighted_proportion when a
+  threshold is supplied; no p-values.
 }
 \description{
 Per-observation weighting is the default; cells are not donor-balanced.
@@ -38,6 +48,11 @@ With weights, only means are supported: SD and quantiles are NA and labelled
 unavailable. Descriptive SD never estimates uncertainty of the group mean.
 Group identity uses metadata tuples, so punctuation cannot merge groups.
 A zero-factor fit returns a typed empty summary table.
+With an activity_threshold, raw active_n and active_proportion summaries are
+added per factor and group using a strict greater-than comparison on the
+resolved representation coordinates; with weights, active_weighted_proportion
+is added as the weighted mean of the binary active indicator, while
+active_n and active_proportion remain raw observation summaries.
 }
 \details{
 Origin: NEW_QOL / none.
@@ -57,6 +72,7 @@ view <- standardize_factors(fit)
 metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 summarize_factor_activity(view,metadata,"group",unit_col="donor")
+summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).

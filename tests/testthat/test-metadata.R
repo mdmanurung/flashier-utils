@@ -30,3 +30,41 @@ test_that("metadata tuples remain distinct when display separators collide", {
   expect_equal(first$n[first$first == "x.y"], 2L)
   expect_equal(first$mean[first$first == "x.y"], 2.5)
 })
+
+## GB-005 / M6: activity prevalence summaries (strict >, raw counts, weighted proportion).
+test_that("activity prevalence thresholds add raw and weighted active summaries", {
+  view <- fixture_view()
+  metadata <- data.frame(sample = c("s1", "s2", "s3"), group = c("g1", "g1", "g2"))
+  out <- summarize_factor_activity(view, metadata, "group", activity_threshold = 1.5,
+    activity_direction = "positive")
+  f1 <- out[out$factor == "F1", ]
+  f2 <- out[out$factor == "F2", ]
+  expect_equal(f1$active_n[f1$group == "g1"], 1L)
+  expect_equal(f1$active_proportion[f1$group == "g1"], 0.5)
+  expect_equal(f1$active_n[f1$group == "g2"], 1L)
+  expect_equal(f2$active_n[f2$group == "g1"], 1L)
+  expect_equal(f2$active_n[f2$group == "g2"], 0L)
+  edge <- summarize_factor_activity(view, metadata, "group", activity_threshold = 2)
+  expect_equal(edge$active_n[edge$factor == "F1" & edge$group == "g1"], 0L)
+  neg <- summarize_factor_activity(view, metadata, "group", activity_threshold = 0.5,
+    activity_direction = "negative")
+  expect_equal(neg$active_n[neg$factor == "F2" & neg$group == "g2"], 1L)
+  expect_equal(neg$active_n[neg$factor == "F1" & neg$group == "g2"], 0L)
+  absolute <- summarize_factor_activity(view, metadata, "group", activity_threshold = 1.5,
+    activity_direction = "absolute")
+  expect_equal(absolute$active_n[absolute$factor == "F2" & absolute$group == "g2"], 0L)
+  expect_equal(absolute$active_n[absolute$factor == "F1" & absolute$group == "g1"], 1L)
+  weights <- c(s1 = 1, s2 = 3, s3 = 2)
+  weighted <- summarize_factor_activity(view, metadata, "group", weights = weights,
+    activity_threshold = 1.5)
+  pick <- weighted$factor == "F1" & weighted$group == "g1"
+  expect_equal(weighted$active_n[pick], 1L)
+  expect_equal(weighted$active_proportion[pick], 0.5)
+  expect_equal(weighted$active_weighted_proportion[pick], 3 / 4)
+  plain <- summarize_factor_activity(view, metadata, "group")
+  expect_false(any(grepl("^active", names(plain))))
+  expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = -1), "nonnegative")
+  expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = c(1, 2)), "single nonnegative")
+  expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = "1"), "single nonnegative")
+  expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = 1, activity_direction = "up"), "positive")
+})

@@ -1,5 +1,18 @@
 # flashier.utils 1.1.0.9000
 
+- Add `activity_threshold`/`activity_direction` to `summarize_factor_activity()`:
+  strict greater-than prevalence summaries (`active_n`, `active_proportion`, and
+  `active_weighted_proportion` with weights) per factor and group on the resolved
+  representation coordinates. Without a threshold the table is unchanged.
+- Add `order_within_group = "mds1"` to `plot_factor_activity()` for structure
+  plots: display-only within-group ordering by 1D classical MDS of the displayed
+  row-sum-normalized proportions (Euclidean distance, first-appearance group
+  order, deterministic input-order tie-breaks). Default `"input"` is unchanged.
+- Add fresh-native verification oracles for the FND-001 projection manifest
+  repair and the FND-002 logical-mask partial fixing, plus a multistart
+  `init_seeds` input-order invariance regression; the original delivery
+  receipts were session-local and are lost (see HANDOFF).
+
 - Add opt-in `standardize_factors(scaling = "rms")`: rescales each activity
   column to unit root-mean-square and compensates on the effects side,
   preserving the reconstruction exactly. This is a factor-coordinate change

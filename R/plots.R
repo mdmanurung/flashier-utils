@@ -74,6 +74,9 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
 #' Samples before long-table expansion. Structure proportions require explicit
 #' row_sum normalization and nonnegative scores; zero-sum rows are excluded and
 #' recorded. Display normalization never changes inferential activities.
+#' order_within_group = "mds1" reorders displayed samples within each group by
+#' 1D classical MDS of the displayed row-sum-normalized factor proportions
+#' (Euclidean distance); display-only, never an inferential result.
 #' @param fit Native fit or matched view.
 #' @param metadata Named sample metadata; NULL is allowed without grouping.
 #' @param group Optional metadata grouping column.
@@ -83,6 +86,10 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
 #' @param engine ggplot2.
 #' @param max_samples Positive bound on displayed samples.
 #' @param seed Optional scoped sampling seed.
+#' @param order_within_group input (default, current order) or mds1. mds1
+#'   requires style = "structure" and a group column; groups keep their first
+#'   displayed appearance, singleton and zero-distance groups keep input order,
+#'   and remaining ties keep original displayed order.
 #' @param ... Optional palette and limits.
 #' @return ggplot with included/excluded IDs and display metadata.
 #' @export
@@ -105,10 +112,15 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
 #'   group=rep(c("A","B"),each=12))
 #' plot_factor_activity(view,metadata,group="group",max_samples=12,seed=4)
 plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "heatmap", factors = NULL,
-                                 display_normalization = "none", engine = "ggplot2", max_samples = 2000L, seed = NULL, ...) {
+                                 display_normalization = "none", engine = "ggplot2", max_samples = 2000L, seed = NULL,
+                                 order_within_group = c("input", "mds1"), ...) {
   if (engine != "ggplot2") stop("Only ggplot2 is supported")
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))
+  order_within_group <- match.arg(order_within_group)
+  if (order_within_group == "mds1" && (style != "structure" || is.null(group))) {
+    stop("mds1 ordering requires style='structure' and an explicit group column")
+  }
   if (length(max_samples) != 1L || !is.finite(max_samples) || max_samples < 1 || max_samples != as.integer(max_samples)) stop("max_samples must be a positive integer")
   view <- .resolve_view(fit)
   A <- factor_activity(view, factors = factors)
@@ -141,6 +153,29 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "he
       sort(c(first, remaining[sample.int(length(remaining), max_samples - length(first))]))
     })
   }
+  displayed <- rownames(A)[included]
+  group_order <- NULL
+  if (style == "structure" && order_within_group == "mds1") {
+    displayed_groups <- groups[included]
+    group_order <- unique(displayed_groups)
+    ordered <- character()
+    for (g in group_order) {
+      rows <- which(displayed_groups == g)
+      ids_g <- displayed[rows]
+      if (length(rows) < 2L) {
+        ordered <- c(ordered, ids_g)
+        next
+      }
+      distances <- as.matrix(stats::dist(A[included[rows], , drop = FALSE], method = "euclidean"))
+      if (max(distances) == 0) {
+        ordered <- c(ordered, ids_g)
+        next
+      }
+      mds <- stats::cmdscale(stats::as.dist(distances), k = 1)
+      ordered <- c(ordered, ids_g[order(mds[, 1], rows)])
+    }
+    displayed <- ordered
+  }
   table <- .long_matrix(A[included, , drop = FALSE], "sample")
   table$group <- rep(groups[included], times = ncol(A))
   options <- list(...)
@@ -151,7 +186,7 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "he
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) + ggplot2::geom_tile() + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits)
     if (!is.null(group)) p <- p + ggplot2::facet_wrap(~group, scales = "free_y")
   } else if (style == "structure") {
-    table$sample <- factor(table$sample, levels = rownames(A)[included])
+    table$sample <- factor(table$sample, levels = displayed)
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$estimate, fill = .data$factor)) + ggplot2::geom_col() + ggplot2::labs(y = "Display proportion")
     if (!is.null(options$palette)) p <- p + ggplot2::scale_fill_manual(values = options$palette)
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
@@ -160,8 +195,13 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "he
     p <- if (style == "point") p + ggplot2::geom_point() else p + ggplot2::geom_boxplot()
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   }
+  ordering <- list(order_within_group = order_within_group)
+  if (!is.null(group_order)) {
+    ordering <- c(ordering, list(displayed_sample_order = displayed, group_order = group_order,
+      ordering_distance = "euclidean", ordering_embedding = "cmdscale_k1"))
+  }
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization,
     included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
-    sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed))
+    sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed), ordering)
   .attach_provenance(p, "plot_factor_activity", match.call(), .resolved_parameters("plot_factor_activity", environment()))
 }

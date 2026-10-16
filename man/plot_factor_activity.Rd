@@ -14,6 +14,7 @@ plot_factor_activity(
   engine = "ggplot2",
   max_samples = 2000L,
   seed = NULL,
+  order_within_group = c("input", "mds1"),
   ...
 )
 }
@@ -36,6 +37,11 @@ plot_factor_activity(
 
 \item{seed}{Optional scoped sampling seed.}
 
+\item{order_within_group}{input (default, current order) or mds1. mds1
+requires style = "structure" and a group column; groups keep their first
+displayed appearance, singleton and zero-distance groups keep input order,
+and remaining ties keep original displayed order.}
+
 \item{...}{Optional palette and limits.}
 }
 \value{
@@ -45,6 +51,9 @@ ggplot with included/excluded IDs and display metadata.
 Samples before long-table expansion. Structure proportions require explicit
 row_sum normalization and nonnegative scores; zero-sum rows are excluded and
 recorded. Display normalization never changes inferential activities.
+order_within_group = "mds1" reorders displayed samples within each group by
+1D classical MDS of the displayed row-sum-normalized factor proportions
+(Euclidean distance); display-only, never an inferential result.
 }
 \details{
 Origin: ADAPTED / none.

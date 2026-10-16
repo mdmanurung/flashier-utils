@@ -22,6 +22,11 @@
 #' unavailable. Descriptive SD never estimates uncertainty of the group mean.
 #' Group identity uses metadata tuples, so punctuation cannot merge groups.
 #' A zero-factor fit returns a typed empty summary table.
+#' With an activity_threshold, raw active_n and active_proportion summaries are
+#' added per factor and group using a strict greater-than comparison on the
+#' resolved representation coordinates; with weights, active_weighted_proportion
+#' is added as the weighted mean of the binary active indicator, while
+#' active_n and active_proportion remain raw observation summaries.
 #' @param fit Native fit or view.
 #' @param metadata Explicit sample metadata.
 #' @param by One or more grouping columns.
@@ -29,7 +34,13 @@
 #' @param unit_col Optional independent-unit ID for counts.
 #' @param weights Optional nonnegative named sample weights.
 #' @param na_action fail or explicit omit with recorded exclusions.
-#' @return Group/factor/n/n_units/mean/sd/median/q25/q75 table; no p-values.
+#' @param activity_threshold Optional single nonnegative finite threshold on the
+#'   resolved representation coordinates; no display scaling is performed.
+#' @param activity_direction positive, negative or absolute coordinate side
+#'   compared against the threshold with a strict > operator.
+#' @return Group/factor/n/n_units/mean/sd/median/q25/q75 table, plus active_n,
+#'   active_proportion and (with weights) active_weighted_proportion when a
+#'   threshold is supplied; no p-values.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
@@ -49,8 +60,15 @@
 #' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 #'   group=rep(c("A","B"),each=12))
 #' summarize_factor_activity(view,metadata,"group",unit_col="donor")
-summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
+#' summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
+summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail", activity_threshold = NULL, activity_direction = c("positive", "negative", "absolute")) {
   .validate_ids(by, "Grouping column")
+  activity_direction <- match.arg(activity_direction)
+  prevalence <- !is.null(activity_threshold)
+  if (prevalence && (!is.numeric(activity_threshold) || length(activity_threshold) != 1L ||
+      !is.finite(activity_threshold) || activity_threshold < 0)) {
+    stop("activity_threshold must be a single nonnegative finite number")
+  }
   data <- .metadata_activity(fit, metadata, c(by, unit_col), id_col, na_action)
   md <- data$metadata
   w <- .weights(weights, as.character(md[[id_col]]))
@@ -61,20 +79,35 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
     stats <- lapply(seq_len(ncol(data$A)), function(k) {
       values <- data$A[rows, k]
       quantiles <- if (is.null(weights)) stats::quantile(values, c(0.25, 0.5, 0.75), names = FALSE) else rep(NA_real_, 3)
-      data.frame(factor = colnames(data$A)[k], n = length(rows),
+      row <- data.frame(factor = colnames(data$A)[k], n = length(rows),
         n_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][rows])),
         mean = stats::weighted.mean(values, w[rows]), sd = if (is.null(weights)) stats::sd(values) else NA_real_,
         median = quantiles[2], q25 = quantiles[1], q75 = quantiles[3])
+      if (prevalence) {
+        active <- switch(activity_direction, positive = values, negative = -values,
+          absolute = abs(values)) > activity_threshold
+        row$active_n <- sum(active)
+        row$active_proportion <- mean(active)
+        if (!is.null(weights)) row$active_weighted_proportion <- sum(w[rows] * active) / sum(w[rows])
+      }
+      row
     })
-    table <- if (length(stats)) do.call(rbind, stats) else data.frame(
-      factor = character(), n = integer(), n_units = integer(), mean = numeric(),
-      sd = numeric(), median = numeric(), q25 = numeric(), q75 = numeric())
+    table <- if (length(stats)) do.call(rbind, stats) else {
+      empty <- data.frame(factor = character(), n = integer(), n_units = integer(), mean = numeric(),
+        sd = numeric(), median = numeric(), q25 = numeric(), q75 = numeric())
+      if (prevalence) {
+        empty$active_n <- integer()
+        empty$active_proportion <- numeric()
+        if (!is.null(weights)) empty$active_weighted_proportion <- numeric()
+      }
+      empty
+    }
     cbind(md[rep(rows[1], nrow(table)), by, drop = FALSE], table)
   })
   out <- do.call(rbind, parts)
   out$basis_id <- rep(data$view$manifest$basis_id, nrow(out))
   rownames(out) <- NULL
-  attr(out, "analysis_metadata") <- c(data$view$manifest, list(weighting = if (is.null(weights)) "per_observation" else "named_weights_means_only", weighted_quantiles = "unsupported", matching = data$matching, exclusions = data$exclusions, n_definition = "observations", unit_col = unit_col))
+  attr(out, "analysis_metadata") <- c(data$view$manifest, list(weighting = if (is.null(weights)) "per_observation" else "named_weights_means_only", weighted_quantiles = "unsupported", matching = data$matching, exclusions = data$exclusions, n_definition = "observations", unit_col = unit_col, activity_threshold = activity_threshold, activity_direction = if (prevalence) activity_direction else NULL, prevalence_comparison = if (prevalence) "strict_greater_than_resolved_coordinates" else NULL))
   .attach_provenance(out, "summarize_factor_activity", match.call(), .resolved_parameters("summarize_factor_activity", environment()))
 }
 
