@@ -1,5 +1,7 @@
 # Public flashier calls only; native prior list order is never reinterpreted.
 .prior_support <- function(fn) {
+
+
   signed <- c("ebnm_normal", "ebnm_point_normal", "ebnm_point_laplace", "ebnm_unimodal",
     "ebnm_unimodal_symmetric", "ebnm_normal_scale_mixture", "ebnm_horseshoe",
     "ebnm_npmle", "ebnm_flat", "ebnm_ash")
@@ -9,6 +11,32 @@
       return(if (name %in% signed) "signed" else "nonnegative")
   }
   "unknown"
+}
+
+# FU-0: fail fast when the installed flashier lacks a capability the fit
+# pipeline will need LATE. flash_fit_get_p2m/flash_factors_remove are only
+# called inside .nullcheck_adaptive() after an expensive fit + nullcheck, so
+# a missing symbol there would waste the whole run. Checked once at fit
+# entry; trivial extractors are deliberately not preflighted.
+.ns_has_function <- function(pkg, sym) {
+  exists(sym, envir = asNamespace(pkg), mode = "function")
+}
+.flashier_preflight <- function(need_nullcheck_moments = FALSE) {
+  core <- c("flash_init", "flash_set_verbose", "flash_add_intercept",
+            "flash_greedy", "flash_backfit", "flash_nullcheck")
+  late <- c("flash_fit_get_p2m", "flash_factors_remove")
+  need <- if (isTRUE(need_nullcheck_moments)) c(core, late) else core
+  missing <- need[!vapply(need, .ns_has_function, logical(1), pkg = "flashier")]
+  if (length(missing)) {
+    stop(sprintf(paste0(
+      "The installed flashier (%s) lacks native capabilities required for this ",
+      "fit: %s. Install the pinned upstream flashier ",
+      "(willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683) or ",
+      "disable the requesting feature (e.g. nullcheck = FALSE)."),
+      as.character(utils::packageVersion("flashier")), paste(missing, collapse = ", ")),
+      call. = FALSE)
+  }
+  invisible(TRUE)
 }
 
 .nullcheck_adaptive <- function(fit, kset, control = list(), verbose = 0) {
@@ -100,6 +128,7 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
   refit <- validate_control(control$backfit, flashier::flash_backfit, c("flash", "verbose"))
   check <- validate_control(control$nullcheck, flashier::flash_nullcheck, c("flash", "verbose"))
   if (intercept == "feature" && !is.null(check$kset)) stop("Intercept fitting selects adaptive nullcheck factors; kset is protected")
+  .flashier_preflight(need_nullcheck_moments = isTRUE(nullcheck))
   priors <- if (is.list(ebnm_fn)) ebnm_fn else rep(list(ebnm_fn), 2L)
   if (length(priors) != 2L) stop("Native prior list must contain row and column functions")
   intercept_ids <- NULL

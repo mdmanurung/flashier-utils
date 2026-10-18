@@ -115,3 +115,15 @@
 * Confirmed package identity flashier.utils and maintainer Mikhael Manurung.
   GitHub distribution with Linux release/devel, macOS and Windows checks.
 * Full-engine CI verifies every suggested dependency loads; installs GSL for mashr.
+# flashier.utils 1.1.0.9000 (development)
+
+## Backend compatibility (FU-0, 2026-10-18)
+
+* `fit_ebmf()` now preflights the installed flashier's native capabilities at
+  fit entry and fails fast with an actionable message (naming the pinned
+  upstream revision) when a symbol the pipeline needs late is absent —
+  previously a flashier lacking `flash_fit_get_p2m`/`flash_factors_remove`
+  failed only after the expensive fit + nullcheck completed. Compatibility
+  audit at the pinned runtime (flashier 1.0.60 @ fd44811): all 19 flashier
+  symbols used by the package are exported. Trivial extractors are
+  deliberately not preflighted.
