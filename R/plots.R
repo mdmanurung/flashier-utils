@@ -33,6 +33,10 @@
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
 #' plot_factor_features(view,"F1",n=3)
+#' @param select Per-factor `largest`/`distinctive`/`both` (see
+#'   [factor_features()]) or `global` for cross-factor selection by
+#'   `max_k(abs(effect))` over the given factors (see
+#'   [factor_features_global()]).
 plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
                                  style = "heatmap", engine = "ggplot2", representation = NULL, ..., compare_factors = NULL,
                                  features = NULL, direction = "absolute", display_normalization = "none",
@@ -42,8 +46,12 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
   view <- .resolve_view(fit, representation)
   .require_biological_factors(view$manifest$factor_ids)
   .select_ids(factors, view$manifest$factor_ids, "factor")
-  selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors))
-  selected <- do.call(rbind, selected)
+  if (identical(select, "global")) {
+    selected <- factor_features_global(view, factors, n = n, direction = direction)
+  } else {
+    selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors))
+    selected <- do.call(rbind, selected)
+  }
   if (is.null(features) && (is.null(selected) || !nrow(selected))) stop("No nonzero selected feature effects to plot")
   if (is.null(features)) features <- unique(selected$feature)
   table <- factor_effects(view, factors = factors, features = features, format = "long")

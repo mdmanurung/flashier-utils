@@ -7,10 +7,18 @@
 #' @param feature_threshold Absolute effect threshold, strictly exceeded.
 #' @param activity_direction positive, negative or absolute.
 #' @param display_normalization max_abs (per column) or none.
+#' @param membership_burden Opt-in: add a continuous membership-burden column
+#'   to the per-sample table, `b_i = sum_k max(A_ik, 0) / m_k` with
+#'   `m_k = max_i A_ik` over the selected factors (ImmGenT-GP total-membership
+#'   quantity). Computed on raw resolved activities (independent of
+#'   `display_normalization`); negative activities contribute 0; factors with
+#'   nonpositive maxima contribute 0 and are recorded. Descriptive only — not
+#'   a compositional probability and not a QC deletion rule. Per-factor
+#'   maxima and zero-max factors are recorded in the analysis metadata.
 #' @return Per-factor and per-sample tables, thresholds and source metadata.
 #' @author Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
 #' @export
-factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, feature_threshold = 0.25, activity_direction = "positive", display_normalization = "max_abs") {
+factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, feature_threshold = 0.25, activity_direction = "positive", display_normalization = "max_abs", membership_burden = FALSE) {
   view <- .resolve_view(fit)
   A <- .display_scale(factor_activity(view,factors=factors),display_normalization)
   B <- .display_scale(factor_effects(view,factors=factors),display_normalization)
@@ -20,7 +28,36 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, fe
   active <- score > activity_threshold
   per_factor <- data.frame(factor=if(ncol(A)) colnames(A) else character(),active_proportion=colMeans(active),active_cells=colSums(active),active_features=colSums(abs(B)>feature_threshold),n_samples=rep(nrow(A),ncol(A)),n_features=rep(nrow(B),ncol(A)))
   per_sample <- data.frame(sample=rownames(A),programs=rowSums(active))
-  .program_result(list(factors=per_factor,samples=per_sample),view,"factor_diagnostics",match.call(),list(activity_threshold=activity_threshold,feature_threshold=feature_threshold,activity_direction=activity_direction,display_normalization=display_normalization,threshold_operator=">",population=rownames(A),selection_factors=colnames(A),inference="descriptive"))
+  md <- list(activity_threshold=activity_threshold,feature_threshold=feature_threshold,activity_direction=activity_direction,display_normalization=display_normalization,threshold_operator=">",population=rownames(A),selection_factors=colnames(A),inference="descriptive")
+  if (isTRUE(membership_burden)) {
+    mb <- .membership_burden(view, factors)
+    per_sample$membership_burden <- mb$burden
+    md$membership_burden <- list(definition="sum_k max(A_ik, 0) / m_k over selected factors, m_k = max_i A_ik on raw resolved activities",
+      factors=names(mb$maxima), maxima=unname(mb$maxima), zero_max_factors=mb$zero_max_factors,
+      clip_policy="negative activities contribute 0", zero_max_policy="factors with max_i A_ik <= 0 contribute 0 and are recorded",
+      reference_population=rownames(A), display_normalization_agnostic=TRUE,
+      sensitivity_note="a single extreme sample raises m_k and rescales all burdens for that factor; inspect maxima")
+  }
+  .program_result(list(factors=per_factor,samples=per_sample),view,"factor_diagnostics",match.call(),md)
+}
+
+# Continuous membership burden (FU-2A, ImmGenT-GP total-membership quantity).
+# For nonnegative activities A_ik with m_k = max_i A_ik > 0: b_i = sum_k A_ik/m_k.
+# Signed activities are clipped at 0 (documented); factors with m_k <= 0
+# contribute 0 and are recorded in zero_max_factors. Computed on the raw
+# resolved activity matrix, independent of display_normalization. Descriptive
+# only: not a compositional probability, no automatic cell deletion.
+.membership_burden <- function(view, factors = NULL) {
+  A <- factor_activity(view, factors = factors)
+  if (ncol(A) == 0L) {
+    return(list(burden = rep(0, nrow(A)), maxima = stats::setNames(numeric(0), character(0)), zero_max_factors = character(0)))
+  }
+  m <- apply(A, 2L, max)
+  names(m) <- colnames(A)
+  zero_max <- colnames(A)[!is.finite(m) | m <= 0]
+  contrib <- matrix(0, nrow(A), ncol(A), dimnames = dimnames(A))
+  for (k in setdiff(colnames(A), zero_max)) contrib[, k] <- pmax(A[, k], 0) / m[[k]]
+  list(burden = rowSums(contrib), maxima = m, zero_max_factors = zero_max)
 }
 
 #' Plot the complete program diagnostic workflow

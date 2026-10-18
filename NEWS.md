@@ -142,3 +142,42 @@
   Documentation now states explicitly that AUC/threshold/direction are
   in-sample descriptive statistics (never predictive, no CIs by default)
   and that unit counts are descriptive tallies when donors span groups.
+
+## Membership burden, centering and global feature selection (FU-2A/FU-2C, 2026-10-19)
+
+* `factor_diagnostics()` gains opt-in `membership_burden = TRUE`: per-sample
+  b_i = sum_k max(A_ik, 0) / m_k over the raw resolved activities, with
+  m_k = max_i A_ik; zero-max factors contribute 0 and are recorded
+  (`zero_max_factors`), and the definition, maxima, clip policy and reference
+  population are declared in the analysis metadata. Off by default.
+* New `center_factor_activity(fit, metadata, by, baseline)` centers grouped
+  activity means against an explicitly declared baseline
+  (`equal_group` or `observation_weighted`) for display; consumes
+  `summarize_factor_activity()`, records the baseline in the metadata, and
+  attaches no inferential label.
+* New `factor_features_global(fit, factors, n)` selects features globally
+  across selected factors by max_k |effect| with stable ties (score, then
+  feature ID), returning the argmax factor and signed estimate;
+  `plot_factor_features(select = "global")` composes it.
+
+## RNA-to-ADT fixed-activity projection validation (FU-3A, 2026-10-19)
+
+* `project_factor_features()` validated for the CITE-seq configuration
+  (Y_ADT ~ A_RNA B_ADT', activities fixed, exact cell intersection, signed
+  protein priors, declared ADT units) against a native oracle: per-protein
+  effect correlation > 0.98, held-out-cell reconstruction from RNA
+  activities alone, explicit refusal of rank-deficient activities, of query
+  cells absent from the reference, and of undeclared units. Worked example
+  added to the protein-interpretation vignette. No numeric parity with
+  ImmGenT-GP is claimed (different backfit controls).
+
+## Chunked projection decision (FU-3B, 2026-10-19)
+
+* Feasibility audit (reports/FU3B_CP6_CHUNKING_DECISION.md): exact
+  row-chunked projection is a NO-GO under the current API because activity
+  priors are re-estimated by empirical Bayes over the query rows (and
+  `var_type = 0/2` pools variance over rows); exact chunking would require
+  frozen fitted priors, an upstream flashier feature. Approximate chunking
+  is not implemented; oversize queries keep failing fast against
+  `dense_budget_bytes`. `project_factor_activity()` documentation now states
+  the query-set dependence explicitly.

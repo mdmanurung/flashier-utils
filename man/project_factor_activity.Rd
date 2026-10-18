@@ -63,6 +63,14 @@ Transfer fixed reference programs to a new dataset
 Uses the same native fixed-program projection as holdout evaluation.
   No automatic preprocessing or normalized usages. Sparse projection is retained
   when offsets are zero; necessary dense copies obey the declared budget.
+
+  Query-set dependence: activity priors are re-estimated by empirical Bayes
+  over the query rows, and `var_type = 0` or `2` pools residual variance over
+  rows, so the same cell projected within two different query sets can receive
+  different activities. Row-chunked projection is therefore an approximation,
+  not an exact decomposition, and is not offered; oversize queries are refused
+  pre-flight against `dense_budget_bytes` (see
+  `reports/FU3B_CP6_CHUNKING_DECISION.md`).
 }
 \author{
 Mikhael Manurung; native flashier authors Jason Willwerscheid,

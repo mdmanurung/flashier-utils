@@ -111,6 +111,54 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
   .attach_provenance(out, "summarize_factor_activity", match.call(), .resolved_parameters("summarize_factor_activity", environment()))
 }
 
+#' Center grouped factor-activity means for display
+#'
+#' Consumes [summarize_factor_activity()] (no competing calculator) and
+#' subtracts a declared per-factor baseline from each group mean:
+#' `centered = mean - baseline[factor]`. The baseline is either the
+#' **equal-group** mean of group means (each group counts once) or the
+#' **observation-weighted** mean (group means weighted by group size `n`);
+#' the choice is declared in the output metadata. Raw means, baselines,
+#' centered values and group counts are all returned. Display-only
+#' transformation: no inferential labeling, and centering never changes
+#' ordering within a factor.
+#'
+#' @param fit Native fit or representation.
+#' @param metadata Sample metadata.
+#' @param by Grouping column(s).
+#' @param baseline `equal_group` or `observation_weighted`.
+#' @param id_col Sample ID column.
+#' @param unit_col Optional independent-unit column (carried through).
+#' @param weights Optional named observation weights (passed to
+#'   [summarize_factor_activity()]; the baseline itself uses group sizes `n`).
+#' @param na_action fail or explicit omit.
+#' @return The [summarize_factor_activity()] table plus `baseline` and
+#'   `centered` columns, with centering declared in `analysis_metadata`.
+#' @export
+center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group", "observation_weighted"),
+                                   id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
+  baseline <- match.arg(baseline)
+  tab <- summarize_factor_activity(fit, metadata, by, id_col = id_col, unit_col = unit_col,
+                                   weights = weights, na_action = na_action)
+  if (nrow(tab)) {
+    spl <- split(seq_len(nrow(tab)), tab$factor)
+    base <- vapply(spl, function(idx) {
+      if (baseline == "equal_group") mean(tab$mean[idx]) else stats::weighted.mean(tab$mean[idx], tab$n[idx])
+    }, numeric(1))
+    tab$baseline <- as.numeric(base[tab$factor])
+    tab$centered <- tab$mean - tab$baseline
+  } else {
+    tab$baseline <- numeric(0)
+    tab$centered <- numeric(0)
+  }
+  md <- attr(tab, "analysis_metadata")
+  md$centering <- list(baseline = baseline, definition = "centered = mean - baseline[factor]",
+                       baseline_weighting = if (baseline == "observation_weighted") "group size n" else "none (each group once)",
+                       inferential = FALSE)
+  attr(tab, "analysis_metadata") <- md
+  .attach_provenance(tab, "center_factor_activity", match.call(), .resolved_parameters("center_factor_activity", environment()))
+}
+
 #' Rank factors by descriptive in-sample metadata R squared
 #'
 #' Independently written stats::lm calculation, conceptually from jamboree

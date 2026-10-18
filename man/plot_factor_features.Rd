@@ -26,7 +26,10 @@ plot_factor_features(
 
 \item{factors}{Unique displayed factors.}
 
-\item{select}{largest, distinctive or both.}
+\item{select}{Per-factor `largest`/`distinctive`/`both` (see
+[factor_features()]) or `global` for cross-factor selection by
+`max_k(abs(effect))` over the given factors (see
+[factor_features_global()]).}
 
 \item{n}{Nonnegative maximum number per selection.}
 

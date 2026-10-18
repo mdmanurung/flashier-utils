@@ -99,6 +99,51 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
   .attach_provenance(out, "factor_distinctiveness", match.call(), .resolved_parameters("factor_distinctiveness", environment()))
 }
 
+#' Select features by global cross-factor effect size
+#'
+#' Global selection for multi-factor heatmaps: rank each feature by
+#' `max_k(abs(effect[gene, k]))` (or the signed extreme for
+#' `direction = "positive"/"negative"`) over an explicitly selected factor
+#' set, with stable ties (score, then feature ID). This is not the same as
+#' [factor_features()], which selects per factor. Descriptive display
+#' selection only; no inferential labeling.
+#'
+#' @param fit Native fit or representation.
+#' @param factors Explicit factor set to compete features across.
+#' @param n Maximum number of features.
+#' @param direction absolute, positive or extreme-negative.
+#' @param representation Optional representation name.
+#' @return Data frame with feature, argmax factor, signed estimate at the
+#'   argmax, selection score, rank, direction and basis_id.
+#' @export
+factor_features_global <- function(fit, factors, n = 20L, direction = c("absolute", "positive", "negative"), representation = NULL) {
+  direction <- match.arg(direction)
+  view <- .resolve_view(fit, representation)
+  .require_biological_factors(view$manifest$factor_ids)
+  fids <- view$manifest$factor_ids[.select_ids(factors, view$manifest$factor_ids, "factor")]
+  if (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 0 || n != as.integer(n)) stop("n must be a nonnegative integer")
+  B <- factor_effects(view, factors = fids)
+  raw <- switch(direction, absolute = apply(abs(B), 1L, max), positive = apply(B, 1L, max), negative = apply(B, 1L, min))
+  eligible <- switch(direction, absolute = raw != 0, positive = raw > 0, negative = raw < 0)
+  score <- if (direction == "negative") -raw else raw
+  argmax <- if (direction == "negative") apply(B, 1L, which.min) else apply(abs(B), 1L, which.max)
+  if (direction == "positive") argmax <- apply(B, 1L, which.max)
+  ord <- order(-score, rownames(B))
+  keep <- ord[eligible[ord]]
+  keep <- utils::head(keep, n)
+  out <- data.frame(feature = rownames(B)[keep],
+                    factor = colnames(B)[argmax[keep]],
+                    estimate = B[cbind(keep, argmax[keep])],
+                    score = score[keep],
+                    rank = seq_along(keep),
+                    direction = rep(direction, length(keep)),
+                    basis_id = rep(view$manifest$basis_id, length(keep)),
+                    stringsAsFactors = FALSE)
+  rownames(out) <- NULL
+  attr(out, "analysis_metadata") <- c(view$manifest, list(selection = "global_cross_factor_max", display_tie_rule = "score_then_feature_ID", selection_factors = colnames(B), argmax_tie_rule = "first_factor_in_selection_order"))
+  .attach_provenance(out, "factor_features_global", match.call(), .resolved_parameters("factor_features_global", environment()))
+}
+
 #' Select largest and distinctive program features
 #'
 #' Returns two explicit ranking views when select is both. Cutoff ties are

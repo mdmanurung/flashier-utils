@@ -127,6 +127,60 @@ alignment_low <- factor_gate_alignment(view, proteins, factors[1], positive="CD1
 alignment_low$summary
 ```
 
+## RNA-to-ADT projection with fixed activities
+
+`project_factor_features()` estimates effects for **new measurements**
+(proteins) while holding the existing sample activities fixed — the
+configuration used for CITE-seq ADT modelling (`Y_ADT ~ A_RNA B_ADT'`, exact
+cell intersection, signed protein priors, protein-specific residual
+variance). The example below uses a synthetic oracle so recovery can be
+checked; on real data, declare the ADT units explicitly via `feature_scale`
+(e.g. your CLR-normalized scale) and keep the exact cell intersection.
+
+```{r rna-adt}
+set.seed(7)
+A_true <- matrix(rnorm(80, sd = c(1.5, 1)), 40, 2,
+                 dimnames = list(paste0("cell", 1:40), c("F1", "F2")))
+B_rna <- matrix(0, 30, 2, dimnames = list(paste0("gene", 1:30), c("F1", "F2")))
+B_rna[1:10, 1] <- 1.5; B_rna[11:20, 2] <- 2
+Y_rna <- tcrossprod(A_true, B_rna) + matrix(rnorm(1200, sd = 0.1), 40, 30)
+fit_rna <- fit_ebmf(Y_rna, "rows", max_factors = 2, seed = 3, verbose = 0,
+                    ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+                    nullcheck = FALSE, backfit = TRUE,
+                    feature_scale = "simulated_rna")
+view_rna <- standardize_factors(fit_rna)
+A_rna <- factor_activity(view_rna)
+
+# synthetic ADT oracle on the same cells: known signed protein effects
+B_adt <- matrix(0, 4, ncol(A_rna),
+                dimnames = list(paste0("ADT", 1:4), colnames(A_rna)))
+B_adt[1, 1] <- 2.0; B_adt[2, 1] <- -1.0
+if (ncol(A_rna) >= 2) { B_adt[3, 2] <- 1.5; B_adt[4, 2] <- -0.8 }
+Y_adt <- tcrossprod(A_rna, B_adt) + matrix(rnorm(160, sd = 0.05), 40, 4,
+         dimnames = list(rownames(A_rna), rownames(B_adt)))
+
+# fit protein effects on TRAINING cells only (activities fixed)
+train <- paste0("cell", 1:30)
+proj <- project_factor_features(view_rna, Y_adt[train, ], sample_side = "rows",
+                                feature_scale = "clr_adt_sim",
+                                ebnm_fn = list(ebnm::ebnm_normal,
+                                               ebnm::ebnm_point_laplace))
+B_est <- factor_effects(proj$representation)
+cor(B_est[1, ], B_adt[1, ])  # oracle recovery on training cells
+
+# held-out cells: predict ADT from their RNA activities alone (never fit)
+heldout <- paste0("cell", 31:40)
+Y_hat <- tcrossprod(A_rna[heldout, ], B_est)
+cor(Y_hat[, 1], Y_adt[heldout, 1])
+```
+
+Two safeguards are deliberate: the projection refuses a rank-deficient fixed
+activity matrix (select fewer independent factors or more measured cells),
+and it refuses query cells absent from the reference activities — held-out
+evaluation is your design, not an implicit extrapolation. The reported
+reconstruction metrics are in-sample (training cells), not prediction
+accuracy.
+
 ## Function credits
 
 These are the functions from this package that the article calls, with the people

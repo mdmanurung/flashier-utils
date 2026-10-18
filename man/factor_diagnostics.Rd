@@ -10,7 +10,8 @@ factor_diagnostics(
   activity_threshold = 0.1,
   feature_threshold = 0.25,
   activity_direction = "positive",
-  display_normalization = "max_abs"
+  display_normalization = "max_abs",
+  membership_burden = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,15 @@ factor_diagnostics(
 \item{activity_direction}{positive, negative or absolute.}
 
 \item{display_normalization}{max_abs (per column) or none.}
+
+\item{membership_burden}{Opt-in: add a continuous membership-burden column
+to the per-sample table, `b_i = sum_k max(A_ik, 0) / m_k` with
+`m_k = max_i A_ik` over the selected factors (ImmGenT-GP total-membership
+quantity). Computed on raw resolved activities (independent of
+`display_normalization`); negative activities contribute 0; factors with
+nonpositive maxima contribute 0 and are recorded. Descriptive only — not
+a compositional probability and not a QC deletion rule. Per-factor
+maxima and zero-max factors are recorded in the analysis metadata.}
 }
 \value{
 Per-factor and per-sample tables, thresholds and source metadata.
