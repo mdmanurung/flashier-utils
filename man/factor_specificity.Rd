@@ -41,6 +41,15 @@ Measure descriptive one-versus-rest factor specificity
 }
 \details{
 A zero-factor fit returns a typed empty specificity table.
+  AUC, thresholds and direction are learned on the same labels they
+  describe: the result is an in-sample descriptive statistic, not a
+  predictive estimate, and no confidence intervals are attached. When
+  `unit_col` units (e.g. donors) span both the target and non-target
+  classes, the unique positive/negative unit counts visibly overlap
+  (`n_positive_units + n_negative_units > n_units`); the counts are
+  descriptive tallies, not independent-group uncertainty estimates.
+  Observations with NA in `group` or `unit_col` fail explicitly through
+  the metadata guard rather than being silently dropped.
 }
 \author{
 Mikhael Manurung; pROC authors Xavier Robin and collaborators.

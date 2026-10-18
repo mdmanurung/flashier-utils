@@ -127,3 +127,18 @@
   audit at the pinned runtime (flashier 1.0.60 @ fd44811): all 19 flashier
   symbols used by the package are exported. Trivial extractors are
   deliberately not preflighted.
+
+## Grouped specificity validation (FU-2B, 2026-10-18)
+
+* `factor_specificity()` validated without API change (return columns
+  pinned by test): NA group/unit labels fail explicitly through the
+  metadata guard ("Missing metadata values for IDs: ..."), never an
+  `any(NA)` exception; AUC matches a hand-computed Mann-Whitney oracle and
+  pROC in both directions; tied optimal thresholds are counted
+  (`threshold_ties`) with the smallest finite threshold chosen; units
+  spanning both classes are visibly double-counted
+  (`n_positive_units + n_negative_units > n_units`) so non-independence is
+  transparent; extreme imbalance (1 vs 19) stays typed and hand-checkable.
+  Documentation now states explicitly that AUC/threshold/direction are
+  in-sample descriptive statistics (never predictive, no CIs by default)
+  and that unit counts are descriptive tallies when donors span groups.
