@@ -127,6 +127,7 @@ reference:
   - title: Interpret and plot factors
     contents:
       - factor_features
+      - factor_features_global
       - rank_features
       - factor_distinctiveness
       - plot_factor_features
@@ -151,6 +152,7 @@ reference:
   - title: Compare samples and conditions
     contents:
       - summarize_factor_activity
+      - center_factor_activity
       - rank_factors_by_metadata
       - compare_factor_groups
       - test_factors
