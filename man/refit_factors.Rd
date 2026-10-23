@@ -30,6 +30,7 @@ Origin: WRAPPER / call_only.
   display/conditional results do not establish biological replication.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -40,8 +41,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 refitted <- refit_factors(fit,control=list(maxiter=10,verbose=0),seed=4)
 factor_pve(refitted)
+\dontshow{\}) # examplesIf}
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

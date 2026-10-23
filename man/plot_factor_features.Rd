@@ -7,11 +7,11 @@
 plot_factor_features(
   fit,
   factors,
+  representation = NULL,
   select = "largest",
   n = 20L,
   style = "heatmap",
   engine = "ggplot2",
-  representation = NULL,
   ...,
   compare_factors = NULL,
   features = NULL,
@@ -26,6 +26,8 @@ plot_factor_features(
 
 \item{factors}{Unique displayed factors.}
 
+\item{representation}{Matched view or settings.}
+
 \item{select}{Per-factor `largest`/`distinctive`/`both` (see
 [factor_features()]) or `global` for cross-factor selection by
 `max_k(abs(effect))` over the given factors (see
@@ -36,8 +38,6 @@ plot_factor_features(
 \item{style}{heatmap or bar.}
 
 \item{engine}{ggplot2.}
-
-\item{representation}{Matched view or settings.}
 
 \item{...}{Optional palette (negative, zero, positive) and limits.}
 
@@ -75,7 +75,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 view <- standardize_factors(fit)
-plot_factor_features(view,"F1",n=3)
+plot_factor_features(view, factors = "F1",n=3)
 }
 \author{
 David Zemmour.

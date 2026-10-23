@@ -7,19 +7,21 @@
 factor_intervals(
   fit,
   side,
+  sample_side = NULL,
   representation = NULL,
   factors = NULL,
   ids = NULL,
   level = 0.95,
   nsamp = 2000L,
-  seed = NULL,
-  sample_side = NULL
+  seed = NULL
 )
 }
 \arguments{
 \item{fit}{Native flash fit or matched representation.}
 
 \item{side}{activity or effects.}
+
+\item{sample_side}{Explicit native sample side if not recorded.}
 
 \item{representation}{Matched view or named standardization settings.}
 
@@ -32,8 +34,6 @@ factor_intervals(
 \item{nsamp}{At least two native draws.}
 
 \item{seed}{Optional scoped seed.}
-
-\item{sample_side}{Explicit native sample side if not recorded.}
 }
 \value{
 Selected posterior means, SDs, quantiles and sign/zero probabilities.
@@ -60,7 +60,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 view <- standardize_factors(fit)
-factor_intervals(fit,"activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
+factor_intervals(fit, side = "activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.

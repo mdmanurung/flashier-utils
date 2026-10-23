@@ -9,6 +9,7 @@ factor_stability(
   reference_fit,
   metadata,
   unit_col,
+  seed,
   B = 100L,
   resample = "unit",
   strata = NULL,
@@ -16,7 +17,6 @@ factor_stability(
   preprocess_fn = NULL,
   alignment = "congruence",
   min_congruence = NULL,
-  seed,
   workers = 1L,
   checkpoint_dir = NULL,
   keep_fits = FALSE,
@@ -31,6 +31,8 @@ factor_stability(
 \item{metadata}{Explicit sample and biological unit metadata.}
 
 \item{unit_col}{Required donor/subject column.}
+
+\item{seed}{Required deterministic master seed.}
 
 \item{B}{Positive replicate count.}
 
@@ -47,8 +49,6 @@ created by [standardize_factors()] with explicit units and prior support.}
 \item{alignment}{Only native congruence assignment.}
 
 \item{min_congruence}{Optional caller acceptance threshold.}
-
-\item{seed}{Required deterministic master seed.}
 
 \item{workers}{Positive worker count; Unix fork backend for workers greater than one.}
 
@@ -90,7 +90,7 @@ view <- standardize_factors(fit)
 metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 # Two resamples illustrate execution, not reliable recovery estimates.
-factor_stability(X,fit,metadata,"donor",B=2,seed=4,min_congruence=0.8)$summary
+factor_stability(X, reference_fit = fit, metadata = metadata, unit_col = "donor",B=2,seed=4,min_congruence=0.8)$summary
 \dontshow{\}) # examplesIf}
 }
 \author{

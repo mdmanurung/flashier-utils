@@ -12,7 +12,7 @@
 #' @param method pearson or spearman.
 #' @return Descriptive correlations, counts and constant-predictor status.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.
-#' @export
+#' @keywords internal
 correlate_factor_markers <- function(fit, measurements, factors = NULL, method = "pearson") {
   view <- .resolve_view(fit); A <- factor_activity(view,factors=factors)
   M <- .aligned_measurements(measurements,rownames(A)); method <- match.arg(method,c("pearson","spearman"))
@@ -33,7 +33,7 @@ correlate_factor_markers <- function(fit, measurements, factors = NULL, method =
 #' @details Marker-positive minus marker-negative contrasts can be compared
 #'   within different lineages. Each result must retain the same source basis.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.
-#' @export
+#' @keywords internal
 plot_factor_contrasts <- function(x, y, n_label = 15L) {
   .program_number(n_label,"n_label",TRUE)
   a <- x$factor_contrast; b <- y$factor_contrast
@@ -67,7 +67,7 @@ plot_factor_contrasts <- function(x, y, n_label = 15L) {
 #'   separated, nonmonotone or BIC-unsupported fits require manual review. Native mclustBIC is explicitly bound for namespace-only use.
 #' @author Mikhael Manurung; mixture engine by Luca Scrucca, Chris Fraley,
 #'   Adrian E. Raftery and collaborators. Conceptual ImmGen-T Figure 7 workflow.
-#' @export
+#' @keywords internal
 estimate_marker_thresholds <- function(measurements, eligible_above = 0.5, min_observations = 50L, seed = 42L, thresholds = NULL) {
   .check_engine("mclust"); M <- .validate_matrix(measurements,allow_missing=FALSE)
   .program_number(min_observations,"min_observations",TRUE,2)
@@ -129,7 +129,7 @@ estimate_marker_thresholds <- function(measurements, eligible_above = 0.5, min_o
 #' @param measurements Named sample-by-marker matrix used for display.
 #' @return Faceted distributions with candidate and authoritative threshold lines.
 #' @author Mikhael Manurung; conceptual ImmGen-T protein workflow; mclust authors.
-#' @export
+#' @keywords internal
 plot_marker_thresholds <- function(result, measurements) {
   M <- .validate_matrix(measurements,allow_missing=FALSE); table <- result$thresholds
   if(!setequal(table$marker,colnames(M))) stop("Marker IDs differ from threshold result")
@@ -153,7 +153,7 @@ plot_marker_thresholds <- function(result, measurements) {
 #' @return Overlap counts/scores, mean activities and selected IDs. Empty gates
 #'   have unavailable scores. Activity ties are broken by sample ID.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 gate workflow.
-#' @export
+#' @keywords internal
 factor_gate_alignment <- function(fit, measurements, factor, positive = character(), negative = character(), thresholds, direction = c("high","low")) {
   direction <- match.arg(direction)
   view <- .resolve_view(fit); A <- factor_activity(view,factors=factor)
@@ -179,7 +179,7 @@ factor_gate_alignment <- function(fit, measurements, factor, positive = characte
 #' @param bins Bins per axis for density.
 #' @return Paired facets with common geometry and the entire declared population.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.
-#' @export
+#' @keywords internal
 plot_factor_gates <- function(result, embedding, display = "point", bins = 50L) {
   E <- .aligned_measurements(embedding,result$population_ids)
   if(ncol(E)!=2) stop("Embedding needs exactly two coordinates")

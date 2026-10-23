@@ -37,7 +37,7 @@ Origin: ADAPTED / call_only.
   display/conditional results do not establish biological replication.
 }
 \examples{
-\dontshow{if (requireNamespace("SeuratObject",quietly=TRUE)) withAutoprint(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -57,3 +57,4 @@ SeuratObject::Embeddings(object[["ebmf"]])[1:3,,drop=FALSE]
 David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject).
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

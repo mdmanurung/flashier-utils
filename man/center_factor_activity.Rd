@@ -51,3 +51,4 @@ ordering within a factor.
 \author{
 Mikhael Manurung. Group-summary workflow credits David Zemmour / Zemmour Lab.
 }
+\keyword{internal}

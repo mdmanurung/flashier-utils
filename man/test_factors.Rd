@@ -9,9 +9,9 @@ test_factors(
   metadata,
   formula,
   engine,
-  id_col = "sample",
   unit_col,
   independence,
+  id_col = "sample",
   factors = NULL,
   contrasts = NULL,
   include_intercept = FALSE,
@@ -32,11 +32,11 @@ test_factors(
 
 \item{engine}{lm, limma or dream, chosen explicitly.}
 
-\item{id_col}{Sample ID column.}
-
 \item{unit_col}{Required independent biological unit column.}
 
 \item{independence}{Required independent or repeated design declaration.}
+
+\item{id_col}{Sample ID column.}
 
 \item{factors}{Optional unique response factors.}
 
@@ -83,7 +83,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
-test_factors(view,metadata,~group,"lm",unit_col="donor",independence="independent")$table
+test_factors(view, metadata = metadata, formula = ~group, engine = "lm",unit_col="donor",independence="independent")$table
 }
 \author{
 Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).

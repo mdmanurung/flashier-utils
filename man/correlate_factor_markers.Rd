@@ -27,3 +27,4 @@ A zero-factor fit returns a typed empty correlation table.
 \author{
 Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.
 }
+\keyword{internal}

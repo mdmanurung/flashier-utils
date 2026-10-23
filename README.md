@@ -13,6 +13,20 @@ install.packages("remotes")
 remotes::install_github("mdmanurung/flashier-utils")
 ```
 
+## Migrating to the 2.0 development API
+
+This development version exposes 21 core functions. The remaining 34 functions
+are internal; their implementations, authorship and provenance records remain.
+Calls to removed exports must migrate to the core or the upstream package, or
+stay on the previous version. Internal functions are not supported APIs.
+
+Nine core functions also change positional argument order. Use named scientific
+arguments, such as `factor_features(view, factor = "F1", select = "largest", n = 5)`.
+Defaults and scientific calculations are unchanged. See [NEWS](https://mdmanurung.github.io/flashier-utils/news/index.html) for the
+removed functions and affected signatures, and the function references for current
+argument order.
+
+
 ## Quick start
 
 Use the GTEx association z-scores bundled with flashier. Tissues occupy columns;

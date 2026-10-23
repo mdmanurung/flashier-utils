@@ -131,10 +131,11 @@
 #' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 #'   group=rep(c("A","B"),each=12))
 #' # Two resamples illustrate execution, not reliable recovery estimates.
-#' factor_stability(X,fit,metadata,"donor",B=2,seed=4,min_congruence=0.8)$summary
-factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, resample = "unit", strata = NULL,
-                             fit_fn = NULL, preprocess_fn = NULL, alignment = "congruence", min_congruence = NULL,
-                             seed, workers = 1L, checkpoint_dir = NULL, keep_fits = FALSE, control = list()) {
+#' factor_stability(X, reference_fit = fit, metadata = metadata, unit_col = "donor",B=2,seed=4,min_congruence=0.8)$summary
+factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100L,
+    resample = "unit", strata = NULL, fit_fn = NULL, preprocess_fn = NULL, alignment = "congruence",
+    min_congruence = NULL, workers = 1L, checkpoint_dir = NULL, keep_fits = FALSE,
+    control = list()) {
   if (missing(seed) || missing(unit_col)) stop("Choose seed and biological unit explicitly")
   if (resample != "unit" || alignment != "congruence") stop("Only biological-unit resampling and native congruence are supported")
   if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B) || length(workers) != 1L || !is.finite(workers) || workers < 1 || workers != as.integer(workers)) stop("B and workers must be positive integers")

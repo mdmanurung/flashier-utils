@@ -24,7 +24,7 @@
 #'   Priors use semantic sample/feature order and map to native axes once.
 #'   Recognized nonnegative priors require nonnegative initial values; custom
 #'   prior support remains unknown. Neither initialized side may have a zero column.
-#' @examples
+#' @examplesIf FALSE
 #' A <- cbind(program = seq(-1, 1, length.out = 12))
 #' B <- cbind(program = c(2, -1, 0, 1, 3, -2, 4, 0))
 #' rownames(A) <- paste0("s", 1:12)
@@ -33,7 +33,7 @@
 #' fit <- fit_initialized_ebmf(X, "rows", A, B, fixed_side = "effects",
 #'   seed = 4, verbose = 0, feature_scale = "simulated_intensity")
 #' factor_effects(fit, representation = list(scaling = "raw"))
-#' @export
+#' @keywords internal
 fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
                                  activity_prior = ebnm::ebnm_point_normal,
                                  effect_prior = ebnm::ebnm_point_laplace,

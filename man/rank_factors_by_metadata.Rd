@@ -44,6 +44,7 @@ Origin: ADAPTED / none.
   display/conditional results do not establish biological replication.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -55,8 +56,10 @@ view <- standardize_factors(fit)
 metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 rank_factors_by_metadata(view,metadata,"group")
+\dontshow{\}) # examplesIf}
 }
 \author{
 Stephens Lab; individual script authors not verified.
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

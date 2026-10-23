@@ -34,9 +34,10 @@
 #' result <- backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest)
 #' # Illustrative same-scale feature vector; not a calibrated statistical truth.
 #' observed <- result$effects[,c("feature","estimate")]
-#' validate_backprojection(result,observed,feature_scale="simulated_centered_intensity",plot=FALSE)$metrics
-validate_backprojection <- function(reconstructed, observed, id_col = "feature", estimate_col = "estimate", contrast = NULL, feature_scale,
-                                    top_n = c(20L, 50L, 100L), zero_tolerance = 0, plot = TRUE) {
+#' validate_backprojection(result, observed = observed,feature_scale="simulated_centered_intensity",plot=FALSE)$metrics
+validate_backprojection <- function(reconstructed, observed, feature_scale, contrast = NULL,
+    id_col = "feature", estimate_col = "estimate", top_n = c(20L, 50L, 100L), zero_tolerance = 0,
+    plot = TRUE) {
   if (missing(feature_scale)) stop("Supply matching declared feature_scale")
   .measurement_scale(feature_scale)
   if (inherits(reconstructed, "backprojection_result")) reconstructed <- reconstructed$effects

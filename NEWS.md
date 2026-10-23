@@ -1,3 +1,28 @@
+# flashier.utils 2.0.0.9000
+
+- Breaking development API migration: retain 21 public functions and keep the
+  other 34 implementations internal, with their authorship and source records.
+  The public core covers fitting/extraction, features/displays, group summaries,
+  inference/backprojection, uncertainty, stability/replication and projection.
+- Functions removed from the public namespace (implementations remain internal):
+  `add_factors_to_seurat()`, `center_factor_activity()`, `correlate_factor_markers()`,
+  `embed_factors()`, `enrich_factors()`, `estimate_marker_thresholds()`,
+  `factor_activity_percentile()`, `factor_cor()`, `factor_diagnostics()`,
+  `factor_distinctiveness()`, `factor_features_global()`, `factor_gate_alignment()`,
+  `factor_network()`, `factor_specificity()`, `fit_initialized_ebmf()`,
+  `fit_multistart_ebmf()`, `fit_nonnegative_ebmf()`, `fit_seminonnegative_ebmf()`,
+  `fix_factors()`, `plot_factor_contrasts()`, `plot_factor_diagnostics()`,
+  `plot_factor_embedding()`, `plot_factor_gates()`, `plot_factor_network()`,
+  `plot_factor_signature()`, `plot_feature_rankings()`, `plot_marker_thresholds()`,
+  `rank_factors_by_metadata()`, `rank_features()`, `refit_factors()`, `remove_factors()`,
+  `reorder_factors()`, `shrink_factor_effects()`, `summarize_factors()`.
+- Reorder arguments in factor_features(), factor_holdout(), factor_intervals(),
+  factor_stability(), factor_uncertainty(), plot_factor_activity(),
+  plot_factor_features(), test_factors() and validate_backprojection(). Use named
+  scientific arguments when migrating positional calls. Defaults and scientific
+  calculations are unchanged. Calls to removed exports must migrate or retain
+  the previous package version; internal implementations are unsupported APIs.
+
 # flashier.utils 1.1.0.9000
 
 - Add `activity_threshold`/`activity_direction` to `summarize_factor_activity()`:

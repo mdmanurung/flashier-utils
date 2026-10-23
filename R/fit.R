@@ -246,8 +246,8 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
 #'   Peter Carbonetto, Wei Wang and Matthew Stephens. No native source is copied.
 #'   Optional initializers: Trevor Hastie, Rahul Mazumder and Balasubramanian
 #'   Narasimhan (softImpute); Jim Baglama, Lothar Reichel and B. W. Lewis (irlba).
-#' @export
-#' @examples
+#' @keywords internal
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- matrix(rnorm(192), 16, 12,
 #'   dimnames = list(paste0("s", 1:16), paste0("g", 1:12)))

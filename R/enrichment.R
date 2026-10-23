@@ -50,7 +50,7 @@
 #' @param feature_map Optional explicitly one-to-one named feature mapping.
 #' @param control Native settings; seed is scoped, decoupleR method is ulm or mlm.
 #' @return Native method table plus pathway universe, native result and provenance.
-#' @export
+#' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
@@ -63,7 +63,7 @@
 #'   universe are excluded; the full mapped feature universe is retained in mat.
 #'   By default center=FALSE: centering across factors changes the annotation
 #'   signal and makes scores depend on the selected factors.
-#' @examplesIf requireNamespace("fgsea",quietly=TRUE) && requireNamespace("BiocParallel",quietly=TRUE)
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)

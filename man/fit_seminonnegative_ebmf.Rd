@@ -40,6 +40,7 @@ Origin: WRAPPER / call_only. No upstream implementation source copied.
   Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 A <- matrix(rexp(24), 12, 2)
 B <- matrix(rnorm(16), 8, 2)
@@ -48,8 +49,10 @@ dimnames(X) <- list(paste0("s", 1:12), paste0("g", 1:8))
 fit <- fit_seminonnegative_ebmf(X, "rows", max_factors = 2,
   backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity")
 factor_activity(fit)
+\dontshow{\}) # examplesIf}
 }
 \author{
 Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
   Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
 }
+\keyword{internal}

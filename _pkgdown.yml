@@ -35,54 +35,24 @@ reference:
   - title: Fit and extract factors
     contents:
       - fit_ebmf
-      - fit_nonnegative_ebmf
-      - fit_seminonnegative_ebmf
-      - fit_initialized_ebmf
-      - fit_multistart_ebmf
       - standardize_factors
       - factor_activity
       - factor_effects
       - factor_pve
-      - refit_factors
-      - fix_factors
-      - remove_factors
-      - reorder_factors
   - title: Interpret and plot factors
     contents:
       - factor_features
-      - factor_features_global
-      - rank_features
-      - factor_distinctiveness
       - plot_factor_features
       - plot_factor_activity
-      - enrich_factors
-      - factor_network
-      - plot_factor_network
-      - plot_feature_rankings
-      - factor_diagnostics
-      - plot_factor_diagnostics
-      - plot_factor_signature
-      - factor_specificity
-      - summarize_factors
-      - correlate_factor_markers
-      - plot_factor_contrasts
-      - estimate_marker_thresholds
-      - plot_marker_thresholds
-      - factor_gate_alignment
-      - plot_factor_gates
       - project_factor_features
       - project_factor_activity
   - title: Compare samples and conditions
     contents:
       - summarize_factor_activity
-      - center_factor_activity
-      - rank_factors_by_metadata
       - compare_factor_groups
       - test_factors
       - backproject_contrast
       - validate_backprojection
-      - shrink_factor_effects
-      - factor_cor
   - title: Check uncertainty and prediction
     contents:
       - factor_uncertainty
@@ -90,12 +60,6 @@ reference:
       - factor_stability
       - factor_replicability
       - factor_holdout
-  - title: Single-cell displays
-    contents:
-      - add_factors_to_seurat
-      - embed_factors
-      - plot_factor_embedding
-      - factor_activity_percentile
   - title: Authors and sources
     contents:
       - provenance

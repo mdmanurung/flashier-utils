@@ -100,11 +100,11 @@
 #' view <- standardize_factors(fit)
 #' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 #'   group=rep(c("A","B"),each=12))
-#' test_factors(view,metadata,~group,"lm",unit_col="donor",independence="independent")$table
-test_factors <- function(fit, metadata, formula, engine, id_col = "sample", unit_col,
-                          independence, factors = NULL, contrasts = NULL, include_intercept = FALSE,
-                          na_action = "fail", adjust = "BH", adjust_scope = "all_tests",
-                          factor_uncertainty = "ignore", control = list(), keep_models = TRUE) {
+#' test_factors(view, metadata = metadata, formula = ~group, engine = "lm",unit_col="donor",independence="independent")$table
+test_factors <- function(fit, metadata, formula, engine, unit_col, independence, id_col = "sample",
+    factors = NULL, contrasts = NULL, include_intercept = FALSE, na_action = "fail", adjust = "BH",
+    adjust_scope = "all_tests", factor_uncertainty = "ignore", control = list(),
+    keep_models = TRUE) {
   if (missing(engine) || missing(unit_col) || missing(independence)) stop("Choose engine, unit_col and independence explicitly")
   engine <- match.arg(engine, c("lm", "limma", "dream"))
   if (factor_uncertainty != "ignore") stop("Response uncertainty modes are not validated; native posterior SD is not sampling SE")

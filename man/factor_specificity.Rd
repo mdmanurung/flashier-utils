@@ -54,3 +54,4 @@ A zero-factor fit returns a typed empty specificity table.
 \author{
 Mikhael Manurung; pROC authors Xavier Robin and collaborators.
 }
+\keyword{internal}

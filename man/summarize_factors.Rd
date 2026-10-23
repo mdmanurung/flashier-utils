@@ -35,3 +35,4 @@ Summarize defining features and descriptive program diagnostics
 \author{
 Mikhael Manurung; feature ranking credits Peter Carbonetto and Matthew Stephens.
 }
+\keyword{internal}

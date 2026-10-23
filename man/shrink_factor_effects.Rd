@@ -47,7 +47,7 @@ Origin: WRAPPER / call_only.
   display/conditional results do not establish biological replication.
 }
 \examples{
-\dontshow{if (requireNamespace("mashr",quietly=TRUE)) withAutoprint(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -68,3 +68,4 @@ shrink_factor_effects(coefficients,"condition",term="treatment",independent_cond
 Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

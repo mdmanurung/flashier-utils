@@ -77,6 +77,7 @@ Origin: WRAPPER / call_only; no upstream implementation source copied.
   prior support remains unknown. Neither initialized side may have a zero column.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 A <- cbind(program = seq(-1, 1, length.out = 12))
 B <- cbind(program = c(2, -1, 0, 1, 3, -2, 4, 0))
 rownames(A) <- paste0("s", 1:12)
@@ -85,8 +86,10 @@ X <- tcrossprod(A, B)
 fit <- fit_initialized_ebmf(X, "rows", A, B, fixed_side = "effects",
   seed = 4, verbose = 0, feature_scale = "simulated_intensity")
 factor_effects(fit, representation = list(scaling = "raw"))
+\dontshow{\}) # examplesIf}
 }
 \author{
 Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
   Wei Wang and Matthew Stephens. EBNM authors are listed in credits.
 }
+\keyword{internal}

@@ -13,14 +13,14 @@
 #' @param independent_conditions Explicit TRUE when using identity V.
 #' @param control Named public mash settings; outputlevel must retain summaries.
 #' @return Posterior table, native fit, input matrices and covariance metadata.
-#' @export
+#' @keywords internal
 #' @author Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits mashr public API (implementation audit pending); use provenance("shrink_factor_effects")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examplesIf requireNamespace("mashr",quietly=TRUE)
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)

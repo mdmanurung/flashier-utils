@@ -10,13 +10,13 @@ factor_holdout(
   unit_col,
   folds,
   fit_fn,
+  seed,
   preprocess_fn = NULL,
   evaluation = "projection",
   activity_features = NULL,
   scoring_features = NULL,
   mask = NULL,
   freeze_noise = FALSE,
-  seed,
   workers = 1L,
   checkpoint_dir = NULL,
   control = list()
@@ -33,6 +33,8 @@ factor_holdout(
 
 \item{fit_fn}{Required native fitting callback following the shared plan contract.}
 
+\item{seed}{Required master seed.}
+
 \item{preprocess_fn}{NULL or list(fit,transform); fit returns X,metadata,manifest,state,
 transform(X,metadata,state,seed,settings) returns transformed X and metadata.}
 
@@ -43,8 +45,6 @@ transform(X,metadata,state,seed,settings) returns transformed X and metadata.}
 \item{mask}{Optional named logical matrix; TRUE entries are withheld for scoring.}
 
 \item{freeze_noise}{TRUE is unsupported until a separate native freeze probe passes.}
-
-\item{seed}{Required master seed.}
 
 \item{workers}{Only serial fold execution is supported.}
 
@@ -88,7 +88,7 @@ callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()
     feature_scale="simulated_centered_intensity")
 }
 control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test")
-factor_holdout(X,metadata,"donor",folds,callback,evaluation="masked",seed=4,
+factor_holdout(X, metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback,evaluation="masked",seed=4,
   activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
 }
 \author{

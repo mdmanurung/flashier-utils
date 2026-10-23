@@ -35,3 +35,4 @@ Plot signed signature weights against mean expression
 \author{
 Mikhael Manurung; conceptual ImmGen-T Figure 2 workflow.
 }
+\keyword{internal}

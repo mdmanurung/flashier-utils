@@ -7,8 +7,8 @@
 factor_uncertainty(
   fit,
   side = c("activity", "effects"),
-  representation = NULL,
   sample_side = NULL,
+  representation = NULL,
   factors = NULL,
   ids = NULL,
   include_lfsr = TRUE,
@@ -20,9 +20,9 @@ factor_uncertainty(
 
 \item{side}{activity or effects.}
 
-\item{representation}{Matched view or named standardization settings.}
-
 \item{sample_side}{Explicit native sample side if not recorded.}
+
+\item{representation}{Matched view or named standardization settings.}
 
 \item{factors}{Optional unique factor IDs in requested order.}
 
@@ -56,7 +56,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 view <- standardize_factors(fit)
-factor_uncertainty(fit,"activity",factors="F1",ids=c("s1","s2"))
+factor_uncertainty(fit, side = "activity",factors="F1",ids=c("s1","s2"))
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.

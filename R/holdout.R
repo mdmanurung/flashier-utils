@@ -81,11 +81,11 @@
 #'     feature_scale="simulated_centered_intensity")
 #' }
 #' control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test")
-#' factor_holdout(X,metadata,"donor",folds,callback,evaluation="masked",seed=4,
+#' factor_holdout(X, metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback,evaluation="masked",seed=4,
 #'   activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
-factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, preprocess_fn = NULL,
-                           evaluation = "projection", activity_features = NULL, scoring_features = NULL,
-                           mask = NULL, freeze_noise = FALSE, seed, workers = 1L, checkpoint_dir = NULL, control = list()) {
+factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preprocess_fn = NULL,
+    evaluation = "projection", activity_features = NULL, scoring_features = NULL, mask = NULL,
+    freeze_noise = FALSE, workers = 1L, checkpoint_dir = NULL, control = list()) {
   if (missing(seed) || missing(unit_col) || missing(fit_fn) || !is.function(fit_fn)) stop("Choose biological unit, fit_fn and seed explicitly")
   if (freeze_noise) stop("Freezing all trained noise/hyperparameters is unsupported; native recalibration uses permitted observations only")
   if (workers != 1L) stop("Only serial fold execution is supported")

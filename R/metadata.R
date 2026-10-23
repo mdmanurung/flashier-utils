@@ -139,7 +139,7 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
 #' @return The [summarize_factor_activity()] table plus `baseline` and
 #'   `centered` columns, with centering declared in `analysis_metadata`.
 #' @author Mikhael Manurung. Group-summary workflow credits David Zemmour / Zemmour Lab.
-#' @export
+#' @keywords internal
 center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group", "observation_weighted"),
                                    id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
   baseline <- match.arg(baseline)
@@ -177,14 +177,14 @@ center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group"
 #' @param id_col Sample ID column.
 #' @param na_action fail or explicit omit.
 #' @return Factor rank, statistic, value and sample count with basis metadata.
-#' @export
+#' @keywords internal
 #' @author Stephens Lab; individual script authors not verified.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)

@@ -44,3 +44,4 @@ Candidate is the maximum observation classified in the lower-mean
 Mikhael Manurung; mixture engine by Luca Scrucca, Chris Fraley,
   Adrian E. Raftery and collaborators. Conceptual ImmGen-T Figure 7 workflow.
 }
+\keyword{internal}

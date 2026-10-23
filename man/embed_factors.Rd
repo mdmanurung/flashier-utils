@@ -42,7 +42,7 @@ Origin: WRAPPER / call_only.
   display/conditional results do not establish biological replication.
 }
 \examples{
-\dontshow{if (requireNamespace("SeuratObject",quietly=TRUE) && requireNamespace("uwot",quietly=TRUE)) withAutoprint(\{ # examplesIf}
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -63,3 +63,4 @@ SeuratObject::Embeddings(object[["ebmfumap"]])[1:3,,drop=FALSE]
 David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

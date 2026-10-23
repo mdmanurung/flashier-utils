@@ -7,11 +7,11 @@
 factor_features(
   fit,
   factor,
-  select = "both",
-  n = 20L,
-  direction = "absolute",
   representation = NULL,
-  compare_factors = NULL
+  compare_factors = NULL,
+  select = "both",
+  direction = "absolute",
+  n = 20L
 )
 }
 \arguments{
@@ -20,15 +20,15 @@ factor_features(
 \item{factor}{One unique factor ID.
 A fit with no biological factors cannot supply a feature selection.}
 
-\item{select}{largest, distinctive or both.}
-
-\item{n}{Nonnegative maximum number per selection.}
-
-\item{direction}{absolute, positive or negative.}
-
 \item{representation}{Matched view or settings.}
 
 \item{compare_factors}{Optional competition pool; NULL uses all factors.}
+
+\item{select}{largest, distinctive or both.}
+
+\item{direction}{absolute, positive or negative.}
+
+\item{n}{Nonnegative maximum number per selection.}
 }
 \value{
 Tidy descriptive table with selection and tie rule metadata.
@@ -52,7 +52,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 view <- standardize_factors(fit)
-factor_features(view,"F1",select="both",n=3)
+factor_features(view, factor = "F1",select="both",n=3)
 }
 \author{
 Peter Carbonetto; Matthew Stephens.

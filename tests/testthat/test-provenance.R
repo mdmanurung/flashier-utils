@@ -1,6 +1,7 @@
 test_that("every actual callable export has a source record", {
   rows <- provenance(include_dependencies = TRUE)
-  expect_setequal(rows$`function`, getNamespaceExports("flashier.utils"))
+  expect_true(all(getNamespaceExports("flashier.utils") %in% rows$`function`))
+  expect_true(all(c("fit_multistart_ebmf", "factor_specificity") %in% rows$`function`))
   expect_true(all(nzchar(rows$implementation_path)))
   deps <- attr(rows, "dependencies")
   expect_equal(deps$version[deps$package == "flashier"], as.character(packageVersion("flashier")))

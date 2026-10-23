@@ -83,12 +83,14 @@ Candidate failures are retained. ELBO ranks optimization solutions under the
 fitted model and does not measure biological interpretability or uncertainty.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- matrix(rnorm(192), 16, 12,
   dimnames = list(paste0("s", 1:16), paste0("g", 1:12)))
 starts <- fit_multistart_ebmf(X, "rows", n_starts = 2, max_factors = 1,
   seed = 4, verbose = 0)
 starts$candidates[, c("start", "init_seed", "status", "rank", "elbo", "selected")]
+\dontshow{\}) # examplesIf}
 }
 \author{
 Mikhael Manurung; native FLASH authors Jason Willwerscheid,
@@ -96,3 +98,4 @@ Mikhael Manurung; native FLASH authors Jason Willwerscheid,
   Optional initializers: Trevor Hastie, Rahul Mazumder and Balasubramanian
   Narasimhan (softImpute); Jim Baglama, Lothar Reichel and B. W. Lewis (irlba).
 }
+\keyword{internal}

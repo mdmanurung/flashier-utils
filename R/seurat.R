@@ -7,14 +7,14 @@
 #' @param overwrite Explicitly replace an existing reduction.
 #' @return Seurat object with basis metadata in reduction Misc. Loadings are added
 #'   only when the assay and effects have exactly the same feature IDs.
-#' @export
+#' @keywords internal
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examplesIf requireNamespace("SeuratObject",quietly=TRUE)
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -68,14 +68,14 @@ add_factors_to_seurat <- function(object, fit, reduction = "ebmf", assay = NULL,
 #' @param overwrite Replace an existing output reduction explicitly.
 #' @param ... Native uwot settings, plus reduction_name (default source name + umap).
 #' @return Seurat object with exploratory embedding and resolved settings in Misc.
-#' @export
+#' @keywords internal
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examplesIf requireNamespace("SeuratObject",quietly=TRUE) && requireNamespace("uwot",quietly=TRUE)
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -132,14 +132,14 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' @param ... activity_reduction, reference_samples for percentile, max_samples,
 #'   seed, palette (negative/zero/positive), limits. Defaults bound 2000 cells.
 #' @return ggplot with sampled IDs, reference IDs and basis metadata.
-#' @export
+#' @keywords internal
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / call_only.
 #'   Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examplesIf requireNamespace("SeuratObject",quietly=TRUE) && requireNamespace("uwot",quietly=TRUE)
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -203,14 +203,14 @@ plot_factor_embedding <- function(object, reduction, factors, display = "activit
 #' @param na_action Only fail is supported for finite factor representations.
 #' @return Matrix with display-only class and reference/basis metadata. Values are
 #'   100 * ecdf(reference)(activity); ties retain native ECDF behavior.
-#' @export
+#' @keywords internal
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)

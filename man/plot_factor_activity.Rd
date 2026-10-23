@@ -8,8 +8,8 @@ plot_factor_activity(
   fit,
   metadata = NULL,
   group = NULL,
-  style = "heatmap",
   factors = NULL,
+  style = "heatmap",
   display_normalization = "none",
   engine = "ggplot2",
   max_samples = 2000L,
@@ -25,9 +25,9 @@ plot_factor_activity(
 
 \item{group}{Optional metadata grouping column.}
 
-\item{style}{heatmap, point, distribution or structure.}
-
 \item{factors}{Optional unique factors.}
+
+\item{style}{heatmap, point, distribution or structure.}
 
 \item{display_normalization}{none, or row_sum for structure only.}
 
@@ -72,7 +72,7 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
-plot_factor_activity(view,metadata,group="group",max_samples=12,seed=4)
+plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
 }
 \author{
 David Zemmour.

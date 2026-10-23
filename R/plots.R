@@ -32,15 +32,14 @@
 #'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
-#' plot_factor_features(view,"F1",n=3)
+#' plot_factor_features(view, factors = "F1",n=3)
 #' @param select Per-factor `largest`/`distinctive`/`both` (see
 #'   [factor_features()]) or `global` for cross-factor selection by
 #'   `max_k(abs(effect))` over the given factors (see
 #'   [factor_features_global()]).
-plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
-                                 style = "heatmap", engine = "ggplot2", representation = NULL, ..., compare_factors = NULL,
-                                 features = NULL, direction = "absolute", display_normalization = "none",
-                                 transpose = FALSE, annotation = NULL) {
+plot_factor_features <- function(fit, factors, representation = NULL, select = "largest", n = 20L,
+    style = "heatmap", engine = "ggplot2", ..., compare_factors = NULL, features = NULL,
+    direction = "absolute", display_normalization = "none", transpose = FALSE, annotation = NULL) {
   if (engine != "ggplot2") stop("Only the ggplot2 signed display engine is supported")
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
@@ -118,10 +117,10 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
 #' view <- standardize_factors(fit)
 #' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 #'   group=rep(c("A","B"),each=12))
-#' plot_factor_activity(view,metadata,group="group",max_samples=12,seed=4)
-plot_factor_activity <- function(fit, metadata = NULL, group = NULL, style = "heatmap", factors = NULL,
-                                 display_normalization = "none", engine = "ggplot2", max_samples = 2000L, seed = NULL,
-                                 order_within_group = c("input", "mds1"), ...) {
+#' plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
+plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = NULL,
+    style = "heatmap", display_normalization = "none", engine = "ggplot2", max_samples = 2000L,
+    seed = NULL, order_within_group = c("input", "mds1"), ...) {
   if (engine != "ggplot2") stop("Only ggplot2 is supported")
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))

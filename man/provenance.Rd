@@ -7,7 +7,7 @@
 provenance(function_name = NULL, result = NULL, include_dependencies = TRUE)
 }
 \arguments{
-\item{function_name}{Optional public function names.}
+\item{function_name}{Optional recorded function names, including retained internal implementations.}
 
 \item{result}{Optional result carrying analysis_metadata.}
 

@@ -78,14 +78,14 @@
 #' @param initialization Only native_greedy is supported.
 #' @param ... Other explicit fit_ebmf arguments, excluding ebnm_fn.
 #' @return Native flash fit; attained rank may be lower than max_factors.
-#' @export
+#' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -121,8 +121,8 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
 #'   Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
 #' @details Origin: WRAPPER / call_only. No upstream implementation source copied.
 #'   Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
-#' @export
-#' @examples
+#' @keywords internal
+#' @examplesIf FALSE
 #' set.seed(3)
 #' A <- matrix(rexp(24), 12, 2)
 #' B <- matrix(rnorm(16), 8, 2)
@@ -161,14 +161,14 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' @param control Named public flash_backfit settings.
 #' @param seed Optional scoped seed.
 #' @return New native fit with retained factor identity and new numerical identity.
-#' @export
+#' @keywords internal
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_backfit; use provenance("refit_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -199,14 +199,14 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' @param action fix or unfix; native unfix operates on the selected pair.
 #' @param sample_side Explicit rows or columns for a bare native fit.
 #' @return New native fit retaining named factor identity.
-#' @export
+#' @keywords internal
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_fix; flash_factors_unfix; use provenance("fix_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -246,14 +246,14 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #' @param fit Native flash fit.
 #' @param factors Unique factor IDs to remove.
 #' @return Native fit retaining remaining factor IDs.
-#' @export
+#' @keywords internal
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_remove; use provenance("remove_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -277,14 +277,14 @@ remove_factors <- function(fit, factors) {
 #' @param fit Native flash fit.
 #' @param order Exact permutation of retained factor IDs.
 #' @return Native fit with stable identities in requested order.
-#' @export
+#' @keywords internal
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_reorder; use provenance("reorder_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)

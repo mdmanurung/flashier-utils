@@ -108,10 +108,10 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
-#' factor_uncertainty(fit,"activity",factors="F1",ids=c("s1","s2"))
-factor_uncertainty <- function(fit, side = c("activity", "effects"), representation = NULL,
-                               sample_side = NULL, factors = NULL, ids = NULL,
-                               include_lfsr = TRUE, require_uncertainty = FALSE) {
+#' factor_uncertainty(fit, side = "activity",factors="F1",ids=c("s1","s2"))
+factor_uncertainty <- function(fit, side = c("activity", "effects"), sample_side = NULL,
+    representation = NULL, factors = NULL, ids = NULL, include_lfsr = TRUE,
+    require_uncertainty = FALSE) {
   side <- match.arg(side)
   if (!inherits(fit, "flash")) stop("Posterior uncertainty requires the native fit")
   view <- .resolve_view(fit, representation, sample_side)

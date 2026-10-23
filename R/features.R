@@ -10,14 +10,14 @@
 #' @param ties Only native average ties are supported.
 #' @param representation Matched view or settings.
 #' @return feature/factor/estimate/rank/direction/basis_id table.
-#' @export
+#' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
 #'   Credits rank_effects; use provenance("rank_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -53,14 +53,14 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #' @param engine singlecelljamboreeR selects the audited local implementation.
 #' @param format long or matrix.
 #' @return Original estimate and distinctiveness separately, or margin matrix.
-#' @export
+#' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
 #'   Credits compute_le_effects; use provenance("factor_distinctiveness")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
-#' @examples
+#' @examplesIf FALSE
 #' set.seed(3)
 #' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
 #'   matrix(rnorm(384,sd=0.2),24,16)
@@ -116,7 +116,7 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
 #' @return Data frame with feature, argmax factor, signed estimate at the
 #'   argmax, selection score, rank, direction and basis_id.
 #' @author Mikhael Manurung. Conceptual cross-factor display workflow: ImmGenT-GP.
-#' @export
+#' @keywords internal
 factor_features_global <- function(fit, factors, n = 20L, direction = c("absolute", "positive", "negative"), representation = NULL) {
   direction <- match.arg(direction)
   view <- .resolve_view(fit, representation)
@@ -173,8 +173,9 @@ factor_features_global <- function(fit, factors, n = 20L, direction = c("absolut
 #'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
-#' factor_features(view,"F1",select="both",n=3)
-factor_features <- function(fit, factor, select = "both", n = 20L, direction = "absolute", representation = NULL, compare_factors = NULL) {
+#' factor_features(view, factor = "F1",select="both",n=3)
+factor_features <- function(fit, factor, representation = NULL, compare_factors = NULL,
+    select = "both", direction = "absolute", n = 20L) {
   select <- match.arg(select, c("largest", "distinctive", "both"))
   direction <- match.arg(direction, c("absolute", "positive", "negative"))
   if (length(factor) != 1L) stop("Select exactly one factor")

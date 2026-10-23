@@ -44,6 +44,7 @@ Origin: WRAPPER / call_only.
   display/conditional results do not establish biological replication.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
   matrix(rnorm(384,sd=0.2),24,16)
@@ -53,8 +54,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 view <- standardize_factors(fit)
 factor_cor(view,"pearson")$correlation
+\dontshow{\}) # examplesIf}
 }
 \author{
 Mikhael Manurung; R Core Team (stats::cor); Kushal Dey; Matthew Stephens; Peter Carbonetto (CorShrink).
   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\keyword{internal}

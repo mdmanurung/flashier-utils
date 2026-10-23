@@ -17,7 +17,7 @@
 #'   maxima and zero-max factors are recorded in the analysis metadata.
 #' @return Per-factor and per-sample tables, thresholds and source metadata.
 #' @author Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
-#' @export
+#' @keywords internal
 factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, feature_threshold = 0.25, activity_direction = "positive", display_normalization = "max_abs", membership_burden = FALSE) {
   view <- .resolve_view(fit)
   A <- .display_scale(factor_activity(view,factors=factors),display_normalization)
@@ -71,7 +71,7 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, fe
 #' @param ... Arguments passed to factor_diagnostics.
 #' @return Named plots: prevalence, features, programs_per_cell, groups and marker.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 2 workflow.
-#' @export
+#' @keywords internal
 plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker = NULL, factor = NULL, max_samples = 2000L, seed = 42L, ...) {
   view <- .resolve_view(fit); diagnostics <- factor_diagnostics(view,...)
   .program_number(max_samples,"max_samples",TRUE,1)
@@ -108,7 +108,7 @@ plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker =
 #' @param n_label Maximum labels by absolute weight then feature ID.
 #' @return Plot with expression on the vertical axis, never significance.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 2 workflow.
-#' @export
+#' @keywords internal
 plot_factor_signature <- function(fit, factor, mean_expression, expression_scale, threshold = 0.1, n_label = 15L) {
   view <- .resolve_view(fit); B <- factor_effects(view,factors=factor)
   if(ncol(B)!=1) stop("Choose one factor")
@@ -147,7 +147,7 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
 #' @return AUC, finite optimal threshold, sensitivity, specificity, tie count,
 #'   observation/unit counts and explicit status for every factor/group pair.
 #' @author Mikhael Manurung; pROC authors Xavier Robin and collaborators.
-#' @export
+#' @keywords internal
 factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NULL, direction = "positive", threshold_method = "closest.topleft", unit_col = NULL) {
   .check_engine("pROC"); view <- .resolve_view(fit)
   A <- factor_activity(view,factors=factors)
@@ -191,7 +191,7 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
 #' @param ... Threshold settings passed to factor_diagnostics.
 #' @return Summary table with list columns of positive and negative features.
 #' @author Mikhael Manurung; feature ranking credits Peter Carbonetto and Matthew Stephens.
-#' @export
+#' @keywords internal
 summarize_factors <- function(fit, factors = NULL, n = 5L, annotations = NULL, compare_factors = NULL, ...) {
   view <- .resolve_view(fit); out <- factor_diagnostics(view,factors=factors,...)$factors
   for(sign in c("positive","negative")) out[[paste0(sign,"_features")]] <- lapply(out$factor,function(factor) factor_features(view,factor,n=n,direction=sign,compare_factors=compare_factors))

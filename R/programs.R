@@ -33,7 +33,7 @@
 #' @return Node and edge tables, with source basis and selection metadata.
 #' @author Mikhael Manurung. Conceptual workflow: ImmGen-T GP analysis
 #'   (Ziang Zhang / AgueroZZ repository; per-script authors unresolved).
-#' @export
+#' @keywords internal
 factor_network <- function(fit, factors = NULL, n = 5L, direction = "positive", display_normalization = "max_abs", threshold = 0.1) {
   view <- .resolve_view(fit)
   .require_biological_factors(view$manifest$factor_ids)
@@ -62,7 +62,7 @@ factor_network <- function(fit, factors = NULL, n = 5L, direction = "positive", 
 #' @return Plot with deterministic layout coordinates and provenance.
 #' @author Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
 #'   Layouts by igraph and ggraph authors; see credits.
-#' @export
+#' @keywords internal
 plot_factor_network <- function(network, layout = "fr", seed = 42L, highlight = NULL, groups = NULL, gene_labels = "highlighted") {
   .check_engine("igraph"); .check_engine("ggraph")
   layout <- match.arg(layout,c("fr","stress"))
@@ -100,7 +100,7 @@ plot_factor_network <- function(network, layout = "fr", seed = 42L, highlight = 
 #' @details Unlike least-extreme margins, differences can oppose the target
 #'   effect's sign. Negative direction reverses both plotting coordinates.
 #' @author Mikhael Manurung. Conceptual credit: Peter Carbonetto's pancreas tutorial.
-#' @export
+#' @keywords internal
 plot_feature_rankings <- function(fit, factor, n = 15L, direction = "positive", representation = NULL, compare_factors = NULL) {
   view <- .resolve_view(fit,representation)
   .require_biological_factors(view$manifest$factor_ids)

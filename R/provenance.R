@@ -3,7 +3,7 @@
 #'
 #' The source_commit column is the audited source pin. runtime_source_commit is
 #' read from an installed package's RemoteSha and is unknown when absent.
-#' @param function_name Optional public function names.
+#' @param function_name Optional recorded function names, including retained internal implementations.
 #' @param result Optional result carrying analysis_metadata.
 #' @param include_dependencies Include installed dependency versions and SHAs.
 #' @return A data frame of source and reuse records with runtime metadata attributes.
