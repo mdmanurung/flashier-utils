@@ -1,52 +1,48 @@
-# Handoff — flashier.utils 2.0 API migration
+# Handoff: GBCD and ImmGenT membership filtering
 
-**Date:** 2026-10-23 · **Branch:** main · **Status:** Locally qualified; user authorized commit and push on 2026-10-23.
+Date: 2026-10-23. Branch: main.
 
-## Goal
-The correctness review, four-tutorial consolidation and approved API migration are complete.
-Preserve scientific contracts, attribution, existing work and validation archives.
+## Delivered implementation
+
+- `fit_gbcd_programs()` calls optional gbcd 0.2-10 at
+  `670e3afb50236303ddf99db33a3394abd4a711bd`. It returns representation,
+  signatures, diagnostics and optional native output. It checks memory branches,
+  preserves Baseline as a factor and records unknown activity support.
+  FLASH indices/PVE/posterior samplers remain unavailable.
+- `filter_cells_by_total_membership()` implements the exact ImmGenT iterative
+  rule: cutoff 10, 12 passes, maximum scaling, paired effects compensation.
+  It returns retained/removed IDs and pass history without modifying the fit.
+- Public API: 23 exports, 34 retained internal implementations, 57 source records.
+- Workshop model guidance and GoM DE distinctions are linked with attribution
+  in `vignettes/advanced-use.Rmd`. No unlicensed workshop source was copied.
+
+## Evidence
+
+Archive: `validation/gbcd-integration-20261023/`.
+- Main package check: `check-final.log`, Status OK; full installed suite
+  1,575 passes, zero failures/skips, 11 known projection warnings.
+- Final metadata/control guards: `gbcd-qualified-tests.rds`, 63 passes,
+  zero failures/warnings/skips. Membership tests: 39 passes.
+- Final tarball check: `check-artifact.log`, Status OK; tests not repeated.
+  It checks examples and rebuilds all four vignettes.
+- `artifact-receipt.json` proves root/source-tarball equality and preservation
+  of all original provenance rows. Scientific archives stay outside builds.
+- Dense native parity: permanent tests; sparse native parity: permanent tests
+  plus `lowrank-parity.rds`. Iteration-limited parity does not prove convergence.
+- Pre/post and source/installed smoke are identical. Site: 23 references,
+  four tutorials, attribution and local links pass.
 
 ## Next action
-Read `reports/core-review-20261022/MIGRATION.md:1` and the final integrity receipt below.
-Read validation/core-api-migration-20261023/delivery/receipt.json for committed and remote-verified state.
-If that receipt is absent, finish the already authorized commit/push after checking Git state; do not re-ask permission.
-Do not ask again for approval of the export reduction or nine signature reorders.
 
-## State
-- Development version 2.0.0.9000: 21 public functions; 34 implementations/manuals retained internally; all nine approved argument orders applied.
-- Commit sequence: correctness fixes, tutorial consolidation, approved API migration; review reports and validation archives remain local.
-- Source and final installed suites: 1,475 assertions each; 0 failures/errors/skips; 11 known native projection iteration warnings.
-- Final tarball: `validation/core-api-migration-20261023/flashier.utils_2.0.0.9000.tar.gz`; R CMD check --no-manual: Status OK, examples and four rebuilt vignettes including cached pancreas.
-- Fresh native matrix 514/514; 120 function bodies/defaults unchanged by migration; 111 existing direct caller bindings preserved; forwarded dots exercised by tests.
-- Exact pre/post migration and source/installed smoke parity for activities, effects, offsets, factor IDs and coordinate manifests.
-- New site passes 21 public references/four articles, attribution/local links; six checker fixtures pass. All 55 source records and original attribution bytes retained.
-- No new release, tag rewriting, scheduler study, external reviewer call or alarm; inspect hosted checks separately after delivery.
+Commit/push complete: `70a30d6b5c10cbabf44ad8d7355dc5c14c16f3c1`.
+Live origin/main verified at the same SHA. Inspect hosted CI for that SHA.
+Do not re-ask approval for these features.
 
-## Locked decisions
-- User approved both the 55-to-21 export reduction and nine proposed signature reorders: "approve both" (2026-10-23); approval is saved in the archive.
-- Use R4_51 through scripts/run-r.sh; scientific calculations/defaults remain unchanged by the migration.
-- Preserve original authors, CREDITS.md, inst/NOTICE, upstream licenses and inst/provenance.csv; internalization does not remove authorship.
-- Scientific outputs/receipts remain outside package builds; preserve prior candidates and failed attempts; never rewrite published tags.
-- User explicitly requested commit and push on 2026-10-23; no new studies, release, tag rewriting or destructive action follows.
+## Separate pending work
 
-## Dead ends — do not redo
-- Earlier root/1.1 tarballs predate this migration; use the final 2.0 tarball/receipt.
-- The first 2.0 candidate passed checks but had a README NEWS.md link rendered as missing NEWS.html; final link/site/tarball are corrected and rechecked.
-- The provenance plan is stale: regenerating only from it loses five records and newer pins. The fixed local generator preserves all 55 registry records byte-for-byte.
-- CSV test reports omit the nested result column; full RDS is preserved. Build-generated DESCRIPTION fields need DCF comparison, not raw bytes.
-- Cached site assets and documented offline metadata overrides are required locally; iteration-limit parity and the small prior study do not establish convergence/superiority.
-
-## Read first
-- `reports/core-review-20261022/MIGRATION.md:1` — applied API change and external-caller migration.
-- `reports/core-review-20261022/proposed-arguments.csv:1` — pre-migration and approved signature orders.
-- `reports/core-review-20261022/REPORT.md:1` — correctness findings and current qualification.
-- `validation/core-api-migration-20261023/integrity-receipt.json:1` — final source/tarball/artifact hashes and limits.
-- `validation/core-api-migration-20261023/approval.json:1` — explicit approval and proposal hashes.
-
-## Open items
-- Verify delivery/receipt.json against live remote; local scripts/review reports/validation archives are outside the committed package scope.
-- PDF manual and hosted/cross-platform CI remain unchecked; old positional calls and removed exports require external-caller migration.
-- Broader GBCD/STARCAT/consensus scientific gates are separate; consult flashier-gbcd/TRACKER.md and flashier-starcat/08_AGENT_HANDOFF.md only if resumed.
-- Historical scheduler counters are not current evidence; do not restart old controllers or frozen studies from previous handoffs.
-
-Prior handoff and pre-migration package/candidates are preserved in the validation archives.
+GoM DE itself is not implemented. fastTopics accepts count-topic fits or
+row-sum-one nonnegative memberships, with counts; arbitrary signed EBMF
+factors do not qualify. Existing distinctive ranking is descriptive.
+Plot gallery has a committed plan, not an implemented page.
+No scientific calibration study, scheduler job, new release or tag was run.
+Preserve `reports/core-review-20261022/` and all existing archives.
