@@ -15,7 +15,7 @@ remotes::install_github("mdmanurung/flashier-utils")
 
 ## Migrating to the 2.0 development API
 
-This development version exposes 21 core functions. The remaining 34 functions
+This development version exposes 23 public functions. The remaining 34 functions
 are internal; their implementations, authorship and provenance records remain.
 Calls to removed exports must migrate to the core or the upstream package, or
 stay on the previous version. Internal functions are not supported APIs.

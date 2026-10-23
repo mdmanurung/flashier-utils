@@ -35,10 +35,12 @@ reference:
   - title: Fit and extract factors
     contents:
       - fit_ebmf
+      - fit_gbcd_programs
       - standardize_factors
       - factor_activity
       - factor_effects
       - factor_pve
+      - filter_cells_by_total_membership
   - title: Interpret and plot factors
     contents:
       - factor_features

@@ -43,7 +43,9 @@
   }
   required <- c("factor", "native_index", "role", "activity_support", "effect_support")
   if (!identical(manifest$support_version, "1.0.0") || !is.data.frame(records) ||
-      !identical(names(records), required) || anyNA(records) ||
+      !identical(names(records), required) ||
+      anyNA(records[, setdiff(required, "native_index"), drop = FALSE]) ||
+      (!identical(manifest$mapping_scope, "gbcd_components") && anyNA(records$native_index)) ||
       !identical(records$factor, manifest$factor_ids) ||
       !is.numeric(records$native_index) ||
       !identical(as.numeric(records$native_index), as.numeric(manifest$native_indices)) ||
@@ -75,8 +77,15 @@
   if (any(!is.finite(A)) || any(!is.finite(B))) stop("Representation contains nonfinite values")
   if (length(offset) != nrow(B) || !identical(names(offset), rownames(B)) || any(!is.finite(offset))) stop("Offset must be finite and named by feature")
   indices <- manifest$native_indices
-  if (!is.numeric(indices) || length(indices) != ncol(A) || anyNA(indices) ||
-      any(!is.finite(indices)) || any(indices < 1 | indices != floor(indices)) || anyDuplicated(indices)) {
+  nonnative <- identical(manifest$mapping_scope, "gbcd_components")
+  if (nonnative && (!identical(manifest$engine, "gbcd") ||
+      !identical(manifest$engine_component_indices, seq_len(ncol(A))) ||
+      !identical(indices, rep(NA_integer_, ncol(A))) ||
+      !is.null(manifest$native_factor_ids) || !is.null(manifest$native_pve))) {
+    stop("Invalid GBCD component mapping")
+  }
+  if (!nonnative && (!is.numeric(indices) || length(indices) != ncol(A) || anyNA(indices) ||
+      any(!is.finite(indices)) || any(indices < 1 | indices != floor(indices)) || anyDuplicated(indices))) {
     stop("native_indices must be unique positive integers, one per factor")
   }
   for (key in c("activity_multiplier", "effects_multiplier")) {

@@ -3,7 +3,7 @@ test_that("the public API contains exactly the approved core", {
     "backproject_contrast", "compare_factor_groups", "factor_activity",
     "factor_effects", "factor_features", "factor_holdout", "factor_intervals",
     "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
-    "fit_ebmf", "plot_factor_activity", "plot_factor_features",
+    "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",
     "project_factor_activity", "project_factor_features", "provenance",
     "standardize_factors", "summarize_factor_activity", "test_factors",
     "validate_backprojection"

@@ -95,3 +95,9 @@ No upstream data are redistributed in this package.
   the tutorial from the published cell-type labels of SMART-Seq2, Fluidigm C1
   and inDrop cells; no external gene-set database is used or redistributed.
   fgsea and decoupleR credits are unchanged.
+
+GBCD call-only adapter: upstream gbcd by Yusha Liu, Peter Carbonetto,
+Jason Willwerscheid and Matthew Stephens, MIT + file LICENSE, commit
+670e3afb50236303ddf99db33a3394abd4a711bd. No implementation source copied.
+Independent iterative total-membership filtering credits the ImmGenT-GP
+workflow by Ziang Zhang / AgueroZZ; per-script authorship is unresolved.

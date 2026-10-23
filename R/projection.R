@@ -81,6 +81,18 @@
 }
 .projection_output <- function(native, source, A, B, offset, query, side, scale, preprocessing, settings, name, call, budget) {
   manifest <- source$manifest
+  if (identical(source$manifest$engine, "gbcd")) {
+    manifest$source_engine <- "gbcd"
+    manifest$source_component_mapping <- source$manifest[c("mapping_scope", "engine_component_indices", "component_labels")]
+    manifest$engine <- "flashier"
+    manifest$mapping_scope <- "flashier"
+    manifest$engine_component_indices <- NULL
+    manifest$component_labels <- NULL
+    fields <- c("effect_source", "effect_units", "log2_fc_source", "z_score_definition",
+      "lfsr_source", "uncertainty_conditioning", "baseline_definition")
+    manifest$source_gbcd_statistics <- manifest[fields]
+    manifest[fields] <- NULL
+  }
   manifest$source_basis_id <- source$manifest$basis_id
   manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve", "intercept_index", "offset_model", "native_factor_ids", "factor_roles", "support_version", "factor_support")]
   intercept_index <- native$value[["intercept_index"]]

@@ -88,3 +88,92 @@ Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
 Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
 are independently implemented. See `provenance()` and
 [full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
+
+## Filter cells by total GP membership
+
+[ImmGenT-GP section 5](https://aguerozz.github.io/immgenT-GP-analysis/Methods_FlashierFit.html#5_Cell_filtering_by_total_GP_membership)
+removes cells with excessive total maximum-scaled membership. Each pass
+recomputes GP maxima after removal. The pipeline uses 12 passes and cutoff 10.
+Ziang Zhang / AgueroZZ provided the workflow; per-script authorship is unresolved.
+This package independently implements that rule without copying upstream code.
+
+```{r membership-filter}
+nonnegative_fit <- fit_ebmf(X, "rows", max_factors = 2,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
+  nullcheck = FALSE, backfit = TRUE, seed = 18, verbose = 0)
+filtered <- filter_cells_by_total_membership(nonnegative_fit, max_val = 10, numiter = 12)
+filtered$history
+filtered$removed_samples
+```
+
+Activities must be nonnegative. Signed feature effects remain valid. The result
+contains matched sample activities and feature effects with unchanged retained
+reconstruction. The original fit stays unchanged. Selected-cell PVE and posterior
+uncertainty require separate analysis. This threshold selects broad GP membership;
+it does not establish poor cell quality.
+
+## Fit GBCD programs
+
+GBCD fits cell covariance before estimating gene signatures with fixed memberships.
+Yusha Liu, Peter Carbonetto, Jason Willwerscheid and Matthew Stephens wrote
+[gbcd](https://github.com/stephenslab/gbcd). This adapter calls their engine.
+Install the audited optional version outside package builds:
+
+```{r gbcd-install, eval=FALSE}
+remotes::install_github("stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd")
+```
+
+Supply normalized natural-log expression. Declare its preprocessing explicitly.
+The wrapper performs no normalization. `kmax` controls upstream initialization;
+it does not cap final rank. The memory preflight predicts upstream allocation
+branches, but cannot guarantee a peak-memory bound.
+
+```{r gbcd-workflow, eval=FALSE}
+programs <- fit_gbcd_programs(X, "rows", kmax = 5,
+  feature_scale = "natural_log",
+  preprocessing = list(scope = "within_dataset",
+    description = "log1p library-size normalized counts", log_base = "e"))
+view <- programs$representation
+factor_features(view, "GEP1", select = "distinctive")
+plot_factor_features(view, "GEP1")
+programs$signatures
+programs$diagnostics
+provenance(result = programs)
+```
+
+`effect` and `log2_fc` describe EB-SNMF point estimates. `z_score` and `lfsr`
+come from separate gene-wise linear regression followed by ashr. These statistics
+condition on estimated memberships. They do not measure uncertainty in learning
+those memberships. Unavailable statistics remain `NA`. Native FLASH PVE and
+posterior sampling remain unavailable for this representation.
+
+The upstream `Baseline` label remains a varying factor. It is never converted
+to a constant offset. Output sorting loses prior lineage, so every returned
+activity support stays unknown. Default projection priors cannot be inferred.
+
+## Learn the models before choosing arguments
+
+Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
+explains EBNM shrinkage, prior families, EBMF, topic models and GBCD.
+Use those explanations alongside the original package manuals. No workshop
+code or prose is copied here; its repository has no identified license.
+
+Choose `ebnm_fn` from the support your measurements require. Nonnegative
+activities can pair with signed effects in Gaussian EBMF. A Poisson topic model
+instead models nonnegative counts with mixed memberships. `S` specifies supplied
+noise; `var_type` decides which residual variances the Gaussian model estimates.
+`S = .5, var_type = NULL` fixes supplied noise. `S = .5, var_type = 0`
+also estimates residual variance. `max_factors` is the EBMF greedy upper bound;
+GBCD uses its distinct `kmax` argument. Initialization and backfit affect the
+numerical optimum, so compare seeds without treating agreement as calibration.
+
+Workshop section 5.5 uses `fastTopics::de_analysis()` for GoM DE. That method
+requires count data and nonnegative memberships whose rows sum to one. It
+accepts a topic fit or that membership matrix. It estimates topic expression with
+fixed memberships and reports least-extreme log2 fold changes with conditional
+uncertainty. See the [original fastTopics manual](https://stephenslab.github.io/fastTopics/reference/de_analysis.html)
+and package authors Peter Carbonetto, Kevin Luo, Kushal Dey and Matthew Stephens.
+Abhishek Sarkar and other contributors also receive credit in the package.
+`factor_features(select = "distinctive")` instead ranks descriptive coefficient
+margins in the supplied factor basis. Those margins have no GoM DE lfsr.
+GBCD's separate LM/ash statistics also differ from count-based GoM DE.

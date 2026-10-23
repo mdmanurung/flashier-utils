@@ -1,6 +1,10 @@
 # flashier.utils 2.0.0.9000
 
-- Breaking development API migration: retain 21 public functions and keep the
+- Add `fit_gbcd_programs()` with pinned optional GBCD fitting, memory preflight,
+  matched coordinates and separate conditional LM/ash signature statistics.
+- Add `filter_cells_by_total_membership()` for the ImmGenT iterative filter.
+  Retain paired reconstruction, sample IDs, and per-pass removal history.
+- Breaking development API migration: retain the core public functions and keep the
   other 34 implementations internal, with their authorship and source records.
   The public core covers fitting/extraction, features/displays, group summaries,
   inference/backprojection, uncertainty, stability/replication and projection.

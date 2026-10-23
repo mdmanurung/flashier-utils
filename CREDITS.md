@@ -407,3 +407,26 @@ The former credits vignette duplicated this file verbatim and was removed;
 this file and installed notices retain the complete author/license record.
 `advanced-use` and `compare-priors` use explicitly simulated data. The GTEx
 quick start and pancreas case study retain the data and method credits above.
+
+## Total GP membership filtering
+
+`filter_cells_by_total_membership()` independently implements the iterative
+selection rule in [ImmGenT-GP section 5](https://aguerozz.github.io/immgenT-GP-analysis/Methods_FlashierFit.html#5_Cell_filtering_by_total_GP_membership).
+Workflow credit: Ziang Zhang / AgueroZZ; per-script authorship is unresolved.
+Mikhael Manurung wrote this implementation. No upstream source was copied.
+
+## Generalized binary covariance decomposition
+
+`fit_gbcd_programs()` calls [gbcd](https://github.com/stephenslab/gbcd),
+version 0.2-10, commit `670e3afb50236303ddf99db33a3394abd4a711bd`.
+Original package authors: Yusha Liu, Peter Carbonetto, Jason Willwerscheid
+and Matthew Stephens. The upstream package declares MIT + file LICENSE.
+Mikhael Manurung wrote the adapter. No engine source is redistributed.
+Conditional signature statistics call the upstream linear-regression and ashr
+stages. Credit ashr authors Matthew Stephens, Peter Carbonetto and contributors;
+see the dependency citation records above.
+
+Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
+provides linked teaching material for model choice, GBCD and GoM DE.
+No workshop prose, slides or code is redistributed; the repository has no
+identified license. Original methods and package authors retain their credit.

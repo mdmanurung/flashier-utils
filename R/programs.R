@@ -11,7 +11,7 @@
   .attach_provenance(out, name, call, settings)
 }
 .program_number <- function(x, name, integer = FALSE, minimum = 0) {
-  if (length(x) != 1L || !is.numeric(x) || !is.finite(x) || x < minimum || (integer && x != as.integer(x))) stop(name, " must be a finite ", if(integer) "integer " else "number ", ">= ", minimum)
+  if (length(x) != 1L || !is.numeric(x) || !is.finite(x) || x < minimum || (integer && (x > .Machine$integer.max || x != as.integer(x)))) stop(name, " must be a finite ", if(integer) "integer " else "number ", ">= ", minimum)
 }
 .factor_annotation <- function(annotation, factors) {
   .validate_ids(names(annotation), "Annotation factor")

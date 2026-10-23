@@ -17,6 +17,11 @@
 #' @examples
 #' provenance(c("standardize_factors","backproject_contrast"))
 provenance <- function(function_name = NULL, result = NULL, include_dependencies = TRUE) {
+  result_metadata <- if (is.list(result) && !is.null(result$analysis_metadata)) {
+    result$analysis_metadata
+  } else if (inherits(result, "factor_representation")) {
+    result$manifest
+  } else attr(result, "analysis_metadata")
   requested <- function_name
   path <- system.file("provenance.csv", package = "flashier.utils")
   if (!nzchar(path)) stop("Installed provenance registry is missing")
@@ -27,14 +32,17 @@ provenance <- function(function_name = NULL, result = NULL, include_dependencies
   }
   if (include_dependencies) {
     packages <- c("flashier", "ebnm", "Matrix", "digest", "ggplot2")
+    if ("fit_gbcd_programs" %in% requested || identical(result_metadata$engine, "gbcd")) {
+      packages <- unique(c(packages, "gbcd", "ashr"))
+    }
     attr(out, "dependencies") <- do.call(rbind, lapply(packages, function(p) {
-      d <- utils::packageDescription(p)
-      data.frame(package = p, version = d$Version,
+      installed <- requireNamespace(p, quietly = TRUE)
+      d <- if (installed) utils::packageDescription(p) else list()
+      data.frame(package = p, version = if (installed) d$Version else NA_character_,
                  runtime_source_commit = if (is.null(d$RemoteSha)) "unknown" else d$RemoteSha)
     }))
   }
-  attr(out, "analysis_metadata") <- if (is.list(result) && !is.null(result$analysis_metadata))
-    result$analysis_metadata else attr(result, "analysis_metadata")
+  attr(out, "analysis_metadata") <- result_metadata
   result_metadata <- attr(out,"analysis_metadata")
   out <- .attach_provenance(out, "provenance", match.call(), .resolved_parameters("provenance", environment()))
   attr(out,"accessor_metadata") <- attr(out,"analysis_metadata")
