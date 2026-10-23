@@ -1,246 +1,87 @@
 ---
-title: "Pancreas programs from the single-cell Jamboree"
+title: "Case study: interpret and transfer pancreas programs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Pancreas programs from the single-cell Jamboree}
+  %\VignetteIndexEntry{Case study: interpret and transfer pancreas programs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+Which features define published pancreas programs, and how do those programs
+transfer to another measurement technology? This adapts Peter Carbonetto's
+[single-cell Jamboree tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html).
+The CEL-Seq2 cells originate from Muraro et al. (2016), assembled in the benchmark
+of Luecken et al. (2022); source pages link the original studies.
+
+## Prepare the attributed data
+
+From a repository clone, run once outside package builds (about 86 MB downloaded;
+preparation loads a roughly 640 MiB sparse matrix):
+
+```sh
+FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-example scripts/run-r.sh .github/scripts/prepare-pancreas.R
+```
+
+The helper pins Jamboree revision `6cf9aa720cc16dc543e93b36d57bc1a85555860d`
+and records source hashes. It selects 48 reference and 24 query cells while
+retaining 14,528 genes. Set the same environment variable before running below.
+Without the cache, examples are skipped; no download runs during a package build.
+
 ```{r setup, include=FALSE}
 library(flashier.utils)
 library(Matrix)
-knitr::opts_chunk$set(collapse=TRUE, comment="#>", fig.width=7, fig.height=5)
 pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
-cache_file <- file.path(pancreas_dir,"pancreas-worked-example.rds")
-have_pancreas <- nzchar(pancreas_dir) && file.exists(cache_file)
-knitr::opts_chunk$set(eval=have_pancreas)
+have_pancreas <- nzchar(pancreas_dir) &&
+  file.exists(file.path(pancreas_dir, "pancreas-worked-example.rds"))
+knitr::opts_chunk$set(eval = have_pancreas, collapse = TRUE, comment = "#>")
 ```
 
-This worked example adapts [Peter Carbonetto's pancreas annotation tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html)
-from the single-cell Jamboree. It uses **published CEL-Seq2 NMF and semi-NMF
-coordinates**, including the original factors 4–6 comparison, rather than fitting
-simulated gene names. CEL-Seq2 data come from Muraro et al. (2016), as assembled
-in the pancreas integration benchmark described by Luecken et al. (2022). See
-[the source data preparation](https://stephenslab.github.io/single-cell-jamboree/pancreas.html)
-and the original studies linked there.
-
-The workflow is independently written using flashier.utils and public flashier
-APIs. Peter Carbonetto receives tutorial credit; native EBMF methods credit
-Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens. Upstream
-workflow code and input data are not redistributed with this package.
-
-## Prepare a local example cache
-
-Download the published objects from a fixed repository revision. This step is
-explicit and runs outside package builds. Preparing the cache loads a roughly
-640 MiB sparse matrix; subsequent examples use only 48 reference cells and up to
-24 query cells, while retaining **all 14,528 reference genes**. The cell subset
-contains up to eight cells per acinar, ductal, alpha, beta, delta and gamma group,
-chosen by sample ID, and does not change published feature programs.
-
-```{r prepare-cache, eval=FALSE}
-# Choose a local archive outside package builds.
-pancreas_dir <- path.expand("~/pancreas-jamboree-example")
-dir.create(pancreas_dir,recursive=TRUE,showWarnings=FALSE)
-revision <- "6cf9aa720cc16dc543e93b36d57bc1a85555860d"
-base_url <- paste0("https://raw.githubusercontent.com/stephenslab/",
-                   "single-cell-jamboree/",revision,"/")
-files <- c("data/pancreas.RData", "output/pancreas_celseq2_factors.RData")
-for (file in files) {
-  destination <- file.path(pancreas_dir,basename(file))
-  if (!file.exists(destination))
-    download.file(paste0(base_url,file),destination,mode="wb")
-}
-original <- new.env(parent=emptyenv())
-coordinates <- new.env(parent=emptyenv())
-load(file.path(pancreas_dir,"pancreas.RData"),envir=original)
-load(file.path(pancreas_dir,"pancreas_celseq2_factors.RData"),envir=coordinates)
-metadata <- original$sample_info
-stopifnot(identical(rownames(original$counts),as.character(metadata$id)))
-reference <- coordinates$fl_nmf_ldf
-signed <- coordinates$fl_snmf_ldf
-genes <- rownames(reference$F)
-stopifnot(identical(rownames(signed$F),genes))
-cell_types <- c("acinar","ductal","alpha","beta","delta","gamma")
-select_cells <- function(technology,n) {
-  unlist(lapply(cell_types,function(type)
-    head(sort(as.character(metadata$id[metadata$tech==technology &
-                                       metadata$celltype==type])),n)),use.names=FALSE)
-}
-reference_ids <- select_cells("celseq2",8)
-query_ids <- select_cells("smartseq2",4)
-# Match the published gene filter before calculating library sizes.
-reference_totals <- Matrix::rowSums(original$counts[
-  metadata$id[metadata$tech=="celseq2"],genes,drop=FALSE])
-reference_library_mean <- mean(reference_totals)
-shifted_log <- function(ids) {
-  counts <- original$counts[ids,genes,drop=FALSE]
-  totals <- Matrix::rowSums(counts)
-  stopifnot(all(totals>0))
-  Y <- Matrix::Diagonal(x=reference_library_mean/totals) %*% counts
-  Y <- log1p(Y)
-  dimnames(Y) <- list(ids,genes)
-  Y
-}
-cache <- list(reference=reference,signed=signed,
-  reference_expression=shifted_log(reference_ids),
-  query_expression=shifted_log(query_ids),
-  metadata=metadata[match(c(reference_ids,query_ids),metadata$id),],
-  revision=revision,reference_library_mean=reference_library_mean,
-  source_files=files,
-  source_sha256=vapply(basename(files),function(file)
-    digest::digest(file=file.path(pancreas_dir,file),algo="sha256"),character(1)))
-saveRDS(cache,file.path(pancreas_dir,"pancreas-worked-example.rds"))
-```
-
-The repository script
-[`.github/scripts/prepare-pancreas.R`](https://github.com/mdmanurung/flashier-utils/blob/main/.github/scripts/prepare-pancreas.R)
-runs this code and also writes a second file, `pancreas-cells.rds`, with raw counts
-for up to 40 cells per technology and cell type (896 cells from CEL-Seq2,
-SMART-Seq2, Fluidigm C1 and inDrop3). Other tutorials read it. From a clone of the
-repository, run it once (about 86 MB are downloaded):
-
-```sh
-FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-jamboree-example Rscript .github/scripts/prepare-pancreas.R
-```
-
-Set `FLASHIER_UTILS_PANCREAS_DIR` to this directory before running the code below
-or rendering any tutorial that uses these data. Package builds skip
-data-dependent execution when the cache is absent and never perform network
-downloads. This website was built with the data.
-
-```{r load-cache}
-pancreas_dir <- Sys.getenv("FLASHIER_UTILS_PANCREAS_DIR")
+```{r published-programs}
 cache <- readRDS(file.path(pancreas_dir, "pancreas-worked-example.rds"))
-cache$revision
-dim(cache$reference_expression)
-dim(cache$query_expression)
+source("restore-programs.R")
+view <- restore_programs(cache$reference, cache)
+factor_features(view, factor = "F4", select = "both", n = 5)[,
+  c("feature", "estimate", "selection")]
 ```
 
-## Restore published coordinates without refitting
+`restore_programs()` restores published NMF coordinates through public native
+initialization; it does not claim an independently fitted model. Largest effects
+show contribution; distinctive effects depend on the selected competitors and
+coordinate scaling. Biological labels need evidence beyond a ranking.
 
-The upstream file contains `L`, `D`, and `F` rather than serialized native fits.
-Initialize a native object with the measured reference matrix, restore the
-published posterior means, and fix the feature side. flashier fixes one mode per
-factor; the activities are restored unchanged because no backfit follows. Absorbing `D` into activities keeps
-feature coordinates equal to the source tutorial's infinity-normalized `F`.
-This restores means only; it does not restore upstream posterior uncertainties or
-hyperparameters. No reference model is refitted.
-
-```{r restore-programs, file="restore-programs.R"}
+```{r group-activity, fig.width=7, fig.height=5}
+metadata <- cache$metadata[match(rownames(view$activity), cache$metadata$id), ]
+metadata$sample <- as.character(metadata$id)
+head(summarize_factor_activity(view, metadata, by = "celltype"))
+plot_factor_activity(view, metadata = metadata, group = "celltype")
 ```
 
-```{r restore-calls}
-view <- restore_programs(cache$reference,cache)
-signed_view <- restore_programs(cache$signed,cache,signed_effects=TRUE)
-# The input matrix uses shifted log measurements. The unmodified tutorial F
-# has its own fixed coordinate normalization; it is not a log-fold change.
+These cells have published cell-type labels but no donor identifiers. Summaries
+are descriptive; technology is not a biological replicate.
+
+## Transfer the fixed feature programs
+
+```{r transfer}
+projected <- project_factor_activity(view, cache$query_expression,
+  sample_side = "rows", feature_scale = view$manifest$feature_scale,
+  preprocessing = view$manifest$preprocessing, maxiter = 1000)
+projected$reconstruction
+stopifnot(identical(projected$representation$effects, view$effects))
 ```
 
-## Borrow the original factors 4–6 comparison
+Query counts use the reference library-size normalization and shifted-log rule.
+Source effects stay fixed while query activities are re-estimated. Reconstruction
+uses the same query observations used for activity inference, so it is fit
+agreement, not held-out prediction. Query-set composition can change empirical
+Bayes estimates; arbitrary row chunking is not exact. Transfer does not establish
+biological conservation. See [Compare priors](compare-priors.html) for masked
+prediction and [Advanced use](advanced-use.html) for coordinate uncertainty.
 
-Carbonetto's worked comparison focuses on factors 4, 5 and 6 and chooses eight
-genes per factor, competing within that same set. Here `F4`–`F6` preserve those
-source column indices. Compare largest effects, clipped distinctive margins,
-and untruncated differences in separate displays.
+## Credits
 
-```{r pancreas-annotation}
-islet_factors <- paste0("F",4:6)
-factor_features(view,"F4",select="both",direction="positive",n=8,
-                compare_factors=islet_factors)[,c("feature","estimate","selection")]
-plot_factor_features(view,islet_factors,n=8,direction="positive")
-plot_factor_features(view,islet_factors,select="distinctive",n=8,
-                     direction="positive",compare_factors=islet_factors)
-plot_feature_rankings(view,"F4",n=8,compare_factors=islet_factors)
-```
-
-Check `INS` and `IAPP` as beta-associated evidence and `GCG` as alpha-associated
-evidence, following the source tutorial. These are evidence to inspect alongside
-published cell metadata, not automatic cell-type assignments. In particular,
-shared endocrine genes and factors containing multiple cell types warrant
-cautious user-authored labels.
-
-```{r pancreas-explicit-markers}
-markers <- c("INS","IAPP","GCG","SST","PPY","ISL1","CPE")
-plot_factor_features(view,islet_factors,features=markers,
-                     annotation=c(F4="INS/IAPP evidence",F5="GCG evidence",
-                                  F6="Inspect SST/PPY overlap"))
-# Semi-NMF effects preserve both signs; choose competing factors explicitly.
-plot_factor_features(signed_view,paste0("F",4:7),direction="negative",n=5)
-```
-
-## Shared-gene networks and descriptive diagnostics
-
-```{r pancreas-networks}
-network <- factor_network(view,factors=islet_factors,n=5)
-network$edges[,c("factor","feature","estimate","weight","sign")]
-if(requireNamespace("igraph",quietly=TRUE) && requireNamespace("ggraph",quietly=TRUE))
-  plot_factor_network(network,highlight="F4",gene_labels="all")
-factor_diagnostics(view,factors=islet_factors)$factors
-reference_metadata <- cache$metadata[match(rownames(view$activity),cache$metadata$id),]
-reference_metadata$sample <- as.character(reference_metadata$id)
-if(requireNamespace("pROC",quietly=TRUE))
-  factor_specificity(view,reference_metadata,"celltype",groups=c("alpha","beta"),
-                     factors=islet_factors)
-```
-
-Prevalence and AUC describe the **selected 48 CEL-Seq2 cells**, not the full
-published 2,285-cell population. Feature selection uses every reference gene.
-This selected-cell demonstration is not a calibrated cell classifier.
-
-## Transfer the reference programs to another technology
-
-SMART-Seq2 query cells were not among the CEL-Seq2 cells used for the reference
-programs. They use the frozen CEL-Seq2 library-size mean, the same reference gene
-set and `log1p` transform. An equal mathematical transform does not establish
-biological equivalence across technologies: inspect reconstruction and metadata
-rather than treating transferred activities as validated annotations. The
-benchmark's entries are not uniformly raw counts; retain the input description
-from the source dataset.
-
-```{r pancreas-transfer}
-transfer <- project_factor_activity(view,cache$query_expression,"rows",
-  feature_scale="shifted_log_reference_library_normalized_measurements",
-  preprocessing=list(scope="external_reference",revision=cache$revision,
-    transformation="log1p(filtered measurement / library size * reference mean)",
-    reference_library_mean=cache$reference_library_mean))
-stopifnot(identical(transfer$representation$effects,view$effects),
-          identical(transfer$representation$offset,view$offset))
-transfer$reconstruction
-transfer$native_iteration_diagnostics
-query_metadata <- cache$metadata[match(rownames(transfer$representation$activity),
-                                      cache$metadata$id),]
-query_metadata$sample <- as.character(query_metadata$id)
-plot_factor_activity(transfer$representation,query_metadata,group="celltype",
-                     factors=islet_factors,style="distribution")
-```
-
-Transferred activity distributions are descriptive. Hyperparameters and noise may
-recalibrate on query observations; fixed feature programs and factor IDs remain
-unchanged. Reference-program transfer receives conceptual credit to STARCAT
-(Dylan Kotliar and Michelle Curtis), while estimation uses native flashier.
-
-For protein contrasts, mixture thresholds and gates, see [protein interpretation](protein-interpretation.html)
-and the [ImmGen Figure 7 source workflow](https://github.com/AgueroZZ/immgenT-GP-analysis/blob/main/script/Figure7.R).
-This RNA-only pancreas example does not invent protein measurements.
-
-## Function credits
-
-These are the functions from this package that the article calls, with the people
-who wrote the upstream code or method behind each one. Use is this package's
-classification and code reuse for the function; `provenance()` returns the full
-registry. [Original authors and sources](credits.html) gives the full credits,
-citations and licenses.
-
-```{r function-credits, echo=FALSE, eval=TRUE}
-code <- knitr::knit_code$get()
-used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
-  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
-registry <- provenance()
-credits <- registry[registry[["function"]] %in% used, ]
-credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
-knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
-             col.names = c("Function", "Original authors", "Upstream", "Use"),
-             row.names = FALSE)
-```
+Published programs/tutorial: Peter Carbonetto and the cited study authors.
+Native FLASH/EBNM authors and feature-helper authors appear in
+[Get started](first-fit.html). Display workflows credit David Zemmour / Zemmour Lab;
+reference transfer conceptually credits STARCAT (Dylan Kotliar and Michelle Curtis).
+No upstream workflow source or input data are redistributed.
+[Full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

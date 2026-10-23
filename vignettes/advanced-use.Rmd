@@ -1,0 +1,90 @@
+---
+title: "Advanced use: coordinates, uncertainty and contrasts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced use: coordinates, uncertainty and contrasts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This bounded example asks how a sample-group contrast translates into feature
+units. The simulated sample is the independent unit; there is no real biology.
+
+```{r setup}
+library(flashier.utils)
+set.seed(17)
+A <- matrix(rnorm(80), 40, 2)
+B <- matrix(rnorm(24), 12, 2)
+X <- tcrossprod(A, B) + matrix(rnorm(480, sd = .2), 40, 12)
+dimnames(X) <- list(paste0("s", 1:40), paste0("g", 1:12))
+fit <- flashier::flash(X, greedy_Kmax = 2, nullcheck = FALSE,
+  ebnm_fn = ebnm::ebnm_normal, backfit = TRUE, verbose = 0)
+raw <- standardize_factors(fit, sample_side = "rows", scaling = "raw",
+                           feature_scale = "simulated_intensity")
+view <- standardize_factors(fit, sample_side = "rows", scaling = "rms",
+                            feature_scale = "simulated_intensity")
+stopifnot(max(abs(tcrossprod(raw$activity, raw$effects) -
+                  tcrossprod(view$activity, view$effects))) < 1e-8)
+```
+
+RMS scaling changes factor units while preserving their product. LDF scaling
+also preserves the product, with its diagonal absorbed on exactly one side.
+Always use the matching activity/effect pair and retain `view$offset` when
+reconstructing an affine model: `sweep(tcrossprod(A, B), 2, offset, "+")`.
+Do not mix coefficients or posterior draws from different bases.
+
+## Conditional uncertainty
+
+```{r uncertainty}
+head(factor_uncertainty(fit, side = "activity", sample_side = "rows",
+                       representation = view))
+```
+
+Keep the native fit for posterior moments and sampling; a representation alone
+contains coordinates, not a posterior sampler. Native uncertainty is conditional
+on estimated priors. It is neither a downstream regression standard error nor
+uncertainty about the biological identity of a factor.
+
+## Group contrast in feature units
+
+```{r contrast}
+metadata <- data.frame(sample = rownames(X), donor = rownames(X),
+                       group = rep(c("A", "B"), each = 20))
+head(summarize_factor_activity(view, metadata, by = "group", unit_col = "donor"))
+contrast <- compare_factor_groups(view, metadata, group = "group",
+                                  contrast = c("A", "B"), unit_col = "donor")
+names(contrast)
+```
+
+`c("A", "B")` means A minus B. Group summaries are descriptive and default to
+observation weighting; cells are not automatically balanced by donor.
+Threshold summaries use resolved activity coordinates. Display normalization
+must not silently redefine an inferential threshold.
+
+```{r association}
+association <- test_factors(view, metadata, formula = ~group, engine = "lm",
+                            unit_col = "donor", independence = "independent")
+reconstructed <- backproject_contrast(view, association$table,
+  input = "coefficients", factor_basis = view$manifest, term = "groupB")
+head(reconstructed$effects)
+```
+
+Here `groupB` means B minus A, opposite to the descriptive contrast above.
+Backprojection multiplies feature effects by factor coefficients; offsets cancel
+in a same-model contrast. Point coefficients alone supply no uncertainty.
+Use a full coefficient covariance or compatible draws when justified; factor
+posterior SDs cannot substitute for either. Repeated observations require an
+appropriate repeated-unit model, not an independent-cell test.
+
+For observed feature contrasts, `validate_backprojection()` requires matching
+contrast direction, covariates, weighting and feature units. It reports descriptive
+agreement, not independent biological validation. Named scientific arguments are
+preferred; see function references for complete controls.
+
+## Credits
+
+Native FLASH and EBNM authors are credited in [Get started](first-fit.html).
+Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
+Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
+are independently implemented. See `provenance()` and
+[full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

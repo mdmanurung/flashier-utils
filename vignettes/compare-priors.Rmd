@@ -1,0 +1,139 @@
+---
+title: "Case study: compare priors and recovered programs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Case study: compare priors and recovered programs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Do different feature priors change prediction or the programs recovered? This
+small simulation has known rank-two signal, sparse signed effects, and repeated
+samples from simulated donors. It illustrates a workflow, not a calibrated
+benchmark or a recommendation of one prior.
+
+```{r data}
+library(flashier.utils)
+set.seed(31)
+metadata <- data.frame(sample = paste0("s", 1:60),
+  donor = rep(paste0("d", 1:20), each = 3))
+A <- matrix(rnorm(40), 20, 2)[rep(1:20, each = 3), ] +
+     matrix(rnorm(120, sd = .2), 60, 2)
+B <- matrix(0, 24, 2)
+B[1:8, 1] <- rep(c(1, -1), 4)
+B[9:16, 2] <- rep(c(1, -1), 4)
+signal <- tcrossprod(A, B)
+X <- signal + matrix(rnorm(1440, sd = .3), 60, 24)
+dimnames(X) <- dimnames(signal) <- list(metadata$sample, paste0("g", 1:24))
+priors <- list(normal = list(ebnm::ebnm_normal, ebnm::ebnm_normal),
+               sparse = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace))
+fits <- lapply(priors, function(p) {
+  set.seed(7)
+  flashier::flash(X, greedy_Kmax = 2, ebnm_fn = p,
+    nullcheck = FALSE, backfit = TRUE, verbose = 0)
+})
+views <- lapply(fits, standardize_factors, sample_side = "rows", scaling = "raw",
+  feature_scale = "simulated_intensity",
+  prior_support = c(activity = "signed", effects = "signed"))
+```
+
+## Reconstruction and known signal
+
+```{r reconstruction}
+predictions <- lapply(views, function(v)
+  sweep(tcrossprod(v$activity, v$effects), 2, v$offset, "+"))
+metrics <- function(observed, predicted) {
+  c(rmse = sqrt(mean((observed - predicted)^2)),
+    mae = mean(abs(observed - predicted)),
+    prediction_r2 = 1 - sum((observed - predicted)^2) /
+                          sum((observed - mean(observed))^2))
+}
+rbind(normal_training = metrics(X, predictions$normal),
+      sparse_training = metrics(X, predictions$sparse),
+      normal_truth = metrics(signal, predictions$normal),
+      sparse_truth = metrics(signal, predictions$sparse))
+vapply(fits, function(f) f$n_factors, numeric(1))
+```
+
+Training reconstruction rewards fitting observed noise. Truth recovery is
+measurable here because signal was simulated; real-data agreement cannot supply
+that truth. Inspect native convergence warnings and failures before ranking.
+Native ELBO is not automatically comparable across different prior/noise/objective
+settings; maximum ELBO over starts is a different question.
+
+## Identical held-out information
+
+```{r holdout}
+folds <- data.frame(donor = paste0("d", 1:20), fold = rep(1:2, each = 10))
+results <- lapply(priors, function(p) {
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux) {
+    fit_ebmf(X, sample_side = sample_side, ebnm_fn = settings$priors,
+      max_factors = 2, backfit = TRUE, nullcheck = FALSE,
+      seed = seed, verbose = 0, feature_scale = "simulated_intensity")
+  }
+  factor_holdout(X, metadata, unit_col = "donor", folds = folds, fit_fn = callback,
+    evaluation = "masked", activity_features = paste0("g", c(1:4, 9:12, 17:20)),
+    scoring_features = paste0("g", c(5:8, 13:16, 21:24)), seed = 7,
+    control = list(sample_side = "rows", settings = list(priors = p),
+      preprocessing_manifest = list(scope = "identity"), maxiter = 1000))
+})
+stopifnot(all(vapply(results, function(r) nrow(r$failures) == 0L, logical(1))))
+lapply(results, function(r) r$metrics[r$metrics$weighting == "macro_unit",
+                                    c("fold", "model", "rmse", "prediction_r2")])
+```
+
+Donors never cross folds. Held-out activities use only permitted features; the
+same withheld entries score both models and a training-mean baseline. Real learned
+preprocessing needs paired training-fit/frozen-transform callbacks. Empirical-Bayes
+projection can recalibrate activity priors/noise on permitted query observations;
+this is not a fully frozen hyperparameter prediction experiment.
+
+## Program agreement and ambiguity
+
+```{r alignment}
+alignment <- factor_replicability(views$normal, views$sparse, min_congruence = .8)
+alignment$matches
+alignment$similarity_matrix
+```
+
+Inspect unmatched factors, feature coverage, and assignment margins as well as
+accepted matches. Assignment is one-to-one: splits/merges require inspecting the
+full matrix. Matching effects does not establish equivalent activity units.
+
+Subspace agreement can survive changes in individual factors. Compute an
+orthonormal basis using numerical rank, including zero-rank results:
+
+```{r subspaces}
+span <- function(M) {
+  s <- svd(M)
+  rank <- sum(s$d > max(dim(M)) * max(c(s$d, 0)) * .Machine$double.eps)
+  s$u[, seq_len(rank), drop = FALSE]
+}
+projector_distance <- function(left, right) {
+  U <- span(left); V <- span(right)
+  sqrt(sum((tcrossprod(U) - tcrossprod(V))^2))
+}
+c(normal_vs_truth = projector_distance(views$normal$effects, B),
+  sparse_vs_truth = projector_distance(views$sparse$effects, B))
+theta <- pi / 4
+R <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), 2)
+rotated_A <- A %*% R
+rotated_B <- B %*% t(solve(R))
+stopifnot(max(abs(tcrossprod(rotated_A, rotated_B) - signal)) < 1e-10)
+c(reconstruction_difference = max(abs(tcrossprod(rotated_A, rotated_B) - signal)),
+  subspace_distance = projector_distance(B, rotated_B))
+abs(crossprod(B, rotated_B) / sqrt(outer(colSums(B^2), colSums(rotated_B^2))))
+```
+
+This rotation preserves signal/subspace exactly, while each pairwise congruence
+is about 0.707, below a 0.8 acceptance threshold. Individual-factor disagreement
+alone therefore cannot establish lost signal. A broader study must also assess
+weak, correlated, overlapping, nonnegative and spurious/missing programs with
+repeated seeds and explicit failure accounting.
+
+## Credits
+
+FLASH/EBNM authors are credited in [Get started](first-fit.html). Matching delegates
+to William Revelle's psych and Kurt Hornik/Walter Böhm's clue. SVD and metrics use
+R Core functions; the experiment is independently implemented.
+[Full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

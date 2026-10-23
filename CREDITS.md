@@ -396,3 +396,14 @@ No upstream data are redistributed in this package.
   the tutorial from the published cell-type labels of SMART-Seq2, Fluidigm C1
   and inDrop cells; no external gene-set database is used or redistributed.
   fgsea and decoupleR credits are unchanged.
+
+
+## Consolidated tutorials
+
+The four current tutorials are `first-fit`, `advanced-use`, `compare-priors`,
+and `pancreas-programs`. Earlier tutorial names above identify historical
+attribution; their core explanations are consolidated into these four.
+The former credits vignette duplicated this file verbatim and was removed;
+this file and installed notices retain the complete author/license record.
+`advanced-use` and `compare-priors` use explicitly simulated data. The GTEx
+quick start and pancreas case study retain the data and method credits above.

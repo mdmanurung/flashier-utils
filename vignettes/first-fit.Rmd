@@ -1,173 +1,63 @@
 ---
-title: "Fit and interpret factors"
+title: "Get started with a native flashier fit"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Fit and interpret factors}
+  %\VignetteIndexEntry{Get started with a native flashier fit}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-A factor links a pattern across samples to a pattern across features.
-This tutorial fits a matrix, plots sample activity and finds features that
-contribute to a factor.
+A factor connects a pattern across samples to a pattern across features.
+Start with a model fitted directly by flashier; no special fitting wrapper is required.
 
-## Fit a matrix
+## Fit and extract
 
-Use the GTEx example from flashier, loaded with `data("gtex", package = "flashier")` ([documentation](https://willwerscheid.github.io/flashier/reference/gtex.html)). Its rows pair a single nucleotide polymorphism (SNP) with a gene. Its columns
-are tissues, and its entries are association z-scores.
+GTEx association z-scores are bundled with flashier. Rows are SNP–gene pairs;
+columns are tissues. These tissues do not supply donor-level replication.
 
 ```{r fit}
 library(flashier.utils)
 data("gtex", package = "flashier")
-
-fit <- fit_ebmf(gtex, sample_side = "columns", max_factors = 3,
-                backfit = TRUE, seed = 1, verbose = 0,
-                feature_scale = "association_z_score")
+set.seed(1)
+fit <- flashier::flash(gtex, greedy_Kmax = 3, backfit = TRUE, verbose = 0)
+view <- standardize_factors(fit, sample_side = "columns",
+                            feature_scale = "association_z_score")
+activity <- factor_activity(view)  # samples × factors
+effects <- factor_effects(view)    # features × the same factors
 ```
 
-`max_factors` sets an upper limit. flashier can retain fewer factors.
-`backfit = TRUE` jointly refines the factors after adding them.
+Use uniquely named rows and columns. Declare `sample_side = "rows"` when
+samples occupy rows. Preprocess before fitting; `feature_scale` records units
+and does not transform data. Unnamed existing fits are rejected rather than
+assigned potentially misleading identities.
 
-For your own data, use a numeric matrix with unique row and column names.
-Choose `sample_side = "rows"` if samples occupy rows.
-Preprocess the matrix before fitting and record its units in `feature_scale`.
+## Interpret one factor
 
-## Plot sample activity
+```{r features}
+factor_features(view, factor = "F1", select = "largest", n = 5)[,
+  c("feature", "estimate")]
+```
 
-`standardize_factors()` returns matching activity and feature-effect matrices.
-Activity always has samples in rows, even when the input has samples in columns.
+Effects retain their sign. A factor's sign can reverse on both sides without
+changing reconstruction; it does not by itself mean activation or repression.
+Use `select = "distinctive"` to rank separation from competing programs.
 
-```{r activity, fig.width=7, fig.height=8}
-view <- standardize_factors(fit)
+```{r activity, fig.width=7, fig.height=6}
 plot_factor_activity(view)
 ```
 
-Each column is a factor and each row is a tissue. Colors show signed activity.
-F2 separates brain tissues from many other tissues.
-F3 has its strongest activity in whole blood.
-Reversing both a factor's activity and its feature effects leaves the fitted
-matrix unchanged. The sign alone does not identify activation or repression.
+The heatmap shows tissue activity in the declared coordinates. For your own
+matrix, use metadata summaries before assigning biological labels.
 
-## Find contributing features
+## Next tasks and credits
 
-```{r features}
-features <- factor_features(view, factor = "F1", select = "largest", n = 5)
-features[, c("feature", "estimate")]
-```
+[Advanced use](advanced-use.html) explains units and uncertainty.
+[Compare priors](compare-priors.html) separates reconstruction from program recovery.
+[Pancreas programs](pancreas-programs.html) is a real-data case study.
 
-`estimate` is the signed feature effect. The largest absolute effects identify
-the strongest contributors. Here, the feature IDs refer to SNP-gene pairs.
-For a gene-expression matrix, they would be the gene IDs you supplied.
-
-## Fit non-negative factors
-
-When activity and feature effects should both be non-negative, use
-`fit_nonnegative_ebmf()`. Association z-scores are signed, so fit their absolute
-values, which measure the strength of each association and drop its direction.
-
-```{r nonnegative}
-strength <- fit_nonnegative_ebmf(abs(gtex), sample_side = "columns",
-                                 max_factors = 3, seed = 1, verbose = 0,
-                                 feature_scale = "absolute_association_z_score")
-round(factor_activity(strength)[c("Brain_Cortex", "Testis", "Whole_Blood"), ], 2)
-```
-
-`F1` is a shared strength pattern, `F3` is active only in brain tissues and `F2`
-only in testis. Activity is never negative, so a factor adds strength and cannot
-cancel it. The non-negative fit uses a native greedy start and a fixed prior
-recipe; see [Reorder, remove, fix and refit factors](edit-fits.html) to edit it.
-
-See [Find defining features](largest-distinctive.html) for rankings and plots.
-Use [Compare groups and test associations](contrasts.html) to relate factors to sample metadata.
-These tissue summaries do not provide donor-level replication.
-
-## Fit nonnegative activities with signed effects
-
-Use `fit_seminonnegative_ebmf()` when sample activities should be nonnegative
-and feature effects may have either sign. On the original signed GTEx z-scores,
-a program can contain both positive and negative associations.
-
-```{r seminonnegative}
-semi <- fit_seminonnegative_ebmf(gtex, sample_side = "columns",
-  max_factors = 3, backfit = TRUE, seed = 1, verbose = 0,
-  feature_scale = "association_z_score")
-range(factor_activity(semi))
-range(factor_effects(semi))
-```
-
-The default activity prior is native point-exponential; the effect prior is
-native signed point-Laplace. `activity_prior` and `effect_prior` refer to samples
-and features for either input orientation. Custom effect priors retain unknown
-support and require an explicit callback for stability refits. FLASH and EBNM
-perform the estimation; this wrapper does not add an optimizer.
-
-Add `intercept = "feature"` to `fit_ebmf()` when measurements need a fitted
-feature offset. Native `flash_add_intercept()` fixes the sample side to ones;
-the offset is available as `standardize_factors(fit)$offset` and is excluded
-from program IDs. `max_factors` counts adaptive programs. An intercept-only fit
-uses `max_factors = 0`. The existing default fits no intercept. These calls use
-the public FLASH implementation by Jason Willwerscheid, Peter Carbonetto,
-Wei Wang and Matthew Stephens.
-
-Use `fit_initialized_ebmf()` to start from named `activity_init` and `effect_init`
-matrices. Their factor names must match exactly, and rows are matched to the
-input sample and feature IDs. Set `fixed_side = "activity"` or `"effects"` to
-anchor the whole initial set on one side. `add_factors` bounds additional greedy
-programs; native backfitting always runs. Initialized IDs survive automatic
-nullchecking of new factors. Mikhael Manurung wrote this wrapper around the
-public FLASH initialization, fixing and fitting calls credited above.
-
-Intercept, initialized and projected views record each biological factor's
-support, role and native position in `view$manifest$factor_support`. Ordinary
-views keep their existing global constraints and basis hashes. An intercept-only
-fit still supplies its offset and empty factor summaries; feature selection,
-association, networks, embeddings and stability require biological factors.
-Biological bootstrap replays an ordinary fit's recorded intercept recipe.
-Initialized and projected fits require an explicit fitting callback.
-
-Use `fit_multistart_ebmf()` to compare distinct native initialization seeds.
-Its `candidates` table records failures, rank and native ELBO; `best_fit` selects
-the largest finite ELBO, with the earliest start breaking exact ties. Set
-`select = "none"` to inspect candidates without choosing a fit, or
-`keep_fits = FALSE` to retain only the selected fit and diagnostics. Native-random
-starts preserve recognized prior sign constraints. softImpute and IRLBA starts
-require signed priors on both sides; IRLBA also requires dense complete input.
-This is optimization sensitivity, not biological replication or uncertainty.
-Stability needs an explicit callback that repeats the full multistart procedure.
-Mikhael Manurung wrote this orchestration around the public FLASH initializers
-and ELBO accessor credited above; no upstream source is copied.
-Optional initializer packages are by Trevor Hastie, Rahul Mazumder and
-Balasubramanian Narasimhan (softImpute), and Jim Baglama, Lothar Reichel and
-B. W. Lewis (irlba).
-
-## Sources
-
-This example follows the [flashier introduction](https://willwerscheid.github.io/flashier/articles/flashier_intro.html).
-flashier is by Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
-The GTEx data come from Lonsdale et al. (2013), with the selection described by
-Urbut, Wang, Carbonetto and Stephens (2019). See the
-[GTEx data reference](https://willwerscheid.github.io/flashier/reference/gtex.html).
-
-Feature ranking adapts singlecelljamboreeR helpers by Peter Carbonetto and
-Matthew Stephens. The display workflow credits David Zemmour.
-[Original authors and sources](credits.html) lists the full credits and citations.
-
-## Function credits
-
-These are the functions from this package that the article calls, with the people
-who wrote the upstream code or method behind each one. Use is this package's
-classification and code reuse for the function; `provenance()` returns the full
-registry. [Original authors and sources](credits.html) gives the full credits,
-citations and licenses.
-
-```{r function-credits, echo=FALSE, eval=TRUE}
-code <- knitr::knit_code$get()
-used <- unique(unlist(lapply(code[names(code) != "function-credits"], function(x)
-  tryCatch(all.names(parse(text = x)), error = function(e) NULL))))
-registry <- provenance()
-credits <- registry[registry[["function"]] %in% used, ]
-credits$use <- paste(credits$classification, credits$code_reuse, sep = " / ")
-knitr::kable(credits[, c("function", "authors", "conceptual_origin", "use")],
-             col.names = c("Function", "Original authors", "Upstream", "Use"),
-             row.names = FALSE)
-```
+Native FLASH: Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
+EBNM: Jason Willwerscheid, Matthew Stephens and Peter Carbonetto. Feature ranking
+adapts singlecelljamboreeR helpers by Peter Carbonetto and Matthew Stephens;
+activity displays credit David Zemmour / Zemmour Lab workflows.
+Use `citation("flashier")`, `citation("ebnm")`, and `provenance("factor_features")`.
+[Full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
