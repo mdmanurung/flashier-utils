@@ -161,10 +161,16 @@
 #' @param d_location Absorb native D into effects or activity.
 #' @param orientation as_fit or anchor_feature.
 #' @param prior_support Named activity/effects support: signed, nonnegative, unknown.
+#' @param feature_scale Optional explicit measurement units for a bare fit or an
+#'   unspecified recorded scale; cannot replace known recorded units.
+#' @param preprocessing Optional named preprocessing declaration for a bare fit;
+#'   cannot replace an existing nonempty declaration.
+#' @param independent_unit Optional independent-unit declaration for a bare fit;
+#'   cannot replace an existing declaration.
 #' @return A serializable factor_representation with basis manifest.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits ldf; use provenance("standardize_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -181,7 +187,8 @@
 #' raw <- standardize_factors(fit,scaling="raw")
 #' max(abs(tcrossprod(raw$activity,raw$effects)-tcrossprod(view$activity,view$effects)))
 standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type = "f",
-                                d_location = "effects", orientation = "as_fit", prior_support = NULL) {
+                                d_location = "effects", orientation = "as_fit", prior_support = NULL,
+                                feature_scale = NULL, preprocessing = NULL, independent_unit = NULL) {
   sample_side <- .resolve_sample_side(fit, sample_side)
   scaling <- match.arg(scaling, c("ldf", "raw", "rms"))
   d_location <- match.arg(d_location, c("effects", "activity"))
@@ -194,6 +201,31 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   order <- if (sample_side == "rows") c(1L, 2L) else c(2L, 1L)
   raw <- raw[order]
   metadata <- attr(fit, "flashbridge_metadata")
+  if (!is.null(feature_scale)) {
+    .measurement_scale(feature_scale)
+    if (!is.null(metadata$feature_scale) && metadata$feature_scale != "unknown" &&
+        !identical(feature_scale, metadata$feature_scale)) stop("feature_scale conflicts with recorded units")
+    metadata$feature_scale <- feature_scale
+  }
+  if (!is.null(preprocessing)) {
+    if (!is.list(preprocessing) || (length(preprocessing) &&
+        (is.null(names(preprocessing)) || anyNA(names(preprocessing)) ||
+         any(!nzchar(names(preprocessing))) || anyDuplicated(names(preprocessing))))) {
+      stop("preprocessing must be a named list")
+    }
+    if (length(metadata$preprocessing) && !identical(preprocessing, metadata$preprocessing)) {
+      stop("preprocessing conflicts with recorded declaration")
+    }
+    metadata$preprocessing <- preprocessing
+  }
+  if (!is.null(independent_unit)) {
+    if (!is.character(independent_unit) || length(independent_unit) != 1L ||
+        is.na(independent_unit) || !nzchar(trimws(independent_unit))) stop("Declare one independent_unit")
+    if (!is.null(metadata$independent_unit) && !identical(independent_unit, metadata$independent_unit)) {
+      stop("independent_unit conflicts with recorded declaration")
+    }
+    metadata$independent_unit <- independent_unit
+  }
   native_indices <- .native_factor_indices(fit)
   intercept_index <- metadata$intercept_index
   native_offset <- NULL

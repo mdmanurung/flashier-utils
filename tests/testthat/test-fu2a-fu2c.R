@@ -18,10 +18,10 @@ test_that("membership burden matches hand calculation on the exact fixture", {
 
 test_that("membership burden is off by default and input is unchanged", {
   v <- fixture_view()
-  before <- factor_activity(v)
+  before <- v
   d <- factor_diagnostics(v)
   expect_identical(colnames(d$samples), c("sample", "programs"))
-  expect_identical(factor_activity(v), before)
+  expect_identical(v, before)
 })
 
 test_that("zero-max factors contribute 0 and are recorded", {

@@ -72,5 +72,5 @@ enrich_factors(view,pathways,"fgsea",factors="F1",
 }
 \author{
 Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

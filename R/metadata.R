@@ -43,7 +43,7 @@
 #'   threshold is supplied; no p-values.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
 #'   Credits metadata grouping workflow; use provenance("summarize_factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -63,6 +63,10 @@
 #' summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
 summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail", activity_threshold = NULL, activity_direction = c("positive", "negative", "absolute")) {
   .validate_ids(by, "Grouping column")
+  reserved <- c("factor", "n", "n_units", "mean", "sd", "median", "q25", "q75",
+    "basis_id", "active_n", "active_proportion", "active_weighted_proportion", "baseline", "centered")
+  if (any(by %in% reserved)) stop("Grouping columns conflict with reserved output names; rename: ",
+    paste(intersect(by, reserved), collapse = ", "))
   activity_direction <- match.arg(activity_direction)
   prevalence <- !is.null(activity_threshold)
   if (prevalence && (!is.numeric(activity_threshold) || length(activity_threshold) != 1L ||
@@ -134,6 +138,7 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
 #' @param na_action fail or explicit omit.
 #' @return The [summarize_factor_activity()] table plus `baseline` and
 #'   `centered` columns, with centering declared in `analysis_metadata`.
+#' @author Mikhael Manurung. Group-summary workflow credits David Zemmour / Zemmour Lab.
 #' @export
 center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group", "observation_weighted"),
                                    id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
@@ -174,7 +179,7 @@ center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group"
 #' @return Factor rank, statistic, value and sample count with basis metadata.
 #' @export
 #' @author Stephens Lab; individual script authors not verified.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -195,7 +200,8 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
   if (statistic != "r2" || length(variable) != 1L) stop("One variable and descriptive r2 are supported")
   data <- .metadata_activity(fit, metadata, c(variable, adjust), id_col, na_action)
   .validate_ids(c(variable, adjust), "Predictor column")
-  formula <- stats::reformulate(c(variable, adjust))
+  predictors <- lapply(c(variable, adjust), as.name)
+  formula <- stats::as.formula(call("~", Reduce(function(x, y) call("+", x, y), predictors)))
   X <- stats::model.matrix(formula, data$metadata)
   if (qr(X)$rank != ncol(X)) stop("Descriptive design is rank deficient")
   out <- lapply(seq_len(ncol(data$A)), function(k) {
@@ -228,7 +234,7 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
 #' @return factor_contrast, feature_contrast, counts and matching metadata.
 #' @export
 #' @author David Zemmour.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits FlashierDGE group contrast workflow; use provenance("compare_factor_groups")
 #'   for audited sources and runtime versions. Input units and basis are retained;

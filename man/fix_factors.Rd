@@ -10,7 +10,8 @@ fix_factors(
   side,
   ids = NULL,
   use_fixed_in_ebnm = NULL,
-  action = "fix"
+  action = "fix",
+  sample_side = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ fix_factors(
 \item{use_fixed_in_ebnm}{Native handling of fixed values in prior estimation.}
 
 \item{action}{fix or unfix; native unfix operates on the selected pair.}
+
+\item{sample_side}{Explicit rows or columns for a bare native fit.}
 }
 \value{
 New native fit retaining named factor identity.
@@ -52,5 +55,5 @@ factor_effects(fixed,factors="F1",features="g1")
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

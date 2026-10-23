@@ -27,6 +27,9 @@
     if (!any(vapply(bars, function(bar) unit_col %in% all.vars(bar[[3]]), logical(1)))) stop("dream random effects must include the declared biological unit")
     fixed <- reformulas::nobars(formula)
   } else fixed <- formula
+  if (engine != "lm" && length(attr(stats::terms(fixed), "offset"))) {
+    stop("Formula offsets are supported only by engine = 'lm'")
+  }
   X <- stats::model.matrix(fixed, data$metadata)
   if (qr(X)$rank != ncol(X)) stop("Design is rank deficient; requested effects are not estimable")
   if (nrow(X) <= ncol(X)) stop("No residual degrees of freedom")
@@ -81,7 +84,7 @@
 #'   where available, and analysis_metadata identifying conditional inference.
 #' @export
 #' @author Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
 #'   Credits stats::lm; limma; dream; later brms; use provenance("test_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;

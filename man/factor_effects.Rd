@@ -51,5 +51,5 @@ factor_effects(view,factors="F1",features=c("g2","g1"))
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

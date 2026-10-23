@@ -34,7 +34,7 @@
 #' @return Matrix or sample/factor/estimate table carrying basis metadata.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
 #'   Credits native means / ldf; use provenance("factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -60,7 +60,7 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #' @return Matrix or feature/factor/estimate table carrying basis metadata.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
 #'   Credits native means / ldf; use provenance("factor_effects")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -94,7 +94,7 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #' @return Table with estimate, posterior.sd, uncertainty_type and basis_id.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits native posterior moments / public accessors; use provenance("factor_uncertainty")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -151,7 +151,7 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), representat
 #' @return factor/pve/definition table.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / none.
 #'   Credits native pve field; use provenance("factor_pve")
 #'   for audited sources and runtime versions. Input units and basis are retained;

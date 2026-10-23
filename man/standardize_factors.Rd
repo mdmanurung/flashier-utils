@@ -11,7 +11,10 @@ standardize_factors(
   type = "f",
   d_location = "effects",
   orientation = "as_fit",
-  prior_support = NULL
+  prior_support = NULL,
+  feature_scale = NULL,
+  preprocessing = NULL,
+  independent_unit = NULL
 )
 }
 \arguments{
@@ -31,6 +34,15 @@ side, preserving the reconstruction exactly; it is a coordinate change
 \item{orientation}{as_fit or anchor_feature.}
 
 \item{prior_support}{Named activity/effects support: signed, nonnegative, unknown.}
+
+\item{feature_scale}{Optional explicit measurement units for a bare fit or an
+unspecified recorded scale; cannot replace known recorded units.}
+
+\item{preprocessing}{Optional named preprocessing declaration for a bare fit;
+cannot replace an existing nonempty declaration.}
+
+\item{independent_unit}{Optional independent-unit declaration for a bare fit;
+cannot replace an existing declaration.}
 }
 \value{
 A serializable factor_representation with basis manifest.
@@ -64,5 +76,5 @@ max(abs(tcrossprod(raw$activity,raw$effects)-tcrossprod(view$activity,view$effec
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

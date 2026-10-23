@@ -87,5 +87,5 @@ test_factors(view,metadata,~group,"lm",unit_col="donor",independence="independen
 }
 \author{
 Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

@@ -48,3 +48,6 @@ centered values and group counts are all returned. Display-only
 transformation: no inferential labeling, and centering never changes
 ordering within a factor.
 }
+\author{
+Mikhael Manurung. Group-summary workflow credits David Zemmour / Zemmour Lab.
+}

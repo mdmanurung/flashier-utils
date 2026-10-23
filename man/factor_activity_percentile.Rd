@@ -46,5 +46,5 @@ head(factor_activity_percentile(view,reference_samples=rownames(X)[1:12],factors
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

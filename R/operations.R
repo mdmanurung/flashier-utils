@@ -80,7 +80,7 @@
 #' @return Native flash fit; attained rank may be lower than max_factors.
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -163,7 +163,7 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' @return New native fit with retained factor identity and new numerical identity.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_backfit; use provenance("refit_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -197,10 +197,11 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' @param ids Optional sample/feature IDs for partial fixing; NULL fixes every entry of the side.
 #' @param use_fixed_in_ebnm Native handling of fixed values in prior estimation.
 #' @param action fix or unfix; native unfix operates on the selected pair.
+#' @param sample_side Explicit rows or columns for a bare native fit.
 #' @return New native fit retaining named factor identity.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_fix; flash_factors_unfix; use provenance("fix_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -216,27 +217,29 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' view <- standardize_factors(fit)
 #' fixed <- fix_factors(fit,"F1","effects")
 #' factor_effects(fixed,factors="F1",features="g1")
-fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL, action = "fix") {
+fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL, action = "fix", sample_side = NULL) {
   if (is.null(factors)) stop("factors is required; supply the factor IDs to ", action)
   action <- match.arg(action, c("fix", "unfix"))
   side <- match.arg(side, c("activity", "effects"))
   all_ids <- .factor_ids(fit)
   kset <- .native_factor_indices(fit)[.select_ids(factors, all_ids, "factor")]
   if (!length(kset)) stop("No factors selected")
-  sample_side <- .resolve_sample_side(fit)
+  sample_side <- .resolve_sample_side(fit, sample_side)
   mode <- if ((side == "activity") == (sample_side == "rows")) "loadings" else "factors"
   if (action == "unfix") {
     if (!is.null(ids) || !is.null(use_fixed_in_ebnm)) stop("Native unfix applies to the entire selected factor pair; partial IDs unsupported")
     result <- flashier::flash_factors_unfix(fit, kset = kset)
   } else {
-    view <- standardize_factors(fit, scaling = "raw")
+    view <- standardize_factors(fit, sample_side = sample_side, scaling = "raw")
     axis_ids <- rownames(view[[side]])
     if (!is.null(ids) && !length(ids)) stop("ids must name at least one ", side, " ID; use NULL to fix every entry")
     # native fixed_idx is a full-axis logical mask, not integer positions
     fixed_idx <- if (is.null(ids)) NULL else seq_along(axis_ids) %in% .select_ids(ids, axis_ids, side)
     result <- flashier::flash_factors_fix(fit, kset = kset, which_dim = mode, fixed_idx = fixed_idx, use_fixed_in_ebnm = use_fixed_in_ebnm)
   }
-  .attach_provenance(.native_changed(fit, result, all_ids, action), "fix_factors", match.call(), .resolved_parameters("fix_factors", environment()))
+  result <- .native_changed(fit, result, all_ids, action)
+  attr(result, "flashbridge_metadata")$sample_side <- sample_side
+  .attach_provenance(result, "fix_factors", match.call(), .resolved_parameters("fix_factors", environment()))
 }
 
 #' Remove named factors without refitting
@@ -245,7 +248,7 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #' @return Native fit retaining remaining factor IDs.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_remove; use provenance("remove_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -276,7 +279,7 @@ remove_factors <- function(fit, factors) {
 #' @return Native fit with stable identities in requested order.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits flash_factors_reorder; use provenance("reorder_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;

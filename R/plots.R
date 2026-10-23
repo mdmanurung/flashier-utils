@@ -18,7 +18,7 @@
 #' @importFrom ggplot2 .data
 #' @export
 #' @author David Zemmour.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits MyGeneTilePlot workflow; native flashier optional; use provenance("plot_factor_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -102,7 +102,7 @@ plot_factor_features <- function(fit, factors, select = "largest", n = 20L,
 #' @return ggplot with included/excluded IDs and display metadata.
 #' @export
 #' @author David Zemmour.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits MyStructurePlot / ImmGenT display workflow; use provenance("plot_factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;

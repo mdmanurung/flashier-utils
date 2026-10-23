@@ -9,7 +9,7 @@
 #'   only when the assay and effects have exactly the same feature IDs.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -70,7 +70,7 @@ add_factors_to_seurat <- function(object, fit, reduction = "ebmf", assay = NULL,
 #' @return Seurat object with exploratory embedding and resolved settings in Misc.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -134,7 +134,7 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' @return ggplot with sampled IDs, reference IDs and basis metadata.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / call_only.
 #'   Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -205,7 +205,7 @@ plot_factor_embedding <- function(object, reduction, factors, display = "activit
 #'   100 * ecdf(reference)(activity); ties retain native ECDF behavior.
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
 #'   Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
 #'   for audited sources and runtime versions. Input units and basis are retained;

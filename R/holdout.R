@@ -59,7 +59,7 @@
 #' @return holdout_result with metrics, folds, failures, activities and information boundaries.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
 #'   Credits flash_init; flash_factors_init; flash_factors_fix; flash_backfit; use provenance("factor_holdout")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -182,6 +182,9 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, preprocess_fn =
       if (!is.null(preprocess_fn)) {
         scoring <- preprocess_fn$transform(testX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
         truth <- if (side == "rows") as.matrix(scoring$X) else t(as.matrix(scoring$X))
+        if (!identical(dim(truth), dim(Y)) || !identical(dimnames(truth), dimnames(Y))) {
+          stop("Scoring transform changed sample/feature axes")
+        }
       }
       trainingY <- if (side == "rows") prepared$X else Matrix::t(prepared$X)
       baseline <- matrix(Matrix::colMeans(trainingY, na.rm = TRUE), length(test), length(features), byrow = TRUE)

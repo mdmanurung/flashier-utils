@@ -56,5 +56,5 @@ factor_cor(view,"pearson")$correlation
 }
 \author{
 Mikhael Manurung; R Core Team (stats::cor); Kushal Dey; Matthew Stephens; Peter Carbonetto (CorShrink).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

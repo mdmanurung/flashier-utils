@@ -53,7 +53,7 @@
     }
   }
   matches <- data.frame(reference_factor = rids, target_factor = ifelse(is.na(assignment), NA_character_, tids[assignment]),
-                        congruence = NA_real_, similarity = NA_real_, sign = NA_real_, matched = rep(if (is.null(min_congruence)) NA else FALSE, length(rids)), candidate = !is.na(assignment),
+                        congruence = rep(NA_real_, length(rids)), similarity = rep(NA_real_, length(rids)), sign = rep(NA_real_, length(rids)), matched = rep(if (is.null(min_congruence)) NA else FALSE, length(rids)), candidate = !is.na(assignment),
                         shared_features = rep(length(features), length(rids)), eligible = seq_along(rids) %in% valid_R & length(valid_T) > 0L, status = rep("unmatched_reference", length(rids)))
   for (i in which(!is.na(assignment))) {
     matches$congruence[i] <- congruence[i, assignment[i]]; matches$similarity[i] <- similarity[i, assignment[i]]
@@ -97,7 +97,7 @@
 #' @return A replicability_result containing matches, full similarities and coverage metadata.
 #' @export
 #' @author Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
 #'   Credits psych::factor.congruence; clue::solve_LSAP (probe pending); use provenance("factor_replicability")
 #'   for audited sources and runtime versions. Input units and basis are retained;

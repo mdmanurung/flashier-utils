@@ -101,18 +101,20 @@
 #' @param resample Only unit resampling is supported.
 #' @param strata Optional donor-level stratification columns.
 #' @param fit_fn Callback(X, metadata, sample_side, seed, settings, observation_aux).
+#'   Return a native flash fit with recorded declarations, or a representation
+#'   created by [standardize_factors()] with explicit units and prior support.
 #' @param preprocess_fn Optional per-replicate callback returning X, metadata, manifest.
 #' @param alignment Only native congruence assignment.
 #' @param min_congruence Optional caller acceptance threshold.
 #' @param seed Required deterministic master seed.
 #' @param workers Positive worker count; Unix fork backend for workers greater than one.
 #' @param checkpoint_dir Optional compatible atomic checkpoint directory.
-#' @param keep_fits Retain large native fits only on explicit request.
+#' @param keep_fits Retain callback fits or representations only on explicit request.
 #' @param control settings, observation_aux and explicit callback_configuration.
 #' @return stability_result with summaries, replicates, matches, resamples, failures.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
 #'   Credits flash refits with existing congruence/assignment APIs; use provenance("factor_stability")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -192,8 +194,11 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, B = 100L, res
           preprocess_fn(Y, resampled$metadata, training_ids = mapping$sample, seed = seeds[i], settings = settings)
         if (!is.list(prepared) || !all(c("X", "metadata", "manifest") %in% names(prepared))) stop("Preprocessing must expose X, metadata and fitted manifest")
         fitted <- fit_fn(prepared$X, prepared$metadata, side, seeds[i], settings, observation_aux = if (is.null(prepared$observation_aux)) auxiliary else prepared$observation_aux)
-        if (!inherits(fitted, "flash")) stop("fit_fn must return a native flash object")
-        view <- standardize_factors(fitted, sample_side = side)
+        if (!inherits(fitted, "flash") && !inherits(fitted, "factor_representation")) {
+          stop("fit_fn must return a native flash object or declared factor representation")
+        }
+        view <- .resolve_view(fitted, sample_side = side)
+        if (!identical(view$manifest$sample_side, side)) stop("Refit callback changed sample orientation")
         if (!identical(view$manifest$sample_ids, as.character(prepared$metadata$sample))) stop("Refit callback did not preserve prepared sample IDs")
         alignment <- .align_programs(reference, view, min_congruence)
         list(status = "supported", matches = alignment$matches, pve = factor_pve(fitted), rank = ncol(view$activity),

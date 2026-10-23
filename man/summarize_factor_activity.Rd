@@ -76,5 +76,5 @@ summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

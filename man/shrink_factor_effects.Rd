@@ -66,5 +66,5 @@ shrink_factor_effects(coefficients,"condition",term="treatment",independent_cond
 }
 \author{
 Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

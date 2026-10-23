@@ -15,7 +15,7 @@
 #' @return Posterior table, native fit, input matrices and covariance metadata.
 #' @export
 #' @author Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits mashr public API (implementation audit pending); use provenance("shrink_factor_effects")
 #'   for audited sources and runtime versions. Input units and basis are retained;

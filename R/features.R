@@ -12,7 +12,7 @@
 #' @return feature/factor/estimate/rank/direction/basis_id table.
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
 #'   Credits rank_effects; use provenance("rank_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -55,7 +55,7 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #' @return Original estimate and distinctiveness separately, or margin matrix.
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
 #'   Credits compute_le_effects; use provenance("factor_distinctiveness")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -115,12 +115,14 @@ factor_distinctiveness <- function(fit, representation = NULL, engine = "singlec
 #' @param representation Optional representation name.
 #' @return Data frame with feature, argmax factor, signed estimate at the
 #'   argmax, selection score, rank, direction and basis_id.
+#' @author Mikhael Manurung. Conceptual cross-factor display workflow: ImmGenT-GP.
 #' @export
 factor_features_global <- function(fit, factors, n = 20L, direction = c("absolute", "positive", "negative"), representation = NULL) {
   direction <- match.arg(direction)
   view <- .resolve_view(fit, representation)
   .require_biological_factors(view$manifest$factor_ids)
   fids <- view$manifest$factor_ids[.select_ids(factors, view$manifest$factor_ids, "factor")]
+  if (!length(fids)) stop("Select at least one factor")
   if (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 0 || n != as.integer(n)) stop("n must be a nonnegative integer")
   B <- factor_effects(view, factors = fids)
   raw <- switch(direction, absolute = apply(abs(B), 1L, max), positive = apply(B, 1L, max), negative = apply(B, 1L, min))
@@ -157,7 +159,7 @@ factor_features_global <- function(fit, factors, n = 20L, direction = c("absolut
 #' @return Tidy descriptive table with selection and tie rule metadata.
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
 #'   Credits rank_effects; compute_le_effects; use provenance("factor_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;

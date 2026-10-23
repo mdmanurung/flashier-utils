@@ -79,5 +79,5 @@ plot_factor_features(view,"F1",n=3)
 }
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

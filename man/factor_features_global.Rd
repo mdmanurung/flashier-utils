@@ -35,3 +35,6 @@ set, with stable ties (score, then feature ID). This is not the same as
 [factor_features()], which selects per factor. Descriptive display
 selection only; no inferential labeling.
 }
+\author{
+Mikhael Manurung. Conceptual cross-factor display workflow: ImmGenT-GP.
+}

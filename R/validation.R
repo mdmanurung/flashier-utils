@@ -16,7 +16,7 @@
 #' @return Metrics, matched_features, residuals, plot, exclusions, analysis_metadata.
 #' @export
 #' @author Mikhael Manurung.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / none.
 #'   Credits new reconstruction diagnostics; no exact upstream function claimed; use provenance("validate_backprojection")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -37,7 +37,8 @@
 #' validate_backprojection(result,observed,feature_scale="simulated_centered_intensity",plot=FALSE)$metrics
 validate_backprojection <- function(reconstructed, observed, id_col = "feature", estimate_col = "estimate", contrast = NULL, feature_scale,
                                     top_n = c(20L, 50L, 100L), zero_tolerance = 0, plot = TRUE) {
-  if (missing(feature_scale) || identical(feature_scale, "unknown")) stop("Supply matching declared feature_scale")
+  if (missing(feature_scale)) stop("Supply matching declared feature_scale")
+  .measurement_scale(feature_scale)
   if (inherits(reconstructed, "backprojection_result")) reconstructed <- reconstructed$effects
   prepare <- function(table) {
     if (!is.data.frame(table) || !all(c(id_col, estimate_col) %in% names(table))) stop("Input requires feature IDs and estimates")

@@ -38,7 +38,9 @@ factor_stability(
 
 \item{strata}{Optional donor-level stratification columns.}
 
-\item{fit_fn}{Callback(X, metadata, sample_side, seed, settings, observation_aux).}
+\item{fit_fn}{Callback(X, metadata, sample_side, seed, settings, observation_aux).
+Return a native flash fit with recorded declarations, or a representation
+created by [standardize_factors()] with explicit units and prior support.}
 
 \item{preprocess_fn}{Optional per-replicate callback returning X, metadata, manifest.}
 
@@ -52,7 +54,7 @@ factor_stability(
 
 \item{checkpoint_dir}{Optional compatible atomic checkpoint directory.}
 
-\item{keep_fits}{Retain large native fits only on explicit request.}
+\item{keep_fits}{Retain callback fits or representations only on explicit request.}
 
 \item{control}{settings, observation_aux and explicit callback_configuration.}
 }
@@ -93,5 +95,5 @@ factor_stability(X,fit,metadata,"donor",B=2,seed=4,min_congruence=0.8)$summary
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

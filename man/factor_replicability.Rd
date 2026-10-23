@@ -65,5 +65,5 @@ factor_replicability(view,view,min_congruence=0.8)$matches
 }
 \author{
 Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

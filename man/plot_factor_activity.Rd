@@ -76,5 +76,5 @@ plot_factor_activity(view,metadata,group="group",max_samples=12,seed=4)
 }
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

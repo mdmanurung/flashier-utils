@@ -61,5 +61,5 @@ SeuratObject::Embeddings(object[["ebmfumap"]])[1:3,,drop=FALSE]
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

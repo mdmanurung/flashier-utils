@@ -50,5 +50,5 @@ head(rank_features(view,factors="F1",direction="absolute"))
 }
 \author{
 Peter Carbonetto; Matthew Stephens.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

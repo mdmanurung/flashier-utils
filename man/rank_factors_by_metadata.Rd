@@ -58,5 +58,5 @@ rank_factors_by_metadata(view,metadata,"group")
 }
 \author{
 Stephens Lab; individual script authors not verified.
-  Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

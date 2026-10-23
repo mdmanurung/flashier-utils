@@ -65,7 +65,8 @@ test_that("rotated rank-2 subspace is recoverable via existing alignment (FU-1/U
   theta <- 0.4
   R <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), 2, 2)
   A_rot <- v$activity %*% R
-  B_rot <- v$effects %*% solve(R)
+  B_rot <- v$effects %*% t(solve(R))
+  expect_equal(tcrossprod(A_rot, B_rot), tcrossprod(v$activity, v$effects), tolerance = 1e-12)
   colnames(A_rot) <- colnames(B_rot) <- c("F1", "F2")
   v_rot <- flashier.utils:::.make_representation(
     A_rot, B_rot, modifyList(v$manifest, list(fit_id = "rotated")))

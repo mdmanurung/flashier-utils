@@ -52,7 +52,7 @@
 #' @return Native method table plus pathway universe, native result and provenance.
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR).
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
 #'   Credits perform_gsea; later fgsea/decoupleR adapters; use provenance("enrich_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;

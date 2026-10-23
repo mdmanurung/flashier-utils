@@ -29,7 +29,7 @@
 #' @return A backprojection_result with effects and analysis_metadata.
 #' @export
 #' @author David Zemmour.
-#'   Full source and dependency credits: \url{https://mdmanurung.github.io/flashier-utils/articles/credits.html}.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
 #'   Credits FlashierDGE reconstruction workflow; use provenance("backproject_contrast")
 #'   for audited sources and runtime versions. Input units and basis are retained;
@@ -138,7 +138,7 @@ backproject_contrast <- function(fit, factor_effects, input, representation = NU
         if (!is.null(selected)) draws <- draws[draws[[name]] %in% selected, , drop = FALSE]
         if (length(unique(draws[[name]])) > 1L) stop("Draw mode supports one selected coefficient set per call")
         if (name == "contrast" && nrow(draws)) label <- as.character(draws$contrast[1])
-      }
+      } else if (!is.null(selected)) stop("Draw table has no ", name, " column")
     }
     if (!nrow(draws) || anyNA(draws$draw) || anyNA(draws$factor) || anyDuplicated(paste(draws$draw, draws$factor, sep = "\r"))) stop("Draw IDs/factors must form unique complete vectors")
     D <- matrix(NA_real_, length(unique(draws$draw)), length(unique(draws$factor)), dimnames = list(as.character(unique(draws$draw)), unique(as.character(draws$factor))))
