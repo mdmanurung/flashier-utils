@@ -39,10 +39,12 @@ jobs:
         run: |
           # Exclude repository instructions from the public site in this CI checkout.
           file.remove("AGENTS.md")
-          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+          pkgdown::build_site_github_pages(
+            dest_dir = file.path(Sys.getenv("RUNNER_TEMP"), "pkgdown-site"),
+            new_process = FALSE, install = FALSE)
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: ${{ runner.temp }}/pkgdown-site
   deploy:
     if: github.event_name != 'pull_request'
     needs: build
