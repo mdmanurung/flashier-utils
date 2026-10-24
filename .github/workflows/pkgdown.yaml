@@ -42,6 +42,10 @@ jobs:
           pkgdown::build_site_github_pages(
             dest_dir = file.path(Sys.getenv("RUNNER_TEMP"), "pkgdown-site"),
             new_process = FALSE, install = FALSE)
+      - name: Check gallery, attribution and local links
+        run: |
+          python3 .github/scripts/test-check-site.py
+          python3 .github/scripts/check-site.py --site "$RUNNER_TEMP/pkgdown-site" --receipt "$RUNNER_TEMP/pkgdown-site-receipt.json"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ runner.temp }}/pkgdown-site
