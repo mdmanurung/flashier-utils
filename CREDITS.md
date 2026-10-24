@@ -430,3 +430,11 @@ Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.h
 provides linked teaching material for model choice, GBCD and GoM DE.
 No workshop prose, slides or code is redistributed; the repository has no
 identified license. Original methods and package authors retain their credit.
+
+## Website plot gallery
+
+The website-only `plot-gallery` article uses original simulated figures and
+recipes through public flashier and flashier.utils APIs. The method and workflow
+authors credited above retain their attribution. The [R Graph Gallery density page](https://r-graph-gallery.com/density-plot.html)
+inspired the library sections and linked previews; no assets, source or prose
+were copied. The package still installs the four tutorials listed above.

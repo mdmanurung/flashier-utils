@@ -1,0 +1,514 @@
+---
+title: "Plot gallery"
+description: "Choose a native flashier or flashier.utils plot from twelve checked examples."
+output:
+  rmarkdown::html_document:
+    toc: false
+    self_contained: true
+    mathjax: null
+---
+
+Choose a preview to get its plotting recipe. All plots use one simulated fit.
+
+[Native flashier](#native-flashier) · [flashier.utils](#flashier-utils) ·
+[Shared setup](#shared-setup) · [Credits](#credits)
+
+<style>
+.plot-gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.plot-gallery-card { border: 1px solid #d8dee4; border-radius: .35rem; padding: .75rem; min-width: 0; }
+.plot-gallery-card img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
+.plot-gallery-card h3 { font-size: 1.05em; margin: .5rem 0; }
+.plot-gallery-card p { margin: .5rem 0; }
+.plot-gallery-card .plot-package { font-size: .85em; color: #46515c; }
+.plot-gallery-card a:focus-visible { outline: 3px solid #005a9c; outline-offset: 3px; }
+@media (max-width: 991px) { .plot-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575px) { .plot-gallery-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+```{r gallery-options, include=FALSE}
+knitr::opts_chunk$set(fig.width = 4, fig.height = 3, dpi = 144,
+                      out.width = "100%", collapse = TRUE, comment = "#>")
+```
+
+```{r shared-example, include=FALSE}
+library(flashier.utils)
+set.seed(17)
+activity_truth <- cbind(
+  c(rep(3, 12), rep(0.3, 12)),
+  c(rep(0.3, 12), rep(3, 12))
+) + matrix(runif(48, 0, 0.4), 24, 2)
+effect_truth <- cbind(
+  c(2, 1.7, 1.4, 1.1, -0.6, -1.2, rep(0.1, 6)),
+  c(rep(-0.15, 6), 2, 1.7, 1.4, 1.1, -0.8, -1.2)
+)
+X <- tcrossprod(activity_truth, effect_truth) +
+  matrix(rnorm(288, sd = 0.1), 24, 12)
+dimnames(X) <- list(sprintf("s%02d", 1:24), sprintf("g%02d", 1:12))
+fit <- flashier::flash(
+  X, S = 0.1, var_type = NULL, greedy_Kmax = 2,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
+  nullcheck = FALSE, backfit = TRUE, verbose = 0
+)
+view <- standardize_factors(
+  fit, sample_side = "rows", scaling = "raw",
+  prior_support = c(activity = "nonnegative", effects = "signed"),
+  feature_scale = "simulated_intensity"
+)
+metadata <- data.frame(
+  sample = rownames(X), group = rep(c("A", "B", "C"), each = 8)
+)
+groups <- setNames(metadata$group, metadata$sample)
+covariate <- setNames(seq(0, 1, length.out = nrow(X)), rownames(X))
+```
+
+```{r shared-checks, include=FALSE}
+stopifnot(
+  ncol(view$activity) >= 2, all(view$activity >= 0),
+  any(view$effects < 0), any(view$effects > 0),
+  identical(rownames(view$activity), metadata$sample),
+  identical(names(groups), rownames(X)),
+  identical(names(covariate), rownames(X)),
+  all(rowSums(view$activity) > 0)
+)
+coordinates_before <- serialize(list(fit = fit, view = view), NULL)
+```
+
+## Native flashier {#native-flashier}
+
+Native mean displays use per-component maximum-absolute scaling.
+The scree plot shows native PVE.
+
+<div class="plot-gallery-grid">
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-scree, echo=FALSE, fig.show="hide"}
+native_scree <- flashier::flash_plot_scree(fit, labels = TRUE)
+native_scree
+```
+
+[![Native factor PVE with two labeled components on a log scale.](`r knitr::fig_chunk("native-scree", "png")`)](#recipe-native-scree)
+
+</div>
+
+### [Factor variance](#recipe-native-scree) {.unnumbered .unlisted}
+
+See native factor PVE while keeping component labels.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-heatmap, echo=FALSE, fig.show="hide"}
+native_heatmap <- flashier::flash_plot_heatmap(
+  fit, pm_which = "loadings", pm_groups = groups
+)
+native_heatmap
+```
+
+[![Heatmap of two maximum-scaled loading components in simulated groups A, B and C.](`r knitr::fig_chunk("native-heatmap", "png")`)](#recipe-native-heatmap)
+
+</div>
+
+### [Native heatmap](#recipe-native-heatmap) {.unnumbered .unlisted}
+
+Compare maximum-scaled sample loadings across groups.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-bar, echo=FALSE, fig.show="hide"}
+native_bar <- flashier::flash_plot_bar(
+  fit, pm_which = "loadings", pm_groups = groups
+)
+native_bar
+```
+
+[![Faceted bars of maximum-scaled sample loadings, colored by simulated group.](`r knitr::fig_chunk("native-bar", "png")`)](#recipe-native-bar)
+
+</div>
+
+### [Native bars](#recipe-native-bar) {.unnumbered .unlisted}
+
+Compare individual sample loadings within each component.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-histogram, echo=FALSE, fig.show="hide"}
+native_histogram <- flashier::flash_plot_histogram(
+  fit, pm_which = "loadings", pm_groups = groups, bins = 8
+)
+native_histogram
+```
+
+[![Histograms of maximum-scaled sample loadings for groups A, B and C.](`r knitr::fig_chunk("native-histogram", "png")`)](#recipe-native-histogram)
+
+</div>
+
+### [Native histogram](#recipe-native-histogram) {.unnumbered .unlisted}
+
+Compare loading distributions between the simulated groups.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-scatter, echo=FALSE, fig.show="hide"}
+native_scatter <- flashier::flash_plot_scatter(
+  fit, pm_which = "loadings", pm_groups = groups,
+  covariate = unname(covariate[rownames(X)])
+)
+native_scatter
+```
+
+[![Sample loadings plotted against an artificial covariate, with one panel per component.](`r knitr::fig_chunk("native-scatter", "png")`)](#recipe-native-scatter)
+
+</div>
+
+### [Native scatter](#recipe-native-scatter) {.unnumbered .unlisted}
+
+Relate sample loadings to an aligned numeric covariate.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier</p>
+<div class="plot-preview">
+
+```{r native-structure, echo=FALSE, fig.show="hide"}
+native_structure <- flashier::flash_plot_structure(
+  fit, pm_which = "loadings", pm_groups = groups
+) + ggplot2::labs(colour = NULL)
+native_structure
+```
+
+[![Stacked maximum-scaled nonnegative loadings across three simulated sample groups.](`r knitr::fig_chunk("native-structure", "png")`)](#recipe-native-structure)
+
+</div>
+
+### [Native structure](#recipe-native-structure) {.unnumbered .unlisted}
+
+Inspect stacked nonnegative loadings in native display units.
+
+</div>
+
+</div>
+
+## flashier.utils {#flashier-utils}
+
+Activity and effect displays keep the declared coordinates.
+Only the structure recipe requests row-sum normalization.
+
+<div class="plot-gallery-grid">
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-heatmap, echo=FALSE, fig.show="hide"}
+activity_heatmap <- plot_factor_activity(
+  view, metadata = metadata, group = "group", style = "heatmap"
+)
+activity_heatmap
+```
+
+[![Heatmap of raw sample activity for two recovered factors and three simulated groups.](`r knitr::fig_chunk("activity-heatmap", "png")`)](#recipe-activity-heatmap)
+
+</div>
+
+### [Activity heatmap](#recipe-activity-heatmap) {.unnumbered .unlisted}
+
+Compare sample activity in the declared raw coordinates.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-point, echo=FALSE, fig.show="hide"}
+activity_point <- plot_factor_activity(
+  view, metadata = metadata, group = "group", style = "point"
+)
+activity_point
+```
+
+[![Points showing each simulated sample activity by group, faceted by factor.](`r knitr::fig_chunk("activity-point", "png")`)](#recipe-activity-point)
+
+</div>
+
+### [Activity points](#recipe-activity-point) {.unnumbered .unlisted}
+
+See each sample within its group and factor.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-distribution, echo=FALSE, fig.show="hide"}
+activity_distribution <- plot_factor_activity(
+  view, metadata = metadata, group = "group", style = "distribution"
+)
+activity_distribution
+```
+
+[![Boxplots of raw activity in simulated groups A, B and C for each factor.](`r knitr::fig_chunk("activity-distribution", "png")`)](#recipe-activity-distribution)
+
+</div>
+
+### [Activity boxplots](#recipe-activity-distribution) {.unnumbered .unlisted}
+
+Summarize activity spread within each simulated group.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-structure, echo=FALSE, fig.show="hide"}
+activity_structure <- plot_factor_activity(
+  view, metadata = metadata, group = "group", style = "structure",
+  display_normalization = "row_sum"
+) + ggplot2::theme(
+  axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, size = 7)
+)
+activity_structure
+```
+
+[![Stacked proportions of two nonnegative factors, with each retained sample summing to one.](`r knitr::fig_chunk("activity-structure", "png")`)](#recipe-activity-structure)
+
+</div>
+
+### [Activity structure](#recipe-activity-structure) {.unnumbered .unlisted}
+
+Compare explicitly row-normalized activity proportions.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r feature-heatmap, echo=FALSE, fig.show="hide"}
+feature_heatmap <- plot_factor_features(
+  view, factors = colnames(view$effects), n = 4, style = "heatmap"
+)
+feature_heatmap
+```
+
+[![Diverging heatmap of selected positive and negative feature effects for two factors.](`r knitr::fig_chunk("feature-heatmap", "png")`)](#recipe-feature-heatmap)
+
+</div>
+
+### [Feature heatmap](#recipe-feature-heatmap) {.unnumbered .unlisted}
+
+Compare selected feature effects with their signs.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r feature-bar, echo=FALSE, fig.show="hide"}
+feature_bar <- plot_factor_features(
+  view, factors = colnames(view$effects), n = 4, style = "bar", transpose = TRUE
+)
+feature_bar
+```
+
+[![Bars showing positive and negative feature effects, with one panel per factor.](`r knitr::fig_chunk("feature-bar", "png")`)](#recipe-feature-bar)
+
+</div>
+
+### [Feature bars](#recipe-feature-bar) {.unnumbered .unlisted}
+
+Read selected signed effects against a zero baseline.
+
+</div>
+
+</div>
+
+## Shared setup {#shared-setup}
+
+Run this setup once before a recipe. It uses 24 samples and 12 features.
+Samples occupy rows. Nonnegative activity pairs with signed feature effects.
+The group and covariate are artificial; no biological result follows.
+
+```{r setup-recipe, ref.label='shared-example', eval=FALSE, echo=TRUE}
+```
+
+`scaling = "raw"`
+keeps the native posterior-mean coordinates. Each recipe reuses `fit`, `view`,
+`metadata`, `groups` and `covariate` without refitting or changing their values.
+
+## Plotting recipes
+
+### Factor variance {#recipe-native-scree}
+
+Native PVE uses the fitted matrix. Nonorthogonal factors do not give an additive PCA variance partition.
+
+```{r recipe-code-native-scree, ref.label='native-scree', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_scree()`](https://willwerscheid.github.io/flashier/reference/flash_plot_scree.html). [Shared setup](#shared-setup).
+
+### Native heatmap {#recipe-native-heatmap}
+
+For sample rows, `pm_which = "loadings"` selects samples. Native mean displays divide each component by its maximum absolute mean.
+
+```{r recipe-code-native-heatmap, ref.label='native-heatmap', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_heatmap()`](https://willwerscheid.github.io/flashier/reference/flash_plot_heatmap.html). [Shared setup](#shared-setup).
+
+### Native bars {#recipe-native-bar}
+
+Each bar is one sample. Values are maximum-absolute-scaled posterior means, not raw activity or probabilities.
+
+```{r recipe-code-native-bar, ref.label='native-bar', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_bar()`](https://willwerscheid.github.io/flashier/reference/flash_plot_bar.html). [Shared setup](#shared-setup).
+
+### Native histogram {#recipe-native-histogram}
+
+The bins summarize maximum-scaled posterior means. Group colors identify distributions; overlapping bins can hide one group.
+
+```{r recipe-code-native-histogram, ref.label='native-histogram', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_histogram()`](https://willwerscheid.github.io/flashier/reference/flash_plot_histogram.html). [Shared setup](#shared-setup).
+
+### Native scatter {#recipe-native-scatter}
+
+The covariate is artificial and aligned to sample rows before plotting. The x-axis shows maximum-scaled posterior means; the y-axis shows that covariate. This display is descriptive.
+
+```{r recipe-code-native-scatter, ref.label='native-scatter', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_scatter()`](https://willwerscheid.github.io/flashier/reference/flash_plot_scatter.html). [Shared setup](#shared-setup).
+
+### Native structure {#recipe-native-structure}
+
+Stacks use per-component maximum-absolute scaling. Their row totals need not equal one. Use nonnegative loadings; signed effects belong in a heatmap.
+
+```{r recipe-code-native-structure, ref.label='native-structure', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `flash_plot_structure()`](https://willwerscheid.github.io/flashier/reference/flash_plot_structure.html). [Shared setup](#shared-setup).
+
+### Activity heatmap {#recipe-activity-heatmap}
+
+Colors show raw activity coordinates. No display normalization changes their values. Group labels describe simulated samples.
+
+```{r recipe-code-activity-heatmap, ref.label='activity-heatmap', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_activity()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_activity.html). [Shared setup](#shared-setup).
+
+### Activity points {#recipe-activity-point}
+
+Each point is one simulated sample in raw activity coordinates. Overlapping points can hide samples; the example supplies no biological replication.
+
+```{r recipe-code-activity-point, ref.label='activity-point', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_activity()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_activity.html). [Shared setup](#shared-setup).
+
+### Activity boxplots {#recipe-activity-distribution}
+
+`style = "distribution"` draws boxplots. Values retain raw activity units. The boxes do not show posterior uncertainty or a density estimate.
+
+```{r recipe-code-activity-distribution, ref.label='activity-distribution', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_activity()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_activity.html). [Shared setup](#shared-setup).
+
+### Activity structure {#recipe-activity-structure}
+
+Nonnegative activities are divided by each sample's activity sum for display. This differs from native maximum-scaled stacks. Zero-sum samples are omitted. The plot records their IDs under `zero_activity_samples` in its `analysis_metadata` attribute. The checked example has none. Raw coordinates stay unchanged.
+
+```{r recipe-code-activity-structure, ref.label='activity-structure', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_activity()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_activity.html). [Shared setup](#shared-setup).
+
+### Feature heatmap {#recipe-feature-heatmap}
+
+Colors show selected signed feature effects in the declared factor basis. With raw activity, matched effects reconstruct simulated intensity. No maximum scaling is applied.
+
+```{r recipe-code-feature-heatmap, ref.label='feature-heatmap', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_features()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_features.html). [Shared setup](#shared-setup).
+
+### Feature bars {#recipe-feature-bar}
+
+Bars retain signed feature effects and a zero baseline. Selection uses the largest absolute effects per factor. Factor signs alone do not establish activation or repression.
+
+```{r recipe-code-feature-bar, ref.label='feature-bar', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_features()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_features.html). [Shared setup](#shared-setup).
+
+```{r gallery-checks, include=FALSE}
+gallery_plots <- list(
+  native_scree, native_heatmap, native_bar, native_histogram,
+  native_scatter, native_structure, activity_heatmap, activity_point,
+  activity_distribution, activity_structure, feature_heatmap, feature_bar
+)
+for (p in gallery_plots) {
+  layers <- ggplot2::ggplot_build(p)$data
+  stopifnot(length(layers) > 0, sum(vapply(layers, nrow, integer(1))) > 0)
+  for (layer in layers) {
+    for (axis in intersect(c("x", "y"), names(layer))) {
+      stopifnot(all(is.finite(layer[[axis]])))
+    }
+  }
+}
+stopifnot(identical(
+  coordinates_before, serialize(list(fit = fit, view = view), NULL)
+))
+```
+
+## Next tasks
+
+[Get started](https://mdmanurung.github.io/flashier-utils/articles/first-fit.html) explains native fitting and extraction.
+[Advanced use](https://mdmanurung.github.io/flashier-utils/articles/advanced-use.html) covers units, uncertainty and membership filtering.
+[Compare priors](https://mdmanurung.github.io/flashier-utils/articles/compare-priors.html) separates prediction from program recovery.
+[Pancreas programs](https://mdmanurung.github.io/flashier-utils/articles/pancreas-programs.html) shows a real-data case study.
+
+## Credits {#credits}
+
+Native FLASH/flashier: Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens. EBNM: Jason Willwerscheid, Matthew Stephens and Peter Carbonetto.
+Feature selection adapts singlecelljamboreeR helpers by Peter Carbonetto and
+Matthew Stephens. Activity and feature display workflows credit David Zemmour
+and the Zemmour Lab. These recipes call public APIs; no upstream source is copied.
+Plot styling uses ggplot2 by Hadley Wickham, Thomas Lin Pedersen and the
+contributors listed in the full credits. Use `citation("ggplot2")` for its method.
+Use `citation("flashier")`, `citation("ebnm")` and `provenance()` for methods
+and runtime records. See [full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
+
+The [R Graph Gallery density page](https://r-graph-gallery.com/density-plot.html)
+inspired the library sections and preview-to-recipe navigation.
+All figures and recipes here are original; no page assets or prose are copied.
+`plot(fit, plot_type = ...)` dispatches to the native plotters above;
+those aliases do not need duplicate examples.

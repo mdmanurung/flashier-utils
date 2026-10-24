@@ -75,6 +75,9 @@ for complete arguments. Group summaries are descriptive; association tests requi
 explicit independent units. Conditional posterior uncertainty does not replace
 regression standard errors or biological replication.
 
+[Plot gallery](https://mdmanurung.github.io/flashier-utils/articles/plot-gallery.html)
+shows twelve plotting recipes from one simulated fit.
+
 ## Original authors and citations
 
 flashier is by Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew
