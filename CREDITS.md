@@ -438,3 +438,16 @@ recipes through public flashier and flashier.utils APIs. The method and workflow
 authors credited above retain their attribution. The [R Graph Gallery density page](https://r-graph-gallery.com/density-plot.html)
 inspired the library sections and linked previews; no assets, source or prose
 were copied. The package still installs the four tutorials listed above.
+
+## Website EBMF and cNMF case study
+
+The website-only `ebmf-cnmf-comparison` article is an independently written
+comparison using PBMC3k data from 10x Genomics. Native cNMF calls credit Dylan
+Kotliar and contributors; cite Kotliar et al. (2019), eLife 8:e43803,
+https://doi.org/10.7554/eLife.43803. The audited cNMF source revision is
+`5dbc5baaa0b9079b55bce554d801caa235a50457`; its source and MIT license stay
+in the local scientific archive and are not copied into this package.
+The shifted-log variance-floor recipe adapts Jason Willwerscheid and
+flashier coauthors' single-cell tutorial. All flashier, EBNM and EBMF method
+credits above apply. Only compact result summaries accompany the article;
+counts, fitted objects, full diagnostics and receipts remain outside builds.

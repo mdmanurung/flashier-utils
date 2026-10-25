@@ -1,0 +1,15 @@
+track,kind,model,pairs,matched,reference_slots,unmatched_reference,unmatched_target
+Common-input counts,initialization,Nonnegative EBMF,10,120,120,0,0
+Common-input counts,initialization,Semi-nonnegative EBMF,10,120,120,0,0
+Common-input counts,initialization,Signed EBMF,10,120,120,0,0
+Common-input counts,initialization,cNMF,10,120,120,0,0
+Common-input counts,subsample,Nonnegative EBMF,5,60,60,0,0
+Common-input counts,subsample,Semi-nonnegative EBMF,5,60,60,0,0
+Common-input counts,subsample,Signed EBMF,5,60,60,0,0
+Common-input counts,subsample,cNMF,5,60,60,0,0
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,10,97,104,7,11
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,10,120,120,0,0
+Shifted log: gene variance + S,initialization,Signed EBMF,10,80,80,0,0
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,5,53,55,2,2
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,5,57,60,3,0
+Shifted log: gene variance + S,subsample,Signed EBMF,5,40,40,0,5

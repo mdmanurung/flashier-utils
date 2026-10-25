@@ -1,0 +1,262 @@
+---
+title: "EBMF versus cNMF: scores, loadings and reproducibility"
+description: "A bounded PBMC case study of prior support, factor matching, cell subsampling and residual variance."
+output: rmarkdown::html_document
+---
+
+Compare scores and loadings separately before calling a program reproducible.
+This case study uses **180 PBMC3k cells and 300 selected genes**.
+It illustrates a comparison workflow; it does not establish a method winner.
+
+```{r case-setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 8,
+                      fig.height = 4, dpi = 144)
+case_dir <- file.path(dirname(knitr::current_input(dir = TRUE)), "data")
+stability <- read.csv(file.path(case_dir, "ebmf-cnmf-stability.csv"))
+stability$qualified <- as.logical(stability$qualified)
+stopifnot(!anyNA(stability$qualified))
+fit_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-fits.csv"))
+noise_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-noise.csv"))
+matching_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-matching.csv"))
+```
+
+## Which factorization are we comparing?
+
+Write the approximation as \(Y\approx LF^T\). Rows of \(L\) describe
+cell activities. Rows of \(F\) describe gene effects.
+
+| Model | Cell-score prior | Gene-effect prior | Allowed interpretation |
+|---|---|---|---|
+| Signed EBMF | normal | point-Laplace | Signed activities and opposing gene effects |
+| Semi-nonnegative EBMF | point-exponential | point-Laplace | Positive activities with opposing gene effects |
+| Nonnegative EBMF | point-exponential | point-exponential | Additive positive activities and gene effects |
+| cNMF | Nonnegative optimization | Nonnegative spectra | Additive positive usages and spectra |
+
+The nonnegative EBMF arm is the closest support control against cNMF.
+Its shrinkage, likelihood and optimizer still differ from cNMF.
+Point-Laplace has a prior spike at zero. That does not guarantee many
+exact zeros in posterior means, or fewer selected genes than point-normal.
+
+Raw scores in both methods need not sum to one. cNMF's `load_results`
+normally returns normalized usages. Use raw usages with their corresponding
+spectra when checking reconstruction. Avoid comparing normalized usages
+with raw EBMF scores as though their amplitudes had the same meaning.
+
+An explicit feature intercept gives \(Y_{ij}\approx\mu_j+\sum_kL_{ik}F_{jk}\).
+Then signed effects describe changes in transformed coordinates, conditional
+on the baseline and other factors. They are not negative abundances.
+**The fitted results below have no explicit intercept.** Adding one is a
+separate sensitivity; it changes component capacity and program allocation.
+
+## Keep the data comparison explicit
+
+The common-input experiment fits all methods to the same nonnegative matrix:
+the same cells, 300 genes and variance-scaled normalized counts.
+The EBMF baseline supplies `S=1` and estimates pooled additional variance.
+All EBMF fits use greedy addition, backfitting and nullchecking.
+
+We set EBMF `Kmax=12` and supply cNMF `K=12`. These are supplied limits,
+not evidence that either method selected an optimal rank. Each EBMF run is
+an individual fit. Each cNMF run is a five-start consensus, with five
+independent runs per method. cNMF uses `max_NMF_iter=300` and
+`density_threshold=2.0`, which excludes no spectral outliers.
+This reduced cNMF configuration is a diagnostic pilot.
+
+A production cNMF analysis should inspect its K and distance diagnostics.
+Use a justified density threshold and more consensus starts, such as
+50--100. The example threshold `0.01` is not universally suitable.
+See the [upstream cNMF workflow](https://github.com/dylkot/cNMF).
+
+```{r common-input-table, echo=FALSE}
+knitr::kable(subset(fit_summary, track == "common"), digits = 4,
+             caption = "Common-input fits: actual ranks and relative training SSE.")
+```
+
+Training SSE measures reconstruction of the fitting matrix. It does not
+measure held-out prediction, biological coherence or uncertainty calibration.
+Do not compare SSE across different transformed input matrices.
+
+## Match factors without inventing agreement
+
+Factor order and reciprocal scaling are arbitrary. Normalize each loading
+vector to length one and multiply its scores by the removed length.
+Find a one-to-one assignment using loading cosine similarity.
+Retain weak matches, inactive factors and unmatched factors.
+
+A simultaneous score/loading sign flip is legal for fully signed EBMF.
+It is not legal for a nonnegative score vector. Apply any valid orientation
+change to both scores and loadings before comparing them.
+
+For each matched pair, assess loading cosine, score correlation and score
+amplitude differences on shared cells. Also check the full reconstructed
+matrix. Two models can reconstruct similarly using split or rotated factors.
+Joint-span coverage detects some of those relationships. It does not show
+that a nonnegative-score model can express every algebraic combination.
+
+## Starts and cell subsampling answer different questions
+
+Five starts yield ten unordered within-method comparisons. These measure
+initialization sensitivity on unchanged data. Five paired 80% cell subsamples
+measure sensitivity to changing the cells. Each subsample is compared with
+the full-data seed14 fit, using scores from the shared cells.
+
+Genes, normalization and scaling stay fixed across these subsamples.
+The results therefore condition on full-data preprocessing. The cells have
+no independent donor labels for this analysis. These are neither donor
+replication nor leakage-free predictive evaluations.
+
+```{r stability-table, echo=FALSE}
+aggregate_table <- aggregate(cbind(loading_cosine, score_correlation,
+                                    score_relative_l2) ~ track + kind + model,
+                              stability, median)
+names(aggregate_table)[4:6] <- c("Loading cosine", "Score correlation",
+                                "Relative score difference")
+knitr::kable(aggregate_table, digits = 3,
+             caption = "Medians across matched factors; weak and unmatched factors need separate review.")
+```
+
+The signed-score model agrees almost exactly across common-input starts.
+Its cell-subsampling agreement is lower. The nonnegative-score models also
+contain weak factor counterparts despite strong median start agreement.
+A high median cannot establish reliability for every program.
+One cNMF subsample run reports an iteration-limit warning in its underlying
+NMF fits. Its comparisons remain in the table and have black rings.
+These unqualified rows must not be mistaken for converged-fit evidence.
+
+```{r match-denominators, echo=FALSE}
+knitr::kable(matching_summary,
+             caption = "Assignment denominators, including unmatched factors in either model.")
+```
+
+```{r score-loading-figure, echo=FALSE, fig.alt="Each point is one matched factor from one cell subsample. Model-specific shapes supplement color. Black rings mark an underlying cNMF iteration cap. Loading cosine and score correlation can be low even when median agreement is high.", fig.cap="Loading agreement versus score agreement under five paired cell subsamples. Black rings mark the capped cNMF run. Points are dependent; they are not independent confidence-interval replicates."}
+subsample_scores <- subset(stability, kind == "subsample")
+ggplot(subsample_scores, aes(loading_cosine, score_correlation,
+                            colour = model, shape = model)) +
+  geom_point(alpha = 0.65, size = 1.8) +
+  geom_point(data = subset(subsample_scores, !qualified),
+             aes(loading_cosine, score_correlation), inherit.aes = FALSE,
+             shape = 1, colour = "black", size = 3) +
+  facet_wrap(~track) +
+  scale_colour_manual(values = c("cNMF" = "#AA3377", "Nonnegative EBMF" = "#228833",
+    "Semi-nonnegative EBMF" = "#EE6677", "Signed EBMF" = "#4477AA")) +
+  coord_cartesian(xlim = c(-0.05, 1.02), ylim = c(-1.05, 1.05)) +
+  scale_shape_manual(values = c("cNMF" = 18, "Nonnegative EBMF" = 15,
+    "Semi-nonnegative EBMF" = 17, "Signed EBMF" = 16)) +
+  labs(x = "Matched loading cosine", y = "Score correlation", colour = NULL,
+       shape = NULL) + theme_minimal() + theme(legend.position = "bottom")
+```
+
+## Change the noise model deliberately
+
+The [flashier single-cell tutorial](https://willwerscheid.github.io/flashier/articles/flashier_single_cell.html)
+uses size-factor-normalized shifted-log counts. It supplies a small noise
+floor and estimates gene-wise residual variance. We follow that recipe,
+with **backfitting enabled**. Libraries use all 7,832 genes in the frozen
+count object; the analysis then keeps the same 300 selected genes.
+
+```{r tutorial-recipe, eval=FALSE}
+# counts: cells x genes, before selecting the analysis genes.
+size_factors <- rowSums(counts) / mean(rowSums(counts))
+Y <- log1p(counts / size_factors)[, selected_genes, drop = FALSE]
+set.seed(3)
+s1 <- sd(log1p(rpois(1e7, 1 / nrow(Y))))
+
+initializer <- function(flash) flashier::flash_greedy_init_default(
+  flash, sign_constraints = c(1, 0), seed = 14
+)
+fit <- flashier::flash_init(as.matrix(Y), S = s1, var_type = 2)
+fit <- flashier::flash_greedy(fit, Kmax = 12,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_laplace),
+  init_fn = initializer, maxiter = 500)
+fit <- flashier::flash_backfit(fit, maxiter = 500)
+fit <- flashier::flash_nullcheck(fit, remove = TRUE)
+```
+
+Change both priors and initializer constraints for the other arms.
+Use `c(1,1)` for the fully nonnegative arm and `c(0,0)` for the signed arm.
+Save each native fit and its diagnostics rather than selecting the nicest run.
+
+| `var_type` | Estimated variance structure |
+|---|---|
+| `0` | One pooled value |
+| `1` | One value per cell |
+| `2` | One value per gene |
+| `c(1,2)` | Separable cell-by-gene structure |
+| `NULL` | No estimated component; supplied `S` supplies all noise |
+
+For estimated-variance models, flashier adds the learned variance to `S^2`.
+Thus `S=1, var_type=0` is not fixed unit variance.
+For this shifted-log dataset, the simulated floor is
+`s1=0.051502549432030469`. It is tied to this transform and sample size.
+Do not transfer that number unchanged to another measurement scale.
+See the [native variance contract](https://willwerscheid.github.io/flashier/reference/flash.html).
+
+```{r variance-grid, echo=FALSE}
+knitr::kable(noise_summary, digits = 3,
+             caption = "Variance/S sensitivity: include failed and capped fits in the requested denominator.")
+```
+
+Both signed-score cell-wise/no-floor starts failed in the EBNM optimizer.
+Some separable-variance runs with the supplied floor also failed. Keep these failures in
+the denominator. They are numerical outcomes for these recipes, not proof
+that an entire prior family or variance structure is invalid.
+
+The shifted-log models use different observation coordinates from the
+common-input experiment. Compare their native loadings within that track.
+For a cross-scale comparison, derive gene-association profiles from each
+model's scores against one common observed matrix. Label those profiles
+as associations; they are not interchangeable native gene effects.
+
+## Does either method discover a missing program?
+
+The earlier comparison used EBMF K12 against cNMF K4. The HLA/CD74 loading
+direction had 86--88% of its squared loading mass outside the cNMF span.
+With cNMF K12, that gap dropped to 16--20%. Rank accounted for much of
+the apparent difference. The remaining gap does not establish novelty.
+
+Some HLA/CD74 factors in the common-input nonnegative-score models are
+concentrated on roughly two effective cells. Their poor subsampling matches
+persist even though the highest-scoring cell remains in all five subsets.
+Concentration is a warning about support; it is not a complete causal
+explanation for the instability. Inspect both loading geometry and score
+distribution before assigning a biological label.
+
+A candidate private program needs a stable signature, support across
+independent biological samples and evidence beyond an unmatched axis.
+Review the joint target span, residual genes and possible split programs.
+Treat positive and negative signatures separately for signed gene effects.
+The previous constrained-loading metric had a sign-handling defect;
+its old cone-coverage numbers are excluded from this case study.
+
+## What remains unassessed?
+
+No donor-held-out prediction, donor replication or calibrated discovery
+uncertainty is established here. EB posterior summaries condition on the
+fitted model; they do not replace refitting or biological replication.
+The next scientific step is training-only preprocessing and fixed-signature
+scoring of held-out donors, plus simulations with known signed/unsigned truth.
+
+An explicit-intercept sensitivity also remains separate. Use
+`fit_ebmf(..., intercept="feature", backfit=TRUE)` to protect its offset
+during nullchecking. Count the offset when comparing total component
+budgets. Do not silently add an offset to the archived no-intercept results.
+
+## Reproducibility and credits
+
+Results were generated on 2026-10-25 with R 4.5.1, flashier 1.0.60,
+ebnm 1.1-42 and the pinned cNMF source revision
+`5dbc5baaa0b9079b55bce554d801caa235a50457` in a cNMF 1.7.1 environment.
+Initializer seeds are 14--18. Cell-subset seeds are 101--105.
+Full fits, counts, source hashes, warnings and receipts remain in the local
+scientific archive. This page carries compact derived summaries and does
+not rerun either method during documentation builds.
+
+PBMC3k data: **10x Genomics**. EBMF: **Wei Wang and Matthew Stephens**,
+[JMLR (2021)](https://jmlr.org/papers/v22/20-589.html).
+flashier: **Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens**.
+EBNM: **Jason Willwerscheid, Matthew Stephens and Peter Carbonetto**.
+cNMF: **Dylan Kotliar and contributors**, [eLife (2019)](https://doi.org/10.7554/eLife.43803).
+The variance-floor workflow adapts the credited flashier single-cell tutorial.
+This comparison code and prose are independently written; upstream notices
+remain intact. See the [full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

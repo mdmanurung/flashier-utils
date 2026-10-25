@@ -82,8 +82,9 @@ def check_site(repo, site):
                         for path in article_sources if path.parent != vignette_dir}
     require(len(tutorials) <= 4,
             f"Teaching vignette limit exceeded: {len(tutorials)} > 4")
-    require(website_articles <= {"articles/plot-gallery.Rmd"},
-            f"Unapproved website article: {sorted(website_articles - {'articles/plot-gallery.Rmd'})}")
+    approved_articles = {"articles/plot-gallery.Rmd", "articles/ebmf-cnmf-comparison.Rmd"}
+    require(website_articles <= approved_articles,
+            f"Unapproved website article: {sorted(website_articles - approved_articles)}")
     articles = {path.stem for path in article_sources}
     require(len(articles) == len(article_sources), "Duplicate article names")
     actual_articles = {path.stem for path in (site / "articles").glob("*.html")} - {"index"}
@@ -98,6 +99,9 @@ def check_site(repo, site):
     prefix = canonical.path.rstrip("/") + "/"
 
     def stale_article(link, source):
+        url = urlsplit(link)
+        if url.netloc and (url.netloc != canonical.netloc or not url.path.startswith(prefix)):
+            return
         match = re.search(r"(?:^|/)articles/([^/?#]+)\.html(?:[?#]|$)", link)
         if match and match.group(1) not in articles | {"index"}:
             errors.append(f"Stale tutorial link: {source}: {link}")

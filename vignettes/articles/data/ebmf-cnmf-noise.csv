@@ -1,0 +1,25 @@
+model,variance,S,requested,completed,failed,capped,rank_min,rank_max
+Nonnegative EBMF,v0,floor,2,2,0,0,12.0,12.0
+Semi-nonnegative EBMF,v0,floor,2,2,0,0,12.0,12.0
+Signed EBMF,v0,floor,2,2,0,0,12.0,12.0
+Nonnegative EBMF,v0,none,2,2,0,0,12.0,12.0
+Semi-nonnegative EBMF,v0,none,2,2,0,0,12.0,12.0
+Signed EBMF,v0,none,2,2,0,0,12.0,12.0
+Nonnegative EBMF,v1,floor,2,2,0,0,12.0,12.0
+Semi-nonnegative EBMF,v1,floor,2,2,0,0,12.0,12.0
+Signed EBMF,v1,floor,2,2,0,0,12.0,12.0
+Nonnegative EBMF,v1,none,2,2,0,0,12.0,12.0
+Semi-nonnegative EBMF,v1,none,2,2,0,0,12.0,12.0
+Signed EBMF,v1,none,2,2,2,0,,
+Nonnegative EBMF,v12,floor,2,2,2,0,,
+Semi-nonnegative EBMF,v12,floor,2,2,1,0,12.0,12.0
+Signed EBMF,v12,floor,2,2,0,0,7.0,7.0
+Nonnegative EBMF,v12,none,2,2,0,0,12.0,12.0
+Semi-nonnegative EBMF,v12,none,2,2,0,0,7.0,7.0
+Signed EBMF,v12,none,2,2,0,0,6.0,6.0
+Nonnegative EBMF,v2,floor,5,5,0,0,9.0,12.0
+Semi-nonnegative EBMF,v2,floor,5,5,0,0,12.0,12.0
+Signed EBMF,v2,floor,5,5,0,0,8.0,8.0
+Nonnegative EBMF,v2,none,2,2,0,0,9.0,11.0
+Semi-nonnegative EBMF,v2,none,2,2,0,0,12.0,12.0
+Signed EBMF,v2,none,2,2,0,0,8.0,8.0

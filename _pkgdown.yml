@@ -18,6 +18,8 @@ navbar:
           href: articles/compare-priors.html
         - text: Pancreas interpretation and transfer
           href: articles/pancreas-programs.html
+        - text: EBMF versus cNMF
+          href: articles/ebmf-cnmf-comparison.html
     gallery:
       text: Plot gallery
       href: articles/plot-gallery.html
@@ -37,6 +39,9 @@ articles:
   - title: Plot gallery
     contents:
       - articles/plot-gallery
+  - title: Factorization case study
+    contents:
+      - articles/ebmf-cnmf-comparison
 reference:
   - title: Fit and extract factors
     contents:

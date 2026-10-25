@@ -1,0 +1,1168 @@
+track,kind,model,reference,target,factor,counterpart,loading_cosine,score_correlation,score_relative_l2,qualified
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F1,F1,0.999999999999672,0.9999999999989068,2.201048290279169e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F2,F2,0.99999999935977,0.9999999967749584,3.9645683947097976e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F3,F3,0.9999999999394692,0.9999999999609898,9.114314729866097e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F4,F4,0.9999999936095084,0.9999999985750012,6.350517174535838e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F5,F5,0.9999999991195572,0.9999999998381256,3.42625021565493e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F6,F6,0.9999999999953304,0.9999999999916585,4.829350679963126e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F7,F7,0.9999999998002306,0.9999999998444832,1.7668456324138115e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F8,F8,0.99999999916548,0.999999999761829,3.490636635791737e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F9,F9,0.9999999999999296,0.9999999999976116,3.260305497787311e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F10,F10,0.9999999999999958,0.9999999999975482,2.7875083457828e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F11,F11,0.999999999999956,0.9999999999982035,1.9351825038133264e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/15,F12,F12,0.9999999999936487,0.99999999998959,6.936742374749771e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F1,F1,0.9999999999997962,0.9999999999992016,2.049712339640444e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F2,F2,0.999999999595462,0.9999999979156964,3.181687901941991e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F3,F3,0.999999999946632,0.9999999999672732,8.192435514903572e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F4,F4,0.9999999959515596,0.999999999107069,5.022126726187139e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F5,F5,0.9999999994355502,0.9999999998973994,2.708551283307928e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F6,F6,0.9999999999972292,0.9999999999946604,3.976694675875695e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F7,F7,0.9999999998779316,0.9999999999013028,1.418068739473834e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F8,F8,0.9999999994777978,0.9999999998505524,2.7745225690356587e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F9,F12,0.9999999999999554,0.999999999998454,2.6268938179260058e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F10,F9,0.9999999999999972,0.9999999999984158,2.2417906399717597e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F11,F10,0.9999999999999694,0.999999999998857,1.547566588396082e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/16,F12,F11,0.999999999994978,0.9999999999920668,5.874511849424627e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F1,F1,0.9999999999999292,0.999999999999819,7.351283126091291e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F2,F2,0.999999999856021,0.9999999992628996,1.87016718326984e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F3,F3,0.9999999999932492,0.9999999999965016,3.405611383517455e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F4,F4,0.9999999984598454,0.9999999996923448,2.9553662083257973e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F5,F5,0.999999999826958,0.99999999996861,1.5488210144776246e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F6,F6,0.9999999999989716,0.9999999999981274,2.297245816844038e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F7,F8,0.9999999999209136,0.999999999944974,1.0453155073182653e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F8,F7,0.9999999998041488,0.9999999999415816,1.647562758898699e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F9,F9,0.9999999999999848,0.9999999999994584,1.5303198863546096e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F10,F10,0.999999999999999,0.9999999999994396,1.3175029276732747e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F11,F12,0.9999999999999928,0.9999999999996108,9.080581082677156e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/17,F12,F11,0.9999999999999548,0.9999999999993548,1.9896463929039698e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F1,F1,0.9999999999999905,0.999999999999921,8.232768676243706e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F2,F2,0.999999999987318,0.9999999999362952,5.515197938383734e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F3,F3,0.9999999999995548,0.9999999999996548,9.03149527630224e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F4,F4,0.9999999998690192,0.9999999999722776,8.965143566122416e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F5,F5,0.9999999999839816,0.9999999999970052,4.599375302518441e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F6,F6,0.9999999999997112,0.9999999999998508,8.33395741147328e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F7,F7,0.9999999999965546,0.9999999999971736,2.411031779202472e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F8,F8,0.999999999983032,0.9999999999951708,4.7536330551633925e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F9,F9,0.9999999999999984,0.9999999999999528,4.6120112570033285e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F10,F10,0.9999999999999998,0.9999999999999512,3.8873352644900956e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F11,F12,0.9999999999999988,0.9999999999999648,2.714415827413551e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/14,full/signed/18,F12,F11,0.999999999999938,0.9999999999998757,8.104149181471588e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F1,F1,0.9999999999999838,0.9999999999999653,2.676262040366572e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F2,F2,0.9999999999727084,0.999999999875454,7.842494929133738e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F3,F3,0.999999999999532,0.9999999999995656,1.2564133834935764e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F4,F4,0.9999999997337612,0.9999999999379376,1.329656280385215e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F5,F5,0.999999999964796,0.9999999999932052,7.185026026373403e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F6,F6,0.9999999999997258,0.9999999999996548,9.054384265580238e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F7,F7,0.9999999999902444,0.9999999999933082,3.606471259399988e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F8,F8,0.9999999999635196,0.9999999999896684,7.1671729571897005e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F9,F12,0.9999999999999972,0.9999999999999092,6.34245247387515e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F10,F9,0.9999999999999996,0.9999999999999046,5.466020091100549e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F11,F10,0.9999999999999992,0.9999999999999248,3.898922785869235e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/16,F12,F11,0.9999999999999212,0.9999999999998018,1.111950427526841e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F1,F1,0.9999999999998974,0.9999999999995992,1.504107876369775e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F2,F2,0.9999999998169642,0.9999999991101792,2.104689033959323e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F3,F3,0.9999999999113708,0.9999999999519488,9.70904768361651e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F4,F4,0.9999999983403876,0.9999999995817768,3.422647816283744e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F5,F5,0.9999999997174558,0.999999999947492,1.8861137859818163e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F6,F6,0.9999999999986492,0.9999999999976684,2.5458141560303923e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F7,F8,0.9999999999332366,0.9999999999553596,9.91151521390379e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F8,F7,0.999999999776245,0.999999999933608,1.875389321496533e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F9,F9,0.9999999999999808,0.999999999999337,1.7343622183935512e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F10,F10,0.9999999999999988,0.9999999999993228,1.4764005933558992e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F11,F12,0.9999999999999843,0.9999999999994684,1.044416796764044e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/17,F12,F11,0.9999999999944889,0.9999999999916668,5.4904865884163246e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F1,F1,0.9999999999996988,0.999999999999264,1.524915134738576e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F2,F2,0.9999999995252692,0.9999999976168528,3.413688855841895e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F3,F3,0.9999999999490822,0.9999999999677668,8.246516904315622e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F4,F4,0.9999999953081824,0.999999998944337,5.455144024008921e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F5,F5,0.9999999993408456,0.9999999998791332,2.9663574849141918e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F6,F6,0.99999999999518,0.9999999999934442,4.119423647508494e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F7,F7,0.9999999998490916,0.9999999998834306,1.527169755635975e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F8,F8,0.9999999993863312,0.9999999998246908,3.016073302528978e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F9,F9,0.9999999999999486,0.9999999999982374,2.7993096799073782e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F10,F10,0.9999999999999968,0.9999999999981884,2.399105654814758e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F11,F12,0.999999999999968,0.999999999998671,1.6643835267318522e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/15,full/signed/18,F12,F11,0.999999999994842,0.9999999999916922,6.135675663216377e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F1,F1,0.9999999999999574,0.9999999999997522,1.3857081592660037e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F2,F2,0.999999999928838,0.9999999996464052,1.3270828018252228e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F3,F3,0.9999999999178856,0.9999999999574076,9.146954006008426e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F4,F4,0.9999999994034556,0.9999999998413298,2.0958823656499272e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F5,F5,0.9999999998805044,0.9999999999780572,1.1713267151440968e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F6,F6,0.9999999999995056,0.9999999999990928,1.6943793759562782e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F7,F8,0.999999999963054,0.9999999999768762,7.415640749061371e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F8,F7,0.9999999999198316,0.9999999999745184,1.1686287722208409e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F9,F10,1.0000000000000002,0.9999999999997308,9.342911579887456e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F10,F12,0.999999999999992,0.9999999999997864,6.603217001975517e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F11,F11,0.9999999999957137,0.9999999999935784,4.542704943367162e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/17,F12,F9,0.9999999999999928,0.999999999999736,1.1033112952987372e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F1,F1,0.999999999999822,0.999999999999531,1.3245775487436825e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F2,F2,0.9999999997247214,0.9999999985797576,2.6309459858791154e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F3,F3,0.9999999999554582,0.9999999999733388,7.354164356454453e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F4,F4,0.999999997276928,0.9999999993937988,4.126431419492431e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F5,F5,0.9999999996095827,0.9999999999294448,2.2486563399011717e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F6,F6,0.9999999999971988,0.9999999999960916,3.242707976882809e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F7,F7,0.9999999999154654,0.9999999999318482,1.1772847414218377e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F8,F8,0.9999999996489108,0.9999999998993152,2.300200655944812e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F9,F10,0.9999999999999988,0.999999999998921,1.8535202600307127e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F10,F12,0.9999999999999798,0.9999999999992228,1.276788645159207e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F11,F11,0.9999999999960324,0.9999999999938614,5.081636990451872e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/16,full/signed/18,F12,F9,0.9999999999999706,0.9999999999989476,2.1659984394817424e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F1,F1,0.9999999999999374,0.999999999999896,5.54740811369344e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F2,F2,0.9999999999272308,0.9999999996314136,1.3202142636978224e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F3,F3,0.9999999999917516,0.9999999999961494,3.285482564232693e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F4,F4,0.9999999992269516,0.9999999998487812,2.0615280635482163e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F5,F5,0.999999999914956,0.9999999999847536,1.091026965389727e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F6,F6,0.9999999999986228,0.9999999999989024,1.6026498247840552e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F7,F8,0.9999999999021424,0.9999999999695104,1.179079681334054e-05,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F8,F7,0.9999999999447208,0.9999999999639486,8.508983528418065e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F9,F9,0.9999999999999922,0.9999999999997312,1.069928196713854e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F10,F10,0.9999999999999996,0.9999999999997196,9.297716700770042e-07,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F11,F11,0.999999999999982,0.999999999999612,1.3431510821732774e-06,True
+Common-input counts,initialization,Signed EBMF,full/signed/17,full/signed/18,F12,F12,0.9999999999999976,0.999999999999807,6.404902495430868e-07,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F1,F1,0.9999996277105472,0.999999732700072,0.0008166118927832,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F2,F2,0.9999546146075028,0.9999916983335562,0.0033434101654714,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F3,F3,0.9999877023789584,0.9999944657445656,0.003331429982717,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F4,F4,0.999999127788252,0.999999998677828,0.0002097740619147,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F5,F5,0.99999999963345,0.9999999999999754,1.434274548792945e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F6,F6,0.9981270909888112,0.9909396077027004,0.0686576086863717,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F7,F7,0.9999997378305046,0.999999999990891,1.0721224654261715e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F8,F8,0.9999996202057352,0.9999999864534992,0.0002190205650384,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F9,F9,0.9989451778986532,0.9975630165619046,0.0674171768093876,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F10,F10,0.999999997730596,0.9999999999930742,4.6677868662524345e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F11,F12,-2.995117817447771e-05,-0.0079641589058464,1.3742969244932808,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/15,F12,F11,0.9999999972389436,0.9999999999967536,3.3292742197044885e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F1,F1,0.9999999519363656,0.9999999472409584,0.0003158920964973,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F2,F2,0.9999999997603986,0.999999999935877,9.3398318286904e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F3,F3,0.9999999981743456,0.9999999990781636,4.232026772763692e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F4,F4,0.9999999999826789,0.9999999999993427,1.1500166066138927e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F5,F5,0.999999999999999,1.0,6.762108787660164e-08,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F6,F6,0.9999999986722852,0.99999999966746,1.418345601577986e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F7,F10,0.9999999947922696,0.9999999999905956,2.663056441192926e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F8,F11,0.9999995288436334,0.999999998583418,0.0001064368512191,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F9,F7,0.9999999999801348,0.9999999999903711,4.216024123309257e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F10,F9,0.9999999999999996,0.9999999999999992,5.7380747997603904e-08,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F11,F8,0.9999999999999992,1.0,7.237764953093506e-08,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/16,F12,F12,0.9999999999999992,1.0,4.6483705652738257e-08,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F1,F11,0.0005416752833175,-0.0175142045224592,1.089045100007916,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F2,F2,0.9963362670432176,0.998431144972454,0.0442201080724198,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F3,F3,0.9997280414922768,0.9998807317652464,0.0153890063623452,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F4,F4,0.9998788628985118,0.9999996696316809,0.0008471500656329,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F5,F5,0.9999999848811304,0.9999999999998715,0.0002990068034126,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F6,F6,0.9931581404813415,0.9911358892708813,0.0685514868209894,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F7,F1,0.8096269525827235,0.9206514113856008,0.5652650459212178,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F8,F12,-4.042550894629643e-05,-0.0057012722226322,1.2654294835216986,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F9,F7,0.999022994288366,0.99758704158948,0.0667194048706532,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F10,F8,0.999999983932684,0.9999999963542748,0.0003148665104597,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F11,F10,0.9999999961786556,0.9999999999925394,0.0001619076930428,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/17,F12,F9,0.9999999877675332,0.999999999989642,5.989132091858708e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F1,F1,0.999999596846768,0.9999997097154923,0.0008321460230586,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F2,F2,0.9999546126544304,0.999991696196866,0.0033440411053683,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F3,F3,0.9999876471439147,0.999994438287045,0.0033395413757177,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F4,F4,0.9999991277446492,0.9999999986845024,0.0002098550426497,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F5,F5,0.9999999996333632,0.9999999999999752,1.4361565703152943e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F6,F6,0.99812708161435,0.9909395663762256,0.0686577821121922,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F7,F7,0.9999997268880456,0.99999999999142,1.1912619581932576e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F8,F8,0.9999994844498424,0.9999999847858616,0.000236953483969,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F9,F9,0.9989451643729896,0.9975630094597044,0.0674172503992314,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F10,F10,0.9999999977305998,0.9999999999930728,4.66235858638165e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F11,F12,-2.9951194929554457e-05,-0.0079641589004543,1.3742969287643922,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/14,full/semi/18,F12,F11,0.9999999972389734,0.999999999996754,3.3274251360816373e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F1,F1,0.9999994616249795,0.9999995510317178,0.0009592735106531,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F2,F2,0.999954609709158,0.9999916922064888,0.0033482755452811,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F3,F3,0.9999874257383966,0.9999943313740052,0.003373369044493,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F4,F4,0.9999991273962746,0.9999999987348914,0.0002094221793922,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F5,F5,0.9999999996336292,0.9999999999999752,1.4274927886336968e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F6,F6,0.9981270839413514,0.990939705766154,0.0685189569299093,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F7,F10,0.9999996819647032,0.9999999999993692,3.612720657370574e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F8,F11,0.9999984465673064,0.9999999762767872,0.0003216935484372,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F9,F7,0.9989450705497508,0.997562913330129,0.0680618305915989,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F10,F9,0.9999999977306782,0.999999999993221,4.660152493497124e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F11,F12,0.9999999972391822,0.9999999999967548,3.2993547938305314e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/16,F12,F8,-2.9950939838674333e-05,-0.0079641589554197,1.4577479017513737,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F1,F10,0.0005844616902441,-0.0138009064221658,1.1036379663359417,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F2,F2,0.9963402271747648,0.9984417967766788,0.044076239199112,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F3,F3,0.9996122348861484,0.9998275154193396,0.0185452060500777,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F4,F4,0.9998765601043428,0.9999996277132897,0.0008641837429002,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F5,F5,0.999999985893432,0.9999999999998798,0.0002846617032202,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F6,F6,0.992543421081488,0.9938061518039432,0.0575530874605973,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F7,F1,0.8098416315886607,0.9206505710767025,0.5652585749781228,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F8,F12,-4.018965039023301e-05,-0.0057022018531231,1.2654981464813695,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F9,F7,0.9999828399027036,0.9999959133765984,0.0037134713371296,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F10,F8,0.9999999860557798,0.999999996657862,0.0003166013580371,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F11,F9,0.9999999906022258,0.999999999992247,5.77171350354104e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/17,F12,F11,0.9999997390731064,0.9999998416978656,0.0005597977372092,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F1,F1,0.9999999972763456,0.999999998465327,5.468029424175347e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F2,F2,0.9999999999891998,0.9999999999974748,1.9754035657689377e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F3,F3,0.9999999999271432,0.9999999999613745,8.653292199705072e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F4,F4,0.9999999999974468,0.9999999999999912,1.770810337917232e-07,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F5,F5,0.9999999999999998,1.0,1.8822242766845442e-08,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F6,F6,0.999999999936304,0.9999999999836812,3.03316005471923e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F7,F7,0.999999999499742,0.9999999999999616,1.3620400948503662e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F8,F8,0.9999999860845612,0.9999999999516016,1.868602307728078e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F9,F9,0.9999999999995206,0.9999999999997522,6.964049725814807e-07,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F10,F10,0.9999999999999998,1.0,9.408274157739785e-09,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F11,F11,0.9999999999999994,1.0,2.878322132733205e-09,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/15,full/semi/18,F12,F12,0.9999999999999762,0.9999999999999688,2.491153162341736e-07,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F1,F11,0.0005419004854469,-0.0175134909932168,1.0890598057162626,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F2,F2,0.996336436787318,0.9984317240908908,0.0442119599683786,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F3,F3,0.9997294288761246,0.9998813913369852,0.015346783795075,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F4,F4,0.999878867098877,0.9999996687077196,0.0008482333153141,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F5,F5,0.999999984886806,0.9999999999998715,0.0002989391621546,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F6,F6,0.9931596906514886,0.9911363797505944,0.068549189856138,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F7,F7,0.999022898703994,0.9975869422248498,0.0667207512742639,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F8,F10,0.9999999961791296,0.9999999999925444,0.0001618353322173,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F9,F8,0.999999983937555,0.9999999963577524,0.0003148167837578,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F10,F1,0.8095978381867605,0.9206509108241604,0.565288852468302,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F11,F12,-4.046552098937848e-05,-0.0057009800782078,1.2653856958745493,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/17,F12,F9,0.9999999877681878,0.9999999999896512,5.984487568756085e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F1,F1,0.9999994117260772,0.9999995101213116,0.0009897118355141,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F2,F2,0.9999546076673932,0.9999916900453192,0.0033459160519445,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F3,F3,0.9999873697742973,0.9999943035391629,0.0033791349524454,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F4,F4,0.9999991273442446,0.9999999987414124,0.0002095465654136,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F5,F5,0.9999999996335432,0.9999999999999748,1.4293951830226738e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F6,F6,0.9981270740500682,0.990939664310356,0.0686577353547888,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F7,F9,0.9989450570183912,0.99756290622503,0.0674186212116287,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F8,F12,-2.9950956593770108e-05,-0.0079641589500277,1.3742968818655577,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F9,F10,0.9999999977306822,0.9999999999932192,4.654618759643479e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F10,F7,0.9999996686237452,0.9999999999990776,3.7469443562087935e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F11,F8,0.999998148886478,0.9999999740854668,0.0003399820591997,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/16,full/semi/18,F12,F11,0.9999999972392116,0.999999999996755,3.297536339254783e-06,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F1,F7,0.8098463777775002,0.9206505223907864,0.4396205988988625,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F2,F2,0.996340199903066,0.99844168791183,0.0441077664416396,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F3,F3,0.9996119028029586,0.9998273528864948,0.0184845946092824,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F4,F4,0.9998765820068112,0.9999996278269216,0.0008640188147282,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F5,F5,0.9999999858954411,0.9999999999998792,0.0002845618773335,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F6,F6,0.9925431638077656,0.9938060869519189,0.0580419512959529,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F7,F9,0.999982839810281,0.999995912981426,0.0037050697143283,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F8,F10,0.9999999860565396,0.9999999966578844,0.0003164954147624,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F9,F11,0.9999999906024956,0.999999999992247,5.771668521225123e-05,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F10,F1,0.0005844001764631,-0.0138010718948441,2.2986418209116697,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F11,F12,0.9999997389397028,0.9999998415569692,0.0005600571561475,True
+Common-input counts,initialization,Semi-nonnegative EBMF,full/semi/17,full/semi/18,F12,F8,-4.018262444928373e-05,-0.0057022558522998,1.6316709962332323,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F1,F1,0.9999999999999982,0.9999999999999934,1.1353209662860715e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F2,F2,0.9999999999849044,0.9999999999910532,3.938136543296653e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F3,F3,0.9999999999989138,0.9999999999998912,5.10561531895851e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F4,F4,0.9999999999998704,0.999999999999962,2.628883969968328e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F5,F5,1.0,1.0,2.3872538283820313e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F6,F6,0.9999999999637724,0.9999999997417156,1.0785387098964044e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F7,F7,1.0,1.0,1.2262305953796495e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F8,F9,0.9999999999887336,0.9999999999887412,4.7260727809714175e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F9,F8,0.9999999999988164,0.9999999999999998,2.516779002430713e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F10,F10,1.0,1.0,2.8061816647796993e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F11,F11,1.0,1.0,3.745777449408078e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/15,F12,F12,0.9999999937874652,0.9999999931502664,0.0001164266258124,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F1,F1,0.9999999999999986,0.9999999999999946,9.673456179953799e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F2,F2,0.9999999999800552,0.9999999999879984,4.568199643682015e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F3,F3,0.9999999999992016,0.999999999999901,4.865792998574265e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F4,F4,0.9999999999998566,0.999999999999968,2.422036397217218e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F5,F5,0.9999999999999998,1.0,2.6530006506867527e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F6,F6,0.9999999999733123,0.999999999813888,9.180058999246429e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F7,F7,0.9999999999999998,1.0,3.782124813967148e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F8,F8,0.9999999999952884,0.9999999999952908,3.056580835973204e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F9,F9,0.9999999999991376,0.9999999999999992,2.303217922477995e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F10,F10,1.0000000000000004,0.9999999999999992,3.5646672220386022e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F11,F11,1.0000000000000009,1.0,6.49819109918636e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/16,F12,F12,0.9999999955811708,0.9999999951278328,9.819212519554477e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F1,F1,0.9885630228721536,0.999961043678103,0.0186279844686985,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F2,F2,0.9999798069223524,0.999929756311896,0.0111394855622736,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F3,F3,0.9998289936311452,0.9989434225517494,0.0416033212299364,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F4,F4,0.9999958242805986,0.9999513528650013,0.0094449653652063,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F5,F5,0.9999999948095748,0.9999999999751134,0.0004536809353034,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F6,F6,0.9977288510409288,0.9895216529048412,0.0749291431340046,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F7,F7,0.9999999940372556,0.9999999999737832,4.626353554709615e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F8,F9,0.999533075568878,0.999532711869738,0.0304478179671016,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F9,F8,0.9997592696096754,0.999999816194922,0.0038216750340264,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F10,F12,0.0002290972609284,-0.0073614997508537,1.38185089214864,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F11,F10,0.9999999994614248,0.9999999998455952,8.01093435948944e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/17,F12,F11,0.9999882044532996,0.9999864315553618,0.0051812776338811,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F1,F1,1.0,0.9999999999999992,2.2104236805885612e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F2,F2,0.9999999999992892,0.9999999999995746,8.557875771829974e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F3,F3,0.9999999999999664,0.9999999999999966,9.59293276996748e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F4,F4,0.9999999999999925,0.999999999999998,5.552149047385914e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F5,F5,0.9999999999999996,1.0,3.6802527290571923e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F6,F6,0.9999999999988922,0.9999999999923848,1.85733988449092e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F7,F7,1.0000000000000002,1.0,5.196483686037074e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F8,F8,0.9999999999822,0.999999999982192,5.943781941277266e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F9,F9,0.9999999999999644,0.9999999999999996,5.739113658100586e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F10,F10,1.0,1.0,2.9389950345267316e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F11,F11,1.0000000000000004,1.0,2.330655777096422e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/14,full/nonnegative/18,F12,F12,0.99999999982504,0.9999999998071236,1.9536895623940043e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F1,F1,0.9999999999999998,0.9999999999999996,2.152628601271141e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F2,F2,0.9999999999996424,0.999999999999771,6.367464775019993e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F3,F3,0.999999999999976,0.999999999999998,5.3598197405889454e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F4,F4,0.9999999999999972,0.9999999999999986,5.834663841851213e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F5,F5,1.0,1.0,5.035813241353808e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F6,F6,0.9999999999990988,0.9999999999936078,1.681512555682436e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F7,F7,1.0,0.9999999999999988,2.590407267160314e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F8,F9,0.9999999999999716,0.9999999999999998,2.1961235742218777e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F9,F8,0.9999999999985942,0.9999999999985956,1.669495141794412e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F10,F10,1.0000000000000009,1.0,8.880368406796395e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F11,F11,1.0,1.0,7.068579012860201e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/16,F12,F12,0.9999999998475916,0.9999999998319808,1.823453870348343e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F1,F1,0.9885630241008978,0.999961043760952,0.018627981741019,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F2,F2,0.9999798236216382,0.9999297678450316,0.0111383363901091,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F3,F3,0.9998289948710172,0.9989434268551292,0.0416032168880938,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F4,F4,0.9999958238273676,0.9999513525005652,0.0094450009836822,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F5,F5,0.9999999948097238,0.9999999999751136,0.0004536785499593,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F6,F6,0.9977288504933448,0.9895216916617232,0.0749295406605469,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F7,F7,0.999999994037798,0.9999999999737856,4.626470403496118e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F8,F8,0.9997592672625866,0.9999998162023268,0.0038219219650848,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F9,F9,0.9995332205985744,0.9995328569100356,0.0304430903845958,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F10,F12,0.000229097271094,-0.0073614997368941,1.3818508936278886,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F11,F10,0.9999999994614366,0.9999999998455952,8.010946933872968e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/17,F12,F11,0.9999876574360308,0.9999858150173292,0.0052976337150218,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F1,F1,0.9999999999999988,0.9999999999999952,9.41629058858153e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F2,F2,0.9999999999907376,0.9999999999945286,3.083311268567118e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F3,F3,0.9999999999992576,0.9999999999999264,4.209904048108281e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F4,F4,0.9999999999999228,0.9999999999999748,2.144689711331758e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F5,F5,1.0,1.0,1.299083261505936e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F6,F6,0.9999999999750812,0.999999999821767,8.953767454880381e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F7,F7,1.0,1.0,7.197193960376082e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F8,F9,0.9999999999991882,0.9999999999999996,1.943674424065344e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F9,F8,0.9999999999992564,0.9999999999992526,1.2177116167690136e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F10,F10,0.9999999999999998,0.9999999999999992,2.726219883912074e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F11,F11,1.0000000000000002,1.0,4.5764386820124655e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/15,full/nonnegative/18,F12,F12,0.9999999956976384,0.9999999952562154,9.688993256525004e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F1,F1,0.9885630238549482,0.9999610437330876,0.0186279843385251,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F2,F2,0.9999798264974818,0.9999297698146176,0.0111381364199703,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F3,F3,0.9998289951272166,0.998943427786363,0.041603199242736,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F4,F4,0.9999958237105698,0.9999513524352238,0.0094450044192793,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F5,F5,0.9999999948096918,0.9999999999751132,0.00045368358739,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F6,F6,0.9977288455455104,0.9895216770384064,0.0749295661864322,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F7,F7,0.9999999940376868,0.999999999973784,4.626726545616302e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F8,F9,0.9995331693601512,0.9995328056782004,0.030444760438071,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F9,F8,0.9997592669631052,0.999999816199744,0.0038219014683293,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F10,F12,0.0002290972735135,-0.0073614997367542,1.3818508942117764,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F11,F10,0.9999999994614424,0.9999999998455952,8.010878168670656e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/17,F12,F11,0.999987743934844,0.9999859124831706,0.0052794100017346,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F1,F1,0.9999999999999992,0.9999999999999964,7.882591615279122e-08,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F2,F2,0.9999999999868652,0.99999999999209,3.7135722481375938e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F3,F3,0.9999999999994912,0.9999999999999342,3.983309180020785e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F4,F4,0.9999999999999136,0.9999999999999796,1.9421753818256098e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F5,F5,1.0,1.0,6.331909552007235e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F6,F6,0.9999999999828528,0.9999999998806672,7.349727936311166e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F7,F7,0.9999999999999998,0.9999999999999996,3.262727297658718e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F8,F8,0.9999999999958034,0.999999999995798,2.887202948054504e-06,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F9,F9,0.9999999999994508,0.9999999999999996,1.729802857692537e-07,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F10,F10,0.9999999999999996,0.9999999999999988,3.5237130846216563e-09,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F11,F11,0.9999999999999998,1.0,4.2552258507300544e-10,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/16,full/nonnegative/18,F12,F12,0.999999997164754,0.999999996873744,7.86553681963604e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F1,F1,0.9885630231746644,0.999961043730876,0.018900092022957,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F2,F2,0.9999798103694252,0.9999297587683804,0.0111667674256003,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F3,F3,0.9998289937128768,0.998943423059096,0.0417433762214999,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F4,F4,0.9999958241031476,0.9999513527604624,0.0094515664132339,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F5,F5,0.9999999948096124,0.9999999999751132,0.0004534715495725,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F6,F6,0.9977288520634324,0.9895216614356184,0.0769560046773539,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F7,F7,0.9999999940372756,0.9999999999737834,4.626193270994142e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F8,F9,0.9997592688031962,0.9999998161949964,0.0038073659136214,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F9,F8,0.9995332578625504,0.9995328942773076,0.0304298780206588,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F10,F11,0.999999999461414,0.9999999998455952,8.011538501225399e-05,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F11,F12,0.999988113522321,0.9999863290543616,0.0052012279178946,True
+Common-input counts,initialization,Nonnegative EBMF,full/nonnegative/17,full/nonnegative/18,F12,F10,0.000229097254885,-0.0073614997484841,1.448827882893987,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,1,1,0.9687660436236006,0.9576187873338178,0.1909291070046686,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,2,2,0.9903848923685512,0.9766450297540988,0.1979737836719468,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,3,3,0.9708272264218264,0.9299427155890354,0.3475176490476898,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,4,4,0.9864177562904348,0.9786880699196092,0.2049550912086077,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,5,6,0.9142832190994472,0.8067389975467582,0.5718684447134562,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,6,5,0.999559249394696,0.9990803763327244,0.0419143662980712,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,7,7,0.0599590291233696,-0.0607019408168714,1.6486705882176425,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,8,9,0.0524670187597203,-0.0138462239747911,1.608960252077063,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,9,8,0.999963990041432,0.9996959564401254,0.0244985548075009,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,10,10,0.9998857561934263,0.9996220334212202,0.0270998916352018,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,11,12,0.9999633110854927,0.9950957567224392,0.1118929116096216,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/15,12,11,0.9999989122586213,0.9999833165475632,0.0057501175559668,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,1,1,0.9886287468559828,0.9567676476539122,0.1959590530643297,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,2,2,0.9892376155871336,0.9793972104868544,0.1855838049630738,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,3,4,0.9673658735915218,0.9302067674532104,0.3487386577000773,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,4,3,0.9986149077479232,0.994300378267794,0.1014135100594308,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,5,6,0.8941966235844363,0.8042058363621248,0.5749685037591019,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,6,5,0.9997080287297652,0.9991415258516848,0.0405468497960982,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,7,7,0.0395201276253608,-0.0497002013060763,1.5749024455135785,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,8,9,0.0524519682163826,-0.0171274192492038,1.6138605434668742,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,9,8,0.9987774886832084,0.999403282413846,0.034131271315283,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,10,10,0.999825927093366,0.9995477735095264,0.0297305527929023,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,11,12,0.999146514096925,0.99817198271362,0.059917053820641,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/16,12,11,0.9999988900403513,0.99997728974871,0.0067583537142419,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,1,1,0.98219111452124,0.9576668205275146,0.1926050560129146,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,2,2,0.9986275975160996,0.9991532497915696,0.040841434495868,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,3,3,0.9983997378896644,0.9992725779962744,0.0389114631563467,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,4,4,0.9990233147002388,0.9989783312300818,0.0478185763804792,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,5,6,0.8943697164172226,0.8040740260254791,0.5751228892189877,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,6,5,0.9995909832043236,0.999123444587,0.0408544019257544,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,7,7,0.9983726851790408,0.998676297828807,0.050131854228588,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,8,9,0.0526456945069986,-0.0171472325485703,1.6137374039359325,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,9,8,0.9998836148361808,0.999904653772537,0.0136523592015065,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,10,10,0.9997621947805108,0.9995173429917732,0.0306372297805061,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,11,12,0.9991196649711857,0.9958927834099272,0.0994390379083891,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/17,12,11,0.9999989288648664,0.9999901374281928,0.0044228132469313,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,1,1,0.9836105226465266,0.9582538482460716,0.1931154468046569,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,2,2,0.9913730822703716,0.9793186821197768,0.1878080108733011,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,3,3,0.972835871719978,0.932450756731798,0.3409617783829423,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,4,4,0.997577607273022,0.9903532867868292,0.1371921806784466,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,5,6,0.99977079079438,0.8081484382350669,0.5641930424053125,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,6,5,0.9998346866591736,0.999672226600641,0.0260459211477768,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,7,7,0.0464341896385739,-0.0547560572179654,1.611244121393648,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,8,11,0.0524866008373289,-0.0129035984058475,1.6082878958109483,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,9,8,0.9993759754487614,0.9998555511249596,0.0168535335905147,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,10,9,0.999943424512141,0.9998369886938931,0.0192419295683866,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,11,12,0.9997564345987442,0.9961519017660068,0.0984599877033349,True
+Common-input counts,initialization,cNMF,full/cnmf/14,full/cnmf/18,12,10,0.9999919076884008,0.9999865425879806,0.0053757232659724,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,1,1,0.9781672504416744,0.9982707468997016,0.0422171585998653,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,2,2,0.998613033454222,0.9982979940746636,0.0529646607526905,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,3,4,0.9992633275078412,0.999358818577271,0.0353983502896458,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,4,3,0.9848499691044026,0.9841277809793778,0.2019953087827448,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,5,5,0.999837861860619,0.999905186724519,0.0141204021734181,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,6,6,0.9918977464570372,0.9987301595060796,0.0486235375166425,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,7,7,0.9592446544496236,0.9584964601780293,0.2831792631853311,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,8,8,0.9990699974563146,0.9997974932178728,0.0199115984468715,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,9,9,0.9996192191185488,0.998409030835964,0.0573582411391614,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,10,10,0.9999633829449506,0.9999449687983372,0.0107955229484672,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,11,11,0.9999990521273576,0.9999914469168282,0.0042258597167278,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/16,12,12,0.9991455125546566,0.996833105865754,0.0942835141060709,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,1,1,0.9940716220130704,0.9962211608086332,0.0587807132180097,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,2,2,0.98980090915094,0.9736990380205084,0.2088971364555316,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,3,3,0.9665080127988446,0.9233382096973788,0.400499578031332,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,4,4,0.9899176174169484,0.9847120812749328,0.1826298294500309,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,5,5,0.9998415691804844,0.99985305166501,0.0172923867743087,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,6,6,0.9920246154722308,0.998871802893256,0.0454063839623652,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,7,7,0.0608439354219885,-0.0623180529137075,1.2458249559593626,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,8,8,0.9998616375627514,0.999496138500748,0.0315605248830603,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,9,9,0.9996236357341842,0.99846396065341,0.056405669218962,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,10,10,0.9999466653689996,0.9998688844112048,0.0159642557333561,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,11,11,0.9999995865189116,0.9999941170864672,0.0034125784169926,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/17,12,12,0.999124993368425,0.9996553270266084,0.0284616975190761,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,1,1,0.9948007726461005,0.999241167550634,0.0322573088579379,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,2,2,0.9995820499598936,0.9994249072042364,0.032099291528026,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,3,3,0.9991751098177708,0.9995979614042751,0.0283893955436888,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,4,4,0.9923922481446644,0.9952576686104672,0.1011656269929464,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,5,5,0.9997521740454156,0.9994687009239333,0.0321812153446503,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,6,6,0.915603094872679,0.997714486921374,0.1053848041536053,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,7,7,0.988881743334312,0.9907733365547424,0.1384981000074474,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,8,8,0.9993495749701362,0.9998298155154292,0.0185828532712534,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,9,11,0.9996470008897124,0.9966404014891632,0.0840614087406519,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,10,9,0.9999088618306816,0.999754734250212,0.0228105062804106,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,11,10,0.9999914371173771,0.9999956976879752,0.0033516671101304,True
+Common-input counts,initialization,cNMF,full/cnmf/15,full/cnmf/18,12,12,0.9997242243130346,0.9996379142715448,0.0278862349491313,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,1,1,0.9913884704577612,0.9960485328513174,0.0603557019904564,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,2,2,0.9879711032928962,0.975980196768308,0.2001034114924436,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,3,4,0.9976361319489048,0.9934866688716676,0.1109220078053391,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,4,3,0.961659425697602,0.9231473573212344,0.4068095453734893,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,5,5,0.999796178764567,0.999910627486438,0.0131490731386534,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,6,6,0.999772996367008,0.9999089449944248,0.013676764701477,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,7,7,0.0382843860280989,-0.0503021553572693,1.2854433552763456,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,8,8,0.9987885561105424,0.9993077764221804,0.036837008512756,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,9,9,0.9999861002456304,0.9999721181736426,0.0073554406729418,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,10,10,0.9999485065889002,0.99990367430715,0.0141496189455598,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,11,11,0.9999986983811504,0.9999878964844504,0.00498476330988,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/17,12,12,0.999995611192838,0.997807245438336,0.0765840221769283,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,1,1,0.9932468183294754,0.9988634483894512,0.0308694819895606,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,2,2,0.9976477841968464,0.9987159231842382,0.0478559974990831,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,3,4,0.995434175135317,0.9949749292977316,0.1087801029429795,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,4,3,0.997305918433342,0.9990220750405168,0.0466327776896556,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,5,5,0.9997451418858694,0.999408766688853,0.0349159542813256,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,6,6,0.8958659070950667,0.9951813029374004,0.1194967930539124,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,7,7,0.9859954168192108,0.985057328256201,0.1765319407772019,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,8,8,0.998224578961958,0.9994913932870404,0.0315839141186557,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,9,11,0.99999557591342,0.9926631956149752,0.1244814911197743,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,10,9,0.999803793483931,0.9995733165983536,0.0304039910857634,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,11,10,0.9999914614360408,0.9999880275612016,0.0052438685756181,True
+Common-input counts,initialization,cNMF,full/cnmf/16,full/cnmf/18,12,12,0.999781323000424,0.99765074316423,0.0803874233750369,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,1,1,0.9983513424909468,0.9962808691022708,0.0599183109583874,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,2,2,0.9910232186431732,0.9764165020331664,0.1974973943306741,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,3,3,0.9700186397977504,0.926327566115446,0.3561280167330454,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,4,4,0.9986630425807924,0.9933878255497776,0.1107991122286512,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,5,5,0.999729582135905,0.9993200070677156,0.0371543086904091,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,6,6,0.8960920699940946,0.9953420699810324,0.1197981966214752,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,7,7,0.0461017867743277,-0.0558466787300392,1.610241087215195,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,8,8,0.9992685537668826,0.9995945525391812,0.0281051888068519,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,9,11,0.9999884184487402,0.9928364393911,0.1231334599060864,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,10,9,0.9998003962818516,0.9995031477130004,0.0316598509773996,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,11,10,0.9999901389346602,0.9999929415062112,0.0040890270316272,True
+Common-input counts,initialization,cNMF,full/cnmf/17,full/cnmf/18,12,12,0.9997741673754952,0.9997564519848188,0.0222354466161346,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F1,F1,0.9999999999999404,0.9999999999991206,2.1069602283788483e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F2,F2,0.9999999999998772,0.9999999999999653,4.652600524004791e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F3,F3,0.9999999999999982,0.999999999999985,6.129529423031838e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F4,F4,0.999999999999982,0.9999999999999434,7.126602353069935e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F5,F5,0.999999999999816,0.9999999999999928,4.250314975454563e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F6,F6,0.9999999999999142,0.9999999999999718,2.459125290329051e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F7,F7,0.999999999999926,0.9999999999999788,2.546978609355781e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/15,F8,F8,0.9999999999997476,0.999999999999122,1.4256834571021752e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F1,F1,0.9999999999999984,0.9999999999999694,3.9086102722747336e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F2,F2,0.9999999999999972,0.9999999999999988,4.0256733314594454e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F3,F3,0.9999999999999996,0.9999999999999988,4.3364392482589123e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F4,F4,0.9999999999999996,0.9999999999999976,1.1320854025792667e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F5,F5,0.9999999999999905,0.9999999999999988,1.7021608886469146e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F6,F6,0.9999999999999936,0.9999999999999976,6.81742789012574e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F7,F7,0.999999999999994,0.9999999999999984,5.41819065161904e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/16,F8,F8,0.9999999999999956,0.9999999999999792,2.0929252911273035e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F1,F1,0.9999999999999376,0.9999999999992596,1.877303214881821e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F2,F2,0.9999999999998544,0.9999999999999384,4.555670448539675e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F3,F3,0.9999999999999728,0.999999999999363,1.2597041555098572e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F4,F4,0.9999999999999768,0.9999999999999348,7.743309452132082e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F5,F5,0.999999999999901,0.9999999999999925,5.389627246712651e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F6,F6,0.9999999999943928,0.9999999999979422,2.155576317645211e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F7,F7,0.9999999999947872,0.9999999999984548,1.766927559233695e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/17,F8,F8,0.9999999999996422,0.999999999998892,1.5646679912545491e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F1,F1,0.9999999999999984,0.9999999999997704,1.0919096074856796e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F2,F2,0.9999999999999956,0.9999999999999878,1.5706276011398362e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F3,F3,0.9999999999999712,0.9999999999992676,1.1901114601634891e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F4,F4,1.0,0.9999999999999984,4.6425119231636176e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F5,F5,0.9999999999999998,0.999999999999999,4.8062856907111524e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F6,F6,0.9999999999936892,0.9999999999977104,2.2687735559927286e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F7,F7,0.9999999999941974,0.9999999999982784,1.8635622385394531e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/14,log-v2-floor/signed/18,F8,F8,0.9999999999999803,0.999999999999978,2.615134488103845e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F1,F1,0.9999999999999504,0.9999999999989764,2.274604131522264e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F2,F2,0.9999999999999094,0.9999999999999704,4.57706818238831e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F3,F3,0.9999999999999984,0.9999999999999912,5.95296456416216e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F4,F4,0.9999999999999872,0.9999999999999524,6.159429230092668e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F5,F5,0.9999999999997268,0.9999999999999932,2.689413847929646e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F6,F6,0.999999999999955,0.999999999999985,1.81932760642786e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F7,F7,0.9999999999999624,0.999999999999988,2.1159465717084605e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/16,F8,F8,0.9999999999998136,0.9999999999993652,1.2255878276927857e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F1,F1,0.9999999999999978,0.9999999999997188,1.2377946737771077e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F2,F2,0.9999999999999926,0.9999999999999848,1.7481566361712437e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F3,F3,0.999999999999968,0.9999999999991772,1.261656741937374e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F4,F4,0.9999999999999994,0.999999999999997,9.057832153554977e-08,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F5,F5,0.9999999999999866,0.9999999999999988,1.2556322986409974e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F6,F6,0.9999999999930648,0.9999999999974348,2.3883280498029462e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F7,F7,0.9999999999934934,0.9999999999980768,1.970028854890952e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/17,F8,F8,0.999999999999977,0.9999999999999656,3.380480284285853e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F1,F1,0.9999999999999344,0.9999999999987592,2.565701369540544e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F2,F2,0.9999999999998724,0.9999999999999634,5.250286487174274e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F3,F3,0.9999999999999628,0.9999999999990634,1.469103065869734e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F4,F4,0.999999999999984,0.99999999999995,7.036529388486102e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F5,F5,0.9999999999998268,0.9999999999999918,3.95075859615519e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F6,F6,0.9999999999922684,0.999999999997176,2.5028682933382794e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F7,F7,0.9999999999928324,0.9999999999978786,2.0775008631374818e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/15,log-v2-floor/signed/18,F8,F8,0.999999999999766,0.9999999999991102,1.4695499596413117e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F1,F1,0.9999999999999496,0.9999999999991316,2.0344442602379566e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F2,F2,0.9999999999998906,0.9999999999999462,4.429783900933895e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F3,F3,0.9999999999999708,0.9999999999993144,1.293150416081082e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F4,F4,0.999999999999983,0.9999999999999476,6.735314876472913e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F5,F5,0.999999999999834,0.9999999999999928,3.760044554760727e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F6,F6,0.999999999994045,0.999999999997802,2.2199920380128923e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F7,F7,0.9999999999944292,0.9999999999983592,1.8206866358984583e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/17,F8,F8,0.999999999999718,0.9999999999991652,1.3615788888133643e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F1,F1,0.999999999999998,0.9999999999996932,1.244708908493985e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F2,F2,0.999999999999994,0.9999999999999876,1.5627164013120797e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F3,F3,0.9999999999999682,0.9999999999992156,1.232487451747248e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F4,F4,0.9999999999999996,0.999999999999998,1.147569470965864e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F5,F5,0.9999999999999885,0.9999999999999984,1.4354810771457709e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F6,F6,0.9999999999933158,0.9999999999975616,2.3333066810448624e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F7,F7,0.9999999999938188,0.9999999999981768,1.9176210548987032e-06,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/16,log-v2-floor/signed/18,F8,F8,0.9999999999999782,0.9999999999999584,3.305304763339223e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F1,F1,0.9999999999999342,0.9999999999993648,1.7816216176240997e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F2,F2,0.999999999999861,0.9999999999999633,4.615047796468861e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F3,F3,0.9999999999999984,0.999999999999994,6.053295892512112e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F4,F4,0.9999999999999802,0.999999999999943,7.629003241237857e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F5,F5,0.9999999999999086,0.9999999999999932,5.058690612352943e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F6,F6,0.9999999999999744,0.999999999999993,1.2242652202908764e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F7,F7,0.9999999999999823,0.9999999999999942,1.752263059034105e-07,True
+Shifted log: gene variance + S,initialization,Signed EBMF,log-v2-floor/signed/17,log-v2-floor/signed/18,F8,F8,0.9999999999997008,0.9999999999989244,1.5549367982677962e-06,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F1,F1,0.9999986805832692,0.9997028119430168,0.0058820937662289,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F2,F3,0.9999991819584322,0.999999950763594,0.0002969841040476,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F3,F2,0.9999987663243756,0.999997578948002,0.0022260311702681,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F4,F4,0.9999979246677436,0.9999854492468724,0.002872425575904,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F5,F5,0.999999292964904,0.9999995681748212,0.0008429701081095,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F6,F6,0.999184788690243,0.9976028958044528,0.0728867309994621,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F7,F7,0.9944565493192083,0.9645782724960216,0.2707715231333087,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F8,F8,0.9487045940058956,0.9999525390845596,0.0288007011450509,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F9,F9,0.9998231563850348,0.9998724120059456,0.0154138723280077,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F10,F10,0.999997519461142,0.9999999990279252,0.0009528088964047,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F11,F11,0.9999969403205916,0.9999999998857224,0.0003073881035046,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/15,F12,F12,0.9999927190164156,0.9999999690618776,0.0002465647246974,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F1,F1,0.9992212884813984,0.9983606457829745,0.0136668285228304,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F2,F2,0.99931761810744,0.9999889581882492,0.0046838523641823,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F3,F5,0.9985684173151924,0.9997216684071109,0.0214665709868071,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F4,F3,0.99893614253853,0.9997262275040264,0.0124735029021046,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F5,F4,0.9997748557153774,0.9995393244667728,0.0320813163215067,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F6,F6,0.9999947476142,0.99999998844132,0.0015486455655682,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F7,F7,0.9999964472648772,0.9999999898042892,0.0005396543169459,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F8,F8,0.9999798873430222,0.9999999979155666,0.0007570842678093,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F9,F9,0.9996205179924148,0.9999987997498678,0.0075340071638954,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F10,F10,0.999317317238728,0.9999999521723582,0.0173889212473878,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F11,F11,0.9999297975068064,0.9999999971137338,0.0017050125265071,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/16,F12,F12,0.9999879162218138,0.9999999498789844,0.00123670784569,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F1,F1,0.9984427285944696,0.996841347994054,0.0188362976388169,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F2,F2,0.9991956066482264,0.9999181264859786,0.0121809767363429,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F3,F4,0.9978098264737678,0.9996554565511576,0.0243245887075867,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F4,F3,0.9962267187493412,0.9995690581829972,0.0159389092127787,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F5,F5,0.9996686206134416,0.9995057870291284,0.0338581554569147,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F6,F6,0.9996063182179824,0.9988963610537716,0.0465431806897757,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F7,F7,0.9926377283772618,0.9998779627477418,0.0162737912451845,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F8,F8,0.9926983833730156,0.9986897550057456,0.0514554034525168,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F9,F9,0.9964912738293784,0.9979069104862042,0.0627012955966679,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F10,F10,0.9816924828845184,0.9997350135400248,0.0244895424978966,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F11,F11,0.9999044933104096,0.9999999921711268,0.0017740830461136,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/17,F12,F12,-0.0005730275690345,-0.0224211369314053,1.7223383560279222,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F1,F1,0.9992264227968156,0.9983734502174356,0.0136093188751323,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F2,F2,0.9993167727668713,0.999988892005555,0.0046971137972653,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F3,F5,0.9985755330853804,0.9997220995820328,0.0213662816672298,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F4,F3,0.9989454188042236,0.99972470760843,0.0125016811109848,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F5,F4,0.999776250958304,0.9995417634621326,0.0319065746187644,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F6,F6,0.9999945086209624,0.9999999882978776,0.0014602635081335,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F7,F7,0.9999964210443716,0.9999999890391637,0.0004822184196965,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F8,F8,0.999979757127953,0.9999999963345044,0.0006663062924628,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F9,F9,0.9996144989237348,0.999998698936861,0.0075697690919789,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F10,F10,0.9993139749412158,0.999999950513604,0.0175067935912409,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F11,F11,0.9999299710392884,0.999999997107224,0.0017027178004224,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/14,log-v2-floor/semi/18,F12,F12,0.9999887080182608,0.9999999503299442,0.0011864407817502,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F1,F1,0.9992060937558852,0.9981860552292388,0.0145764777523154,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F2,F5,0.9985618215734936,0.999731841279418,0.021438307164018,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F3,F2,0.999312507968912,0.99998886420039,0.004703848888998,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F4,F3,0.998913022754384,0.9997182276463826,0.0126628638002364,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F5,F4,0.9997713183704686,0.9995194295847862,0.0325382739171233,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F6,F6,0.9992503746469784,0.997594741885353,0.0757029662417249,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F7,F7,0.9944705927943204,0.9645763994589192,0.2629848489555676,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F8,F8,0.9486671428980142,0.999952774902766,0.0303301662319972,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F9,F9,0.999809486093012,0.9998844359150988,0.015305055149295,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F10,F10,0.999352766659079,0.9999999613670296,0.0164523880233764,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F11,F11,0.9999264155688058,0.9999999962727796,0.0020115733699981,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/16,F12,F12,0.999985395941018,0.9999999412911252,0.0012536187561042,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F1,F1,0.998427597009808,0.996931757586558,0.0187121728767075,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F2,F4,0.9977841234860918,0.9996722011055847,0.0241669031934923,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F3,F2,0.999188332846702,0.9999190970177518,0.0121078679961714,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F4,F3,0.996208881580132,0.9995761192722108,0.0158320262381295,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F5,F5,0.9996638742719413,0.9994864810869236,0.0342738749799997,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F6,F6,0.9993423554117706,0.9991154251977092,0.05136062048427,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F7,F7,0.9877516503901675,0.964616378203128,0.2626596691411759,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F8,F8,0.9689827821884304,0.9986005792200272,0.0577027113211262,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F9,F9,0.9975857211429184,0.9985621859871298,0.0519942721234856,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F10,F10,0.9818049482298404,0.999735728079119,0.0241381242466339,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F11,F11,0.9999053968186244,0.999999992077936,0.0020798651661558,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/17,F12,F12,-0.0005713481023573,-0.0224235065030714,1.7223498603223706,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F1,F1,0.999211562146922,0.9982000768006573,0.014508314195768,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F2,F5,0.9985695640778632,0.9997326090946668,0.0213103436346739,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F3,F2,0.9993117095212702,0.9999888066422058,0.0047154113573072,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F4,F3,0.9989229018312956,0.999716814430232,0.0126880856785086,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F5,F4,0.9997726783101692,0.9995219423577578,0.0323646217233208,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F6,F6,0.9992539090393008,0.997610920603052,0.0754484959611792,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F7,F7,0.9944726620859424,0.9645759607357542,0.2629850220825362,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F8,F8,0.9488087840155844,0.9999528515099853,0.0302365208046688,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F9,F9,0.9998073903126562,0.9998857765953229,0.0152334254833665,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F10,F10,0.9993496722212528,0.9999999598720216,0.0165703700588566,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F11,F11,0.9999264959813076,0.9999999962627,0.0020092803711766,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/15,log-v2-floor/semi/18,F12,F12,0.9999860067011718,0.9999999416472156,0.0012036996408006,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F1,F1,0.9993350041492106,0.9983903239077064,0.0132746929137256,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F2,F2,0.9999530045976928,0.9999432082501812,0.010166965030734,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F3,F3,0.9975625329500206,0.9997445824037504,0.0122671116915172,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F4,F5,0.9998975485257776,0.9999835952270268,0.0054057316030004,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F5,F4,0.9994510457572148,0.9999716345678984,0.0069345346361703,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F6,F6,0.9996216967915388,0.998891617247462,0.0465971413476121,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F7,F7,0.9926635063206766,0.9998790384576076,0.0163636733480965,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F8,F8,0.9927154535181966,0.9986878084376172,0.0515674298924845,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F9,F9,0.9976947801030278,0.9979577855119854,0.0610618320090851,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F10,F10,0.9828122258696884,0.9997353439876668,0.0244655728467446,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F11,F11,0.9999928798352744,0.9999999879852312,0.0001678859997467,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/17,F12,F12,-0.0005384350531302,-0.0224174239645781,1.7209745518681954,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F1,F1,0.9999998155403462,0.9999998022755432,0.0001859020146104,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F2,F2,0.9999999474922964,0.9999999990426792,4.147484531458838e-05,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F3,F3,0.99999972857226,0.9999999679273752,0.0002613771460825,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F4,F4,0.9999999470017102,0.9999999803767392,0.0002742019284611,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F5,F5,0.9999994703795811,0.9999999685473966,0.0003756147281701,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F6,F6,0.9999999864330054,0.9999999722164976,0.0002495403693625,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F7,F7,0.9999999766348544,0.9999999997763808,6.493638353480032e-05,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F8,F8,0.999999760098101,0.9999999997638868,9.59452160849471e-05,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F9,F9,0.9999999578183612,0.9999999897393548,0.0001388991707091,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F10,F10,0.9999999822521836,0.99999999998579,0.0001199999426596,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F11,F11,0.999999995551376,0.999999999999863,2.3638410528054944e-06,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/16,log-v2-floor/semi/18,F12,F12,0.9999999745326648,0.9999999999971094,5.165121411139303e-05,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F1,F1,0.999328341424344,0.998389846616903,0.0132825958931087,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F2,F2,0.9999537378199932,0.9999433898426298,0.0101628966734216,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F3,F3,0.9975500439387106,0.9997431988034828,0.0123743938964676,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F4,F5,0.9994186900514866,0.9999713191617589,0.0070733982771014,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F5,F4,0.9998972062509244,0.9999831896548484,0.0055249152303959,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F6,F6,0.999623494776756,0.998899657220022,0.0464473974560432,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F7,F7,0.992665672442949,0.999878782618729,0.0164457540669115,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F8,F8,0.9927789467545522,0.9986873957209378,0.0519139516963641,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F9,F9,0.9977038680075362,0.997966492411607,0.0612820776203658,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F10,F10,0.9828091347368466,0.9997353401599628,0.0242999636135341,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F11,F11,0.9999926721698936,0.9999999880038956,0.0001687174959255,True
+Shifted log: gene variance + S,initialization,Semi-nonnegative EBMF,log-v2-floor/semi/17,log-v2-floor/semi/18,F12,F12,-0.0005399902128703,-0.02241743749476,1.2285750489761158,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F1,F5,0.88996602846538,0.4529410757610962,0.4445790789701191,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F2,F2,0.9930276437897172,0.9990805923629468,0.043017820393739,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F3,F3,0.935055177491555,0.9985064978128164,0.1592497584177375,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F4,F4,0.9987708051600278,0.9999316713348,0.0186108152580239,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F5,F1,0.9590648626851564,0.9934880364948028,0.3006177035742973,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F8,F6,0.9981899349829032,0.9999972228328884,0.0069723580285756,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F9,F7,0.9951540170445669,0.9999913430545134,0.016160133970733,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F10,F8,0.9999010167995046,0.9999763364060884,0.0074464260611497,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/15,F11,F9,0.9921892194443348,0.999993854320092,0.0521874341835303,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F1,F1,0.9840099846986162,0.9276535856485296,0.1260911475022779,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F2,F2,0.9980625385083752,0.9996250517132652,0.0283408501220939,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F3,F4,0.989445815899774,0.9997110855124884,0.0368074541132544,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F4,F3,0.9997486852406668,0.999997077525021,0.003336935090144,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F5,F6,0.9989060839139484,0.9995842887938547,0.0271410779024592,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F6,F5,0.9536514337840978,0.976293636198897,0.2409183352375508,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F7,F10,0.063957874297284,-0.0157726874862968,1.991148420684828,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F8,F7,0.9969361647621456,0.99999990914688,0.0226498848462443,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F9,F8,0.9968936967287972,0.9999989227182174,0.0183818653886175,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F10,F9,0.999982420205618,0.999998421190657,0.0029562991049041,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/16,F11,F11,0.9991910802687312,0.9999984345609336,0.0094858881128816,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F1,F4,0.8899884172835603,0.4528057386326349,0.4447011293776099,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F2,F3,0.9929804807929872,0.9997152987648232,0.0243872018367706,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F3,F5,0.9350552036647136,0.998510951096076,0.1592762863915762,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F4,F2,0.9987730095522828,0.999931636662273,0.0185845937753655,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F5,F1,0.9590660597591324,0.9935069753558168,0.3005142710047805,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F8,F6,0.9982368151531832,0.9999972234138832,0.0067456053809471,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F9,F7,0.9983072694133032,0.9999934184354254,0.009001712102139,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F10,F8,0.9999010760729812,0.999976360306571,0.007436225117341,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/17,F11,F9,0.9922269003398614,0.999993817379822,0.0521960876185085,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F1,F1,0.9785608959136862,0.9232270936850816,0.1128077994516178,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F2,F2,0.9955121016706638,0.9992556130555196,0.0412114488921556,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F3,F5,0.9867660744095688,0.9996975057592724,0.0372139829833138,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F4,F4,0.9995716535229268,0.99999374396353,0.0040741410829918,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F5,F6,0.998355331085391,0.9994796997667243,0.0290695819226843,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F6,F3,0.9461502171853072,0.9623090196972643,0.2726939087426562,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F7,F10,0.0647310649691838,-0.0157857081650653,1.9582849099538877,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F8,F7,0.996749729866714,0.9999999313251884,0.0234629675666015,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F9,F8,0.9993068787309298,0.9999985576467348,0.001759158838189,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F10,F9,0.9999713479531488,0.9999977427355312,0.0029132356884757,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/14,log-v2-floor/nonnegative/18,F11,F11,0.1017232741227576,-0.0349280270573505,1.3752147511401878,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F1,F6,0.9577466453926924,0.9945502672961848,0.237336779722194,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F2,F2,0.9894513403451356,0.9990707982531064,0.0409513139120098,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F3,F4,0.9530525127027408,0.9985889642525152,0.1136415060759999,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F4,F3,0.9985056411698237,0.9999481834452256,0.0193299221749825,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F5,F1,0.8500701459001303,0.2488728063888744,0.4843325011930968,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F6,F7,0.9923868917401918,0.9999966134776336,0.0295201892620205,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F7,F8,0.9852231300051292,0.9999865731742869,0.0348893428524229,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F8,F9,0.9998995533726742,0.9999700897155362,0.0077328091812481,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/16,F9,F11,0.9923804170886574,0.999989227126161,0.0408791106403849,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F1,F1,0.9999999763716548,0.9999995429561548,0.0007673219460856,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F2,F3,0.9999680781690514,0.9993364221606926,0.0347103903107848,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F3,F5,0.9999999699304594,0.9999997766842442,0.0005716065571007,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F4,F2,0.9999999733264746,0.9999999993838088,4.994502449360334e-05,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F5,F4,0.9999992134313028,0.9999955265612516,0.0014848013471133,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F6,F6,0.9999990043876776,0.9999999999894456,0.0002430725263113,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F7,F7,0.9900524340513072,0.999997355241534,0.0243677669809837,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F8,F8,0.9999999965008732,0.999999999504608,3.615219508685356e-05,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/17,F9,F9,0.9999994820294028,0.9999999999185188,1.4714131943738475e-05,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F1,F6,0.9566854621181448,0.99430826327843,0.2402587806252127,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F2,F2,0.9875893312456112,0.997813318312201,0.0641675842209251,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F3,F5,0.9505128283559464,0.9986097254137072,0.1134046723608378,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F4,F4,0.9981933724032764,0.9999407512330352,0.0194795951823443,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F5,F3,0.7596813330690944,0.904938361153294,0.4680185449379069,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F6,F7,0.9919785312593888,0.9999971405650429,0.0303187211260133,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F7,F8,0.9934250200335916,0.9999874931055844,0.0161453579892664,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F8,F9,0.9998915723024232,0.999971943247854,0.0089768155807674,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/15,log-v2-floor/nonnegative/18,F9,F1,0.2044721270865559,0.067810747103285,12.001726288866845,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F1,F4,0.8501062269391834,0.2487865404822141,0.5106733733254989,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F2,F3,0.9894347510098672,0.9997581603432786,0.0209516764248955,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F3,F2,0.9985085702813772,0.9999482056391744,0.0196222827565756,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F4,F5,0.9530600044549254,0.9985970836512298,0.1270061049634499,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F6,F1,0.9577476743785912,0.9945692062637128,0.2881365861137316,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F7,F6,0.9925151771567436,0.9999966132964956,0.0284419423283149,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F8,F7,0.9991400678381585,0.9999910755664236,0.0107377627464177,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F9,F8,0.9998995432282408,0.9999701475284416,0.0077198190945114,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/17,F11,F9,0.9924143983500412,0.9999891878868592,0.0426191263036366,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F1,F1,0.9913484131796764,0.9839525025912624,0.0414319852459148,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F2,F2,0.9985847337935888,0.9984646142040228,0.0536945014768613,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F3,F4,0.9996203797841636,0.9999986035996136,0.0016844381493352,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F4,F5,0.9958402724257808,0.9999121134095638,0.0112846606117499,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F5,F3,0.982097367218812,0.9949363305870886,0.0609943974505283,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F6,F6,0.999190897159484,0.9999290604688236,0.0110744591186828,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F7,F7,0.9999579116628448,0.9999999602504364,0.0008443206079377,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F8,F8,0.9967657574493556,0.9999992154367804,0.0185449752320721,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F9,F9,0.9999581313886096,0.9999997045477884,0.0044530438706481,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F10,F10,0.9871224924707596,0.9999997566373844,0.0221448854670367,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F11,F12,0.011889994965358,-0.0083414000027548,1.9108016802759744,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/16,log-v2-floor/nonnegative/18,F12,F11,0.9978717061369584,0.9999988746246762,0.0194667811874588,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F1,F6,0.956685148697962,0.9943270338575052,0.2401754378868566,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F2,F4,0.9981943624661838,0.9999408294561852,0.0194465975201657,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F3,F2,0.9876601253537862,0.9984891618823948,0.0538569955850997,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F4,F3,0.7596857707420208,0.9048570729379692,0.4681345316328015,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F5,F5,0.9505207749019792,0.9986178665864244,0.1133938380471114,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F6,F7,0.9921097562677754,0.9999971411025522,0.0300691762642439,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F7,F8,0.998014527625218,0.9999898474926336,0.0097649631186658,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F8,F9,0.999891775497288,0.9999720191236124,0.0089583278582992,True
+Shifted log: gene variance + S,initialization,Nonnegative EBMF,log-v2-floor/nonnegative/17,log-v2-floor/nonnegative/18,F9,F1,0.20452109605302,0.067811075435044,12.001634762604118,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F1,F1,0.9974589525612216,0.9987376297799936,0.0612902052760457,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F2,F2,0.9866585350020972,0.967002544346413,0.1221635551052823,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F3,F3,0.8049088612808888,0.8264141298517034,0.6524057394576991,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F4,F6,0.9828231715266516,0.990531609179592,0.1953993457591587,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F5,F4,0.9051826426119182,0.988184643555058,0.1962314515117255,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F6,F8,0.0002127444340325,-0.0018213634363583,1.7883175879105269,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F7,F12,0.8146590007818753,0.9709262912975112,0.2973718370871213,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F8,F7,0.99906897133602,0.999172865478866,0.0704762538665163,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F9,F9,0.9999762289924246,0.9999760090553312,0.0719650500490205,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F10,F5,0.9999999457192126,0.9999778286318374,0.0729310532493303,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F11,F10,0.9999180248430684,0.9998503594919772,0.089305131081967,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub101/signed/14,F12,F11,2.260719971882478e-05,-0.0094383843027145,1.1789762831337036,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F1,F1,0.9988859637822208,0.9917490592726332,0.0225316744156954,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F2,F2,0.9947306057820288,0.9987610508453876,0.0860236713663235,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F3,F3,0.9879575330833504,0.9976475684899356,0.0763323559163228,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F4,F4,0.9959179168590128,0.9968624675037424,0.0994677917564492,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F5,F5,0.9927160550778852,0.9983904110472566,0.0605778863899872,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F6,F7,0.8013334219862006,0.8772120447110289,0.5326713476436855,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F7,F8,0.0158575195420719,0.2206525388649798,1.3361298733161764,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub101/signed/14,F8,F9,0.8583934694202268,0.7876274306115932,0.632353128931089,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F1,F12,0.0033210094338558,0.0848778670924876,1.3005187799176352,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F2,F1,0.9814977989694068,0.9764890216470852,0.1010796407188135,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F3,F8,0.8764159228571731,0.9588636316047734,0.2899578845795973,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F4,F7,0.9901958890859892,0.9912535067253346,0.1771973588860724,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F5,F6,0.9280607797675248,0.9901769745328632,0.1459632072435481,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F6,F2,0.93538604209763,0.9822085259584236,0.357194153129273,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F7,F4,0.8837444830800651,0.9781699806729972,0.2377970770026399,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F8,F3,0.9963849913776188,0.9992530248382177,0.0590084608638462,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F9,F9,0.9999917229610332,0.9999873065008484,0.0707003171704099,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F10,F11,2.8844421259066205e-05,0.0190751056334902,13.694335832268749,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F11,F10,0.0001189550849719,0.1564569964090403,12.370514949310415,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub102/signed/14,F12,F5,0.9985059997850791,0.9985780768615669,0.1006226577047199,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F1,F1,0.9974468370690894,0.984440651605173,0.0398972567444433,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F2,F2,0.9952419087182758,0.9988461801740705,0.1102724925606783,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F3,F3,0.9792216183341074,0.9985954651479017,0.0694623645726087,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F4,F4,0.9962859374270728,0.9970764798019702,0.0776757232466274,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F5,F5,0.977400522307152,0.998229843730148,0.093385525622205,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F6,F7,0.0104670944314186,0.0217438585437191,1.2199670365055828,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F7,F6,0.8969913837642054,0.9849614716260696,0.1869322624039592,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub102/signed/14,F8,F8,0.92945101524078,0.9504146489745376,0.3237687851456147,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F1,F1,0.9999661001116852,0.9999555175306584,0.0104728204934518,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F2,F2,0.9851727459312818,0.9784615231211784,0.0945725615416662,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F3,F3,0.8637853843412917,0.88385393656044,0.5443148952353225,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F4,F6,0.9744559307486858,0.9836577912462776,0.229731588155265,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F5,F4,0.954382195792383,0.9891465446911232,0.1659355928673627,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F6,F5,0.9997994686104812,0.9999341280730358,0.0474227109222554,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F7,F8,0.9089178374225676,0.9328463604793016,0.3879195629080861,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F8,F7,0.9966669655185508,0.9992121741328144,0.0904253346854492,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F9,F10,8.535361329880758e-05,0.1010140650479504,5.158032382282657,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F10,F12,1.025591304850343e-05,0.0672023912505324,12.920366445298033,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F11,F9,0.9999773217314004,0.9998765893607654,0.0974905862105072,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub103/signed/14,F12,F11,0.7298613418342582,0.7517272555330594,0.6704259379121891,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F1,F1,0.9972526135635628,0.9920698409253264,0.0306677289250822,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F2,F3,0.9947338010084168,0.9986580230921756,0.0959447630297311,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F3,F2,0.9995458597920306,0.9996681418789696,0.0257682805940666,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F4,F4,0.9984111089422842,0.9962879087736558,0.1013545586226927,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F5,F5,0.981495727097376,0.995845500868738,0.1331507219767101,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F6,F7,0.9872206395318864,0.9798776959506238,0.2075411680281864,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F7,F8,0.957844109495307,0.9830543685605176,0.1996677941238439,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub103/signed/14,F8,F10,0.9353505308463526,0.9261686206229386,0.3773783875730048,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F1,F9,0.0026697417443745,0.3295689906387141,2.738677769629169,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F2,F1,0.9836075573109384,0.9803869120753574,0.0882394256666078,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F3,F2,0.8176618701759467,0.8698512049334555,0.5992194370304271,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F4,F4,0.9977197927547784,0.9906131819436448,0.1582336251793248,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F5,F3,0.916867598081714,0.9529299382233748,0.2744855630445375,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F6,F12,0.0937598307639258,0.6991850309032706,3.0523883906386624,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F7,F7,0.7731900482520159,0.8639166534917755,0.5112111069763062,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F8,F6,0.9987428188747066,0.9992761691884874,0.0695615514300169,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F9,F11,8.592288981615068e-06,0.0260546827265002,5.031148492690146,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F10,F5,0.9999999247522552,0.9999859894584904,0.0726384793588459,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F11,F8,0.999943819556022,0.9996167538915364,0.0945744538433126,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub104/signed/14,F12,F10,0.7183157378278019,0.7372205630790907,0.6885707060281441,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F1,F1,0.9916033421630224,0.946233078671644,0.0647210922966915,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F2,F2,0.9933444791874616,0.9983996130477122,0.2022717640276569,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F3,F7,0.3551494156880384,0.4307039892238793,2.574930103778258,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F4,F3,0.998111266648828,0.9961228915045676,0.0931045969160993,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F5,F4,0.9794233562776145,0.9877262175473892,0.2522400970379339,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F6,F8,0.0014076400355176,0.0276250807007476,6.556840019922104,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F7,F5,0.1366970861617019,0.6695552702316451,3.3018235274261896,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub104/signed/14,F8,F6,0.9645460270144508,0.967856727697745,0.2977155699579131,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F1,F1,0.997464219895641,0.998642568187175,0.0629425271392275,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F2,F2,0.969691420805834,0.9206626856260672,0.2012640106643962,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F3,F6,0.9002196089655702,0.9673167518145532,0.2558202743035588,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F4,F4,0.994876522396174,0.9875091605978557,0.1834805490405013,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F5,F7,0.5270908728220658,0.6370195475023345,0.7928471869195561,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F6,F11,0.0157513339465123,0.0967662097508227,1.605549017666856,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F7,F3,0.6900669340507015,0.7896037832829185,0.9686581476124716,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F8,F8,0.9903041104678894,0.9984342225501808,0.0695333227906303,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F9,F10,0.9999683738725622,0.9999535249369056,0.0715713786764958,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F10,F5,0.9999999080140358,0.9999510195995872,0.0731900462198456,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F11,F9,0.999953874859939,0.9986367404869868,0.1108219605907023,True
+Common-input counts,subsample,Signed EBMF,full/signed/14,sub105/signed/14,F12,F12,0.007609691280036,0.3561627742111216,3.2334550012209213,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F1,F1,0.9947565449082764,0.8891989327174952,0.104113613137023,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F2,F2,0.9849534461237432,0.9969957698263596,0.2138144187637404,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F3,F3,0.9865563667288144,0.9961177512763466,0.0957099577645541,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F4,F4,0.9971241780091508,0.9945044206225,0.1216835209239059,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F5,F5,0.9768949574057052,0.9965113595221492,0.089288906751374,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F6,F6,0.7930200576415044,0.8531010686370022,0.5699369903296446,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F7,F8,0.1213521414262076,-0.0632382305930648,1.7785849038017103,True
+Shifted log: gene variance + S,subsample,Signed EBMF,log-v2-floor/signed/14,logsub105/signed/14,F8,F7,0.4005602876970413,0.594865547028325,0.8125213984769186,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F1,F6,0.0346156775953924,-0.0045842509363043,1.0835534901581678,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F2,F2,0.8382090030431824,0.8866568155356136,0.5382576435491032,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F3,F3,0.994836363676718,0.9990664094616508,0.0433942485253584,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F4,F8,0.997028934835653,0.9999989721526046,0.01838990234712,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F5,F4,0.999996398304583,0.9999999999820663,6.060334452914143e-05,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F6,F11,0.2362379184069295,0.1333025075629562,1.030378515661046,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F7,F1,0.857814949443606,0.968885666235034,0.3569273627448867,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F8,F7,-2.906100879793938e-05,-0.0056512789678338,2174.491678863442,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F9,F12,0.0002857417140967,-0.0237530980905422,1.2272895995392743,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F10,F10,3.4889695471017524e-05,-0.0069896695770647,1.2983592697147264,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F11,F9,0.999999190472642,0.9999999994231132,0.0015018339290597,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub101/semi/14,F12,F5,-9.407661466855126e-06,-0.0070049142155052,1.534373720152534,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F1,F1,0.8484381053128112,0.530509792159592,0.1932808141180637,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F2,F2,0.9828537949612356,0.9987437395331782,0.0494113021769369,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F3,F5,0.881988622930754,0.9705872190276484,0.2598058965515161,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F4,F3,0.6262197173077846,0.8382391767776017,0.5803411894513217,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F5,F4,0.9595949823830444,0.9678871033883972,0.3249510136325054,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F6,F7,0.8516534311257606,0.999282868865864,0.0644983541889842,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F7,F8,0.1454860157802206,0.7667611998719435,5308.353259039885,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F9,F9,0.7982607574856921,0.9879176388648347,0.2616208746338657,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F10,F10,-5.800237306779251e-05,-0.0094312666924976,2.588033830896065,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub101/semi/14,F11,F6,0.9752813372933776,0.9700169637088508,0.2672354537264472,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F1,F10,0.8079809294553657,0.9354427458842572,0.5243978970853286,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F2,F1,0.8840305238674453,0.9235863815039812,0.4354731874274099,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F3,F2,0.9403509240918466,0.9791787752627944,0.2071886226238364,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F4,F4,0.9947774826038098,0.9999966204561328,0.0324836448321238,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F5,F5,3.332905686750322e-05,-0.0554669066328545,6356.279363040486,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F6,F8,0.2272524950488525,0.188583341118931,1.0290415207785386,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F7,F6,0.0001279878199728,-0.0111513354156136,209.20235117523407,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F8,F3,-2.838661369721718e-05,-0.0070037811179081,1.3762554882312827,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F9,F11,0.0002722908387385,-0.0350522485413297,1.2420117318359951,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F10,F9,0.9999995515326072,0.9999994669907688,0.0011149636055283,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F11,F7,0.9999993600615712,0.9999999996247102,0.001451678536596,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub102/semi/14,F12,F12,0.0023457217444654,-0.0094054461208497,1.31997146733356,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F1,F1,0.9786707589453294,0.9721403451356616,0.05855491477288,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F2,F6,0.97181449854283,0.9819260930372756,0.1832261566705388,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F3,F3,0.9778101886380596,0.9978588792994684,0.0615300008861982,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F4,F2,0.9492911134888792,0.9911241721783244,0.0956454555426356,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F5,F4,0.9931057885447708,0.9938415834418668,0.1279465715780174,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F6,F5,0.9940174389812284,0.9987017219473516,0.0638912968374865,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F7,F7,0.9650295566360934,0.9803197390685828,0.1973941397200267,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F8,F9,0.1050643422085535,0.9912571747959692,7.983505337784287,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F9,F8,0.8655495146443226,0.8623471138110743,0.5363510238001411,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F10,F12,-0.0010010145993333,-0.0187018949512691,1.4667031407446045,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F11,F10,0.973477914424652,0.9939357591326542,0.1587519903553489,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub102/semi/14,F12,F11,0.0232264091692253,-0.0302498122295069,3.7406037637547938,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F1,F5,0.0314212786199782,-0.0080121858384109,1.0656798676768322,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F2,F2,0.9937904645021796,0.9996075983932876,0.0226651840799556,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F3,F3,0.9872890355038624,0.9986610353993696,0.0540701227219343,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F4,F4,0.9991586028678764,0.9999909597977858,0.0195860489671283,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F5,F11,-4.036586239407946e-06,-0.0657274580720978,7222.2798635608,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F6,F6,0.953582592408092,0.9618106276457938,0.1431030537892547,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F7,F1,0.8751899042345133,0.9850012220858484,0.324699588610974,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F8,F12,0.7736070914441525,0.92637456531813,0.5393378628877088,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F9,F7,0.9833004151953468,0.9943673930705288,0.1077996832515322,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F10,F8,0.999999739251058,0.9999995641916938,0.0014010471687881,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F11,F10,2.0445199446456737e-06,-0.0433929570772837,5101.750724686015,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub103/semi/14,F12,F9,0.999999778985086,0.9999999941973904,0.0002214521269464,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F1,F1,0.9908907251853544,0.9838607156849768,0.0490105598913442,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F2,F6,0.9855426864540636,0.9990617375848057,0.0419786642191536,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F3,F2,0.991340154271122,0.9989760273920404,0.0425042066356164,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F4,F3,0.9706201405334516,0.997420074632223,0.0450384098033501,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F5,F4,0.993456861178274,0.999701706607982,0.0408171895920432,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F6,F5,0.8787163081879268,0.9947999477021948,0.1308873750303377,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F7,F11,0.6922680451362737,0.9991478323581988,0.1777871280764709,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F8,F10,0.0144231960075739,-0.013120180172498,1.144011790410899,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F9,F7,0.9077365492761208,0.9399538549030948,0.340617314161781,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F10,F12,0.95166096768765,0.9996987201824592,0.0277983156135052,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F11,F8,0.979088767715706,0.9084990120072458,0.4367112613345132,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub103/semi/14,F12,F9,0.0013190403129034,-0.0179778279210039,2.298258196130468,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F1,F6,0.0001090330888392,-0.0355012418785699,2.339484800165077,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F2,F1,0.8931554817939867,0.9259216641681192,0.4271867691223394,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F3,F2,0.9806148237858164,0.997951458761826,0.0669033796210035,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F4,F3,0.9957683047887442,0.9999944163926878,0.0242012070240956,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F5,F4,0.9999933921075096,0.9999999999816696,0.000292236626595,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F6,F5,0.17028947066729,0.3109656890150613,0.9982760022403268,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F7,F7,9.81770622406248e-06,-0.0133467315490109,8853.85768969676,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F8,F8,0.0001187635819796,-0.007345453986039,36.52188742819174,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F9,F12,0.062193791265218,0.1307707963572711,1.1147717660944776,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F10,F9,0.9999994462696792,0.9999994607522674,0.0011845173008215,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F11,F11,0.999999488243878,0.9999999993147446,0.000973675695281,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub104/semi/14,F12,F10,0.0001708354605265,-0.0073093184325369,1.2595522118058653,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F1,F1,0.8312149077814227,0.5112036421835919,0.1986709841781464,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F2,F3,0.971166213845836,0.9865553670049708,0.15665274666405,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F3,F2,0.90240055138248,0.9870066466433391,0.1546062268323056,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F4,F4,0.6793484774034764,0.893811054285733,0.4326295977936745,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F5,F5,0.9825398500359188,0.9644728823457362,0.3558695190191063,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F6,F11,0.012329616342716,0.2018072068850299,9.172028199939648,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F7,F9,0.1460581476043851,-0.0192536313612422,2.907971810862336,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F8,F12,0.0054055882766773,-0.013809867906193,5.048616045281756,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F9,F6,0.541114340821188,0.9700659756905304,1.757074213160262,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F10,F10,0.8231935597638022,0.9238821806147012,0.4007675313097182,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F11,F8,0.9770531032783702,0.9121500183797296,0.4299904951342599,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub104/semi/14,F12,F7,0.8901115034643204,0.8731765444057764,0.5431286948902591,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F1,F7,0.0356563105224027,-0.0054083315316806,1.0830957121287903,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F2,F2,0.8522974229678728,0.8910986521124004,0.5083278612342768,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F3,F3,0.8055384799087035,0.9935919450835484,0.2655584357159309,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F4,F6,0.9962598380745966,0.9999998402289744,0.0165157586955047,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F5,F5,0.9999955819415124,0.9999999999809585,9.40751945489463e-05,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F6,F12,0.2359719379138465,0.138860042830091,1.0318952539972537,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F7,F1,0.8584339986108729,0.9691763323020276,0.3549356507456023,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F8,F11,0.0001191476055389,-0.0073814803227848,36.50860206447274,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F9,F8,0.0002880214889866,-0.0242052455541451,1.2311123170677205,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F10,F4,2.89929065594836e-05,-0.0070075294954104,1.5407845711784216,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F11,F9,0.9999989940478412,0.9999999996256445,0.0012803677105688,True
+Common-input counts,subsample,Semi-nonnegative EBMF,full/semi/14,sub105/semi/14,F12,F10,-1.2746897737009136e-05,-0.0099689030944445,1.2755959756009063,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F1,F9,0.0600853842442802,-0.2319450283252002,1.0092704472699996,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F2,F1,0.6493810173264902,0.8169273129614959,2.550095401525465,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F3,F2,0.8858559709493398,0.9692183502895652,0.375319186992652,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F4,F3,0.5657799902227943,0.8458290152550584,0.2986306540271459,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F5,F4,0.9557993395265354,0.9674930256913216,0.3513339244237842,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F6,F5,0.8412920802497983,0.9972324241740268,0.3093352089294059,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F7,F11,0.0626901500093498,-0.0209423785619869,2.2625892837319688,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F8,F6,0.5667681833180523,0.995504715843588,0.5467175872610569,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F9,F10,0.0635474605941028,-0.022181404738297,1.263854643875107,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F11,F8,0.966492474345484,0.9967576804318812,0.118862395820705,True
+Shifted log: gene variance + S,subsample,Semi-nonnegative EBMF,log-v2-floor/semi/14,logsub105/semi/14,F12,F7,0.9005010050670063,0.9942606121634412,0.2603610947313343,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F1,F1,0.987866955974514,0.9997054482251176,0.0251780187539566,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F2,F3,0.9944841794156012,0.9961667530329548,0.2148423742855451,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F3,F2,0.779236149251538,0.7557653965808069,0.9218776210174128,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F4,F6,0.0015734397819541,-0.0230998510623093,1.2462589488516007,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F5,F4,0.999985918364634,0.9999999999414412,0.0011298209758983,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F6,F12,0.1541070496734963,0.2771719461662891,0.9956269307231956,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F7,F5,0.9999697017700732,0.9999999871809422,0.0017150999296681,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F8,F10,0.9181368384180904,0.9137847211430744,0.414546712609733,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F9,F8,0.029218828953302,-0.0094102517509284,1.1834598299477523,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F10,F9,0.000172182361692,-0.0069886143757704,1.2986759305830342,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F11,F11,0.0002311902415249,-0.006990609384415,1.283841997051811,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub101/nonnegative/14,F12,F7,0.8083357850083691,0.7967610555909749,0.6293771638828509,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F1,F1,0.9897261405488952,0.9041182300280908,0.1000318525947907,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F2,F5,0.992316641477744,0.9929092873681952,0.1146834611813714,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F3,F2,0.9891524672258384,0.998489656710596,0.0477835731997644,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F4,F4,0.94917464275925,0.9172837752431604,0.5952270632632923,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F5,F3,0.9963321114109888,0.9885807843207954,0.14147132505432,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F6,F6,0.9364015223333196,0.9808959319347874,0.1473158205737404,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F7,F10,0.0109412980837369,-0.0324126767671905,2.2705472880870943,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F8,F7,0.97149575416461,0.9681321704380288,0.2814382135880293,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F9,F8,0.993196384794054,0.9999993087928064,0.0075237560161961,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F10,F9,0.2926838160639247,-0.0157015740723834,1.3489854026961066,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub101/nonnegative/14,F11,F11,0.1824613175236138,0.4386761283526232,1.7982168910836742,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F1,F2,0.6758084495936907,0.9913831922262116,0.4837697982952784,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F2,F3,0.9435989103149884,0.9879253991780756,0.2926712822585655,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F3,F1,0.8232107262154527,0.7999899036384077,0.8010911171258924,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F4,F7,0.0015795831659474,-0.0234625901191946,1.2516218891807722,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F5,F5,0.0002600568905858,-0.0883486405645017,6711.827041035076,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F6,F8,0.1549568925613822,0.2919730009537227,0.9954515883221868,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F7,F4,0.9999643129826126,0.9999999872624298,0.0015274429197475,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F8,F10,0.9181413393538858,0.9137849338125974,0.4144880076304028,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F9,F11,0.0258614654092715,-0.0092858941750432,1.1787044417562142,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F10,F9,0.9999991704455166,0.999999603835553,0.0008963354041499,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F11,F12,0.0001433580377499,-0.0070033661678467,1.3031392633608363,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub102/nonnegative/14,F12,F6,0.8083519899116567,0.7967605802924405,0.6293049670444981,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F1,F1,0.9787033966540998,0.8811171375582301,0.1615634079415691,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F2,F6,0.9747235445037076,0.9924813300702736,0.1175143762416327,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F3,F2,0.9677547938162157,0.9949909512363064,0.090480091291516,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F4,F4,0.8165836588305055,0.9817029865589324,1.6104535585269135,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F5,F3,0.9973304996741704,0.9987269647608916,0.044448078982336,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F6,F5,0.8863443516499145,0.9233269453727172,0.3571575520788488,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F7,F7,0.9500458634479534,0.9999852602834646,0.0252664548834576,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F8,F9,0.9671215507456744,0.99403145358956,0.1913565056512719,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F9,F12,0.1005089038582088,-0.0176271419288852,1.4849211372664828,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F10,F11,0.9643361872586564,0.7520028166912992,0.660800776437028,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub102/nonnegative/14,F11,F10,0.0672092126772569,-0.0241315644556053,1.8087950136626645,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F1,F1,0.98885296924443,0.999954521959438,0.0199565921776536,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F2,F3,0.9815986540541112,0.9968780576672094,0.2318903166102734,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F3,F2,0.9861065939441888,0.9848723726179848,0.2118171076629349,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F4,F6,0.9866764696020294,0.9933721851567746,0.1207024981926336,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F5,F9,0.000188141459366,0.2145636309893391,7590.522789601919,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F6,F5,0.973651131501158,0.965300544108128,0.1736396489248609,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F7,F11,0.0003463356611129,-0.0080681584051087,2345.233553099869,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F8,F10,0.0008807060356004,0.0956498896570295,1580.9577027804478,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F9,F4,0.998869650892935,0.9999970368003588,0.0168816490252207,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F10,F7,0.9999999377510534,0.9999998303030798,0.0006878826156539,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F11,F12,0.0004230906954957,-0.007186501414699,1.5057811578996705,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub103/nonnegative/14,F12,F8,0.9999800570956552,0.9999733725863412,0.0072649114452477,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F1,F1,0.977511441091944,0.9177475447534632,0.1209722991120616,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F2,F4,0.9851542300162408,0.9991370946015052,0.044746137190455,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F3,F2,0.9857250690062987,0.9985435467996576,0.05906767476096,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F4,F10,0.0869881267848305,-0.0209521271529556,1.0385143739977656,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F5,F5,0.9970423063919368,0.9992089190077532,0.0351729950740225,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F6,F6,0.9303901352036696,0.9682852782992988,0.2665580672525584,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F7,F7,0.9551947878873944,0.998568676215729,0.07338983876243,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F8,F8,0.9493717744469594,0.9091513459380084,0.4652594425367966,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F9,F11,0.0461936991391679,-0.0267519724307995,3.487173506094338,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F10,F3,0.954182711456502,0.805923868572878,0.8423649877877124,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub103/nonnegative/14,F11,F9,0.889331305619274,0.999653183502539,0.2690107958177304,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F1,F5,0.0046576786033961,-0.0341076206637608,2.91853900179394,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F2,F2,0.9853172955991738,0.9932244078889162,0.2313872734956951,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F3,F1,0.8360586493089651,0.8199970528099977,0.7645054155343888,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F4,F12,0.0660117243523451,0.1305657964260436,1.1152131435114296,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F5,F3,0.999977549310778,0.9999999999384348,0.0016140777409877,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F6,F11,0.1785698410699246,0.1041581216861214,1.031578609450873,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F7,F8,0.0002026908967401,-0.0148252703802289,2330.1991460179743,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F8,F9,0.9181394946622614,0.9137849592046842,0.4145405269064523,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F9,F6,0.0039299456057313,-0.0096256302441407,1.1865263218721822,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F10,F7,0.9999991404464894,0.999999584067924,0.0009266932422105,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F11,F10,0.0005124090031881,-0.0072394535712826,1.2591676117384618,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub104/nonnegative/14,F12,F4,0.0009522523404942,0.0416203286679874,482.04901279231495,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F1,F1,0.9964279016342554,0.9580686784761744,0.0491354984983789,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F2,F4,0.9900240203254748,0.9863060227072948,0.1576952615668562,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F3,F2,0.9976767738126116,0.9981374042159908,0.0583399758151048,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F4,F6,0.2561620720639808,-0.0073114547983272,25.23120766063624,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F5,F3,0.9972905154465213,0.998557582889159,0.0478744885872072,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F6,F5,0.9860165206085132,0.9940474410257796,0.0852306086259375,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F7,F8,0.931829038931888,0.9300463556603183,0.3723787668275597,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F8,F7,0.974166177736097,0.910903443978973,0.4375677026386869,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F9,F9,0.1082663885343105,-0.0208752426266781,2.55281632952376,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F10,F10,0.3680718027259467,0.3259199483709942,3.808650612465672,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub104/nonnegative/14,F11,F11,0.9934419883143542,0.9997670240951028,0.0227883457511871,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F1,F1,0.987990286279416,0.9995865838901872,0.0299779284309006,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F2,F9,0.0037112495677803,-0.0211131593245483,1.1961398112868633,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F3,F2,0.8325003415155332,0.8580419064811194,0.7401229818980966,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F4,F12,0.0015031990846867,-0.0080864762730286,1.2151142636705674,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F5,F4,0.9999780233181036,0.9999999999362884,0.001466494495449,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F6,F8,0.1901009994991032,0.2632770982191625,1.0053395742577067,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F7,F5,0.9999583027706958,0.999999982160609,0.0022456398310884,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F8,F6,0.9841986085435436,0.9843822495893674,0.1761133443352073,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F9,F3,0.750256859540226,0.7328468001646772,0.7967455064951977,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F10,F11,0.9999992823474768,0.9999995589969852,0.0009485863745966,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F11,F10,0.0048159082960889,-0.0093832769666813,1.3195224356263795,True
+Common-input counts,subsample,Nonnegative EBMF,full/nonnegative/14,sub105/nonnegative/14,F12,F7,0.8083760620517213,0.7967605965501475,0.6293868288849234,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F1,F1,0.9778642774007886,0.8873270653918093,0.1430998520400817,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F2,F5,0.97284413068205,0.99465731908346,0.1010537014969052,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F3,F2,0.995860783815858,0.9993437532689122,0.0329712001162828,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F4,F4,0.9463994341181666,0.9081830597703268,0.6227962115092198,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F5,F3,0.9975518511706488,0.9995738188794936,0.0273010547168791,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F6,F6,0.8440757875246812,0.9190232909880272,0.388423950048966,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F8,F7,0.9914508629734158,0.9971040486845262,0.0941332727985281,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F10,F8,0.0749561149825571,-0.0141767634180907,1.1380004069528074,True
+Shifted log: gene variance + S,subsample,Nonnegative EBMF,log-v2-floor/nonnegative/14,logsub105/nonnegative/14,F11,F9,0.987039492498238,0.9999951603108834,0.0277210093388995,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,1,1,0.9803091916234674,0.9442450811758828,0.2192824513483149,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,2,2,0.9898972166372758,0.996807418169816,0.0754745345024264,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,3,6,0.885730195064367,0.9082496117070844,0.4098177607661493,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,4,3,0.8938196900228152,0.9521588761396872,0.3981221179409215,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,5,5,0.9904706547798268,0.998561094014602,0.05236029833712,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,6,4,0.9979139269376676,0.9993725373256002,0.0359047492925761,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,7,9,0.9955429783387127,0.9982576325195476,0.0581567062390655,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,8,7,0.9874311841751447,0.9934252509086948,0.1131924120569665,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,9,10,0.0251391819365193,-0.0385097279129021,1.7057735481747522,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,10,12,0.9992781324436982,0.9976040096141408,0.0759396338723717,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,11,11,0.9993291725820106,0.9995757577347372,0.0311278224920986,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub101/cnmf/14,12,8,0.9978728385890336,0.9911478086086852,0.1389356458602358,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,1,1,0.978716431807812,0.9861130183490484,0.1160081121090653,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,2,2,0.9829130422044288,0.987594609489854,0.1493647392479261,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,3,4,0.953037293490946,0.9503567323835272,0.3014604777580885,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,4,3,0.9280117934412762,0.9899703626765702,0.1967346542242375,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,5,6,0.93898613637162,0.990861612020399,0.1398522406419772,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,6,5,0.998101248533822,0.998953286486937,0.0457649707756525,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,7,7,0.9980715443712316,0.9986709141162214,0.0506557088256824,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,8,10,0.994297868577236,0.9687917844767208,0.2494266571213577,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,9,8,0.993091195086096,0.9889961686692758,0.1611941192607885,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,10,11,0.9992581341720412,0.9996535603908634,0.0260641104527668,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,11,12,0.0816924013764106,-0.0472172978158647,5.992093695754936,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub102/cnmf/14,12,9,0.1166945125724381,0.0845187389160684,3.15631895333866,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,1,1,0.9786113473701024,0.9765370559086648,0.1463250012784344,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,2,2,0.9863174719381484,0.9829524240727832,0.1731030770933256,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,3,4,0.94235838596096,0.9145245008116256,0.3876994541702238,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,4,3,0.9931684806429766,0.9897191525031158,0.1389175326406403,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,5,6,0.8566679988476261,0.7728345326896365,0.624199254623947,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,6,5,0.9982248296774958,0.9998307358172644,0.0202372427617347,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,7,8,0.9945910546077688,0.9970359422676094,0.0770198040401247,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,8,7,0.070372643866212,0.0050792657085789,4.670917424144116,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,9,9,0.99956064896708,0.999642596491532,0.0265841617785163,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,10,10,0.0485895829423472,-0.010525747395449,4.252121179412503,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,11,11,0.1061169980032283,0.4363055646903858,8.154312665425406,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub103/cnmf/14,12,12,0.9999965044660182,0.9999878858016736,0.0049283802956846,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,1,1,0.9688935562901584,0.9717598013688316,0.1613906434928085,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,2,2,0.9879785902141444,0.983141894854723,0.1703080688889433,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,3,3,0.9388969249496532,0.9172388275308968,0.3766832832368091,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,4,5,0.940740501802775,0.9586595010678308,0.277972023841696,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,5,6,0.979839775540016,0.99754568609799,0.069538681794537,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,6,4,0.9986338724900318,0.9993282442437608,0.0396755042019517,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,7,9,0.9979075413586612,0.991929818755831,0.1240687212779844,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,8,8,0.9945910872017254,0.9981595915839078,0.0602771746507088,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,9,7,0.1298745807996219,0.1000689373823469,4.669708597001563,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,10,11,0.0577534882156161,0.0159230501450281,3.968257514111498,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,11,10,0.9995799063626896,0.999412786554608,0.0338876289561912,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub104/cnmf/14,12,12,0.0166701530427675,-0.0638094528892619,11.899868647350226,True
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,1,1,0.9569609977609254,0.9198429599948996,0.2764939693274366,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,2,2,0.982433077302314,0.9628935803782768,0.2533367339548641,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,3,3,0.962991406877634,0.9248254654454608,0.3555775044362029,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,4,7,0.8520651850791415,0.9155795683779272,0.4170698248738207,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,5,5,0.8630015940441901,0.992020644248465,0.2068995088849331,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,6,4,0.9982125553615392,0.9987826462167604,0.0482707325636777,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,7,9,0.0699504548352574,-0.0320922709503335,1.3938706034533357,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,8,6,0.0637117255243315,-0.0346131327606331,1.5947277076035598,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,9,8,0.7285480106381487,0.9379617757362002,0.7045789140501736,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,10,11,0.998117226903242,0.9996666445836496,0.0258781561874095,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,11,10,0.9989553951952096,0.9994542338816764,0.0328684686765379,False
+Common-input counts,subsample,cNMF,full/cnmf/14,sub105/cnmf/14,12,12,0.9994635798400666,0.9957592052221842,0.0919488869967633,False

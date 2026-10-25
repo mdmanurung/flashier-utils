@@ -61,6 +61,13 @@ class SiteCheckTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Exports missing source manuals"):
             self.check()
 
+    def test_upstream_articles_are_not_local_tutorials(self):
+        for link in ("https://upstream.example/articles/guide.html",
+                     "https://example.org/another-package/articles/guide.html"):
+            with self.subTest(link=link):
+                (self.repo / "vignettes/beginner.Rmd").write_text(f"[Upstream]({link})")
+                self.check()
+
     def test_four_vignette_ceiling(self):
         for i in range(4):
             (self.repo / f"vignettes/extra{i}.Rmd").write_text("Extra")
@@ -95,6 +102,14 @@ class SiteCheckTests(unittest.TestCase):
             (self.repo / f"vignettes/extra{i}.Rmd").write_text("Extra")
         with self.assertRaisesRegex(ValueError, "Teaching vignette limit exceeded"):
             self.check()
+
+    def test_named_factorization_case_study(self):
+        self.add_gallery()
+        (self.repo / "vignettes/articles/ebmf-cnmf-comparison.Rmd").write_text("Case study")
+        (self.site / "articles/ebmf-cnmf-comparison.html").write_text("Case study")
+        receipt = self.check()
+        self.assertEqual(receipt["website_articles"], 2)
+        self.assertEqual(receipt["articles"], 3)
 
     def test_unapproved_nested_article(self):
         self.add_gallery()
