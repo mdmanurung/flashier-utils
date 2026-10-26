@@ -8,8 +8,9 @@
   (0L for views), matching `factor_holdout()`.
 - Add `scheme = "subsample"` and `fraction` to `factor_stability()` for
   biological-unit subsampling without replacement.
-- Metadata summaries, group comparisons, ranking and `test_factors()` drop
-  metadata rows for samples absent from the fit instead of failing.
+- Functions that take metadata drop rows for samples absent from the data instead
+  of failing, and record them as `exclusions`. Holdout fold tables still fail on
+  extra rows.
 - Projection refuses a matrix `S` with non-positive entries.
 - `factor_intervals()` memory guard counts the transient native sampler batch.
 - Add `fit_gbcd_programs()` with pinned optional GBCD fitting, memory preflight,

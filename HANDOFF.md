@@ -1,15 +1,14 @@
 # Handoff — package review items implemented, pushed and CI-verified
 
-**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green, CI green
+**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green; CI pending on the follow-up push
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable. This thread implemented every
 item of `reports/package-review-20261026.md`.
 
 ## Next action
-Ask the user which open item to take next. Candidates: extend extra-row dropping to
-the other `.match_ids` callers, add tests for fixed_reference with a `factors=` subset
-and an intercept fit, or resume `docs/plans/2026-10-25-ease-triage.md`.
+Check CI for the follow-up push (`gh run list --limit 2`). Then ask the user whether to
+start `docs/plans/2026-10-25-ease-triage.md` (rank 1: ledger cleanup; rank 2: GoM DE).
 
 ## State
 - Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
@@ -19,8 +18,11 @@ and an intercept fit, or resume `docs/plans/2026-10-25-ease-triage.md`.
   40333350725 (pkgdown) passed on 2026-10-26; Ubuntu dependency setup took ~40 min.
 - A pushed head commit tagged `[skip ci]` skips CI for the whole push; R CMD check has
   no workflow_dispatch, so an untagged commit is needed to trigger it.
+- Follow-up (grilled and approved 2026-10-26): fixed_reference tests for intercept fits
+  and factor subsets (no bug found); `.match_ids` defaults to `extra = "drop"` with
+  exclusions recorded everywhere; sample-keyed holdout folds pass `extra = "fail"`.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 170 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
+  gives 174 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
 - Untracked, not mine to commit: reports/core-review-20261022/,
   reports/ebmf-cnmf-adversarial-review-20261025.md, reports/starcat-status-20261025.md,
   reports/package-review-20261026.md.
@@ -58,9 +60,5 @@ and an intercept fit, or resume `docs/plans/2026-10-25-ease-triage.md`.
 - `reports/starcat-status-20261025.md:1` — StarCAT SC-001..SC-007 still unbuilt.
 
 ## Open items
-- Untested: fixed_reference with a `factors=` subset or an intercept fit (both route
-  through native_indices; a length guard fails loudly).
 - Possible follow-up: fix residual variance to the reference (pass reference tau as S).
-- Other `.match_ids` callers (correlation, stability, plots, program-diagnostics, holdout)
-  still refuse extra metadata rows.
 - GoM DE, StarCAT (SC-*), SCI-*, VAL-* backlogs unchanged; Rcpp profiling pending.
