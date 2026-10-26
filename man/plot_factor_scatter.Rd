@@ -26,6 +26,8 @@ activity row names; needed only with \code{group}.}
 \item{color, shape}{Optional names of \code{metadata} columns for point colour and
 point shape. Shape needs a discrete column.}
 
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
+
 \item{max_samples}{Maximum samples drawn for display (default 2000).}
 
 \item{seed}{Optional integer for the sample draw.}

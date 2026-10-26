@@ -109,17 +109,20 @@ replicates illustrate the call; use tens to hundreds for a real estimate.
 ## 6. Does a different prior tell the same story?
 
 ```{r priors}
-fit_laplace <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
-  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_laplace),
+fit_other <- tryCatch(fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_normal),
   backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
-  feature_scale = "simulated_intensity")
-factor_replicability(fit, fit_laplace, min_congruence = 0.9)$matches[,
-  c("reference_factor", "target_factor", "congruence", "status")]
+  feature_scale = "simulated_intensity"), error = conditionMessage)
+if (is.character(fit_other)) fit_other else
+  factor_replicability(fit, fit_other, min_congruence = 0.9)$matches[,
+    c("reference_factor", "target_factor", "congruence", "status")]
 ```
 
 A program that only appears under one prior family is a modelling choice,
-not a finding. [Compare priors](compare-priors.html) shows the full workflow
-with known truth and held-out prediction.
+not a finding. A prior whose optimizer fails on your data is also a result:
+record the message rather than retuning until it passes.
+[Compare priors](compare-priors.html) shows the full workflow with known
+truth and held-out prediction.
 
 ## 7. Does the noise model change the factors?
 

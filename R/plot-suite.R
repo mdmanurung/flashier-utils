@@ -86,6 +86,7 @@ plot_factor_weights <- function(fit, factors, representation = NULL, n_label = 1
 #' Scatter plot of sample activity on one factor against another, coloured or
 #' shaped by sample metadata, to see how programs co-occur across samples.
 #' @inheritParams plot_factor_activity
+#' @param representation For a native fit: a matched view or [standardize_factors()] settings.
 #' @param factors Exactly two character factor IDs, x then y.
 #' @param color,shape Optional names of `metadata` columns for point colour and
 #'   point shape. Shape needs a discrete column.

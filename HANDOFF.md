@@ -7,7 +7,7 @@ Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-Push the planted-truth/robustness commit, then `gh run list --limit 4`: both it and 617f6d1 need green R CMD check and pkgdown.
+`gh run list --limit 4`: the CI fix commit after 120c0bf must be green on R CMD check and pkgdown (120c0bf failed on an undocumented `representation` arg and an ebnm nlm error in robustness-checks.Rmd; both fixed).
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -31,6 +31,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - 617f6d1 docs site reordered value-first; roxygen markdown enabled (DESCRIPTION `Roxygen:`), all Rd regenerated; stale tracked docs/plans file removed.
 - Planted-truth benchmark: archive `validation/ebmf-cnmf-planted-20261026/` (PREREG, JOURNAL, simulate/fit-cnmf/fit-ebmf/evaluate, receipt, SHA256). Derived CSVs in vignettes/articles/data/ebmf-cnmf-planted-*.csv; new section in ebmf-cnmf-comparison.Rmd. Deviations logged: auc_posthoc column added after first evaluation (PREREG rule unchanged); collinear cor 0.89-0.91 vs 0.85 target. All cNMF runs hit the 300-iteration cap (pilot config).
 - New website article vignettes/articles/robustness-checks.Rmd; allowlisted in check-site.py + test fixture; navbar entry.
+- 120c0bf MOFA2-style display suite: plot_factor_weights/scatter/pve/data exported from R/plot-suite.R, plot_factor_embedding exported with a matrix path; gallery 17 cards; check-site counts updated; MOFA2 credited (LGPL-3, conceptual only).
 - Review fixes 13c8c16..e52fec5: var_type inheritance, fixed_reference prior policy, stability subsampling, docs, styler.
 - 0097ab8 fixed_reference tests for intercept fits and factor subsets; b7f153a metadata extra rows dropped and recorded.
 - 2884978 ledgers reconciled (GBCD tracker 150 done, 13 partial); f59a2d0 custom greedy init_fn fits are callback-required.
