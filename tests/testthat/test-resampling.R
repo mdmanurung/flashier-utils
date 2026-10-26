@@ -101,3 +101,20 @@ test_that("automatic intercept bootstrap replays the direct native recipe", {
     }
   }
 })
+test_that("subsampling draws distinct units and keys checkpoints by scheme", {
+  md <- data.frame(sample=paste0("s",1:12),donor=rep(paste0("d",1:6),each=2),cohort=rep(c("A","B"),each=6))
+  out <- .bootstrap_units(md,"donor","cohort",seed=7,fraction=0.5)
+  units <- unique(out$mapping[c("unit_occurrence","original_unit")])
+  expect_false(anyDuplicated(units$original_unit)>0)
+  expect_equal(as.vector(table(md$cohort[match(units$original_unit,md$donor)])),c(2L,2L))
+  fit <- fixture_fit(); attr(fit,"flashbridge_metadata")$feature_scale <- "intensity"
+  callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()) fit_ebmf(X,sample_side,max_factors=1L,backfit=TRUE,seed=seed,verbose=0L,feature_scale="intensity")
+  run <- function(...) factor_stability(fixture_matrix(),fit,md[1:2],"donor",B=1L,fit_fn=callback,seed=33,control=list(callback_configuration=list(K=1L)),...)
+  dir <- tempfile();on.exit(unlink(dir,recursive=TRUE))
+  sub <- run(scheme="subsample",fraction=0.5,checkpoint_dir=dir)
+  expect_equal(length(unique(sub$resamples$original_unit)),3L)
+  expect_identical(sub$analysis_metadata$scheme,"subsample")
+  expect_error(run(checkpoint_dir=dir),"mismatch")
+  expect_error(run(scheme="subsample"),"fraction")
+  expect_error(run(fraction=0.5),"subsample")
+})

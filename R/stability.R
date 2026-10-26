@@ -1,5 +1,5 @@
 # Newly written biological-unit bootstrap and atomic checkpoint orchestration.
-.bootstrap_units <- function(metadata, unit_col, strata, seed, id_col = "sample") {
+.bootstrap_units <- function(metadata, unit_col, strata, seed, id_col = "sample", fraction = NULL) {
   if (!unit_col %in% names(metadata)) stop("Missing biological unit column")
   units <- as.character(metadata[[unit_col]])
   if (anyNA(units) || any(!nzchar(trimws(units)))) stop("Unit IDs must be nonempty")
@@ -14,7 +14,7 @@
     values
   }, character(1))
   unit_strata <- factor(unit_strata, levels = levels(groups))
-  drawn <- .with_seed(seed, unlist(lapply(split(unique_units, unit_strata), function(group) group[sample.int(length(group), length(group), replace = TRUE)]), use.names = FALSE))
+  drawn <- .with_seed(seed, unlist(lapply(split(unique_units, unit_strata), function(group) if (is.null(fraction)) group[sample.int(length(group), length(group), replace = TRUE)] else group[sample.int(length(group), max(1L, ceiling(fraction * length(group))))]), use.names = FALSE))
   md <- list(); mapping <- list()
   for (i in seq_along(drawn)) {
     rows <- which(units == drawn[i])
@@ -99,13 +99,18 @@
 #' @param unit_col Required donor/subject column.
 #' @param B Positive replicate count.
 #' @param resample Only unit resampling is supported.
+#' @param scheme "bootstrap" (default) draws units with replacement; "subsample"
+#'   draws `fraction` of the units per stratum without replacement, so no
+#'   duplicated rows bias empirical Bayes prior and noise estimates.
+#' @param fraction Subsample fraction in (0, 1); required for "subsample".
 #' @param strata Optional donor-level stratification columns.
 #' @param fit_fn Callback(X, metadata, sample_side, seed, settings, observation_aux).
 #'   Return a native flash fit with recorded declarations, or a representation
 #'   created by [standardize_factors()] with explicit units and prior support.
 #' @param preprocess_fn Optional per-replicate callback returning X, metadata, manifest.
 #' @param alignment Only native congruence assignment.
-#' @param min_congruence Optional caller acceptance threshold.
+#' @param min_congruence Optional strict acceptance threshold: similarity must
+#'   exceed it, and equality is unmatched.
 #' @param seed Required deterministic master seed.
 #' @param workers Positive worker count; Unix fork backend for workers greater than one.
 #' @param checkpoint_dir Optional compatible atomic checkpoint directory.
@@ -135,8 +140,11 @@
 factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100L,
     resample = "unit", strata = NULL, fit_fn = NULL, preprocess_fn = NULL, alignment = "congruence",
     min_congruence = NULL, workers = 1L, checkpoint_dir = NULL, keep_fits = FALSE,
-    control = list()) {
+    control = list(), scheme = c("bootstrap", "subsample"), fraction = NULL) {
   if (missing(seed) || missing(unit_col)) stop("Choose seed and biological unit explicitly")
+  scheme <- match.arg(scheme)
+  if (scheme == "bootstrap" && !is.null(fraction)) stop("fraction applies only to scheme = 'subsample'")
+  if (scheme == "subsample" && (length(fraction) != 1L || !is.finite(fraction) || fraction <= 0 || fraction >= 1)) stop("Subsampling needs a fraction strictly between 0 and 1")
   if (resample != "unit" || alignment != "congruence") stop("Only biological-unit resampling and native congruence are supported")
   if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B) || length(workers) != 1L || !is.finite(workers) || workers < 1 || workers != as.integer(workers)) stop("B and workers must be positive integers")
   if (workers > 1 && .Platform$OS.type != "unix") stop("Multiple workers require the supported Unix fork backend; use workers=1 here")
@@ -179,12 +187,12 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100
   seeds <- .with_seed(seed, sample.int(.Machine$integer.max - 1L, B))
   callback_hash <- digest::digest(list(formals(fit_fn), body(fit_fn), if (is.null(preprocess_fn)) NULL else list(formals(preprocess_fn), body(preprocess_fn)), control$callback_configuration), algo = "sha256")
   config_hash <- digest::digest(list(X, md, reference$manifest$basis_id, settings, control$observation_aux, callback_hash,
-    seed, B, strata, min_congruence, keep_fits, .engine_metadata(), body(.bootstrap_units), body(.align_programs)), algo = "sha256")
+    seed, B, strata, min_congruence, keep_fits, scheme, fraction, .engine_metadata(), body(.bootstrap_units), body(.align_programs)), algo = "sha256")
   if (!is.null(checkpoint_dir)) dir.create(checkpoint_dir, recursive = TRUE, showWarnings = FALSE)
   run <- function(i) {
     path <- if (is.null(checkpoint_dir)) NULL else file.path(checkpoint_dir, paste0("replicate-", i, ".rds"))
     .checkpoint_replicate(path, config_hash, function() {
-      resampled <- .bootstrap_units(md, unit_col, strata, seeds[i])
+      resampled <- .bootstrap_units(md, unit_col, strata, seeds[i], fraction = fraction)
       mapping <- resampled$mapping
       Y <- if (side == "rows") X[match(mapping$original_sample, samples), , drop = FALSE] else X[, match(mapping$original_sample, samples), drop = FALSE]
       if (side == "rows") rownames(Y) <- mapping$sample else colnames(Y) <- mapping$sample
@@ -235,7 +243,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100
   .attach_provenance(structure(list(schema_version = "1.0.0", summary = summary, replicates = replicates, matches = matches, resamples = resamples, failures = failures,
     fits = if (keep_fits) lapply(results, function(r) r$fit) else NULL,
     analysis_metadata = list(reference_basis = reference$manifest, config_hash = config_hash, callback_hash = callback_hash, seeds = seeds,
-      unit_col = unit_col, strata = strata, n_requested = B, seed = seed, workers = workers, min_congruence = min_congruence,
+      unit_col = unit_col, strata = strata, scheme = scheme, fraction = fraction, n_requested = B, seed = seed, workers = workers, min_congruence = min_congruence,
       preparation = if (is.null(preprocess_fn)) "conditional_on_supplied_preprocessing" else "refit_per_replicate",
       eligibility = "successful_refit_with_nonzero_reference_and_at_least_one_nonzero_target", similarity_quantiles = "conditional_on_success_and_finite_assigned_similarity", checkpoint_dir = checkpoint_dir)), class = "stability_result"), "factor_stability", match.call(), .resolved_parameters("factor_stability", environment()))
 }
