@@ -124,11 +124,12 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   X <- .validate_matrix(X)
   samples <- if (side == "rows") rownames(X) else colnames(X)
   features <- if (side == "rows") colnames(X) else rownames(X)
-  md <- .match_ids(samples, metadata, required_columns = c("sample", unit_col, control$cohort_col))$metadata
+  matched <- .match_ids(samples, metadata, required_columns = c("sample", unit_col, control$cohort_col))
+  md <- matched$metadata
   units <- as.character(md[[unit_col]])
   if (any(!nzchar(trimws(units)))) stop("Biological unit IDs cannot be empty")
   if (!is.data.frame(folds) || !"fold" %in% names(folds)) stop("folds requires named sample/unit and fold columns")
-  if ("sample" %in% names(folds)) labels <- .match_ids(samples, folds, required_columns = c("sample", "fold"))$metadata$fold else {
+  if ("sample" %in% names(folds)) labels <- .match_ids(samples, folds, extra = "fail", required_columns = c("sample", "fold"))$metadata$fold else {
     if (!unit_col %in% names(folds)) stop("folds has no sample or declared unit IDs")
     ids <- .validate_ids(as.character(folds[[unit_col]]), "Fold unit")
     if (!setequal(ids, unique(units))) stop("Fold unit IDs differ from metadata")
@@ -253,7 +254,7 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
     feature_coverage = data.frame(feature = features, used_for_activity = if (is.null(activity_features)) NA else features %in% activity_features, scored = if (is.null(scoring_features)) NA else features %in% scoring_features),
     diagnostics = list(failures = failures, prior_noise_policy = prior_note, prior_policy = prior_policy, auxiliary_policy = "named_sample_feature_subset"),
     activities = lapply(results[successful], function(result) result$activity), fold_results = results,
-    analysis_metadata = list(evaluation_type = evaluation, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
+    analysis_metadata = list(evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
       config_hash = config_hash, program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,
       dense_budget_bytes = budget, projection_is_unseen_entry_prediction = FALSE)), class = "holdout_result"), "factor_holdout", match.call(), .resolved_parameters("factor_holdout", environment()))
 }

@@ -64,3 +64,8 @@ test_that("structure plots order displayed samples within groups by 1D MDS", {
   expect_error(plot_factor_activity(view, style = "structure", display_normalization = "row_sum",
     order_within_group = "mds1"), "group")
 })
+test_that("activity plots record metadata rows absent from the fit", {
+  metadata <- data.frame(sample=c("s3","s1","s2","s99"),cohort=c("b","a","a","a"))
+  p <- plot_factor_activity(fixture_view(),metadata,group="cohort",seed=3)
+  expect_equal(attr(p,"analysis_metadata")$exclusions$sample,"s99")
+})

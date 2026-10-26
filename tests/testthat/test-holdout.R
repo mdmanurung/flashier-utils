@@ -34,6 +34,18 @@ test_that("holdout can fix activity priors to the training fit", {
   expect_error(run("other"),"should be one of")
 })
 
+test_that("holdout drops extra unit metadata but refuses stale fold tables", {
+  X<-fixture_matrix();md<-data.frame(sample=rownames(X),donor=rep(paste0("d",1:6),each=2))
+  folds<-data.frame(sample=md$sample,fold=c(rep("train",8),rep("test",4)))
+  control<-list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test")
+  wide<-rbind(md,data.frame(sample="s99",donor="d9"))
+  out<-factor_holdout(X,wide,"donor",folds,holdout_callback,seed=12,control=control)
+  expect_equal(nrow(out$failures),0)
+  expect_equal(out$analysis_metadata$exclusions$sample,"s99")
+  stale<-rbind(folds,data.frame(sample="s99",fold="test"))
+  expect_error(factor_holdout(X,md,"donor",stale,holdout_callback,seed=12,control=control),"different sample set")
+})
+
 test_that("altering only withheld truth leaves masked activities unchanged", {
   X<-fixture_matrix();md<-data.frame(sample=rownames(X),donor=rep(paste0("d",1:6),each=2))
   folds<-data.frame(sample=md$sample,fold=c(rep("train",8),rep("test",4)))

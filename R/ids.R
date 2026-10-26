@@ -25,7 +25,7 @@
   X
 }
 
-.match_ids <- function(ids, metadata, id_col = "sample", extra = "fail",
+.match_ids <- function(ids, metadata, id_col = "sample", extra = "drop",
                        na_action = "fail", required_columns = names(metadata)) {
   .validate_ids(ids, "Required sample")
   if (!is.data.frame(metadata) || !id_col %in% names(metadata)) stop("Metadata requires an explicit ", id_col, " column")
@@ -36,7 +36,7 @@
   missing <- setdiff(ids, mids)
   if (length(missing)) stop("Missing metadata IDs: ", paste(missing, collapse = ", "))
   extras <- setdiff(mids, ids)
-  if (length(extras) && extra == "fail") stop("Extra metadata IDs: ", paste(extras, collapse = ", "), "; use extra='drop'")
+  if (length(extras) && extra == "fail") stop("Extra metadata IDs: ", paste(extras, collapse = ", "), "; the table was built for a different sample set")
   index <- match(ids, mids)
   aligned <- metadata[index, , drop = FALSE]
   bad <- !stats::complete.cases(aligned[, required_columns, drop = FALSE])

@@ -37,7 +37,7 @@ factor_cor <- function(fit, engine, factors = NULL, metadata = NULL, subset = NU
   .require_biological_factors(view$manifest$factor_ids)
   A <- factor_activity(view, factors = factors, samples = subset)
   if (!ncol(A) || nrow(A) < 3L) stop("Correlation needs selected factors and at least three observations")
-  if (!is.null(metadata)) .match_ids(rownames(view$activity), metadata)
+  exclusions <- if (!is.null(metadata)) .match_ids(rownames(view$activity), metadata)$exclusions
   constant <- vapply(seq_len(ncol(A)), function(k) stats::sd(A[, k], na.rm = TRUE) == 0, logical(1))
   counts <- crossprod(!is.na(A))
   if (engine != "corshrink") {
@@ -64,6 +64,6 @@ factor_cor <- function(fit, engine, factors = NULL, metadata = NULL, subset = NU
   properties <- list(symmetry_error = if (all(is.finite(correlation))) max(abs(correlation-t(correlation))) else NA_real_,
     minimum_eigenvalue_of_symmetric_part = if (all(is.finite(correlation))) min(eigen((correlation+t(correlation))/2,symmetric=TRUE,only.values=TRUE)$values) else NA_real_)
   .attach_provenance(list(correlation = correlation, pair_counts = counts, constant_factors = colnames(A)[constant], native = native,
-       analysis_metadata = c(view$manifest, list(engine = engine, use = use, selected_sample_ids = rownames(A),
+       analysis_metadata = c(view$manifest, list(engine = engine, use = use, exclusions = exclusions, selected_sample_ids = rownames(A),
          n_samples = nrow(A), posterior_score_uncertainty = "ignored", interpretation = "descriptive_not_donor_level_inference", matrix_properties = properties, native_warning_policy = if (engine == "corshrink") "upstream suppresses warnings internally; caller warn option restored" else "unchanged", control = control))), "factor_cor", match.call(), .resolved_parameters("factor_cor", environment()))
 }

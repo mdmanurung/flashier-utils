@@ -118,3 +118,11 @@ test_that("subsampling draws distinct units and keys checkpoints by scheme", {
   expect_error(run(scheme="subsample"),"fraction")
   expect_error(run(fraction=0.5),"subsample")
 })
+test_that("stability records metadata rows absent from the data", {
+  fit <- fixture_fit(); attr(fit,"flashbridge_metadata")$feature_scale <- "intensity"
+  md <- data.frame(sample=c(paste0("s",1:12),"s99"),donor=c(rep(paste0("d",1:6),each=2),"d9"))
+  callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()) fit_ebmf(X,sample_side,max_factors=1L,backfit=TRUE,seed=seed,verbose=0L,feature_scale="intensity")
+  out <- factor_stability(fixture_matrix(),fit,md,"donor",B=1L,fit_fn=callback,seed=33)
+  expect_equal(out$analysis_metadata$exclusions$sample,"s99")
+  expect_false("s99" %in% out$resamples$original_sample)
+})

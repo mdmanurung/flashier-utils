@@ -13,8 +13,8 @@ test_that("IDs and missingness are validated without changing sparse zeros", {
   expect_equal(joined$metadata$donor,c("d1","d2"))
   expect_error(.match_ids(rownames(X),metadata[1,,drop=FALSE]),"Missing metadata")
   extra <- rbind(metadata,data.frame(sample="s3",donor="d3"))
-  expect_error(.match_ids(rownames(X),extra),"Extra")
-  expect_equal(.match_ids(rownames(X),extra,extra="drop")$exclusions$sample,"s3")
+  expect_error(.match_ids(rownames(X),extra,extra="fail"),"Extra")
+  expect_equal(.match_ids(rownames(X),extra)$exclusions$sample,"s3")
   metadata$donor[1] <- NA
   expect_error(.match_ids(rownames(X),metadata),"Missing metadata values")
   expect_equal(.match_ids(rownames(X),metadata,na_action="omit")$matching$sample,"s1")

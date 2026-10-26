@@ -208,7 +208,7 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = N
       ordering_distance = "euclidean", ordering_embedding = "cmdscale_k1"))
   }
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization,
-    included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
+    exclusions = match$exclusions, included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
     sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed), ordering)
   .attach_provenance(p, "plot_factor_activity", match.call(), .resolved_parameters("plot_factor_activity", environment()))
 }

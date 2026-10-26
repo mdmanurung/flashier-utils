@@ -96,8 +96,11 @@ plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker =
       ggplot2::geom_histogram(binwidth = 1) +
       ggplot2::labs(x = "Programs per sample")
   )
+  exclusions <- NULL
   if (!is.null(group)) {
-    md <- .match_ids(s$sample, metadata, required_columns = c("sample", group))$metadata
+    matched <- .match_ids(s$sample, metadata, required_columns = c("sample", group))
+    md <- matched$metadata
+    exclusions <- matched$exclusions
     s$group <- md[[group]]
     plots$groups <- ggplot2::ggplot(s, ggplot2::aes(x = .data$group, y = .data$programs)) +
       ggplot2::geom_boxplot()
@@ -114,8 +117,8 @@ plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker =
       ggplot2::geom_point()
     attr(plots$marker, "full_population_correlation") <- if (stats::sd(A[, 1]) > 0 && stats::sd(marker) > 0) stats::cor(A[, 1], marker) else NA_real_
   }
-  plots <- lapply(plots, function(p) .program_result(p, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata"), max_samples = max_samples, seed = seed, rendering_only = TRUE)))
-  .program_result(plots, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata")))
+  plots <- lapply(plots, function(p) .program_result(p, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata"), exclusions = exclusions, max_samples = max_samples, seed = seed, rendering_only = TRUE)))
+  .program_result(plots, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata"), exclusions = exclusions))
 }
 
 #' Plot signed signature weights against mean expression
@@ -177,7 +180,8 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
   .check_engine("pROC")
   view <- .resolve_view(fit)
   A <- factor_activity(view, factors = factors)
-  md <- .match_ids(rownames(A), metadata, required_columns = c("sample", group, unit_col))$metadata
+  matched <- .match_ids(rownames(A), metadata, required_columns = c("sample", group, unit_col))
+  md <- matched$metadata
   direction <- match.arg(direction, c("positive", "negative"))
   threshold_method <- match.arg(threshold_method, c("closest.topleft", "youden"))
   labels <- as.character(md[[group]])
@@ -221,7 +225,7 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
       n_units = integer(), n_positive_units = integer(), n_negative_units = integer(), status = character()
     )
   }
-  .program_result(table, view, "factor_specificity", match.call(), list(engine = "pROC", direction = direction, threshold_method = threshold_method, tie_rule = "smallest_finite_threshold", unit_col = unit_col, inference = "descriptive", groups = groups))
+  .program_result(table, view, "factor_specificity", match.call(), list(engine = "pROC", direction = direction, threshold_method = threshold_method, tie_rule = "smallest_finite_threshold", unit_col = unit_col, inference = "descriptive", groups = groups, exclusions = matched$exclusions))
 }
 
 #' Summarize defining features and descriptive program diagnostics

@@ -156,7 +156,8 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100
   samples <- if (side == "rows") rownames(X) else colnames(X)
   features <- if (side == "rows") colnames(X) else rownames(X)
   if (!setequal(samples, reference$manifest$sample_ids) || !setequal(features, reference$manifest$feature_ids)) stop("Input sample/feature IDs differ from the reference fit")
-  md <- .match_ids(samples, metadata, required_columns = c("sample", unit_col, strata))$metadata
+  matched <- .match_ids(samples, metadata, required_columns = c("sample", unit_col, strata))
+  md <- matched$metadata
   custom <- !is.null(fit_fn)
   settings <- control$settings
   if (is.null(fit_fn)) {
@@ -243,7 +244,7 @@ factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100
   .attach_provenance(structure(list(schema_version = "1.0.0", summary = summary, replicates = replicates, matches = matches, resamples = resamples, failures = failures,
     fits = if (keep_fits) lapply(results, function(r) r$fit) else NULL,
     analysis_metadata = list(reference_basis = reference$manifest, config_hash = config_hash, callback_hash = callback_hash, seeds = seeds,
-      unit_col = unit_col, strata = strata, scheme = scheme, fraction = fraction, n_requested = B, seed = seed, workers = workers, min_congruence = min_congruence,
+      unit_col = unit_col, strata = strata, exclusions = matched$exclusions, scheme = scheme, fraction = fraction, n_requested = B, seed = seed, workers = workers, min_congruence = min_congruence,
       preparation = if (is.null(preprocess_fn)) "conditional_on_supplied_preprocessing" else "refit_per_replicate",
       eligibility = "successful_refit_with_nonzero_reference_and_at_least_one_nonzero_target", similarity_quantiles = "conditional_on_success_and_finite_assigned_similarity", checkpoint_dir = checkpoint_dir)), class = "stability_result"), "factor_stability", match.call(), .resolved_parameters("factor_stability", environment()))
 }
