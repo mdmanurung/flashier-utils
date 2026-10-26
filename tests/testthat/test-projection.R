@@ -212,3 +212,26 @@ test_that("fixed priors with sample-wise noise make activity independent of the 
     list(scope = "identity"), maxiter = 2000L, var_type = 1L, prior_policy = "fixed_reference"))$representation$activity["s1", ]
   expect_equal(s1(1:20), s1(c(1, 21:40)), tolerance = 1e-5)
 })
+test_that("fixed_reference maps intercept fits and factor subsets to native reference priors", {
+  X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
+  for (side in c("rows", "columns")) {
+    data <- if (side == "rows") X else t(X)
+    priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+    if (side == "columns") priors <- rev(priors)
+    fit <- fit_ebmf(data, side, ebnm_fn = priors, intercept = "feature", max_factors = 2,
+      backfit = TRUE, nullcheck = FALSE, verbose = 0, seed = 12, feature_scale = "intensity")
+    meta <- attr(fit, "flashbridge_metadata")
+    expect_identical(meta$native_indices[1], 2L)
+    ghat <- if (side == "rows") "L_ghat" else "F_ghat"
+    run <- function(...) suppressWarnings(project_factor_activity(fit, data, side, "intensity",
+      list(scope = "identity"), maxiter = 50L, prior_policy = "fixed_reference", ...))
+    all <- run()
+    expect_equal(all$fit[[ghat]], fit[[ghat]][meta$native_indices])
+    last <- tail(meta$factor_ids, 1)
+    one <- run(factors = last)
+    expect_equal(one$fit[[ghat]], fit[[ghat]][meta$native_indices[match(last, meta$factor_ids)]])
+    expect_false(isTRUE(all.equal(one$fit[[ghat]][[1]], fit[[ghat]][[1]])))
+    expect_equal(one$representation$manifest$source_coordinates$native_indices,
+      meta$native_indices[match(last, meta$factor_ids)])
+  }
+})
