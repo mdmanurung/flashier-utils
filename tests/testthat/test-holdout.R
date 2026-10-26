@@ -58,7 +58,6 @@ test_that("altering only withheld truth leaves masked activities unchanged", {
   expect_equal(unname(before$activities$test),unname(after$activities$test),ignore_attr=TRUE,tolerance=1e-12)
   expect_equal(before$fold_results$test$effects,after$fold_results$test$effects)
   expect_true(all(before$metrics$evaluation_type=="masked"))
-  expect_error(factor_holdout(X,md,"donor",folds,holdout_callback,seed=1,freeze_noise=TRUE),"unsupported")
 })
 
  test_that("training preprocessing receives no held-out entries and masking precedes transform", {

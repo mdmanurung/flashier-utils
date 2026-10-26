@@ -25,3 +25,8 @@ test_that("conditional covariance and draws use full signed feature algebra", {
   expect_equal(out$effects$lower,apply(expected,2,quantile,probs=0.025),ignore_attr=TRUE)
   expect_false("p.value" %in% names(out$effects))
 })
+
+test_that("factor_intervals defaults to activity like factor_uncertainty", {
+  fit <- fixture_fit()
+  expect_equal(factor_intervals(fit, nsamp = 4L, seed = 1), factor_intervals(fit, "activity", nsamp = 4L, seed = 1), ignore_attr = TRUE)
+})

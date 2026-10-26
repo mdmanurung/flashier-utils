@@ -98,7 +98,6 @@
 #' @param metadata Explicit sample and biological unit metadata.
 #' @param unit_col Required donor/subject column.
 #' @param B Positive replicate count.
-#' @param resample Only unit resampling is supported.
 #' @param scheme "bootstrap" (default) draws units with replacement; "subsample"
 #'   draws `fraction` of the units per stratum without replacement, so no
 #'   duplicated rows bias empirical Bayes prior and noise estimates.
@@ -108,7 +107,6 @@
 #'   Return a native flash fit with recorded declarations, or a representation
 #'   created by [standardize_factors()] with explicit units and prior support.
 #' @param preprocess_fn Optional per-replicate callback returning X, metadata, manifest.
-#' @param alignment Only native congruence assignment.
 #' @param min_congruence Optional strict acceptance threshold: similarity must
 #'   exceed it, and equality is unmatched.
 #' @param seed Required deterministic master seed.
@@ -138,14 +136,13 @@
 #' # Two resamples illustrate execution, not reliable recovery estimates.
 #' factor_stability(X, reference_fit = fit, metadata = metadata, unit_col = "donor",B=2,seed=4,min_congruence=0.8)$summary
 factor_stability <- function(X, reference_fit, metadata, unit_col, seed, B = 100L,
-    resample = "unit", strata = NULL, fit_fn = NULL, preprocess_fn = NULL, alignment = "congruence",
-    min_congruence = NULL, workers = 1L, checkpoint_dir = NULL, keep_fits = FALSE,
-    control = list(), scheme = c("bootstrap", "subsample"), fraction = NULL) {
+    scheme = c("bootstrap", "subsample"), fraction = NULL, strata = NULL, fit_fn = NULL,
+    preprocess_fn = NULL, min_congruence = NULL, workers = 1L, checkpoint_dir = NULL,
+    keep_fits = FALSE, control = list()) {
   if (missing(seed) || missing(unit_col)) stop("Choose seed and biological unit explicitly")
   scheme <- match.arg(scheme)
   if (scheme == "bootstrap" && !is.null(fraction)) stop("fraction applies only to scheme = 'subsample'")
   if (scheme == "subsample" && (length(fraction) != 1L || !is.finite(fraction) || fraction <= 0 || fraction >= 1)) stop("Subsampling needs a fraction strictly between 0 and 1")
-  if (resample != "unit" || alignment != "congruence") stop("Only biological-unit resampling and native congruence are supported")
   if (length(B) != 1L || !is.finite(B) || B < 1 || B != as.integer(B) || length(workers) != 1L || !is.finite(workers) || workers < 1 || workers != as.integer(workers)) stop("B and workers must be positive integers")
   if (workers > 1 && .Platform$OS.type != "unix") stop("Multiple workers require the supported Unix fork backend; use workers=1 here")
   if (!is.list(control) || any(!names(control) %in% c("settings", "observation_aux", "callback_configuration"))) stop("Unsupported stability control")

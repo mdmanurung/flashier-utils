@@ -72,6 +72,7 @@
   source
 }
 .projection_S <- function(S, query, side) {
+  .check_S(S)
   if (is.null(S) || length(S) == 1) {
     return(S)
   }
@@ -283,7 +284,7 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #'   Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
 #'   Dylan Kotliar and Michelle Curtis; no source reuse.
 #' @export
-project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2, prior_policy = c("query", "fixed_reference")) {
+project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, prior_policy = c("query", "fixed_reference"), feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2) {
   side <- match.arg(sample_side, c("rows", "columns"))
   .measurement_scale(feature_scale)
   prior_policy <- match.arg(prior_policy)
@@ -299,6 +300,7 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   .program_number(min_coverage, "min_coverage")
   if (min_coverage > 1) stop("min_coverage must be <= 1")
   Y <- .projection_query(query, side, S)
+  if (nrow(Y) < 2L) stop("Projection needs at least two query samples; native flashier drops a single-sample dimension")
   if (!is.null(gene_mapping)) {
     .validate_ids(names(gene_mapping), "Query mapping")
     .validate_ids(unname(gene_mapping), "Reference mapping")

@@ -11,18 +11,16 @@ factor_stability(
   unit_col,
   seed,
   B = 100L,
-  resample = "unit",
+  scheme = c("bootstrap", "subsample"),
+  fraction = NULL,
   strata = NULL,
   fit_fn = NULL,
   preprocess_fn = NULL,
-  alignment = "congruence",
   min_congruence = NULL,
   workers = 1L,
   checkpoint_dir = NULL,
   keep_fits = FALSE,
-  control = list(),
-  scheme = c("bootstrap", "subsample"),
-  fraction = NULL
+  control = list()
 )
 }
 \arguments{
@@ -38,7 +36,11 @@ factor_stability(
 
 \item{B}{Positive replicate count.}
 
-\item{resample}{Only unit resampling is supported.}
+\item{scheme}{"bootstrap" (default) draws units with replacement; "subsample"
+draws `fraction` of the units per stratum without replacement, so no
+duplicated rows bias empirical Bayes prior and noise estimates.}
+
+\item{fraction}{Subsample fraction in (0, 1); required for "subsample".}
 
 \item{strata}{Optional donor-level stratification columns.}
 
@@ -47,8 +49,6 @@ Return a native flash fit with recorded declarations, or a representation
 created by [standardize_factors()] with explicit units and prior support.}
 
 \item{preprocess_fn}{Optional per-replicate callback returning X, metadata, manifest.}
-
-\item{alignment}{Only native congruence assignment.}
 
 \item{min_congruence}{Optional strict acceptance threshold: similarity must
 exceed it, and equality is unmatched.}
@@ -60,12 +60,6 @@ exceed it, and equality is unmatched.}
 \item{keep_fits}{Retain callback fits or representations only on explicit request.}
 
 \item{control}{settings, observation_aux and explicit callback_configuration.}
-
-\item{scheme}{"bootstrap" (default) draws units with replacement; "subsample"
-draws `fraction` of the units per stratum without replacement, so no
-duplicated rows bias empirical Bayes prior and noise estimates.}
-
-\item{fraction}{Subsample fraction in (0, 1); required for "subsample".}
 }
 \value{
 stability_result with summaries, replicates, matches, resamples, failures.

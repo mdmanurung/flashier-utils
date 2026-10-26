@@ -11,14 +11,13 @@ plot_factor_features(
   select = "largest",
   n = 20L,
   style = "heatmap",
-  engine = "ggplot2",
-  ...,
   compare_factors = NULL,
   features = NULL,
   direction = "absolute",
   display_normalization = "none",
   transpose = FALSE,
-  annotation = NULL
+  annotation = NULL,
+  ...
 )
 }
 \arguments{
@@ -37,10 +36,6 @@ plot_factor_features(
 
 \item{style}{heatmap or bar.}
 
-\item{engine}{ggplot2.}
-
-\item{...}{Optional palette (negative, zero, positive) and limits.}
-
 \item{compare_factors}{Optional competition pool.}
 
 \item{features}{Explicit feature IDs instead of ranked selection.}
@@ -52,6 +47,8 @@ plot_factor_features(
 \item{transpose}{Flip display axes.}
 
 \item{annotation}{One named factor annotation vector, including correlations.}
+
+\item{...}{Optional palette (negative, zero, positive) and limits.}
 }
 \value{
 A ggplot with display and basis metadata attributes.

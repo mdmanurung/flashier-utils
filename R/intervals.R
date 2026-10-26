@@ -38,7 +38,7 @@
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
 #' factor_intervals(fit, side = "activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
-factor_intervals <- function(fit, side, sample_side = NULL, representation = NULL, factors = NULL,
+factor_intervals <- function(fit, side = c("activity", "effects"), sample_side = NULL, representation = NULL, factors = NULL,
     ids = NULL, level = 0.95, nsamp = 2000L, seed = NULL) {
   if (!inherits(fit, "flash")) stop("Native sampler requires a native fit")
   if (!is.function(fit$sampler) && is.null(attr(fit, "flashbridge_metadata")$factor_ids)) stop("Native sampler is unavailable for this fit/prior")

@@ -22,7 +22,6 @@
 #' @param term,contrasts,conditions Explicit table selections when applicable.
 #' @param allow_partial Report a restricted program contribution.
 #' @param coefficient_covariance Full named coefficient covariance, when supported.
-#' @param uncertainty conditional; pipeline_bootstrap requires a separate workflow.
 #' @param level Interval coverage when supported.
 #' @param keep_draws Retain projected draws when supported.
 #' @param feature_block_size Positive block size for feature operations.
@@ -48,11 +47,10 @@
 backproject_contrast <- function(fit, factor_effects, input, representation = NULL,
                                 factor_basis = NULL, term = NULL, contrasts = NULL,
                                 conditions = NULL, allow_partial = FALSE,
-                                coefficient_covariance = NULL, uncertainty = "conditional",
+                                coefficient_covariance = NULL,
                                 level = 0.95, keep_draws = FALSE, feature_block_size = 2000L) {
   if (missing(input)) stop("input must explicitly declare coefficients or draws")
   input <- match.arg(input, c("coefficients", "draws"))
-  if (uncertainty != "conditional") stop("Only fixed-program conditional uncertainty is supported")
   if (length(feature_block_size) != 1L || !is.finite(feature_block_size) || feature_block_size < 1 || feature_block_size != as.integer(feature_block_size)) stop("feature_block_size must be a positive integer")
   view <- .resolve_view(fit, representation)
   .require_biological_factors(view$manifest$factor_ids)

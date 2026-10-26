@@ -15,7 +15,6 @@ backproject_contrast(
   conditions = NULL,
   allow_partial = FALSE,
   coefficient_covariance = NULL,
-  uncertainty = "conditional",
   level = 0.95,
   keep_draws = FALSE,
   feature_block_size = 2000L
@@ -37,8 +36,6 @@ backproject_contrast(
 \item{allow_partial}{Report a restricted program contribution.}
 
 \item{coefficient_covariance}{Full named coefficient covariance, when supported.}
-
-\item{uncertainty}{conditional; pipeline_bootstrap requires a separate workflow.}
 
 \item{level}{Interval coverage when supported.}
 

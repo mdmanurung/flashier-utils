@@ -16,8 +16,6 @@ factor_holdout(
   activity_features = NULL,
   scoring_features = NULL,
   mask = NULL,
-  freeze_noise = FALSE,
-  workers = 1L,
   checkpoint_dir = NULL,
   control = list()
 )
@@ -44,10 +42,6 @@ transform(X,metadata,state,seed,settings) returns transformed X and metadata.}
 
 \item{mask}{Optional named logical matrix; TRUE entries are withheld for scoring.}
 
-\item{freeze_noise}{TRUE is unsupported until a separate native freeze probe passes.}
-
-\item{workers}{Only serial fold execution is supported.}
-
 \item{checkpoint_dir}{Fold checkpoints require explicit callback_configuration.}
 
 \item{control}{sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
@@ -64,6 +58,7 @@ scores use disjoint entries/features and never enter activity/noise fitting.
 Learned hyperparameters may recalibrate on permitted test observations;
 control$prior_policy = "fixed_reference" fixes activity priors to the training
 fit, while residual variance still recalibrates.
+Trained noise is never frozen, and folds run serially.
 Paired preprocessing callbacks fit on training data then apply frozen state;
 masked inference receives NA before transform. Global preprocessing is labelled
 conditional and cannot establish independent full-pipeline validation.

@@ -6,7 +6,7 @@
 \usage{
 factor_intervals(
   fit,
-  side,
+  side = c("activity", "effects"),
   sample_side = NULL,
   representation = NULL,
   factors = NULL,

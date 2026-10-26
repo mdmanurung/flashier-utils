@@ -85,16 +85,14 @@
 #' Tucker congruence on named shared features, with native rectangular assignment
 #' and dummy unmatched nodes. Without a threshold all matches are candidates.
 #' Correspondence does not establish measurement invariance or activity units.
+#' Alignment is Tucker congruence only. For resampling uncertainty use
+#' [factor_stability()].
 #' @param reference,target Native fits with recorded side, or matched views.
 #' @param feature_map Optional one-to-one reference-to-target feature mapping.
-#' @param alignment Only congruence is supported.
 #' @param min_congruence Optional strict acceptance threshold: similarity must
 #'   exceed it, and equality is unmatched. NULL yields candidate-only.
 #' @param min_shared_features Computational minimum overlap (not scientific sufficiency).
 #' @param allow_sign_flip Optional declaration; signed support on both sides required.
-#' @param bootstrap Donor-refit bootstrap is unsupported here; use explicit stability recipes.
-#' @param refit_inputs Reserved for a separately validated biological bootstrap recipe.
-#' @param control Reserved; unknown settings error.
 #' @return A replicability_result containing matches, full similarities and coverage metadata.
 #' @export
 #' @author Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue).
@@ -113,11 +111,8 @@
 #'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
 #' view <- standardize_factors(fit)
 #' factor_replicability(view,view,min_congruence=0.8)$matches
-factor_replicability <- function(reference, target, feature_map = NULL, alignment = "congruence",
-                                 min_congruence = NULL, min_shared_features = 2L,
-                                 allow_sign_flip = NULL, bootstrap = FALSE, refit_inputs = NULL, control = list()) {
-  if (alignment != "congruence" || length(control)) stop("Only declared native congruence alignment is supported")
-  if (bootstrap) stop("Biological bootstrap requires explicit donor refit inputs and a separate validated recipe; feature bootstrap is not supported")
+factor_replicability <- function(reference, target, feature_map = NULL, min_congruence = NULL,
+                                 min_shared_features = 2L, allow_sign_flip = NULL) {
   result <- .align_programs(.resolve_view(reference), .resolve_view(target), min_congruence, allow_sign_flip, min_shared_features, feature_map)
   .attach_provenance(structure(c(list(schema_version = "1.0.0"), result), class = "replicability_result"), "factor_replicability", match.call(), .resolved_parameters("factor_replicability", environment()))
 }

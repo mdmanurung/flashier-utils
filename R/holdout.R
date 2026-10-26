@@ -60,6 +60,7 @@
 #' Learned hyperparameters may recalibrate on permitted test observations;
 #' control$prior_policy = "fixed_reference" fixes activity priors to the training
 #' fit, while residual variance still recalibrates.
+#' Trained noise is never frozen, and folds run serially.
 #' Paired preprocessing callbacks fit on training data then apply frozen state;
 #' masked inference receives NA before transform. Global preprocessing is labelled
 #' conditional and cannot establish independent full-pipeline validation.
@@ -73,9 +74,7 @@
 #' @param evaluation projection or masked.
 #' @param activity_features,scoring_features Optional disjoint named feature sets for masked mode.
 #' @param mask Optional named logical matrix; TRUE entries are withheld for scoring.
-#' @param freeze_noise TRUE is unsupported until a separate native freeze probe passes.
 #' @param seed Required master seed.
-#' @param workers Only serial fold execution is supported.
 #' @param checkpoint_dir Fold checkpoints require explicit callback_configuration.
 #' @param control sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
 #'   projection_ebnm_fn, maxiter, dense_budget_bytes, cohort_col, evaluated_folds,
@@ -110,10 +109,8 @@
 #'   activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
 factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preprocess_fn = NULL,
     evaluation = "projection", activity_features = NULL, scoring_features = NULL, mask = NULL,
-    freeze_noise = FALSE, workers = 1L, checkpoint_dir = NULL, control = list()) {
+    checkpoint_dir = NULL, control = list()) {
   if (missing(seed) || missing(unit_col) || missing(fit_fn) || !is.function(fit_fn)) stop("Choose biological unit, fit_fn and seed explicitly")
-  if (freeze_noise) stop("Freezing all trained noise/hyperparameters is unsupported; native recalibration uses permitted observations only")
-  if (workers != 1L) stop("Only serial fold execution is supported")
   allowed <- c("sample_side", "settings", "observation_aux", "preprocessing_manifest", "projection_ebnm_fn", "maxiter", "dense_budget_bytes", "cohort_col", "evaluated_folds", "callback_configuration", "keep_predictions", "keep_fits", "prior_policy")
   if (!is.list(control) || any(!names(control) %in% allowed)) stop("Unsupported holdout control")
   if (is.null(control$sample_side)) stop("Supply control$sample_side explicitly")

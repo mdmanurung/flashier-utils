@@ -57,3 +57,14 @@ test_that("feature selection uses the new positional order with unchanged values
   expect_identical(lapply(positional, identity), lapply(named, identity))
   expect_identical(positional$feature, c("g1", "g2"))
 })
+
+test_that("single-value and reserved arguments stay removed", {
+  removed <- list(factor_replicability = c("alignment", "bootstrap", "refit_inputs", "control"),
+    factor_stability = c("resample", "alignment"), factor_holdout = c("freeze_noise", "workers"),
+    test_factors = "factor_uncertainty", backproject_contrast = "uncertainty",
+    plot_factor_activity = "engine", plot_factor_features = "engine")
+  for (name in names(removed)) {
+    expect_false(any(removed[[name]] %in% names(formals(getExportedValue("flashier.utils", name)))), info = name)
+  }
+  expect_identical(utils::tail(names(formals(plot_factor_features)), 1L), "...")
+})

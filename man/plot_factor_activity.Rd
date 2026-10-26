@@ -11,7 +11,6 @@ plot_factor_activity(
   factors = NULL,
   style = "heatmap",
   display_normalization = "none",
-  engine = "ggplot2",
   max_samples = 2000L,
   seed = NULL,
   order_within_group = c("input", "mds1"),
@@ -30,8 +29,6 @@ plot_factor_activity(
 \item{style}{heatmap, point, distribution or structure.}
 
 \item{display_normalization}{none, or row_sum for structure only.}
-
-\item{engine}{ggplot2.}
 
 \item{max_samples}{Positive bound on displayed samples.}
 

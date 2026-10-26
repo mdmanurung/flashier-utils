@@ -6,7 +6,6 @@
 #' @inheritParams factor_features
 #' @param factors Unique displayed factors.
 #' @param style heatmap or bar.
-#' @param engine ggplot2.
 #' @param compare_factors Optional competition pool.
 #' @param features Explicit feature IDs instead of ranked selection.
 #' @param direction absolute, positive or negative selection.
@@ -38,9 +37,8 @@
 #'   `max_k(abs(effect))` over the given factors (see
 #'   [factor_features_global()]).
 plot_factor_features <- function(fit, factors, representation = NULL, select = "largest", n = 20L,
-    style = "heatmap", engine = "ggplot2", ..., compare_factors = NULL, features = NULL,
-    direction = "absolute", display_normalization = "none", transpose = FALSE, annotation = NULL) {
-  if (engine != "ggplot2") stop("Only the ggplot2 signed display engine is supported")
+    style = "heatmap", compare_factors = NULL, features = NULL, direction = "absolute",
+    display_normalization = "none", transpose = FALSE, annotation = NULL, ...) {
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
   .require_biological_factors(view$manifest$factor_ids)
@@ -90,7 +88,6 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #' @param style heatmap, point, distribution or structure.
 #' @param factors Optional unique factors.
 #' @param display_normalization none, or row_sum for structure only.
-#' @param engine ggplot2.
 #' @param max_samples Positive bound on displayed samples.
 #' @param seed Optional scoped sampling seed.
 #' @param order_within_group input (default, current order) or mds1. mds1
@@ -119,9 +116,8 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #'   group=rep(c("A","B"),each=12))
 #' plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
 plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = NULL,
-    style = "heatmap", display_normalization = "none", engine = "ggplot2", max_samples = 2000L,
+    style = "heatmap", display_normalization = "none", max_samples = 2000L,
     seed = NULL, order_within_group = c("input", "mds1"), ...) {
-  if (engine != "ggplot2") stop("Only ggplot2 is supported")
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))
   order_within_group <- match.arg(order_within_group)

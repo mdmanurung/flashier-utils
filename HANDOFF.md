@@ -1,64 +1,61 @@
-# Handoff — package review items implemented, pushed and CI-verified
+# Handoff — API argument cleanup shipped; CI pending
 
-**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green; CI green at bc920ec; triage rank 1 done
+**Date:** 2026-10-26 · **Branch:** main (API cleanup commit on top of d43fe33) · **Status:** local suite green; R CMD check run locally; CI pending on push
 
 ## Goal
-Keep flashier.utils scientifically honest and shippable. This thread implemented every
-item of `reports/package-review-20261026.md`.
+Keep flashier.utils scientifically honest and shippable, working down
+`docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-Check CI for the test_gom_de push (`gh run list --limit 4`); full-engines must install
-fastTopics from the pinned Remote. Then ask whether to start triage rank 3, the saved-fit
-comparison API (A1-A2 in `docs/plans/2026-10-25-complete-package.md`).
+Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
+pkgdown. Earlier runs 40357365764 (init_fn fix) and 40360265143 (test_gom_de) must also
+be green; full-engines installs fastTopics from the pinned Remote. If green,
+ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
+`docs/plans/2026-10-25-complete-package.md`).
 
 ## State
-- Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
-  metadata extra rows dropped, intervals guard, runtime comment); feat fixed_reference
-  prior policy; feat stability subsampling; docs (Rd, LIMITATIONS L1/L5); NEWS; styler.
-- Pushed 13c8c16..HEAD to origin/main. CI run 40333350717 (R CMD check, 5 jobs) and
-  40333350725 (pkgdown) passed on 2026-10-26; Ubuntu dependency setup took ~40 min.
-- A pushed head commit tagged `[skip ci]` skips CI for the whole push; R CMD check has
-  no workflow_dispatch, so an untagged commit is needed to trigger it.
-- Follow-up (grilled and approved 2026-10-26): fixed_reference tests for intercept fits
-  and factor subsets (no bug found); `.match_ids` defaults to `extra = "drop"` with
-  exclusions recorded everywhere; sample-keyed holdout folds pass `extra = "fail"`.
+- Uncommitted: none of mine. Untracked reports/core-review-20261022/,
+  reports/ebmf-cnmf-adversarial-review-20261025.md, reports/package-review-20261026.md,
+  reports/starcat-status-20261025.md are not mine to commit. reports/api-review-20261026/
+  (REPORT, MIGRATION, proposed-arguments.csv, edge-matrix.csv) stays untracked like the
+  earlier reviews; probe harness and check log are in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 179 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
-- Untracked, not mine to commit: reports/core-review-20261022/,
-  reports/ebmf-cnmf-adversarial-review-20261025.md, reports/starcat-status-20261025.md,
-  reports/package-review-20261026.md.
-- Runtime: R4_51 via scripts/run-r.sh. Installed roxygen2 is 8.1.0, package records 8.1.1;
-  `devtools::document()` still writes correct Rd.
+  gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
+- Last green CI: bc920ec (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
+- Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; document() still works.
+- Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
-- Triage rank 1 (2026-10-26): ledgers reconciled in 2884978 (GBCD tracker 150 done,
-  13 partial, 1 open; memo and STARCAT notes). Local-only edits: development/ ledger,
-  docs/plans progress lines. Profiling receipt validation/profiling-20261026/DECISION.md:
-  all utility workloads under 1 s at 20k x 1000 x K20; factor_intervals 54 s is the
-  native sampler, so no Rcpp.
-- GBCD tracker row 33 fixed: caller greedy init_fn fits record refit_policy
-  "callback_required" (R/fit.R), so stability refuses automatic replay.
-- Triage rank 2 done: exported `test_gom_de(counts, memberships, sample_side, seed)`
-  calls fastTopics::de_analysis (pin 5cf9a448) with explicit memberships only; user
-  chose export, explicit-matrix input and the name (2026-10-26).
-- Known gaps found: GB-005b lacks canonical MDS sign and declared group order;
-  GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently.
+## Shipped this thread (one line each)
+- Review fixes 13c8c16..e52fec5: var_type inheritance, fixed_reference prior policy, stability subsampling, docs, styler.
+- 0097ab8 fixed_reference tests for intercept fits and factor subsets; b7f153a metadata extra rows dropped and recorded.
+- 2884978 ledgers reconciled (GBCD tracker 150 done, 13 partial); f59a2d0 custom greedy init_fn fits are callback-required.
+- Profiling: validation/profiling-20261026/DECISION.md, Rcpp not justified (factor_intervals time is the native sampler).
+- ab8ce82 `test_gom_de()` exported fastTopics adapter (pin 5cf9a448); 2cabb52 Rd drift from styler regenerated.
+- API cleanup: 12 single-value/reserved args removed from 7 exports, 4 trailing reorders,
+  S/var_type/one-sample guards, factor_intervals side default; 322-probe edge matrix.
 
 ## Locked decisions
-- `prior_policy` defaults to "query"; "fixed_reference" is opt-in (2026-10-26 plan).
-- basis_id keeps hashing engine versions; only the comment was fixed.
-- `.metadata_activity()` drops extra metadata rows; no new public argument.
-- Core API migration approved and shipped; do not re-ask (2026-10-23).
-- Preserve scientific contracts, original authors, inst/NOTICE, provenance (AGENTS.md).
+- `prior_policy` defaults to "query"; "fixed_reference" is opt-in (user, 2026-10-26).
+- `.match_ids` defaults to `extra = "drop"` with exclusions recorded; sample-keyed holdout folds pass `extra = "fail"` (user, 2026-10-26).
+- `test_gom_de` is exported, takes an explicit membership matrix only, never normalizes EBMF scores (user, 2026-10-26).
+- basis_id keeps hashing engine versions; only the comment changed (2026-10-26).
+- Push once per batch; the last pushed commit must not carry `[skip ci]` when R code changed — it skips CI for the whole push, and R CMD check has no workflow_dispatch.
+- Core API migration shipped; do not re-ask (user, 2026-10-23).
+- Single-value and reserved arguments are removed from exports; breaking signature changes
+  approved by the user (2026-10-26). Do not re-add alignment/bootstrap/refit_inputs/control
+  (factor_replicability), resample/alignment (factor_stability), freeze_noise/workers
+  (factor_holdout), factor_uncertainty (test_factors), uncertainty (backproject_contrast)
+  or engine (plots). Selections stay character IDs only.
+- Preserve scientific contracts, original authors, inst/NOTICE, provenance, CREDITS (AGENTS.md).
 - GBCD: optional exact pin 670e3afb…; Baseline stays a factor; activity support unknown; copy no algorithms.
 - Keep LM/ash statistics separate from EB-SNMF effects; invent no FLASH uncertainty/PVE.
 - ImmGenT membership filter defaults: threshold 10, 12 passes; paired rescaling preserves reconstruction.
 - No staged comparison API promoted to R/ until contracts are qualified (2026-10-25).
 
 ## Findings to keep
-- Fixed priors alone do not remove query-set dependence. Probe: same cell, two query
-  sets, var_type 0: query 4e-4, fixed 9e-4; var_type 1: query 6e-4, fixed 5e-7.
-  Only fixed priors plus sample-wise variance are query-independent.
-- Mismatched ebnm family under fixed_reference gives a typed error before flashier.
+- Fixed priors alone do not remove query-set dependence: only fixed priors plus sample-wise
+  var_type do (same cell, two query sets: 5e-7 vs 4e-4 to 9e-4).
+- fastTopics' matrix path checks row sums one-sided and only warns; test_gom_de checks both sides.
 
 ## Dead ends — do not redo
 - Pages cleanup in tracked docs/ fails; build under RUNNER_TEMP/pkgdown-site.
@@ -68,11 +65,14 @@ comparison API (A1-A2 in `docs/plans/2026-10-25-complete-package.md`).
 - CE track: reports/CE_G2_LOSS_MEMO.md says no rerun.
 
 ## Read first
-- `R/holdout.R:11` — `.reference_activity_g()` and the per-factor fixed-g loop.
-- `R/projection.R` `project_factor_activity()` — prior_policy wiring and docs.
-- `docs/plans/2026-10-25-ease-triage.md:1` — ranked remaining work (GoM DE, saved-fit comparison, B1–B3).
-- `reports/starcat-status-20261025.md:1` — StarCAT SC-001..SC-007 still unbuilt.
+- `reports/api-review-20261026/REPORT.md:1` — argument cleanup findings and migration.
+- `docs/plans/2026-10-25-complete-package.md:1` — A1–A2 contract for rank 3 (staged candidate under validation/implementation-all-20261025/candidate/).
+- `docs/plans/2026-10-25-ease-triage.md:1` — remaining ranks 3–5 and follow-ups.
+- `R/gom-de.R:49` — newest adapter; pattern for optional engines with `R/gbcd.R`.
 
 ## Open items
-- Possible follow-up: fix residual variance to the reference (pass reference tau as S).
-- GoM DE, StarCAT (SC-*), SCI-*, VAL-* backlogs unchanged; Rcpp profiling pending.
+- GB-005b display order lacks canonical MDS sign and declared group order — fix on request.
+- GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently — reconcile before any release GO.
+- GBCD tracker has 13 partial rows (small missing tests) — flashier-gbcd/TRACKER.md.
+- Possible follow-up: fix residual variance to the reference (reference tau as S).
+- StarCAT (SC-*), SCI-*, VAL-* backlogs unchanged; need data and Slurm.

@@ -108,12 +108,14 @@
 fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm_point_normal,
                      S = NULL, var_type = 0L, max_factors = 50L, backfit = FALSE, nullcheck = TRUE,
                      id_policy = "require", feature_scale = "unknown", independent_unit = NULL,
-                     seed = NULL, verbose = 1L, control = list(), intercept = c("none", "feature")) {
+                     seed = NULL, verbose = 1L, intercept = c("none", "feature"), control = list()) {
   if (missing(sample_side)) stop("sample_side must be explicitly chosen")
   sample_side <- match.arg(sample_side)
   intercept <- match.arg(intercept)
   generated <- c(rows = is.null(rownames(X)), columns = is.null(colnames(X)))
   X <- .validate_matrix(X, id_policy)
+  .check_S(S)
+  if (!is.null(var_type) && (!is.numeric(var_type) || !length(var_type) || !all(var_type %in% 0:2) || anyDuplicated(var_type))) stop("var_type must be NULL, 0, 1, 2 or c(1, 2)")
   if (inherits(X, "sparseMatrix") && !is.null(S)) stop("Sparse observations with explicit S are unsupported by native flashier (S4 subscript); supply explicitly dense input within your memory budget")
   if (length(max_factors) != 1L || !is.numeric(max_factors) || !is.finite(max_factors) || max_factors < 0 || max_factors != as.integer(max_factors)) stop("max_factors must be a nonnegative integer")
   if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control))))) stop("control must be a uniquely named list")

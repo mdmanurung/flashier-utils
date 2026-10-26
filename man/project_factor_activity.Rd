@@ -12,14 +12,14 @@ project_factor_activity(
   preprocessing,
   factors = NULL,
   ebnm_fn = NULL,
+  prior_policy = c("query", "fixed_reference"),
   feature_match = "exact",
   gene_mapping = NULL,
   min_coverage = 0.5,
   maxiter = 200L,
   S = NULL,
   var_type = NULL,
-  dense_budget_bytes = 256 * 1024^2,
-  prior_policy = c("query", "fixed_reference")
+  dense_budget_bytes = 256 * 1024^2
 )
 }
 \arguments{
@@ -39,6 +39,9 @@ transformation description; the caller declares compatibility with reference.}
 \item{ebnm_fn}{Optional native row/column priors. Recorded activity prior is
 inferred; the default new-feature prior is signed point-Laplace.}
 
+\item{prior_policy}{"query" (default) re-estimates activity priors on the
+query; "fixed_reference" reuses the reference fit's estimated priors.}
+
 \item{feature_match}{exact (default) or intersection.}
 
 \item{gene_mapping}{Optional one-to-one named query-to-reference gene mapping.}
@@ -53,9 +56,6 @@ inferred; the default new-feature prior is signed point-Laplace.}
 the reference fit's recorded `var_type`; views without one use 0L.}
 
 \item{dense_budget_bytes}{Default 256 MiB budget for dense allocations.}
-
-\item{prior_policy}{"query" (default) re-estimates activity priors on the
-query; "fixed_reference" reuses the reference fit's estimated priors.}
 }
 \value{
 Native fit and full-reference matched representation, retaining source

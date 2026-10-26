@@ -24,3 +24,8 @@ test_that("both orientations and D placements reconstruct native fitted means", 
   expect_error(standardize_factors(bare),"sample_side")
   expect_equal(dim(standardize_factors(bare,"rows")$effects),c(8,0))
 })
+
+test_that("standardize_factors names the wrong input instead of asking for sample_side", {
+  expect_error(standardize_factors(fixture_view()), "already a standardized view")
+  expect_error(standardize_factors(fixture_matrix()), "native flash fit")
+})

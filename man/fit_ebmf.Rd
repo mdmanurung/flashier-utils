@@ -18,8 +18,8 @@ fit_ebmf(
   independent_unit = NULL,
   seed = NULL,
   verbose = 1L,
-  control = list(),
-  intercept = c("none", "feature")
+  intercept = c("none", "feature"),
+  control = list()
 )
 }
 \arguments{
@@ -49,11 +49,11 @@ fit_ebmf(
 
 \item{verbose}{Native verbosity.}
 
-\item{control}{Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.}
-
 \item{intercept}{none (default) or feature. A feature intercept has fixed
 sample-side ones and a signed native point-normal feature offset. It is
 excluded from semantic factor IDs; max_factors counts adaptive factors.}
+
+\item{control}{Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.}
 }
 \value{
 A native flash object with flashbridge_metadata attribute. Sparse input

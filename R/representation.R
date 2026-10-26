@@ -198,6 +198,8 @@
 standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type = "f",
                                 d_location = "effects", orientation = "as_fit", prior_support = NULL,
                                 feature_scale = NULL, preprocessing = NULL, independent_unit = NULL) {
+  if (inherits(fit, "factor_representation")) stop("fit is already a standardized view; pass the native fit to choose new settings")
+  if (!inherits(fit, "flash")) stop("standardize_factors() needs a native flash fit")
   sample_side <- .resolve_sample_side(fit, sample_side)
   scaling <- match.arg(scaling, c("ldf", "raw", "rms"))
   d_location <- match.arg(d_location, c("effects", "activity"))

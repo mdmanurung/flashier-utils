@@ -235,3 +235,14 @@ test_that("fixed_reference maps intercept fits and factor subsets to native refe
       meta$native_indices[match(last, meta$factor_ids)])
   }
 })
+
+test_that("projection refuses one-sample queries and non-positive scalar S", {
+  v <- fixture_view(); Y <- tcrossprod(v$activity, v$effects)
+  priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+  expect_error(project_factor_activity(v, Y[1, , drop = FALSE], "rows", "arcsinh_intensity",
+    list(scope = "identity"), ebnm_fn = priors), "at least two query samples")
+  for (bad in c(0, -1)) {
+    expect_error(project_factor_activity(v, Y, "rows", "arcsinh_intensity", list(scope = "identity"),
+      ebnm_fn = priors, S = bad), "finite and positive")
+  }
+})

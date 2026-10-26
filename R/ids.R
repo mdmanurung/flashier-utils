@@ -49,6 +49,8 @@
 
 .select_ids <- function(requested, available, label) {
   if (is.null(requested)) return(seq_along(available))
+  if (is.factor(requested)) requested <- as.character(requested)
+  if (!is.character(requested)) stop(label, " selections must be character IDs, not positions or logicals")
   .validate_ids(requested, label)
   absent <- setdiff(requested, available)
   if (length(absent)) stop("Unknown ", label, " IDs: ", paste(absent, collapse = ", "))
@@ -82,4 +84,9 @@
   })
   set.seed(seed)
   force(code)
+}
+
+.check_S <- function(S) {
+  if (!is.null(S) && (!is.numeric(S) || any(!is.finite(S)) || any(S <= 0))) stop("S must be finite and positive")
+  invisible(S)
 }

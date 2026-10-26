@@ -18,7 +18,6 @@ test_factors(
   na_action = "fail",
   adjust = "BH",
   adjust_scope = "all_tests",
-  factor_uncertainty = "ignore",
   control = list(),
   keep_models = TRUE
 )
@@ -51,8 +50,6 @@ empirical Bayes moderation needs K in the tens to borrow strength.}
 \item{adjust}{stats::p.adjust method.}
 
 \item{adjust_scope}{all_tests or by_term.}
-
-\item{factor_uncertainty}{Only ignore is supported; posterior SD is not SE.}
 
 \item{control}{Engine settings: lm joint_coefficient_covariance, limma/dream ebayes,
 and dream native settings (dropped-method changes are forbidden).}

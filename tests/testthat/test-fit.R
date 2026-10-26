@@ -40,3 +40,10 @@ test_that("audited prior exports retain support and custom callbacks remain unkn
   expect_identical(.prior_support(ebnm::ebnm_normal_scale_mixture), "signed")
   expect_identical(.prior_support(function(...) ebnm::ebnm_point_normal(...)), "unknown")
 })
+
+test_that("fit_ebmf refuses non-positive S and unknown var_type", {
+  X <- fixture_matrix()
+  expect_error(fit_ebmf(X, "rows", S = -1, max_factors = 1L, verbose = 0L), "finite and positive")
+  expect_error(fit_ebmf(X, "rows", S = X * 0, max_factors = 1L, verbose = 0L), "finite and positive")
+  expect_error(fit_ebmf(X, "rows", var_type = 3, max_factors = 1L, verbose = 0L), "var_type must be")
+})

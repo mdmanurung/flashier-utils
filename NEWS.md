@@ -1,5 +1,20 @@
 # flashier.utils 2.0.0.9000
 
+- Breaking: remove arguments that accepted only one value: `alignment`,
+  `bootstrap`, `refit_inputs` and `control` from `factor_replicability()`;
+  `resample` and `alignment` from `factor_stability()`; `freeze_noise` and
+  `workers` from `factor_holdout()`; `factor_uncertainty` from `test_factors()`;
+  `uncertainty` from `backproject_contrast()`; `engine` from both plot functions.
+- Breaking: `fit_ebmf()` takes `intercept` before `control`, `factor_stability()`
+  takes `scheme` and `fraction` after `B`, `project_factor_activity()` takes
+  `prior_policy` after `ebnm_fn`, and `plot_factor_features()` takes `...` last.
+- `factor_intervals()` defaults `side` to activity, like `factor_uncertainty()`.
+- `fit_ebmf()` and projection refuse non-finite or non-positive `S`;
+  `fit_ebmf()` names allowed `var_type` values.
+- `project_factor_activity()` refuses one-sample queries instead of failing
+  inside flashier.
+- Selections accept factor IDs and refuse positions or logicals with a clear
+  message. `standardize_factors()` names a view or matrix input as wrong.
 - Add `test_gom_de()`, a call-only adapter for `fastTopics::de_analysis()`.
   It checks integer counts, positive library sizes and memberships whose rows
   sum to one, requires a seed, and returns a long table of log2 fold changes
