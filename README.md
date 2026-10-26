@@ -49,7 +49,7 @@ the `view`: uncertainty functions need the fit, everything else takes the view.
 | Step | Functions |
 | --- | --- |
 | Fit, or standardize an existing fit | `fit_ebmf()`, `standardize_factors()`, `factor_activity()`, `factor_effects()`, `factor_pve()` |
-| Interpret factors | `factor_features()`, `plot_factor_features()`, `plot_factor_activity()` |
+| Interpret factors | `factor_features()`, `plot_factor_features()`, `plot_factor_weights()`, `plot_factor_activity()`, `plot_factor_scatter()`, `plot_factor_data()`, `plot_factor_embedding()`, `plot_factor_pve()` |
 | Relate factors to metadata | `summarize_factor_activity()`, `compare_factor_groups()`, `test_factors()`, `backproject_contrast()` |
 | Check uncertainty and reproducibility | `factor_uncertainty()`, `factor_intervals()`, `factor_stability()`, `factor_replicability()`, `factor_holdout()` |
 | Transfer programs to new data | `project_factor_activity()`, `project_factor_features()` |
@@ -73,7 +73,7 @@ FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-example scripts/run-r.sh .github/scripts/
 
 Set the same variable before running the case study. No data are downloaded by
 package builds. The [plot gallery](https://mdmanurung.github.io/flashier-utils/articles/plot-gallery.html)
-shows twelve plotting recipes from one simulated fit,
+shows seventeen plotting recipes from one simulated fit,
 [Robustness checks](https://mdmanurung.github.io/flashier-utils/articles/robustness-checks.html)
 lists eight checks to run before naming a factor, and the
 [function reference](https://mdmanurung.github.io/flashier-utils/reference/index.html)

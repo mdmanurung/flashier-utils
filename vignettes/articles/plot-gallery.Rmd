@@ -1,6 +1,6 @@
 ---
 title: "Plot gallery"
-description: "Choose a native flashier or flashier.utils plot from twelve checked examples."
+description: "Choose a native flashier or flashier.utils plot from seventeen checked examples."
 output:
   rmarkdown::html_document:
     toc: false
@@ -343,6 +343,110 @@ Read selected signed effects against a zero baseline.
 
 </div>
 
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r feature-weights, echo=FALSE, fig.show="hide"}
+feature_weights <- plot_factor_weights(
+  view, factors = colnames(view$effects), n_label = 4
+)
+feature_weights
+```
+
+[![Every feature effect ranked within each factor, with the four strongest labelled.](`r knitr::fig_chunk("feature-weights", "png")`)](#recipe-feature-weights)
+
+</div>
+
+### [Ranked weights](#recipe-feature-weights) {.unnumbered .unlisted}
+
+See the whole effect distribution, not only a selection.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-scatter, echo=FALSE, fig.show="hide"}
+activity_scatter <- plot_factor_scatter(
+  view, factors = colnames(view$activity)[1:2], metadata = metadata, color = "group"
+)
+activity_scatter
+```
+
+[![Scatter of sample activity on factor one against factor two, coloured by simulated group.](`r knitr::fig_chunk("activity-scatter", "png")`)](#recipe-activity-scatter)
+
+</div>
+
+### [Factor scatter](#recipe-activity-scatter) {.unnumbered .unlisted}
+
+See how two programs co-occur across samples.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r factor-pve, echo=FALSE, fig.show="hide"}
+factor_pve_plot <- plot_factor_pve(fit)
+factor_pve_plot
+```
+
+[![Bars of native proportion of variance explained for two factors.](`r knitr::fig_chunk("factor-pve", "png")`)](#recipe-factor-pve)
+
+</div>
+
+### [PVE bars](#recipe-factor-pve) {.unnumbered .unlisted}
+
+Compare native PVE across factors as bars.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r data-heatmap, echo=FALSE, fig.show="hide"}
+data_heatmap <- plot_factor_data(
+  view, X, factor = "F1", n = 6, metadata = metadata, group = "group"
+)
+data_heatmap
+```
+
+[![Heatmap of z-scored observed values for the six strongest F1 features, samples ordered by F1 activity and split by group.](`r knitr::fig_chunk("data-heatmap", "png")`)](#recipe-data-heatmap)
+
+</div>
+
+### [Data heatmap](#recipe-data-heatmap) {.unnumbered .unlisted}
+
+Check a factor against the observed data it summarizes.
+
+</div>
+
+<div class="plot-gallery-card">
+<p class="plot-package">flashier.utils</p>
+<div class="plot-preview">
+
+```{r activity-embedding, echo=FALSE, fig.show="hide"}
+embedding <- stats::cmdscale(stats::dist(view$activity), k = 2)
+activity_embedding <- plot_factor_embedding(
+  view, embedding, factors = colnames(view$activity)
+)
+activity_embedding
+```
+
+[![Two-dimensional MDS embedding of samples coloured by each factor's activity.](`r knitr::fig_chunk("activity-embedding", "png")`)](#recipe-activity-embedding)
+
+</div>
+
+### [Embedding](#recipe-activity-embedding) {.unnumbered .unlisted}
+
+Colour any two-dimensional sample embedding by activity.
+
+</div>
+
 </div>
 
 ## Shared setup {#shared-setup}
@@ -468,11 +572,57 @@ Bars retain signed feature effects and a zero baseline. Selection uses the large
 
 [Function reference: `plot_factor_features()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_features.html). [Shared setup](#shared-setup).
 
+### Ranked weights {#recipe-feature-weights}
+
+All features are ranked by signed effect within each factor; the labelled points are the largest absolute effects. Effects keep the declared coordinates. A label is a ranking, not a biological call.
+
+```{r recipe-code-feature-weights, ref.label='feature-weights', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_weights()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_weights.html). [Shared setup](#shared-setup).
+
+### Factor scatter {#recipe-activity-scatter}
+
+Each point is one sample; axes are raw activity on two factors. Colour comes from the metadata column named in `color`. Co-occurrence across samples is descriptive.
+
+```{r recipe-code-activity-scatter, ref.label='activity-scatter', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_scatter()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_scatter.html). [Shared setup](#shared-setup).
+
+### PVE bars {#recipe-factor-pve}
+
+Native PVE per factor as bars. Nonorthogonal factors do not partition variance additively, so bars need not sum to the total.
+
+```{r recipe-code-factor-pve, ref.label='factor-pve', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_pve()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_pve.html). [Shared setup](#shared-setup).
+
+### Data heatmap {#recipe-data-heatmap}
+
+Observed values of the strongest F1 features, one column per sample ordered by F1 activity, split by group. Each feature is z-scored for display only; pass `scale = "none"` for supplied units.
+
+```{r recipe-code-data-heatmap, ref.label='data-heatmap', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_data()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_data.html). [Shared setup](#shared-setup).
+
+### Embedding {#recipe-activity-embedding}
+
+Any named samples by two coordinate matrix works; here classical MDS of the activity matrix. Colour is raw activity per factor. Geometry is exploratory and is not batch correction or replication.
+
+```{r recipe-code-activity-embedding, ref.label='activity-embedding', eval=FALSE, echo=TRUE}
+```
+
+[Function reference: `plot_factor_embedding()`](https://mdmanurung.github.io/flashier-utils/reference/plot_factor_embedding.html). [Shared setup](#shared-setup).
+
 ```{r gallery-checks, include=FALSE}
 gallery_plots <- list(
   native_scree, native_heatmap, native_bar, native_histogram,
   native_scatter, native_structure, activity_heatmap, activity_point,
-  activity_distribution, activity_structure, feature_heatmap, feature_bar
+  activity_distribution, activity_structure, feature_heatmap, feature_bar,
+  feature_weights, activity_scatter, factor_pve_plot, data_heatmap, activity_embedding
 )
 for (p in gallery_plots) {
   layers <- ggplot2::ggplot_build(p)$data

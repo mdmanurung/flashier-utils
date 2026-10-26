@@ -139,15 +139,27 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
   .attach_provenance(object, "embed_factors", match.call(), .resolved_parameters("embed_factors", environment()))
 }
 
-#' Display factor activity on a cell embedding
-#' @param object Seurat object with original factor and embedding reductions.
-#' @param reduction Embedding reduction name.
-#' @param factors Original factor IDs to display.
-#' @param display activity or percentile (explicitly display-only).
-#' @param ... activity_reduction, reference_samples for percentile, max_samples,
-#'   seed, palette (negative/zero/positive), limits. Defaults bound 2000 cells.
-#' @return ggplot with sampled IDs, reference IDs and basis metadata.
-#' @keywords internal
+#' Display factor activity on a sample embedding
+#'
+#' Colour a two-dimensional embedding (UMAP, t-SNE, PCA, MDS) by factor
+#' activity, one panel per factor. Pass a native fit or view together with a
+#' named samples by 2 coordinate matrix; a Seurat object with its reduction
+#' name also works.
+#' @param object Native fit or view from [standardize_factors()], or a Seurat
+#'   object holding original factor and embedding reductions.
+#' @param reduction For a fit or view: named numeric matrix with one row per
+#'   sample and at least two columns of embedding coordinates. For a Seurat
+#'   object: the embedding reduction name.
+#' @param factors Character factor IDs to display, one panel each.
+#' @param display `"activity"` (default) or `"percentile"` (display-only
+#'   empirical percentile against `reference_samples`).
+#' @param ... Optional `reference_samples` (percentile reference IDs),
+#'   `max_samples` (default 2000), `seed`, `palette` (negative, zero, positive
+#'   colours), `limits`; and `activity_reduction` for a Seurat object only.
+#' @return A ggplot object; `$data` has `sample`, `factor`, `estimate`, `x`, `y`,
+#'   with sampled IDs, reference IDs and basis metadata attributes.
+#' @seealso [plot_factor_scatter()], [plot_factor_activity()]
+#' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / call_only.
@@ -172,21 +184,31 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' object <- embed_factors(object, seed = 4, n_neighbors = 4, n_epochs = 20, init = "random")
 #' plot_factor_embedding(object, "ebmfumap", "F1", display = "percentile", max_samples = 12, seed = 4)
 plot_factor_embedding <- function(object, reduction, factors, display = "activity", ...) {
-  .check_engine("SeuratObject", c("Embeddings", "Misc"))
   display <- match.arg(display, c("activity", "percentile"))
-  if (!inherits(object, "Seurat") || !reduction %in% SeuratObject::Reductions(object)) stop("Missing embedding reduction")
   options <- list(...)
   if (length(options) && (is.null(names(options)) || any(!names(options) %in% c("activity_reduction", "reference_samples", "max_samples", "seed", "palette", "limits")))) stop("Unknown display setting")
-  geometry <- SeuratObject::Embeddings(object[[reduction]])
+  if (inherits(object, "Seurat")) {
+    .check_engine("SeuratObject", c("Embeddings", "Misc"))
+    if (!is.character(reduction) || length(reduction) != 1L || !reduction %in% SeuratObject::Reductions(object)) stop("Missing embedding reduction")
+    geometry <- SeuratObject::Embeddings(object[[reduction]])
+    source <- options$activity_reduction
+    if (is.null(source)) source <- SeuratObject::Misc(object[[reduction]], "flashier.utils")$source_reduction
+    if (is.null(source) || !source %in% SeuratObject::Reductions(object)) stop("Declare activity_reduction explicitly")
+    metadata <- SeuratObject::Misc(object[[source]], "flashier.utils")
+    if (!is.list(metadata) || isTRUE(metadata$display_only)) stop("Source must contain original activity")
+    A <- SeuratObject::Embeddings(object[[source]])
+    .require_biological_factors(colnames(A))
+    colnames(A) <- unname(metadata$dimension_factor_map)
+  } else {
+    if (!is.null(options$activity_reduction)) stop("activity_reduction applies to Seurat objects only")
+    if (!is.matrix(reduction) || !is.numeric(reduction) || is.null(rownames(reduction))) stop("reduction must be a named numeric embedding matrix for a fit or view")
+    geometry <- reduction
+    view <- .resolve_view(object)
+    metadata <- view$manifest
+    A <- factor_activity(view)
+    .require_biological_factors(colnames(A))
+  }
   if (ncol(geometry) < 2L) stop("Display requires two embedding coordinates")
-  source <- options$activity_reduction
-  if (is.null(source)) source <- SeuratObject::Misc(object[[reduction]], "flashier.utils")$source_reduction
-  if (is.null(source) || !source %in% SeuratObject::Reductions(object)) stop("Declare activity_reduction explicitly")
-  metadata <- SeuratObject::Misc(object[[source]], "flashier.utils")
-  if (!is.list(metadata) || isTRUE(metadata$display_only)) stop("Source must contain original activity")
-  A <- SeuratObject::Embeddings(object[[source]])
-  .require_biological_factors(colnames(A))
-  colnames(A) <- unname(metadata$dimension_factor_map)
   A <- A[, .select_ids(factors, colnames(A), "factor"), drop = FALSE]
   if (!setequal(rownames(A), rownames(geometry))) stop("Activity and embedding cells differ")
   reference <- options$reference_samples

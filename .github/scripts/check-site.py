@@ -136,11 +136,11 @@ def check_site(repo, site):
         gallery = pages.get(site / "articles/plot-gallery.html")
         if gallery is not None:
             recipes = {name for name in gallery.ids if name.startswith("recipe-")}
-            require(gallery.gallery_cards == 12 and len(gallery.images) == 12,
-                    "Gallery must have twelve cards and previews")
-            require(len({image.get("src") for image in gallery.images}) == 12,
-                    "Gallery must have twelve distinct preview sources")
-            require(len(recipes) == 12, "Gallery must have twelve recipe targets")
+            require(gallery.gallery_cards == 17 and len(gallery.images) == 17,
+                    "Gallery must have seventeen cards and previews")
+            require(len({image.get("src") for image in gallery.images}) == 17,
+                    "Gallery must have seventeen distinct preview sources")
+            require(len(recipes) == 17, "Gallery must have seventeen recipe targets")
             require(not gallery.duplicate_ids & recipes, "Duplicate gallery recipe ID")
             require(all(image.get("alt", "").strip() for image in gallery.images),
                     "Gallery preview missing alt text")

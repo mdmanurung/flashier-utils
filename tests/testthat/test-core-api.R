@@ -4,6 +4,7 @@ test_that("the public API contains exactly the approved core", {
     "factor_effects", "factor_features", "factor_holdout", "factor_intervals",
     "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
     "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",
+    "plot_factor_weights", "plot_factor_scatter", "plot_factor_pve", "plot_factor_data", "plot_factor_embedding",
     "project_factor_activity", "project_factor_features", "provenance",
     "standardize_factors", "summarize_factor_activity", "test_factors", "test_gom_de",
     "validate_backprojection"
@@ -11,7 +12,7 @@ test_that("the public API contains exactly the approved core", {
   expect_setequal(getNamespaceExports("flashier.utils"), core)
   records <- provenance(include_dependencies = FALSE)$`function`
   internal <- setdiff(records, core)
-  expect_length(internal, 34L)
+  expect_length(internal, 33L)
   expect_true(all(vapply(internal, function(name) {
     is.function(get(name, asNamespace("flashier.utils"), inherits = FALSE))
   }, logical(1))))

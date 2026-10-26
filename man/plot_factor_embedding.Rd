@@ -2,27 +2,36 @@
 % Please edit documentation in R/seurat.R
 \name{plot_factor_embedding}
 \alias{plot_factor_embedding}
-\title{Display factor activity on a cell embedding}
+\title{Display factor activity on a sample embedding}
 \usage{
 plot_factor_embedding(object, reduction, factors, display = "activity", ...)
 }
 \arguments{
-\item{object}{Seurat object with original factor and embedding reductions.}
+\item{object}{Native fit or view from \code{\link[=standardize_factors]{standardize_factors()}}, or a Seurat
+object holding original factor and embedding reductions.}
 
-\item{reduction}{Embedding reduction name.}
+\item{reduction}{For a fit or view: named numeric matrix with one row per
+sample and at least two columns of embedding coordinates. For a Seurat
+object: the embedding reduction name.}
 
-\item{factors}{Original factor IDs to display.}
+\item{factors}{Character factor IDs to display, one panel each.}
 
-\item{display}{activity or percentile (explicitly display-only).}
+\item{display}{\code{"activity"} (default) or \code{"percentile"} (display-only
+empirical percentile against \code{reference_samples}).}
 
-\item{...}{activity_reduction, reference_samples for percentile, max_samples,
-seed, palette (negative/zero/positive), limits. Defaults bound 2000 cells.}
+\item{...}{Optional \code{reference_samples} (percentile reference IDs),
+\code{max_samples} (default 2000), \code{seed}, \code{palette} (negative, zero, positive
+colours), \code{limits}; and \code{activity_reduction} for a Seurat object only.}
 }
 \value{
-ggplot with sampled IDs, reference IDs and basis metadata.
+A ggplot object; \verb{$data} has \code{sample}, \code{factor}, \code{estimate}, \code{x}, \code{y},
+with sampled IDs, reference IDs and basis metadata attributes.
 }
 \description{
-Display factor activity on a cell embedding
+Colour a two-dimensional embedding (UMAP, t-SNE, PCA, MDS) by factor
+activity, one panel per factor. Pass a native fit or view together with a
+named samples by 2 coordinate matrix; a Seurat object with its reduction
+name also works.
 }
 \details{
 Origin: NEW_QOL / call_only.
@@ -50,8 +59,10 @@ object <- embed_factors(object, seed = 4, n_neighbors = 4, n_epochs = 20, init =
 plot_factor_embedding(object, "ebmfumap", "F1", display = "percentile", max_samples = 12, seed = 4)
 \dontshow{\}) # examplesIf}
 }
+\seealso{
+\code{\link[=plot_factor_scatter]{plot_factor_scatter()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
+}
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
 Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
-\keyword{internal}

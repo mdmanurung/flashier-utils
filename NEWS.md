@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- Add a display suite modelled on MOFA2's downstream plots, independently
+  written on ggplot2: `plot_factor_weights()` (all effects ranked, top
+  labelled), `plot_factor_scatter()` (two factors, metadata colour/shape),
+  `plot_factor_pve()`, `plot_factor_data()` (observed values of a factor's
+  strongest features, heatmap or scatter) and `plot_factor_embedding()`,
+  now exported and accepting a plain samples-by-2 coordinate matrix.
+
 - Breaking: remove arguments that accepted only one value: `alignment`,
   `bootstrap`, `refit_inputs` and `control` from `factor_replicability()`;
   `resample` and `alignment` from `factor_stability()`; `freeze_noise` and

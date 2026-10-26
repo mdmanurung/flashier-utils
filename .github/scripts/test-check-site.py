@@ -78,11 +78,11 @@ class SiteCheckTests(unittest.TestCase):
         source = self.repo / "vignettes/articles/plot-gallery.Rmd"
         source.parent.mkdir()
         source.write_text("Website gallery")
-        for i in range(12):
+        for i in range(17):
             (self.site / f"preview{i}.png").write_bytes(f"image fixture {i}".encode())
         cards = [f'<div class="plot-gallery-card"><a href="#recipe-{i}">'
                  f'<img src="../preview{i}.png" alt="Example {i}"></a></div>'
-                 f'<h3 id="recipe-{i}">Recipe {i}</h3>' for i in range(12)]
+                 f'<h3 id="recipe-{i}">Recipe {i}</h3>' for i in range(17)]
         self.gallery = self.site / "articles/plot-gallery.html"
         self.gallery.write_text("".join(cards))
 
@@ -144,11 +144,11 @@ class SiteCheckTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Duplicate gallery recipe ID"):
             self.check()
 
-    def test_gallery_requires_twelve_previews(self):
+    def test_gallery_requires_seventeen_previews(self):
         self.add_gallery()
         self.gallery.write_text(self.gallery.read_text().replace(
             '<img src="../preview0.png" alt="Example 0">', ''))
-        with self.assertRaisesRegex(ValueError, "twelve cards and previews"):
+        with self.assertRaisesRegex(ValueError, "seventeen cards and previews"):
             self.check()
 
     def test_gallery_rejects_duplicate_preview_source(self):

@@ -25,6 +25,10 @@ citations for your installed versions.
 | `factor_features` | Peter Carbonetto; Matthew Stephens | rank_effects; compute_le_effects | NEW_QOL / none |
 | `plot_factor_features` | David Zemmour | MyGeneTilePlot workflow; native flashier optional | ADAPTED / none |
 | `plot_factor_activity` | David Zemmour | MyStructurePlot / ImmGenT display workflow | ADAPTED / none |
+| `plot_factor_weights` | Mikhael Manurung; conceptual: MOFA2 (Ricard Argelaguet, Damien Arnol, Danila Bredikhin, Britta Velten) | plot_weights / plot_top_weights display workflow | NEW_QOL / none |
+| `plot_factor_scatter` | Mikhael Manurung; conceptual: MOFA2 authors as above | plot_factors display workflow | NEW_QOL / none |
+| `plot_factor_pve` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | native pve field | WRAPPER / none |
+| `plot_factor_data` | Mikhael Manurung; conceptual: MOFA2 authors as above | plot_data_heatmap / plot_data_scatter display workflow | NEW_QOL / none |
 | `backproject_contrast` | David Zemmour | FlashierDGE reconstruction workflow | ADAPTED / none |
 | `provenance` | Mikhael Manurung | new registry interface | NEW_QOL / none |
 | `fit_nonnegative_ebmf` | Peter Carbonetto; Matthew Stephens | flashier_nmf workflow; bounded native recipe | ADAPTED / call_only |
@@ -449,6 +453,13 @@ recipes through public flashier and flashier.utils APIs. The method and workflow
 authors credited above retain their attribution. The [R Graph Gallery density page](https://r-graph-gallery.com/density-plot.html)
 inspired the library sections and linked previews; no assets, source or prose
 were copied. The package still installs the four tutorials listed above.
+
+The ranked-weight, factor-scatter, data-level and embedding displays follow
+the downstream plotting workflow of MOFA2 (Ricard Argelaguet, Damien Arnol,
+Danila Bredikhin and Britta Velten; Bioconductor package MOFA2,
+doi:10.18129/B9.bioc.MOFA2, LGPL-3). They are independently written on
+ggplot2; no MOFA2 source, assets or prose are copied. Cite MOFA2 when you
+use that workflow design.
 
 ## Website EBMF and cNMF case study
 
