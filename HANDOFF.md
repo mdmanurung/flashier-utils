@@ -7,8 +7,9 @@ Keep flashier.utils scientifically honest and shippable. This thread implemented
 item of `reports/package-review-20261026.md`.
 
 ## Next action
-Check CI for the init_fn fix push (`gh run list --limit 2`). Then ask the user whether
-to start triage rank 2, the GoM DE adapter (C1 in `docs/plans/2026-10-25-complete-package.md`).
+Check CI for the test_gom_de push (`gh run list --limit 4`); full-engines must install
+fastTopics from the pinned Remote. Then ask whether to start triage rank 3, the saved-fit
+comparison API (A1-A2 in `docs/plans/2026-10-25-complete-package.md`).
 
 ## State
 - Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
@@ -22,7 +23,7 @@ to start triage rank 2, the GoM DE adapter (C1 in `docs/plans/2026-10-25-complet
   and factor subsets (no bug found); `.match_ids` defaults to `extra = "drop"` with
   exclusions recorded everywhere; sample-keyed holdout folds pass `extra = "fail"`.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 175 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
+  gives 179 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
 - Untracked, not mine to commit: reports/core-review-20261022/,
   reports/ebmf-cnmf-adversarial-review-20261025.md, reports/starcat-status-20261025.md,
   reports/package-review-20261026.md.
@@ -36,6 +37,9 @@ to start triage rank 2, the GoM DE adapter (C1 in `docs/plans/2026-10-25-complet
   native sampler, so no Rcpp.
 - GBCD tracker row 33 fixed: caller greedy init_fn fits record refit_policy
   "callback_required" (R/fit.R), so stability refuses automatic replay.
+- Triage rank 2 done: exported `test_gom_de(counts, memberships, sample_side, seed)`
+  calls fastTopics::de_analysis (pin 5cf9a448) with explicit memberships only; user
+  chose export, explicit-matrix input and the name (2026-10-26).
 - Known gaps found: GB-005b lacks canonical MDS sign and declared group order;
   GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently.
 
