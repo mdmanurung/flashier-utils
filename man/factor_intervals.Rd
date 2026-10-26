@@ -23,7 +23,10 @@ factor_intervals(
 
 \item{sample_side}{Explicit native sample side if not recorded.}
 
-\item{representation}{Matched view or named standardization settings.}
+\item{representation}{Matched view or named standardization settings;
+a bare native fit defaults to `scaling = "ldf"`, so values differ
+from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+for native coordinates.}
 
 \item{factors}{Optional unique factor IDs in requested order.}
 
@@ -41,7 +44,9 @@ Selected posterior means, SDs, quantiles and sign/zero probabilities.
 \description{
 Uses fit$sampler batches with fixed representation multipliers, conditional on
 empirical priors. Quantiles are exact sample quantiles. Draws do not include
-rank, optimization or biological resampling uncertainty.
+rank, optimization or biological resampling uncertainty. Mean-field
+variational draws are typically underdispersed, so intervals can be too narrow.
+A bare native fit uses LDF coordinates, as in [factor_activity()].
 Selected IDs must be present in the native fit; unmeasured reference features
 have no native sampler entries and are refused explicitly.
 }

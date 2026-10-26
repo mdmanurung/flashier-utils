@@ -18,7 +18,10 @@ factor_activity(
 
 \item{sample_side}{Explicit native sample side if not recorded.}
 
-\item{representation}{Matched view or named standardization settings.}
+\item{representation}{Matched view or named standardization settings;
+a bare native fit defaults to `scaling = "ldf"`, so values differ
+from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+for native coordinates.}
 
 \item{factors}{Optional unique factor IDs in requested order.}
 

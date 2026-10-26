@@ -66,7 +66,9 @@
 #' @param fit Native fit or inferential view (never display percentiles).
 #' @param metadata Explicit sample and biological unit metadata.
 #' @param formula One-sided response design formula.
-#' @param engine lm, limma or dream, chosen explicitly.
+#' @param engine lm, limma or dream, chosen explicitly. With few factors limma
+#'   and dream moderation reproduce lm (identical SE, df and p at K = 2);
+#'   empirical Bayes moderation needs K in the tens to borrow strength.
 #' @param id_col Sample ID column.
 #' @param unit_col Required independent biological unit column.
 #' @param independence Required independent or repeated design declaration.

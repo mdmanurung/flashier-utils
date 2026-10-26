@@ -8,9 +8,11 @@ evidence. Normative for documentation and claims.
 `project_factor_activity()` / `project_factor_features()` re-estimate
 priors by empirical Bayes over the query set; `var_type = 0/2` additionally
 pools residual variance over rows. The same query row in two different
-query sets can receive different estimates. Exact row-chunking would
-require frozen fitted priors (upstream flashier feature); approximate
-chunking is not implemented. Oversize queries fail fast against
+query sets can receive different estimates. `project_factor_activity(
+prior_policy = "fixed_reference")` fixes activity priors to the reference
+fit; combined with sample-wise `var_type` a row's activity no longer depends
+on the other query rows (probe: 5e-7 vs 4e-4 to 9e-4). Chunking is still not
+offered. Oversize queries fail fast against
 `dense_budget_bytes`. Evidence: `reports/FU3B_CP6_CHUNKING_DECISION.md`.
 
 ## L2. RNA-to-ADT parity is a native-oracle validation (FU-3A)
@@ -40,3 +42,10 @@ NNLM/cycling, SuSiE, CorShrink dosym/bootstrap, frozen-noise projection and
 brms/uncertain-response modes are explicitly refused; there are no fallback
 engines. Backend compatibility with the pinned flashier (1.0.60 @ fd44811)
 is preflighted at fit entry. Evidence: NEWS 1.1.0.9000, FU-0 audit.
+
+## L5. Variational uncertainty and point-mass ranking (review 2026-10-26)
+
+Posterior SDs and `factor_intervals()` draws come from a mean-field
+variational approximation and are typically underdispersed. Point-mass
+effect priors produce many exact-zero effects; fgsea ranks these ties
+arbitrarily.

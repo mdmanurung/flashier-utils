@@ -52,7 +52,8 @@ transform(X,metadata,state,seed,settings) returns transformed X and metadata.}
 
 \item{control}{sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
 projection_ebnm_fn, maxiter, dense_budget_bytes, cohort_col, evaluated_folds,
-callback_configuration, keep_predictions, keep_fits.}
+callback_configuration, keep_predictions, keep_fits, prior_policy ("query" or
+"fixed_reference"; see project_factor_activity()).}
 }
 \value{
 holdout_result with metrics, folds, failures, activities and information boundaries.
@@ -60,7 +61,9 @@ holdout_result with metrics, folds, failures, activities and information boundar
 \description{
 Projection scores use observations seen during activity estimation. Masked
 scores use disjoint entries/features and never enter activity/noise fitting.
-Learned hyperparameters may recalibrate on permitted test observations.
+Learned hyperparameters may recalibrate on permitted test observations;
+control$prior_policy = "fixed_reference" fixes activity priors to the training
+fit, while residual variance still recalibrates.
 Paired preprocessing callbacks fit on training data then apply frozen state;
 masked inference receives NA before transform. Global preprocessing is labelled
 conditional and cannot establish independent full-pipeline validation.

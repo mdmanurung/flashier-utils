@@ -27,7 +27,10 @@
 #' Extract sample by factor activity
 #' @param fit Native flash fit or matched representation.
 #' @param sample_side Explicit native sample side if not recorded.
-#' @param representation Matched view or named standardization settings.
+#' @param representation Matched view or named standardization settings;
+#'   a bare native fit defaults to `scaling = "ldf"`, so values differ
+#'   from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+#'   for native coordinates.
 #' @param factors Optional unique factor IDs in requested order.
 #' @param samples Optional unique sample IDs in requested order.
 #' @param format matrix or long; selection precedes reshaping.
@@ -84,6 +87,8 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #'
 #' Native variational uncertainty is conditional on estimated priors. Posterior
 #' SD is not a downstream regression standard error. Missing moments are NA.
+#' Mean-field variational SDs are typically underdispersed. A bare native fit
+#' uses LDF coordinates, as in [factor_activity()].
 #' Unmeasured reference features have status unavailable and reason
 #' not_in_native_fit; uncertainty is never borrowed from the source fit.
 #' @inheritParams factor_activity

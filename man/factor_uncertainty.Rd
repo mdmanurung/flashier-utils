@@ -22,7 +22,10 @@ factor_uncertainty(
 
 \item{sample_side}{Explicit native sample side if not recorded.}
 
-\item{representation}{Matched view or named standardization settings.}
+\item{representation}{Matched view or named standardization settings;
+a bare native fit defaults to `scaling = "ldf"`, so values differ
+from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+for native coordinates.}
 
 \item{factors}{Optional unique factor IDs in requested order.}
 
@@ -38,6 +41,8 @@ Table with estimate, posterior.sd, uncertainty_type and basis_id.
 \description{
 Native variational uncertainty is conditional on estimated priors. Posterior
 SD is not a downstream regression standard error. Missing moments are NA.
+Mean-field variational SDs are typically underdispersed. A bare native fit
+uses LDF coordinates, as in [factor_activity()].
 Unmeasured reference features have status unavailable and reason
 not_in_native_fit; uncertainty is never borrowed from the source fit.
 }

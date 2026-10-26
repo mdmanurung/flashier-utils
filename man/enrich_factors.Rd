@@ -54,6 +54,8 @@ Origin: WRAPPER / call_only.
   universe are excluded; the full mapped feature universe is retained in mat.
   By default center=FALSE: centering across factors changes the annotation
   signal and makes scores depend on the selected factors.
+  Point-mass priors give many effects of exactly zero; fgsea ranks these ties
+  arbitrarily, and its native tie warning is retained.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}

@@ -20,7 +20,9 @@ factor_stability(
   workers = 1L,
   checkpoint_dir = NULL,
   keep_fits = FALSE,
-  control = list()
+  control = list(),
+  scheme = c("bootstrap", "subsample"),
+  fraction = NULL
 )
 }
 \arguments{
@@ -48,7 +50,8 @@ created by [standardize_factors()] with explicit units and prior support.}
 
 \item{alignment}{Only native congruence assignment.}
 
-\item{min_congruence}{Optional caller acceptance threshold.}
+\item{min_congruence}{Optional strict acceptance threshold: similarity must
+exceed it, and equality is unmatched.}
 
 \item{workers}{Positive worker count; Unix fork backend for workers greater than one.}
 
@@ -57,6 +60,12 @@ created by [standardize_factors()] with explicit units and prior support.}
 \item{keep_fits}{Retain callback fits or representations only on explicit request.}
 
 \item{control}{settings, observation_aux and explicit callback_configuration.}
+
+\item{scheme}{"bootstrap" (default) draws units with replacement; "subsample"
+draws `fraction` of the units per stratum without replacement, so no
+duplicated rows bias empirical Bayes prior and noise estimates.}
+
+\item{fraction}{Subsample fraction in (0, 1); required for "subsample".}
 }
 \value{
 stability_result with summaries, replicates, matches, resamples, failures.

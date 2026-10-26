@@ -30,7 +30,9 @@ test_factors(
 
 \item{formula}{One-sided response design formula.}
 
-\item{engine}{lm, limma or dream, chosen explicitly.}
+\item{engine}{lm, limma or dream, chosen explicitly. With few factors limma
+and dream moderation reproduce lm (identical SE, df and p at K = 2);
+empirical Bayes moderation needs K in the tens to borrow strength.}
 
 \item{unit_col}{Required independent biological unit column.}
 

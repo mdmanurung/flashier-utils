@@ -17,8 +17,9 @@ project_factor_activity(
   min_coverage = 0.5,
   maxiter = 200L,
   S = NULL,
-  var_type = 0L,
-  dense_budget_bytes = 256 * 1024^2
+  var_type = NULL,
+  dense_budget_bytes = 256 * 1024^2,
+  prior_policy = c("query", "fixed_reference")
 )
 }
 \arguments{
@@ -48,9 +49,13 @@ inferred; the default new-feature prior is signed point-Laplace.}
 
 \item{S}{Optional native standard errors; sparse plus S is refused.}
 
-\item{var_type}{Native query residual variance setting.}
+\item{var_type}{Native query residual variance setting. NULL (default) inherits
+the reference fit's recorded `var_type`; views without one use 0L.}
 
 \item{dense_budget_bytes}{Default 256 MiB budget for dense allocations.}
+
+\item{prior_policy}{"query" (default) re-estimates activity priors on the
+query; "fixed_reference" reuses the reference fit's estimated priors.}
 }
 \value{
 Native fit and full-reference matched representation, retaining source
@@ -64,10 +69,16 @@ Uses the same native fixed-program projection as holdout evaluation.
   No automatic preprocessing or normalized usages. Sparse projection is retained
   when offsets are zero; necessary dense copies obey the declared budget.
 
-  Query-set dependence: activity priors are re-estimated by empirical Bayes
-  over the query rows, and `var_type = 0` or `2` pools residual variance over
-  rows, so the same cell projected within two different query sets can receive
-  different activities. Row-chunked projection is therefore an approximation,
+  Query-set dependence: with `prior_policy = "query"` activity priors are
+  re-estimated by empirical Bayes over the query rows. `"fixed_reference"`
+  instead fixes each activity prior to the reference fit's estimate
+  (`L_ghat`/`F_ghat`, raw native coordinates); it needs the native reference
+  fit and refuses views. Residual variance is still estimated on the query:
+  `var_type = 0` (and the feature-wise setting) pools it over samples, so the
+  same cell projected within two different query sets can still receive
+  different activities. Only `"fixed_reference"` with sample-wise variance
+  (`var_type = 1` for row samples, `2` for column samples) makes each sample's
+  activity independent of the other query samples. Row-chunked projection is therefore an approximation,
   not an exact decomposition, and is not offered; oversize queries are refused
   pre-flight against `dense_budget_bytes` (see
   `reports/FU3B_CP6_CHUNKING_DECISION.md`).

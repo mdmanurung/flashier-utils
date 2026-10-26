@@ -24,7 +24,8 @@ factor_replicability(
 
 \item{alignment}{Only congruence is supported.}
 
-\item{min_congruence}{Optional acceptance threshold; NULL yields candidate-only.}
+\item{min_congruence}{Optional strict acceptance threshold: similarity must
+exceed it, and equality is unmatched. NULL yields candidate-only.}
 
 \item{min_shared_features}{Computational minimum overlap (not scientific sufficiency).}
 

@@ -11,7 +11,9 @@
 #'
 #' Uses fit$sampler batches with fixed representation multipliers, conditional on
 #' empirical priors. Quantiles are exact sample quantiles. Draws do not include
-#' rank, optimization or biological resampling uncertainty.
+#' rank, optimization or biological resampling uncertainty. Mean-field
+#' variational draws are typically underdispersed, so intervals can be too narrow.
+#' A bare native fit uses LDF coordinates, as in [factor_activity()].
 #' Selected IDs must be present in the native fit; unmeasured reference features
 #' have no native sampler entries and are refused explicitly.
 #' @inheritParams factor_uncertainty

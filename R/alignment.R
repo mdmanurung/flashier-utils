@@ -88,7 +88,8 @@
 #' @param reference,target Native fits with recorded side, or matched views.
 #' @param feature_map Optional one-to-one reference-to-target feature mapping.
 #' @param alignment Only congruence is supported.
-#' @param min_congruence Optional acceptance threshold; NULL yields candidate-only.
+#' @param min_congruence Optional strict acceptance threshold: similarity must
+#'   exceed it, and equality is unmatched. NULL yields candidate-only.
 #' @param min_shared_features Computational minimum overlap (not scientific sufficiency).
 #' @param allow_sign_flip Optional declaration; signed support on both sides required.
 #' @param bootstrap Donor-refit bootstrap is unsupported here; use explicit stability recipes.
