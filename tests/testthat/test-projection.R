@@ -163,3 +163,19 @@ test_that("projected native fits retain declared external offsets after serializ
   expect_equal(sweep(tcrossprod(restored$activity, restored$effects), 2, restored$offset, "+"),
     sweep(tcrossprod(result$representation$activity, result$representation$effects), 2, offset, "+"))
 })
+test_that("activity projection inherits reference var_type and checks matrix S", {
+  X <- fixture_matrix()
+  fit <- fit_ebmf(X, "rows", ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+    var_type = 1L, max_factors = 2, backfit = TRUE, nullcheck = FALSE, seed = 12, verbose = 0,
+    feature_scale = "intensity")
+  run <- function(...) suppressWarnings(project_factor_activity(fit, X, "rows", "intensity",
+    list(scope = "identity"), maxiter = 20L, ...))
+  inherited <- run()
+  expect_identical(inherited$analysis_metadata$var_type, 1L)
+  expect_equal(inherited$representation$activity, run(var_type = 1L)$representation$activity)
+  view <- standardize_factors(fit, scaling = "raw")
+  expect_identical(suppressWarnings(project_factor_activity(view, X, "rows", "intensity",
+    list(scope = "identity"), maxiter = 5L))$analysis_metadata$var_type, 0L)
+  S <- matrix(1, nrow(X), ncol(X), dimnames = dimnames(X)); S[1, 1] <- 0
+  expect_error(run(S = S), "finite and positive")
+})

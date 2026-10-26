@@ -70,6 +70,7 @@
   native <- if(side=="rows") query else Matrix::t(query)
   if(is.matrix(S)) {
     .validate_matrix(S,allow_missing=FALSE)
+    if(any(S<=0)) stop("S must be finite and positive")
     if(!setequal(rownames(S),rownames(native)) || !setequal(colnames(S),colnames(native))) stop("S axes differ from query")
     return(S[rownames(native),colnames(native),drop=FALSE])
   }
@@ -204,7 +205,7 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
     object <- flashier::flash_factors_fix(object,seq_len(ncol(design)),which_dim=if(side=="rows") "loadings" else "factors")
     object <- flashier::flash_backfit(object,maxiter=maxiter,extrapolate=FALSE,verbose=0)
     fixed <- if(side=="rows") object$L_pm else object$F_pm
-    if(!identical(unname(fixed),unname(design))) stop("Native projection changed fixed activities")
+    if(!isTRUE(all.equal(unname(fixed),unname(design),tolerance=1e-12))) stop("Native projection changed fixed activities")
     B <- if(side=="rows") object$F_pm else object$L_pm
     offset <- stats::setNames(rep(0, nrow(B)), rownames(B))
     if (isTRUE(affine)) {
@@ -228,7 +229,8 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' @param feature_match exact (default) or intersection.
 #' @param gene_mapping Optional one-to-one named query-to-reference gene mapping.
 #' @param min_coverage Minimum fraction of reference genes present (default 0.5).
-#' @param var_type Native query residual variance setting.
+#' @param var_type Native query residual variance setting. NULL (default) inherits
+#'   the reference fit's recorded `var_type`; views without one use 0L.
 #' @return Native fit and full-reference matched representation, retaining source
 #'   effects and offsets exactly; coverage, exclusions and in-sample reconstruction metrics (fit_r2, not prediction).
 #' @details Uses the same native fixed-program projection as holdout evaluation.
@@ -246,8 +248,10 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #'   Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
 #'   Dylan Kotliar and Michelle Curtis; no source reuse.
 #' @export
-project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = 0L, dense_budget_bytes = 256*1024^2) {
+project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256*1024^2) {
   side <- match.arg(sample_side,c("rows","columns")); .measurement_scale(feature_scale)
+  if(is.null(var_type)) var_type <- attr(fit,"flashbridge_metadata")$configuration$var_type
+  if(is.null(var_type)) var_type <- 0L
   source <- .resolve_view(fit,sample_side=if(inherits(fit,"flash")) .resolve_sample_side(fit,if(is.null(attr(fit,"flashbridge_metadata")$sample_side)) side else NULL) else NULL)
   if(!identical(feature_scale,source$manifest$feature_scale)) stop("Query and reference feature units are incompatible")
   if(!is.list(preprocessing) || is.null(preprocessing$scope) || !is.character(preprocessing$scope) || length(preprocessing$scope)!=1 || !nzchar(preprocessing$scope)) stop("Supply a preprocessing manifest with an explicit scope")

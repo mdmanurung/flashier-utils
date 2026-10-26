@@ -1,4 +1,5 @@
-# Shared runtime records stay outside the deterministic coordinate basis hash.
+# Provenance runtime records are attached after hashing; engine versions in the
+# representation manifest (.engine_metadata()) are part of basis_id.
 .resolved_parameters <- function(function_name, frame) {
   arguments <- names(formals(get(function_name, envir = asNamespace("flashier.utils"))))
   # ponytail: large scientific inputs are identified by the basis/configuration;

@@ -1,7 +1,7 @@
 # Independent descriptive summaries; ImmGenT and jamboree group-ranking workflow credit.
 .metadata_activity <- function(fit, metadata, required, id_col, na_action) {
   view <- .resolve_view(fit)
-  match <- .match_ids(rownames(view$activity), metadata, id_col, na_action = na_action,
+  match <- .match_ids(rownames(view$activity), metadata, id_col, extra = "drop", na_action = na_action,
                       required_columns = unique(c(id_col, required)))
   list(view = view, metadata = match$metadata, A = view$activity[match$matching$matrix_row, , drop = FALSE], matching = match$matching, exclusions = match$exclusions)
 }

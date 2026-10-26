@@ -68,3 +68,11 @@ test_that("activity prevalence thresholds add raw and weighted active summaries"
   expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = "1"), "single nonnegative")
   expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = 1, activity_direction = "up"), "positive")
 })
+test_that("cohort-wide metadata with extra samples is dropped, not refused", {
+  view <- fixture_view()
+  md <- data.frame(sample=c("s3","s1","s2"),group=c("B","A","A"))
+  wide <- rbind(md, data.frame(sample="s99", group="A"))
+  expect_equal(summarize_factor_activity(view,wide,"group")$mean, summarize_factor_activity(view,md,"group")$mean)
+  expect_equal(compare_factor_groups(view,wide,"group",c("A","B"))$factor_contrast$estimate,
+    compare_factor_groups(view,md,"group",c("A","B"))$factor_contrast$estimate)
+})

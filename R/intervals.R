@@ -52,8 +52,10 @@ factor_intervals <- function(fit, side, sample_side = NULL, representation = NUL
     return(.attach_provenance(out, "factor_intervals", match.call(), .resolved_parameters("factor_intervals", environment())))
   }
   if (!is.function(fit$sampler)) stop("Native sampler is unavailable for this fit/prior")
-  # ponytail: 256 MiB exact-quantile storage; select fewer entries or add a file backend.
-  if (8 * nsamp * nrow(out) > 256 * 1024^2) stop("Selected interval draws exceed 256 MiB; reduce nsamp or select fewer factors/IDs")
+  # ponytail: 256 MiB exact-quantile storage plus one transient 64-draw sampler batch
+  # of full L and F; select fewer entries or add a file backend.
+  batch_bytes <- 8 * min(nsamp, 64L) * (nrow(fit$L_pm) + nrow(fit$F_pm)) * ncol(fit$L_pm)
+  if (8 * nsamp * nrow(out) + batch_bytes > 256 * 1024^2) stop("Retained interval draws plus one native sampler batch exceed 256 MiB; reduce nsamp or select fewer factors/IDs")
   native_side <- if ((side == "activity") == (view$manifest$sample_side == "rows")) 1L else 2L
   id_col <- if (side == "activity") "sample" else "feature"
   native <- .raw_pair(fit)[[native_side]]
