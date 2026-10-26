@@ -137,7 +137,7 @@
   iteration_fields$iteration_limit_reached <- any(grepl("Maximum number of iterations reached",native$warnings,fixed=TRUE))
   metrics <- .projection_metrics(query,A,B[colnames(query),,drop=FALSE],offset[colnames(query)],budget)
   result <- list(fit=object,representation=view,reconstruction=metrics,warnings=native$warnings,native_iteration_diagnostics=iteration_fields,
-    analysis_metadata=utils::modifyList(view$manifest,c(settings,list(engine="flashier",source_basis_id=source$manifest$basis_id,native_warnings=native$warnings,prior_noise_policy="recalibrate_on_query_observations"))))
+    analysis_metadata=utils::modifyList(view$manifest,c(settings,list(engine="flashier",source_basis_id=source$manifest$basis_id,native_warnings=native$warnings,prior_noise_policy=if(identical(settings$prior_policy,"fixed_reference")) "activity_prior_fixed_to_reference; noise_recalibrated_on_query" else "recalibrate_on_query_observations"))))
   .attach_provenance(result,name,call,settings)
 }
 
@@ -229,6 +229,8 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' @param feature_match exact (default) or intersection.
 #' @param gene_mapping Optional one-to-one named query-to-reference gene mapping.
 #' @param min_coverage Minimum fraction of reference genes present (default 0.5).
+#' @param prior_policy "query" (default) re-estimates activity priors on the
+#'   query; "fixed_reference" reuses the reference fit's estimated priors.
 #' @param var_type Native query residual variance setting. NULL (default) inherits
 #'   the reference fit's recorded `var_type`; views without one use 0L.
 #' @return Native fit and full-reference matched representation, retaining source
@@ -237,10 +239,16 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #'   No automatic preprocessing or normalized usages. Sparse projection is retained
 #'   when offsets are zero; necessary dense copies obey the declared budget.
 #'
-#'   Query-set dependence: activity priors are re-estimated by empirical Bayes
-#'   over the query rows, and `var_type = 0` or `2` pools residual variance over
-#'   rows, so the same cell projected within two different query sets can receive
-#'   different activities. Row-chunked projection is therefore an approximation,
+#'   Query-set dependence: with `prior_policy = "query"` activity priors are
+#'   re-estimated by empirical Bayes over the query rows. `"fixed_reference"`
+#'   instead fixes each activity prior to the reference fit's estimate
+#'   (`L_ghat`/`F_ghat`, raw native coordinates); it needs the native reference
+#'   fit and refuses views. Residual variance is still estimated on the query:
+#'   `var_type = 0` (and the feature-wise setting) pools it over samples, so the
+#'   same cell projected within two different query sets can still receive
+#'   different activities. Only `"fixed_reference"` with sample-wise variance
+#'   (`var_type = 1` for row samples, `2` for column samples) makes each sample's
+#'   activity independent of the other query samples. Row-chunked projection is therefore an approximation,
 #'   not an exact decomposition, and is not offered; oversize queries are refused
 #'   pre-flight against `dense_budget_bytes` (see
 #'   `reports/FU3B_CP6_CHUNKING_DECISION.md`).
@@ -248,11 +256,14 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #'   Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
 #'   Dylan Kotliar and Michelle Curtis; no source reuse.
 #' @export
-project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256*1024^2) {
+project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256*1024^2, prior_policy = c("query","fixed_reference")) {
   side <- match.arg(sample_side,c("rows","columns")); .measurement_scale(feature_scale)
+  prior_policy <- match.arg(prior_policy)
+  if(prior_policy=="fixed_reference" && !inherits(fit,"flash")) stop("fixed_reference requires the native reference fit")
   if(is.null(var_type)) var_type <- attr(fit,"flashbridge_metadata")$configuration$var_type
   if(is.null(var_type)) var_type <- 0L
   source <- .resolve_view(fit,sample_side=if(inherits(fit,"flash")) .resolve_sample_side(fit,if(is.null(attr(fit,"flashbridge_metadata")$sample_side)) side else NULL) else NULL)
+  if(prior_policy=="fixed_reference") source <- standardize_factors(fit,sample_side=source$manifest$sample_side,scaling="raw")
   if(!identical(feature_scale,source$manifest$feature_scale)) stop("Query and reference feature units are incompatible")
   if(!is.list(preprocessing) || is.null(preprocessing$scope) || !is.character(preprocessing$scope) || length(preprocessing$scope)!=1 || !nzchar(preprocessing$scope)) stop("Supply a preprocessing manifest with an explicit scope")
   feature_match <- match.arg(feature_match,c("exact","intersection"))
@@ -285,11 +296,17 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   } else if(!inherits(Y,"sparseMatrix")) .projection_budget(8*(length(Y)*4+nrow(Y)*ncol(B)*4+length(shared)*3),dense_budget_bytes)
   S <- .projection_S(S,Y,side)
   priors <- .projection_priors(source,side,ebnm_fn)
-  native <- .projection_native(.native_projection(inference,list(effects=shared),side,priors,maxiter,S=S,var_type=var_type,return_fit=TRUE))
+  if(prior_policy=="fixed_reference" && !is.null(ebnm_fn)) {
+    recorded <- tryCatch(.projection_priors(source,side,NULL),error=function(e) NULL)
+    activity <- if(side=="rows") 1 else 2
+    if(!is.null(recorded) && !identical(priors[[activity]],recorded[[activity]])) stop("fixed_reference activity prior must be the reference fit's ebnm family")
+  }
+  g <- if(prior_policy=="fixed_reference") .reference_activity_g(fit,.projection_source_subset(source,colnames(B)))
+  native <- .projection_native(.native_projection(inference,list(effects=shared),side,priors,maxiter,S=S,var_type=var_type,return_fit=TRUE,g=g))
   A <- native$value$activity
   source <- .projection_source_subset(source,colnames(B))
   source$manifest$prior_identifiers <- .projection_prior_ids(priors)
   source$manifest$constraints["activity"] <- .prior_support(priors[[if(side=="rows") 1 else 2]])
-  settings <- list(fixed="effects_and_offsets",maxiter=maxiter,feature_match=feature_match,shared_genes=genes,coverage=coverage,missing_reference_genes=setdiff(rownames(B),genes),excluded_query_genes=setdiff(query_genes,genes),gene_mapping=gene_mapping,source_preprocessing=source$manifest$preprocessing,dense_budget_bytes=dense_budget_bytes,var_type=var_type)
+  settings <- list(fixed="effects_and_offsets",maxiter=maxiter,feature_match=feature_match,shared_genes=genes,coverage=coverage,missing_reference_genes=setdiff(rownames(B),genes),excluded_query_genes=setdiff(query_genes,genes),gene_mapping=gene_mapping,source_preprocessing=source$manifest$preprocessing,dense_budget_bytes=dense_budget_bytes,var_type=var_type,prior_policy=prior_policy)
   .projection_output(native,source,A,B,source$offset,Y,side,feature_scale,preprocessing,settings,"project_factor_activity",match.call(),dense_budget_bytes)
 }

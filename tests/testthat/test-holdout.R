@@ -22,6 +22,18 @@ test_that("held-out fixed programs stay in their raw training basis in both orie
   expect_error(factor_holdout(X,md,"donor",bad,holdout_callback,seed=1,control=list(sample_side="rows",preprocessing_manifest=list(scope="identity"))),"cross folds")
 })
 
+test_that("holdout can fix activity priors to the training fit", {
+  X<-fixture_matrix();md<-data.frame(sample=rownames(X),donor=rep(paste0("d",1:6),each=2))
+  folds<-data.frame(sample=md$sample,fold=c(rep("train",8),rep("test",4)))
+  run<-function(policy) factor_holdout(X,md,"donor",folds,holdout_callback,seed=12,control=list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test",prior_policy=policy))
+  fixed<-run("fixed_reference"); query<-run("query")
+  expect_equal(nrow(fixed$failures),0)
+  expect_identical(fixed$analysis_metadata$prior_policy,"fixed_reference")
+  expect_identical(attr(fixed$activities$test,"analysis_metadata")$prior_policy,"fixed_reference")
+  expect_false(isTRUE(all.equal(fixed$activities$test,query$activities$test)))
+  expect_error(run("other"),"should be one of")
+})
+
 test_that("altering only withheld truth leaves masked activities unchanged", {
   X<-fixture_matrix();md<-data.frame(sample=rownames(X),donor=rep(paste0("d",1:6),each=2))
   folds<-data.frame(sample=md$sample,fold=c(rep("train",8),rep("test",4)))

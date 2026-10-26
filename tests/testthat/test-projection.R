@@ -179,3 +179,36 @@ test_that("activity projection inherits reference var_type and checks matrix S",
   S <- matrix(1, nrow(X), ncol(X), dimnames = dimnames(X)); S[1, 1] <- 0
   expect_error(run(S = S), "finite and positive")
 })
+test_that("fixed_reference projection reuses reference activity priors in both orientations", {
+  X <- fixture_matrix()
+  for (side in c("rows", "columns")) {
+    priors <- list(ebnm::ebnm_point_normal, ebnm::ebnm_point_laplace)
+    if (side == "columns") priors <- rev(priors)
+    data <- if (side == "rows") X else t(X)
+    fit <- fit_ebmf(data, side, ebnm_fn = priors, max_factors = 2, backfit = TRUE,
+      nullcheck = FALSE, seed = 12, verbose = 0, feature_scale = "intensity")
+    run <- function(pol, ...) suppressWarnings(project_factor_activity(fit, data, side, "intensity",
+      list(scope = "identity"), maxiter = 50L, prior_policy = pol, ...))
+    ghat <- if (side == "rows") "L_ghat" else "F_ghat"
+    fixed <- run("fixed_reference")
+    expect_equal(fixed$fit[[ghat]], fit[[ghat]])
+    expect_false(isTRUE(all.equal(run("query")$fit[[ghat]], fit[[ghat]])))
+    expect_identical(fixed$analysis_metadata$prior_policy, "fixed_reference")
+    expect_match(fixed$analysis_metadata$prior_noise_policy, "fixed_to_reference")
+    expect_false(any(fixed$representation$manifest$prior_identifiers == "custom_callback_required"))
+    expect_identical(fixed$representation$manifest$factor_support$activity_support, rep("signed", 2))
+  }
+  expect_error(run("fixed_reference", ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_normal)), "ebnm family")
+  expect_error(suppressWarnings(project_factor_activity(standardize_factors(fit), data, side, "intensity",
+    list(scope = "identity"), prior_policy = "fixed_reference")), "native reference fit")
+})
+test_that("fixed priors with sample-wise noise make activity independent of the query set", {
+  set.seed(1)
+  X <- tcrossprod(matrix(rnorm(80), 40, 2), matrix(rnorm(40), 20, 2)) + matrix(rnorm(800, sd = .3), 40, 20)
+  dimnames(X) <- list(paste0("s", 1:40), paste0("g", 1:20))
+  fit <- fit_ebmf(X, "rows", ebnm_fn = list(ebnm::ebnm_point_normal, ebnm::ebnm_point_laplace),
+    max_factors = 2, backfit = TRUE, nullcheck = FALSE, seed = 2, verbose = 0, feature_scale = "intensity")
+  s1 <- function(rows) suppressWarnings(project_factor_activity(fit, X[rows, ], "rows", "intensity",
+    list(scope = "identity"), maxiter = 2000L, var_type = 1L, prior_policy = "fixed_reference"))$representation$activity["s1", ]
+  expect_equal(s1(1:20), s1(c(1, 21:40)), tolerance = 1e-5)
+})

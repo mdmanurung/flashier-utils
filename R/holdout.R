@@ -8,7 +8,15 @@
     correlation = if (length(o)>1L && stats::sd(o)>0 && stats::sd(p)>0) stats::cor(o,p) else NA_real_, n_scored_entries = length(o))
 }
 
-.native_projection <- function(Y, training, sample_side, priors, maxiter = 100L, S = NULL, var_type = 0L, return_fit = FALSE) {
+# Reference activity priors for the view's factors, in native positions; ghat is raw-coordinate.
+.reference_activity_g <- function(fit, view) {
+  if (!inherits(fit, "flash")) stop("fixed_reference requires the native reference fit")
+  if (!identical(view$manifest$scaling, "raw")) stop("fixed_reference requires raw reference coordinates")
+  g <- fit[[if (view$manifest$sample_side == "rows") "L_ghat" else "F_ghat"]]
+  if (is.null(g)) stop("fixed_reference requires the native reference fit")
+  g[view$manifest$native_indices]
+}
+.native_projection <- function(Y, training, sample_side, priors, maxiter = 100L, S = NULL, var_type = 0L, return_fit = FALSE, g = NULL) {
   K <- ncol(training$effects)
   if (!K) return(matrix(numeric(), nrow(Y), 0L, dimnames = list(rownames(Y), character())))
   A0 <- matrix(0.1, nrow(Y), K, dimnames = list(rownames(Y), colnames(training$effects)))
@@ -21,7 +29,21 @@
   }
   object <- flashier::flash_init(data, S = S, var_type = var_type, S_dim = S_dim)
   pair <- if (sample_side == "rows") list(A0, training$effects) else list(training$effects, A0)
-  object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)
+  if (is.null(g)) {
+    object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)
+  } else {
+    # flashier shares one ebnm_fn per dimension across a call, so fixed per-factor priors need one call per factor.
+    if (length(g) != K) stop("fixed_reference needs one reference prior per projected factor")
+    side <- if (sample_side == "rows") 1L else 2L
+    for (k in seq_len(K)) {
+      fns <- priors
+      fns[[side]] <- local({
+        base <- priors[[side]]; gk <- g[[k]]
+        function(x, s, g_init = NULL, fix_g = FALSE, output = NULL) base(x, s, g_init = gk, fix_g = TRUE, output = output)
+      })
+      object <- flashier::flash_factors_init(object, lapply(pair, function(m) m[, k, drop = FALSE]), ebnm_fn = fns)
+    }
+  }
   object <- flashier::flash_factors_fix(object, seq_len(K), which_dim = if (sample_side == "rows") "factors" else "loadings")
   object <- flashier::flash_backfit(object, maxiter = maxiter, extrapolate = FALSE, verbose = 0L)
   fixed <- if (sample_side == "rows") object$F_pm else object$L_pm
@@ -35,7 +57,9 @@
 #'
 #' Projection scores use observations seen during activity estimation. Masked
 #' scores use disjoint entries/features and never enter activity/noise fitting.
-#' Learned hyperparameters may recalibrate on permitted test observations.
+#' Learned hyperparameters may recalibrate on permitted test observations;
+#' control$prior_policy = "fixed_reference" fixes activity priors to the training
+#' fit, while residual variance still recalibrates.
 #' Paired preprocessing callbacks fit on training data then apply frozen state;
 #' masked inference receives NA before transform. Global preprocessing is labelled
 #' conditional and cannot establish independent full-pipeline validation.
@@ -55,7 +79,8 @@
 #' @param checkpoint_dir Fold checkpoints require explicit callback_configuration.
 #' @param control sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
 #'   projection_ebnm_fn, maxiter, dense_budget_bytes, cohort_col, evaluated_folds,
-#'   callback_configuration, keep_predictions, keep_fits.
+#'   callback_configuration, keep_predictions, keep_fits, prior_policy ("query" or
+#'   "fixed_reference"; see project_factor_activity()).
 #' @return holdout_result with metrics, folds, failures, activities and information boundaries.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
@@ -89,10 +114,12 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   if (missing(seed) || missing(unit_col) || missing(fit_fn) || !is.function(fit_fn)) stop("Choose biological unit, fit_fn and seed explicitly")
   if (freeze_noise) stop("Freezing all trained noise/hyperparameters is unsupported; native recalibration uses permitted observations only")
   if (workers != 1L) stop("Only serial fold execution is supported")
-  allowed <- c("sample_side", "settings", "observation_aux", "preprocessing_manifest", "projection_ebnm_fn", "maxiter", "dense_budget_bytes", "cohort_col", "evaluated_folds", "callback_configuration", "keep_predictions", "keep_fits")
+  allowed <- c("sample_side", "settings", "observation_aux", "preprocessing_manifest", "projection_ebnm_fn", "maxiter", "dense_budget_bytes", "cohort_col", "evaluated_folds", "callback_configuration", "keep_predictions", "keep_fits", "prior_policy")
   if (!is.list(control) || any(!names(control) %in% allowed)) stop("Unsupported holdout control")
   if (is.null(control$sample_side)) stop("Supply control$sample_side explicitly")
   side <- match.arg(control$sample_side, c("rows", "columns"))
+  prior_policy <- match.arg(if (is.null(control$prior_policy)) "query" else control$prior_policy, c("query", "fixed_reference"))
+  prior_note <- if (prior_policy == "query") "recalibrated_on_permitted_test_entries" else "activity_prior_fixed_to_training; noise_recalibrated_on_permitted_test_entries"
   evaluation <- match.arg(evaluation, c("projection", "masked"))
   X <- .validate_matrix(X)
   samples <- if (side == "rows") rownames(X) else colnames(X)
@@ -176,7 +203,8 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
         if (is.null(names) || any(names == "custom_callback_required")) stop("Projection requires explicit native prior functions for a custom/bare callback")
         priors <- lapply(names, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))
       }
-      A <- .native_projection(Y, view, side, priors, if (is.null(control$maxiter)) 100L else control$maxiter, S = test_aux$S, var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) 0L else attr(train_fit, "flashbridge_metadata")$configuration$var_type)
+      A <- .native_projection(Y, view, side, priors, if (is.null(control$maxiter)) 100L else control$maxiter, S = test_aux$S, var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) 0L else attr(train_fit, "flashbridge_metadata")$configuration$var_type,
+        g = if (prior_policy == "fixed_reference" && ncol(view$effects)) .reference_activity_g(train_fit, view))
       prediction <- sweep(tcrossprod(A, view$effects), 2L, view$offset, "+")
       # Score transformation occurs after activity inference using the same frozen training state.
       if (!is.null(preprocess_fn)) {
@@ -211,7 +239,7 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
         macro$n_samples <- length(test); macro$n_units <- length(unique(units[test])); macro$n_scored_entries <- sum(metrics$n_scored_entries[rows])
         metrics <- rbind(metrics, macro)
       }
-      attr(A, "analysis_metadata") <- c(view$manifest, list(training_basis_id = view$manifest$basis_id, heldout_sample_ids = rownames(A), program_values_fixed = TRUE, prior_noise_policy = "recalibrate_on_permitted_observed_entries"))
+      attr(A, "analysis_metadata") <- c(view$manifest, list(training_basis_id = view$manifest$basis_id, heldout_sample_ids = rownames(A), program_values_fixed = TRUE, prior_noise_policy = if (prior_policy == "query") "recalibrate_on_permitted_observed_entries" else prior_note, prior_policy = prior_policy))
       list(status = "supported", fold = label, metrics = metrics, activity = A, effects = view$effects, preparation = prepared$manifest,
            training_ids = samples[train], scoring_ids = samples[test], train_basis = view$manifest,
            prediction = if (isTRUE(control$keep_predictions)) prediction else NULL, fit = if (isTRUE(control$keep_fits)) train_fit else NULL)
@@ -223,9 +251,9 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   .attach_provenance(structure(list(schema_version = "1.0.0", metrics = do.call(rbind, lapply(results[successful], function(result) result$metrics)),
     folds = data.frame(sample = samples, unit = units, fold = labels), failures = failures,
     feature_coverage = data.frame(feature = features, used_for_activity = if (is.null(activity_features)) NA else features %in% activity_features, scored = if (is.null(scoring_features)) NA else features %in% scoring_features),
-    diagnostics = list(failures = failures, prior_noise_policy = "recalibrated_on_permitted_test_entries", auxiliary_policy = "named_sample_feature_subset"),
+    diagnostics = list(failures = failures, prior_noise_policy = prior_note, prior_policy = prior_policy, auxiliary_policy = "named_sample_feature_subset"),
     activities = lapply(results[successful], function(result) result$activity), fold_results = results,
     analysis_metadata = list(evaluation_type = evaluation, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
-      config_hash = config_hash, program_values_fixed = TRUE, hyperparameters = "recalibrated_on_permitted_test_entries", freeze_noise = FALSE,
+      config_hash = config_hash, program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,
       dense_budget_bytes = budget, projection_is_unseen_entry_prediction = FALSE)), class = "holdout_result"), "factor_holdout", match.call(), .resolved_parameters("factor_holdout", environment()))
 }
