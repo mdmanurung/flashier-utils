@@ -8,7 +8,10 @@ vignette: >
 ---
 
 Which features define published pancreas programs, and how do those programs
-transfer to another measurement technology? This adapts Peter Carbonetto's
+transfer to another measurement technology? This case study restores
+published NMF programs as a view, ranks their features, summarizes activity by
+cell type, then projects the fixed programs onto cells from a second platform.
+It adapts Peter Carbonetto's
 [single-cell Jamboree tutorial](https://stephenslab.github.io/single-cell-jamboree/pancreas_annotate.html).
 The CEL-Seq2 cells originate from Muraro et al. (2016), assembled in the benchmark
 of Luecken et al. (2022); source pages link the original studies.
@@ -60,6 +63,9 @@ These cells have published cell-type labels but no donor identifiers. Summaries
 are descriptive; technology is not a biological replicate.
 
 ## Transfer the fixed feature programs
+
+`project_factor_activity()` keeps the reference effects fixed and estimates new
+activities for the query cells.
 
 ```{r transfer}
 projected <- project_factor_activity(view, cache$query_expression,

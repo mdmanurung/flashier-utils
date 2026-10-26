@@ -18,25 +18,36 @@ standardize_factors(
 )
 }
 \arguments{
-\item{fit}{A native flashier fit.}
+\item{fit}{A native flashier fit with named rows and columns.}
 
-\item{sample_side}{Explicit rows or columns for bare native fits.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side of the fitted matrix
+holds samples. Required for a bare native fit; fits from \code{\link[=fit_ebmf]{fit_ebmf()}}
+already record it.}
 
-\item{scaling}{Raw, ldf, or rms coordinates. \code{rms} rescales each
+\item{scaling}{\code{"ldf"} (default), \code{"raw"} or \code{"rms"}. \code{ldf} gives unit-norm
+factors with the scale on the \code{d_location} side; \code{raw} keeps flashier's
+own coordinates. \code{rms} rescales each
 activity column to unit root-mean-square and compensates on the effects
 side, preserving the reconstruction exactly; it is a coordinate change
 (factor units), not a change to the fitted model or its uncertainty.}
 
-\item{type}{Native LDF norm: f, o, i (2, 1, m aliases).}
+\item{type}{Native LDF norm used when \code{scaling = "ldf"}: \code{"f"} (default,
+2-norm), \code{"o"} (1-norm) or \code{"i"} (max norm); \code{2}, \code{1}, \code{m} are aliases.}
 
-\item{d_location}{Absorb native D into effects or activity.}
+\item{d_location}{\code{"effects"} (default) or \code{"activity"}: which side absorbs
+the native scale D under LDF scaling.}
 
-\item{orientation}{as_fit or anchor_feature.}
+\item{orientation}{\code{"as_fit"} (default) keeps native signs;
+\code{"anchor_feature"} flips each factor so its largest effect is positive,
+which needs declared signed support on both sides.}
 
-\item{prior_support}{Named activity/effects support: signed, nonnegative, unknown.}
+\item{prior_support}{Optional named character vector, e.g.
+\code{c(activity = "nonnegative", effects = "signed")}; values are \code{"signed"},
+\code{"nonnegative"} or \code{"unknown"}. Required by functions that test signs.}
 
-\item{feature_scale}{Optional explicit measurement units for a bare fit or an
-unspecified recorded scale; cannot replace known recorded units.}
+\item{feature_scale}{Free-text label for what the matrix values measure,
+e.g. \code{"log1p_normalized_counts"}. Recorded, never applied. Optional for a
+bare fit or an unspecified recorded scale; cannot replace known recorded units.}
 
 \item{preprocessing}{Optional named preprocessing declaration for a bare fit;
 cannot replace an existing nonempty declaration.}
@@ -45,10 +56,15 @@ cannot replace an existing nonempty declaration.}
 cannot replace an existing declaration.}
 }
 \value{
-A serializable factor_representation with basis manifest.
+A \code{factor_representation} list with \verb{$activity} (samples by
+factors), \verb{$effects} (features by factors), \verb{$offset} (per feature) and
+\verb{$manifest} (declarations, scaling and a \code{basis_id} hash). Serializable.
 }
 \description{
-Uses public flashier LDF normalization, placing D on exactly one side.
+Turn a native flashier fit into a view: a samples by factors \code{activity}
+matrix and a features by factors \code{effects} matrix that share factor columns,
+plus an \code{offset} and a \code{manifest} recording your declarations. Most other
+functions take this view. Uses public flashier LDF normalization, placing D on exactly one side.
 Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 requires declared signed support on both sides. No model is refitted.
 A projected fit retains its declared external offset on measured native axes.
@@ -58,9 +74,9 @@ is derived from their global constraints without changing the basis hash.
 }
 \details{
 Origin: ADAPTED / call_only.
-  Credits ldf; use provenance("standardize_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits ldf; use provenance("standardize_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -74,7 +90,10 @@ view <- standardize_factors(fit)
 raw <- standardize_factors(fit,scaling="raw")
 max(abs(tcrossprod(raw$activity,raw$effects)-tcrossprod(view$activity,view$effects)))
 }
+\seealso{
+\code{\link[=factor_activity]{factor_activity()}}, \code{\link[=factor_effects]{factor_effects()}}, \code{\link[=factor_features]{factor_features()}}
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

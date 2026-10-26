@@ -15,33 +15,39 @@ factor_features(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{factor}{One unique factor ID.
+\item{factor}{One factor ID, e.g. \code{"F1"}.
 A fit with no biological factors cannot supply a feature selection.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 
-\item{compare_factors}{Optional competition pool; NULL uses all factors.}
+\item{compare_factors}{Optional character factor IDs that compete for
+\code{"distinctive"}; \code{NULL} (default) uses all other factors.}
 
-\item{select}{largest, distinctive or both.}
+\item{select}{\code{"both"} (default), \code{"largest"} or \code{"distinctive"}.}
 
-\item{direction}{absolute, positive or negative.}
+\item{direction}{\code{"absolute"} (default), \code{"positive"} or \code{"negative"}: which
+effects are eligible.}
 
-\item{n}{Nonnegative maximum number per selection.}
+\item{n}{Maximum number of features per selection (default 20).}
 }
 \value{
-Tidy descriptive table with selection and tie rule metadata.
+Long table with \code{feature}, \code{factor}, \code{estimate}, \code{rank}, \code{direction},
+\code{selection} and \code{basis_id}, plus tie-rule metadata attributes.
 }
 \description{
+Rank the features that drive one factor. \code{"largest"} orders by effect size
+within the factor; \code{"distinctive"} orders by the margin to the strongest
+competing factor, so shared features drop down the list.
 Returns two explicit ranking views when select is both. Cutoff ties are
 ordered by feature ID, with signed nonzero eligibility. No biological labels.
 }
 \details{
 Origin: NEW_QOL / none.
-  Credits rank_effects; compute_le_effects; use provenance("factor_features")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits rank_effects; compute_le_effects; use provenance("factor_features")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -54,7 +60,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 factor_features(view, factor = "F1",select="both",n=3)
 }
+\seealso{
+\code{\link[=plot_factor_features]{plot_factor_features()}}, \code{\link[=factor_effects]{factor_effects()}}
+}
 \author{
 Peter Carbonetto; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

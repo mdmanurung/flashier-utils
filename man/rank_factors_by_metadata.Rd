@@ -39,9 +39,9 @@ A zero-factor fit returns a typed empty ranking table.
 }
 \details{
 Origin: ADAPTED / none.
-  Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -60,6 +60,6 @@ rank_factors_by_metadata(view,metadata,"group")
 }
 \author{
 Stephens Lab; individual script authors not verified.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

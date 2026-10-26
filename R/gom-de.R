@@ -3,7 +3,9 @@
 
 #' Grade-of-membership differential expression with fixed memberships
 #'
-#' Delegates to [fastTopics::de_analysis()], which fits one Poisson model per
+#' Find genes whose expression differs between topics or programs, given count
+#' data and memberships that sum to one per sample. Needs the optional
+#' `fastTopics` package. Delegates to [fastTopics::de_analysis()], which fits one Poisson model per
 #' feature with the supplied memberships held fixed, then summarizes log2 fold
 #' changes by MCMC. Counts and memberships are validated before the native call;
 #' nothing is normalized here.
@@ -13,21 +15,22 @@
 #'   the same samples: finite, nonnegative, at least two columns, and every row
 #'   summing to one within 1e-8. EBMF activities are not memberships; normalize
 #'   them yourself only if that is scientifically justified.
-#' @param sample_side Sample axis of `counts`: rows or columns. Memberships always
+#' @param sample_side `"rows"` or `"columns"` of `counts`. Memberships always
 #'   have samples in rows.
-#' @param seed Required nonnegative integer; the MCMC uses R's random numbers.
+#' @param seed Nonnegative integer. Required; the MCMC uses R's random numbers.
 #'   The caller's random number state is restored afterwards.
 #' @param shrink_method "ash" (default) or "none", as in the native function.
 #' @param lfc_stat "le" (least-extreme, default), "vsnull", or one membership
 #'   column name, as in the native function.
-#' @param pseudocount Positive native pseudocount.
-#' @param fit_method Native Poisson fitting method.
+#' @param pseudocount Positive pseudocount added before log fold changes (native default).
+#' @param fit_method Native Poisson fitting method, e.g. `"scd"` (native default).
 #' @param control Named native control settings from
 #'   [fastTopics::de_analysis_control_default()]; `nc` is fixed at 1.
-#' @param keep_native Retain the native result.
-#' @return A list with a long `statistics` table (feature, factor, log2_fc,
-#'   lower, upper, z, neg_log10_p, lfsr, svalue), `analysis_metadata`, and the
-#'   native result when requested.
+#' @param keep_native Retain the native result (default `FALSE`).
+#' @return A list with a long `$statistics` table (feature, factor, log2_fc,
+#'   lower, upper, z, neg_log10_p, lfsr, svalue), `$analysis_metadata`, and the
+#'   `$native` result when requested.
+#' @seealso [factor_features()] for descriptive rankings without count data
 #' @details Statistics are conditional on the fixed memberships, so membership
 #'   uncertainty is ignored. `lower`/`upper` are highest-posterior-density
 #'   intervals at `control$conf.level` (native default 0.68), not 95% equal-tail

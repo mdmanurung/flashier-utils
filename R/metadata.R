@@ -17,7 +17,9 @@
 
 #' Summarize activities by explicit metadata groups
 #'
-#' Per-observation weighting is the default; cells are not donor-balanced.
+#' Mean, SD and quantiles of each factor's activity within each metadata group,
+#' with sample and unit counts. Descriptive only; use [test_factors()] for
+#' inference. Per-observation weighting is the default; cells are not donor-balanced.
 #' With weights, only means are supported: SD and quantiles are NA and labelled
 #' unavailable. Descriptive SD never estimates uncertainty of the group mean.
 #' Group identity uses metadata tuples, so punctuation cannot merge groups.
@@ -27,20 +29,25 @@
 #' resolved representation coordinates; with weights, active_weighted_proportion
 #' is added as the weighted mean of the binary active indicator, while
 #' active_n and active_proportion remain raw observation summaries.
-#' @param fit Native fit or view.
-#' @param metadata Explicit sample metadata.
-#' @param by One or more grouping columns.
-#' @param id_col Sample ID column.
-#' @param unit_col Optional independent-unit ID for counts.
-#' @param weights Optional nonnegative named sample weights.
-#' @param na_action fail or explicit omit with recorded exclusions.
+#' @param fit Native fit or a view from [standardize_factors()].
+#' @param metadata Data frame with one row per sample; sample IDs in `id_col`.
+#' @param by Name of one or more `metadata` columns to group by.
+#' @param id_col Name of the sample ID column (default `"sample"`).
+#' @param unit_col Optional name of the independent-unit column, e.g. donor;
+#'   adds an `n_units` count.
+#' @param weights Optional nonnegative numeric vector named by sample ID.
+#' @param na_action `"fail"` (default) or `"omit"`; omitted rows are recorded in
+#'   `exclusions`.
 #' @param activity_threshold Optional single nonnegative finite threshold on the
 #'   resolved representation coordinates; no display scaling is performed.
-#' @param activity_direction positive, negative or absolute coordinate side
-#'   compared against the threshold with a strict > operator.
-#' @return Group/factor/n/n_units/mean/sd/median/q25/q75 table, plus active_n,
-#'   active_proportion and (with weights) active_weighted_proportion when a
+#' @param activity_direction `"positive"` (default), `"negative"` or
+#'   `"absolute"`: which side of the coordinates is compared against the
+#'   threshold with a strict > operator.
+#' @return Table with columns `group` (one per `by` column), `factor`, `n`,
+#'   `n_units`, `mean`, `sd`, `median`, `q25`, `q75`, plus `active_n`,
+#'   `active_proportion` and (with weights) `active_weighted_proportion` when a
 #'   threshold is supplied; no p-values.
+#' @seealso [compare_factor_groups()], [test_factors()], [plot_factor_activity()]
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -221,17 +228,21 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
 
 #' Compare two groups descriptively in matched factor and feature space
 #'
+#' Difference in mean activity between two groups for each factor, and the same
+#' difference pushed through the effects to feature units.
 #' Contrast c(A,B) always means A minus B. Workflow adapted independently from
 #' ZemmourLib FlashierDGE. No p-values or automatic conversion to fold changes.
-#' @param fit Native fit or view.
-#' @param metadata Explicit sample metadata.
-#' @param group Grouping column.
-#' @param contrast Two distinct group labels, first minus second.
-#' @param id_col Sample ID column.
-#' @param unit_col Optional independent-unit column for counts.
-#' @param weights Optional named observation weights.
-#' @param na_action fail or explicit omit.
-#' @return factor_contrast, feature_contrast, counts and matching metadata.
+#' @param fit Native fit or a view from [standardize_factors()].
+#' @param metadata Data frame with one row per sample; sample IDs in `id_col`.
+#' @param group Name of the `metadata` column holding group labels.
+#' @param contrast Two group labels, e.g. `c("treated", "control")`: first minus second.
+#' @param id_col Name of the sample ID column (default `"sample"`).
+#' @param unit_col Optional name of the independent-unit column for counts.
+#' @param weights Optional nonnegative numeric vector named by sample ID.
+#' @param na_action `"fail"` (default) or `"omit"`.
+#' @return List with `$factor_contrast` (one row per factor),
+#'   `$feature_contrast` (one row per feature), `$counts` and matching metadata.
+#' @seealso [summarize_factor_activity()], [test_factors()], [backproject_contrast()]
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

@@ -28,10 +28,10 @@ factor_diagnostics(
 \item{display_normalization}{max_abs (per column) or none.}
 
 \item{membership_burden}{Opt-in: add a continuous membership-burden column
-to the per-sample table, `b_i = sum_k max(A_ik, 0) / m_k` with
-`m_k = max_i A_ik` over the selected factors (ImmGenT-GP total-membership
+to the per-sample table, \verb{b_i = sum_k max(A_ik, 0) / m_k} with
+\verb{m_k = max_i A_ik} over the selected factors (ImmGenT-GP total-membership
 quantity). Computed on raw resolved activities (independent of
-`display_normalization`); negative activities contribute 0; factors with
+\code{display_normalization}); negative activities contribute 0; factors with
 nonpositive maxima contribute 0 and are recorded. Descriptive only — not
 a compositional probability and not a QC deletion rule. Per-factor
 maxima and zero-max factors are recorded in the analysis metadata.}

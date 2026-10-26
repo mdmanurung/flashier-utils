@@ -69,24 +69,31 @@
 
 #' Fit generalized binary covariance gene programs
 #'
-#' Delegates fitting to the optional, pinned gbcd engine. No normalization runs.
-#' @param X Named finite numeric matrix or double sparse Matrix.
-#' @param sample_side Required sample axis: rows or columns.
+#' Fit gene expression programs (GEPs) with the GBCD method and return them as
+#' a view plus per-gene signature statistics. Needs the optional `gbcd` package
+#' at the pinned commit. Delegates fitting to that engine. No normalization runs.
+#' @param X Named finite numeric matrix or double sparse Matrix of normalized
+#'   natural-log expression.
+#' @param sample_side `"rows"` or `"columns"`: which side holds cells. Required.
 #' @param kmax Integer at least two; upstream initialization rank parameter.
 #'   Final rank can exceed kmax; this wrapper imposes no claimed final-rank bound.
 #' @param feature_scale Non-unknown units for caller-prepared normalized,
 #'   natural-log expression, including log1p when declared in preprocessing.
 #' @param preprocessing List with nonempty character scope and description,
 #'   and \code{log_base = "e"}.
-#' @param prior Recognized nonnegative ebnm prior, or a custom function carrying
+#' @param prior Nonnegative `ebnm::ebnm_*` prior for memberships (default
+#'   generalized binary), or a custom function carrying
 #'   \code{attr(prior, "support") = "nonnegative"} as an explicit caller declaration.
 #' @param dense_budget_bytes Positive workspace preflight budget; default 2 GiB.
 #'   This estimates workspaces; it does not bound actual peak memory.
-#' @param keep_native Retain the upstream output for inspection.
+#' @param keep_native Retain the upstream output for inspection (default `FALSE`).
 #' @param ... Native maxiter1, maxiter2, maxiter3, control and verbose arguments.
-#' @return A gbcd_program_result with representation, signatures, diagnostics,
-#'   optional native output and analysis_metadata. Pass the representation to
-#'   factor extraction, feature ranking, summaries and plotting functions.
+#' @return A `gbcd_program_result` with `$representation` (a view with factors
+#'   `GEP1`, `GEP2`, ...), `$signatures` (per gene and program: effect,
+#'   log2_fc, z_score, lfsr), `$diagnostics`, optional `$native` output and
+#'   `$analysis_metadata`. Pass the representation to [factor_features()],
+#'   [summarize_factor_activity()] and the plot functions.
+#' @seealso [fit_ebmf()], [filter_cells_by_total_membership()]
 #' @details Effects reconstruct the natural-log input scale. Baseline is retained
 #'   as a varying factor, with zero offset. All activity supports remain unknown:
 #'   upstream output labels do not establish prior lineage after sorting.

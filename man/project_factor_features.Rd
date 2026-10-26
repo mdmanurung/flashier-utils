@@ -17,40 +17,48 @@ project_factor_features(
 )
 }
 \arguments{
-\item{fit}{Native reference fit or representation.}
+\item{fit}{Native reference fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{query}{Named new-measurement matrix; samples declared by sample_side.}
+\item{query}{Named matrix of the new measurements on the same samples;
+\code{sample_side} says which side holds samples.}
 
-\item{sample_side}{Required rows or columns.}
+\item{sample_side}{\code{"rows"} or \code{"columns"} of \code{query}. Required.}
 
-\item{feature_scale}{Required query measurement units.}
+\item{feature_scale}{Free-text label for what the query values measure. Required.}
 
-\item{factors}{Optional fixed factor IDs in source order.}
+\item{factors}{Optional character factor IDs to keep fixed, in source order. Default all.}
 
-\item{ebnm_fn}{Optional native row/column priors. Recorded activity prior is
-inferred; the default new-feature prior is signed point-Laplace.}
+\item{ebnm_fn}{Optional native prior for the new features. The recorded
+activity prior is reused; the default new-feature prior is signed point-Laplace.}
 
 \item{maxiter}{Native iteration limit (default 200).}
 
 \item{S}{Optional native standard errors; sparse plus S is refused.}
 
-\item{dense_budget_bytes}{Default 256 MiB budget for dense allocations.}
+\item{dense_budget_bytes}{Budget for dense allocations in bytes (default 256 MiB).}
 }
 \value{
-Native fit, matched representation, in-sample reconstruction metrics (rmse, mae, fit_r2, correlation; not prediction) and source
-  basis. Cells are matched by ID; QR initialization rejects rank deficiency.
+List with \verb{$fit} (native), \verb{$representation} (view with the new
+features), \verb{$reconstruction} (in-sample rmse, mae, fit_r2, correlation; not
+prediction) and the source basis. Cells are matched by ID; QR initialization
+rejects rank deficiency.
 }
 \description{
-Estimate effects for new measurements with fixed existing activities
+Given new features measured on the same samples (for example a second
+assay), keep the fitted sample activities fixed and estimate effects for the
+new features. For new samples use \code{\link[=project_factor_activity]{project_factor_activity()}} instead.
 }
 \details{
 Feature-specific residual variance is estimated. Native noise/prior
-  hyperparameters may recalibrate. Fixed activities retain their exact values.
-  Sources with an intercept or external offset use an augmented ones/activity
-  basis to estimate new signed point-normal feature offsets. Offsets are kept
-  separate from semantic factors; dependent augmented columns are refused.
+hyperparameters may recalibrate. Fixed activities retain their exact values.
+Sources with an intercept or external offset use an augmented ones/activity
+basis to estimate new signed point-normal feature offsets. Offsets are kept
+separate from semantic factors; dependent augmented columns are refused.
+}
+\seealso{
+\code{\link[=project_factor_activity]{project_factor_activity()}}
 }
 \author{
 Mikhael Manurung; native engine Jason Willwerscheid, Peter Carbonetto,
-  Wei Wang and Matthew Stephens. Conceptual transfer: STARCAT authors.
+Wei Wang and Matthew Stephens. Conceptual transfer: STARCAT authors.
 }

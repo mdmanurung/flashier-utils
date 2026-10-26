@@ -23,68 +23,79 @@ project_factor_activity(
 )
 }
 \arguments{
-\item{fit}{Native reference fit or representation.}
+\item{fit}{Native reference fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{query}{Named new-measurement matrix; samples declared by sample_side.}
+\item{query}{Named matrix of new samples measured on the reference features;
+\code{sample_side} says which side holds samples. Needs at least two samples.}
 
-\item{sample_side}{Required rows or columns.}
+\item{sample_side}{\code{"rows"} or \code{"columns"} of \code{query}. Required.}
 
-\item{feature_scale}{Required query measurement units.}
+\item{feature_scale}{Free-text label for what the query values measure. Required.}
 
-\item{preprocessing}{Required named preprocessing manifest with scope and
-transformation description; the caller declares compatibility with reference.}
+\item{preprocessing}{Named list with character \code{scope} and \code{description} of
+the query preprocessing, e.g. \code{list(scope = "within_dataset", description = "log1p library-size normalized counts")}. Required; the caller declares
+compatibility with the reference.}
 
-\item{factors}{Optional fixed factor IDs in source order.}
+\item{factors}{Optional character factor IDs to keep fixed, in source order. Default all.}
 
-\item{ebnm_fn}{Optional native row/column priors. Recorded activity prior is
-inferred; the default new-feature prior is signed point-Laplace.}
+\item{ebnm_fn}{Optional native prior for the new features. The recorded
+activity prior is reused; the default new-feature prior is signed point-Laplace.}
 
 \item{prior_policy}{"query" (default) re-estimates activity priors on the
 query; "fixed_reference" reuses the reference fit's estimated priors.}
 
-\item{feature_match}{exact (default) or intersection.}
+\item{feature_match}{\code{"exact"} (default, all reference features must be
+present) or \code{"intersection"} (use the shared features, subject to \code{min_coverage}).}
 
-\item{gene_mapping}{Optional one-to-one named query-to-reference gene mapping.}
+\item{gene_mapping}{Optional character vector mapping query feature names
+(names) to reference feature names (values), one to one.}
 
-\item{min_coverage}{Minimum fraction of reference genes present (default 0.5).}
+\item{min_coverage}{Minimum fraction of reference features present (default 0.5).}
 
 \item{maxiter}{Native iteration limit (default 200).}
 
 \item{S}{Optional native standard errors; sparse plus S is refused.}
 
 \item{var_type}{Native query residual variance setting. NULL (default) inherits
-the reference fit's recorded `var_type`; views without one use 0L.}
+the reference fit's recorded \code{var_type}; views without one use 0L.}
 
-\item{dense_budget_bytes}{Default 256 MiB budget for dense allocations.}
+\item{dense_budget_bytes}{Budget for dense allocations in bytes (default 256 MiB).}
 }
 \value{
-Native fit and full-reference matched representation, retaining source
-  effects and offsets exactly; coverage, exclusions and in-sample reconstruction metrics (fit_r2, not prediction).
+List with \verb{$fit} (native), \verb{$representation} (view with the query
+samples and the exact source effects and offsets), \verb{$reconstruction}
+(in-sample fit_r2, not prediction), coverage and exclusions in the
+settings, and \verb{$warnings}.
 }
 \description{
-Transfer fixed reference programs to a new dataset
+Keep the reference feature effects fixed and estimate activities for new
+samples, so programs learned on one dataset can be scored on another. The
+query must be preprocessed the same way as the reference; you declare that.
 }
 \details{
 Uses the same native fixed-program projection as holdout evaluation.
-  No automatic preprocessing or normalized usages. Sparse projection is retained
-  when offsets are zero; necessary dense copies obey the declared budget.
+No automatic preprocessing or normalized usages. Sparse projection is retained
+when offsets are zero; necessary dense copies obey the declared budget.
 
-  Query-set dependence: with `prior_policy = "query"` activity priors are
-  re-estimated by empirical Bayes over the query rows. `"fixed_reference"`
-  instead fixes each activity prior to the reference fit's estimate
-  (`L_ghat`/`F_ghat`, raw native coordinates); it needs the native reference
-  fit and refuses views. Residual variance is still estimated on the query:
-  `var_type = 0` (and the feature-wise setting) pools it over samples, so the
-  same cell projected within two different query sets can still receive
-  different activities. Only `"fixed_reference"` with sample-wise variance
-  (`var_type = 1` for row samples, `2` for column samples) makes each sample's
-  activity independent of the other query samples. Row-chunked projection is therefore an approximation,
-  not an exact decomposition, and is not offered; oversize queries are refused
-  pre-flight against `dense_budget_bytes` (see
-  `reports/FU3B_CP6_CHUNKING_DECISION.md`).
+Query-set dependence: with \code{prior_policy = "query"} activity priors are
+re-estimated by empirical Bayes over the query rows. \code{"fixed_reference"}
+instead fixes each activity prior to the reference fit's estimate
+(\code{L_ghat}/\code{F_ghat}, raw native coordinates); it needs the native reference
+fit and refuses views. Residual variance is still estimated on the query:
+\code{var_type = 0} (and the feature-wise setting) pools it over samples, so the
+same cell projected within two different query sets can still receive
+different activities. Only \code{"fixed_reference"} with sample-wise variance
+(\code{var_type = 1} for row samples, \code{2} for column samples) makes each sample's
+activity independent of the other query samples. Row-chunked projection is therefore an approximation,
+not an exact decomposition, and is not offered; oversize queries are refused
+pre-flight against \code{dense_budget_bytes} (see
+\code{reports/FU3B_CP6_CHUNKING_DECISION.md}).
+}
+\seealso{
+\code{\link[=factor_holdout]{factor_holdout()}} for held-out evaluation, \code{\link[=project_factor_features]{project_factor_features()}}
 }
 \author{
 Mikhael Manurung; native flashier authors Jason Willwerscheid,
-  Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
-  Dylan Kotliar and Michelle Curtis; no source reuse.
+Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
+Dylan Kotliar and Michelle Curtis; no source reuse.
 }

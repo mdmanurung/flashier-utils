@@ -1,16 +1,19 @@
 # Independently implemented ImmGenT-GP filtering; upstream workflow source not copied.
 #' Filter cells by total gene-program membership
 #'
-#' Reproduce the ImmGenT post-fit filter on nonnegative sample activities.
+#' Drop cells whose summed membership across nonnegative programs is too high,
+#' following the ImmGenT rule, and return rescaled activities and effects for
+#' the kept cells. Reproduce the ImmGenT post-fit filter on nonnegative sample activities.
 #' Each pass scales each factor to a maximum of one, then removes samples
 #' whose summed membership exceeds max_val. The retained activities and feature
 #' effects are rescaled together, preserving their reconstructed expression.
-#' @param fit Native flashier fit or declared factor representation.
-#' @param sample_side Explicit rows or columns for a bare native fit.
-#' @param max_val Maximum retained total membership, inclusive. Default 10.
-#' @param numiter Positive number of passes. Default 12 matches the ImmGenT pipeline.
-#' @return A membership_filter_result list with activity, effects, offset,
-#'   kept_samples, removed_samples, history and converged. Matrices use sample
+#' @param fit Native flashier fit or a view with nonnegative activities.
+#' @param sample_side `"rows"` or `"columns"`; needed only for a bare native fit.
+#' @param max_val Maximum retained total membership, inclusive (default 10).
+#' @param numiter Number of passes (default 12, matching the ImmGenT pipeline).
+#' @return A `membership_filter_result` list with `$activity`, `$effects`,
+#'   `$offset`, `$kept_samples`, `$removed_samples`, `$history` (one row per
+#'   pass) and `$converged`. Matrices use sample
 #'   by factor and feature by factor axes, regardless of native sample_side.
 #' @details Zero-max activity columns remain zero; their effects stay unchanged.
 #'   Negative activities are rejected. The input fit is never modified or refitted.

@@ -16,41 +16,49 @@ factor_uncertainty(
 )
 }
 \arguments{
-\item{fit}{Native flash fit or matched representation.}
+\item{fit}{Native flash fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{side}{activity or effects.}
+\item{side}{\code{"activity"} (default) or \code{"effects"}.}
 
-\item{sample_side}{Explicit native sample side if not recorded.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}; needed only for a bare native fit.}
 
-\item{representation}{Matched view or named standardization settings;
-a bare native fit defaults to `scaling = "ldf"`, so values differ
-from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+\item{representation}{For a native fit: a matched view or a named list of
+\code{\link[=standardize_factors]{standardize_factors()}} settings;
+a bare native fit defaults to \code{scaling = "ldf"}, so values differ
+from \code{fit$L_pm}/\code{fit$F_pm}; pass \code{representation = list(scaling = "raw")}
 for native coordinates.}
 
-\item{factors}{Optional unique factor IDs in requested order.}
+\item{factors}{Optional character factor IDs, e.g. \code{c("F2", "F1")}, in the
+order wanted. Default all.}
 
-\item{ids}{Optional sample or feature IDs.}
+\item{ids}{Optional character sample IDs (activity side) or feature IDs
+(effects side). Default all.}
 
-\item{include_lfsr}{Include native posterior false sign summaries if available.}
+\item{include_lfsr}{Also return the native local false sign rate when the
+prior supplies it (default \code{TRUE}).}
 
-\item{require_uncertainty}{Error when moments are unavailable.}
+\item{require_uncertainty}{Stop instead of returning NA when posterior
+moments are unavailable (default \code{FALSE}).}
 }
 \value{
-Table with estimate, posterior.sd, uncertainty_type and basis_id.
+Long table with \code{estimate}, \code{posterior.sd}, \code{uncertainty_type},
+\code{basis_id} and, when available, \code{lfsr}.
 }
 \description{
+Get the posterior standard deviation of each activity or effect estimate,
+expressed in the coordinates of the view you pass. Needs the native fit.
 Native variational uncertainty is conditional on estimated priors. Posterior
 SD is not a downstream regression standard error. Missing moments are NA.
 Mean-field variational SDs are typically underdispersed. A bare native fit
-uses LDF coordinates, as in [factor_activity()].
+uses LDF coordinates, as in \code{\link[=factor_activity]{factor_activity()}}.
 Unmeasured reference features have status unavailable and reason
 not_in_native_fit; uncertainty is never borrowed from the source fit.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits native posterior moments / public accessors; use provenance("factor_uncertainty")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits native posterior moments / public accessors; use provenance("factor_uncertainty")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -63,7 +71,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 factor_uncertainty(fit, side = "activity",factors="F1",ids=c("s1","s2"))
 }
+\seealso{
+\code{\link[=factor_intervals]{factor_intervals()}} for sampled intervals
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

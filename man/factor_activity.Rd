@@ -14,32 +14,36 @@ factor_activity(
 )
 }
 \arguments{
-\item{fit}{Native flash fit or matched representation.}
+\item{fit}{Native flash fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{sample_side}{Explicit native sample side if not recorded.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}; needed only for a bare native fit.}
 
-\item{representation}{Matched view or named standardization settings;
-a bare native fit defaults to `scaling = "ldf"`, so values differ
-from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+\item{representation}{For a native fit: a matched view or a named list of
+\code{\link[=standardize_factors]{standardize_factors()}} settings;
+a bare native fit defaults to \code{scaling = "ldf"}, so values differ
+from \code{fit$L_pm}/\code{fit$F_pm}; pass \code{representation = list(scaling = "raw")}
 for native coordinates.}
 
-\item{factors}{Optional unique factor IDs in requested order.}
+\item{factors}{Optional character factor IDs, e.g. \code{c("F2", "F1")}, in the
+order wanted. Default all.}
 
-\item{samples}{Optional unique sample IDs in requested order.}
+\item{samples}{Optional character sample IDs in the order wanted. Default all.}
 
-\item{format}{matrix or long; selection precedes reshaping.}
+\item{format}{\code{"matrix"} (default) or \code{"long"} (sample/factor/estimate rows).}
 }
 \value{
-Matrix or sample/factor/estimate table carrying basis metadata.
+Samples by factors matrix, or a long table with columns \code{sample},
+\code{factor}, \code{estimate}; both carry basis metadata attributes.
 }
 \description{
-Extract sample by factor activity
+Get the samples by factors activity matrix, optionally for a subset of
+factors or samples and as a long table.
 }
 \details{
 Origin: NEW_QOL / none.
-  Credits native means / ldf; use provenance("factor_activity")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits native means / ldf; use provenance("factor_activity")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -52,7 +56,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 factor_activity(view,factors="F1",samples=c("s2","s1"))
 }
+\seealso{
+\code{\link[=factor_effects]{factor_effects()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

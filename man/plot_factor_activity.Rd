@@ -18,33 +18,38 @@ plot_factor_activity(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{metadata}{Named sample metadata; NULL is allowed without grouping.}
+\item{metadata}{Optional data frame with a \code{sample} column matching the
+activity row names; needed only with \code{group}.}
 
-\item{group}{Optional metadata grouping column.}
+\item{group}{Optional name of a \code{metadata} column to group samples by.}
 
-\item{factors}{Optional unique factors.}
+\item{factors}{Optional character factor IDs to display. Default all.}
 
-\item{style}{heatmap, point, distribution or structure.}
+\item{style}{\code{"heatmap"} (default), \code{"point"}, \code{"distribution"} or
+\code{"structure"} (stacked proportions, nonnegative activities only).}
 
-\item{display_normalization}{none, or row_sum for structure only.}
+\item{display_normalization}{\code{"none"} (default) or \code{"row_sum"} (structure
+style only).}
 
-\item{max_samples}{Positive bound on displayed samples.}
+\item{max_samples}{Maximum samples drawn for display (default 2000).}
 
-\item{seed}{Optional scoped sampling seed.}
+\item{seed}{Optional integer for the sample draw.}
 
-\item{order_within_group}{input (default, current order) or mds1. mds1
+\item{order_within_group}{\code{"input"} (default, current order) or \code{"mds1"}. mds1
 requires style = "structure" and a group column; groups keep their first
 displayed appearance, singleton and zero-distance groups keep input order,
 and remaining ties keep original displayed order.}
 
-\item{...}{Optional palette and limits.}
+\item{...}{Optional \code{palette} and \code{limits}.}
 }
 \value{
-ggplot with included/excluded IDs and display metadata.
+A ggplot object with included/excluded IDs and display metadata attributes.
 }
 \description{
+Show factor activity across samples as a heatmap, points, distributions or a
+structure plot, optionally grouped by a metadata column.
 Samples before long-table expansion. Structure proportions require explicit
 row_sum normalization and nonnegative scores; zero-sum rows are excluded and
 recorded. Display normalization never changes inferential activities.
@@ -54,9 +59,9 @@ order_within_group = "mds1" reorders displayed samples within each group by
 }
 \details{
 Origin: ADAPTED / none.
-  Credits MyStructurePlot / ImmGenT display workflow; use provenance("plot_factor_activity")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits MyStructurePlot / ImmGenT display workflow; use provenance("plot_factor_activity")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -71,7 +76,10 @@ metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
 }
+\seealso{
+\code{\link[=summarize_factor_activity]{summarize_factor_activity()}}, \code{\link[=plot_factor_features]{plot_factor_features()}}
+}
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

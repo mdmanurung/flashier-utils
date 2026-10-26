@@ -12,31 +12,34 @@ filter_cells_by_total_membership(
 )
 }
 \arguments{
-\item{fit}{Native flashier fit or declared factor representation.}
+\item{fit}{Native flashier fit or a view with nonnegative activities.}
 
-\item{sample_side}{Explicit rows or columns for a bare native fit.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}; needed only for a bare native fit.}
 
-\item{max_val}{Maximum retained total membership, inclusive. Default 10.}
+\item{max_val}{Maximum retained total membership, inclusive (default 10).}
 
-\item{numiter}{Positive number of passes. Default 12 matches the ImmGenT pipeline.}
+\item{numiter}{Number of passes (default 12, matching the ImmGenT pipeline).}
 }
 \value{
-A membership_filter_result list with activity, effects, offset,
-  kept_samples, removed_samples, history and converged. Matrices use sample
-  by factor and feature by factor axes, regardless of native sample_side.
+A \code{membership_filter_result} list with \verb{$activity}, \verb{$effects},
+\verb{$offset}, \verb{$kept_samples}, \verb{$removed_samples}, \verb{$history} (one row per
+pass) and \verb{$converged}. Matrices use sample
+by factor and feature by factor axes, regardless of native sample_side.
 }
 \description{
-Reproduce the ImmGenT post-fit filter on nonnegative sample activities.
+Drop cells whose summed membership across nonnegative programs is too high,
+following the ImmGenT rule, and return rescaled activities and effects for
+the kept cells. Reproduce the ImmGenT post-fit filter on nonnegative sample activities.
 Each pass scales each factor to a maximum of one, then removes samples
 whose summed membership exceeds max_val. The retained activities and feature
 effects are rescaled together, preserving their reconstructed expression.
 }
 \details{
 Zero-max activity columns remain zero; their effects stay unchanged.
-  Negative activities are rejected. The input fit is never modified or refitted.
-  No native PVE or posterior sampler is recalculated for the selected population.
-  A warning reports a pass limit that leaves memberships above max_val.
-  This implements a declared selection rule, not a general cell-quality test.
+Negative activities are rejected. The input fit is never modified or refitted.
+No native PVE or posterior sampler is recalculated for the selected population.
+A warning reports a pass limit that leaves memberships above max_val.
+This implements a declared selection rule, not a general cell-quality test.
 }
 \examples{
 L <- rbind(broad = c(10, 10, 0), next_cell = c(4, 4, .2),
@@ -56,5 +59,5 @@ filtered$history
 }
 \author{
 Mikhael Manurung. Conceptual workflow: Ziang Zhang / AgueroZZ,
-  ImmGenT-GP analysis; per-script authorship is unresolved.
+ImmGenT-GP analysis; per-script authorship is unresolved.
 }

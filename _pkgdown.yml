@@ -10,7 +10,7 @@ navbar:
       text: Get started
       href: articles/first-fit.html
     articles:
-      text: Case studies and advanced use
+      text: Tutorials
       menu:
         - text: Advanced use
           href: articles/advanced-use.html

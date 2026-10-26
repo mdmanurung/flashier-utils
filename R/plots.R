@@ -1,19 +1,25 @@
 # Independently written signed displays; tile/structure workflow credits in NOTICE.
 #' Plot selected signed feature effects
 #'
-#' Independent signed-safe adaptation of the ZemmourLib tile workflow. The
+#' Heatmap or bar chart of the top features for one or more factors, selected
+#' as in [factor_features()]. Independent signed-safe adaptation of the ZemmourLib tile workflow. The
 #' displayed values use the declared matched representation, never positive-only.
 #' @inheritParams factor_features
-#' @param factors Unique displayed factors.
-#' @param style heatmap or bar.
-#' @param compare_factors Optional competition pool.
-#' @param features Explicit feature IDs instead of ranked selection.
-#' @param direction absolute, positive or negative selection.
-#' @param display_normalization none (effect units) or max_abs (display only).
-#' @param transpose Flip display axes.
-#' @param annotation One named factor annotation vector, including correlations.
-#' @param ... Optional palette (negative, zero, positive) and limits.
-#' @return A ggplot with display and basis metadata attributes.
+#' @param factors Character factor IDs to display, e.g. `c("F1", "F2")`.
+#' @param style `"heatmap"` (default) or `"bar"`.
+#' @param compare_factors Optional character factor IDs that compete for
+#'   `"distinctive"`; `NULL` uses all other factors.
+#' @param features Optional character feature IDs to show instead of a ranked
+#'   selection.
+#' @param direction `"absolute"` (default), `"positive"` or `"negative"`.
+#' @param display_normalization `"none"` (default, effect units) or `"max_abs"`
+#'   (scale each factor to max 1 for display only).
+#' @param transpose Put features on the x axis (default `FALSE`).
+#' @param annotation Optional named numeric vector, one value per factor, shown
+#'   as a strip; e.g. correlations.
+#' @param ... Optional `palette` (negative, zero, positive colours) and `limits`.
+#' @return A ggplot object with display and basis metadata attributes.
+#' @seealso [factor_features()], [plot_factor_activity()]
 #' @importFrom ggplot2 .data
 #' @export
 #' @author David Zemmour.
@@ -76,26 +82,32 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 
 #' Plot bounded sample activity with signed defaults
 #'
+#' Show factor activity across samples as a heatmap, points, distributions or a
+#' structure plot, optionally grouped by a metadata column.
 #' Samples before long-table expansion. Structure proportions require explicit
 #' row_sum normalization and nonnegative scores; zero-sum rows are excluded and
 #' recorded. Display normalization never changes inferential activities.
 #' order_within_group = "mds1" reorders displayed samples within each group by
 #' 1D classical MDS of the displayed row-sum-normalized factor proportions
 #' (Euclidean distance); display-only, never an inferential result.
-#' @param fit Native fit or matched view.
-#' @param metadata Named sample metadata; NULL is allowed without grouping.
-#' @param group Optional metadata grouping column.
-#' @param style heatmap, point, distribution or structure.
-#' @param factors Optional unique factors.
-#' @param display_normalization none, or row_sum for structure only.
-#' @param max_samples Positive bound on displayed samples.
-#' @param seed Optional scoped sampling seed.
-#' @param order_within_group input (default, current order) or mds1. mds1
+#' @param fit Native fit or a view from [standardize_factors()].
+#' @param metadata Optional data frame with a `sample` column matching the
+#'   activity row names; needed only with `group`.
+#' @param group Optional name of a `metadata` column to group samples by.
+#' @param style `"heatmap"` (default), `"point"`, `"distribution"` or
+#'   `"structure"` (stacked proportions, nonnegative activities only).
+#' @param factors Optional character factor IDs to display. Default all.
+#' @param display_normalization `"none"` (default) or `"row_sum"` (structure
+#'   style only).
+#' @param max_samples Maximum samples drawn for display (default 2000).
+#' @param seed Optional integer for the sample draw.
+#' @param order_within_group `"input"` (default, current order) or `"mds1"`. mds1
 #'   requires style = "structure" and a group column; groups keep their first
 #'   displayed appearance, singleton and zero-distance groups keep input order,
 #'   and remaining ties keep original displayed order.
-#' @param ... Optional palette and limits.
-#' @return ggplot with included/excluded IDs and display metadata.
+#' @param ... Optional `palette` and `limits`.
+#' @return A ggplot object with included/excluded IDs and display metadata attributes.
+#' @seealso [summarize_factor_activity()], [plot_factor_features()]
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

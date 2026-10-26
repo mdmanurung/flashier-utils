@@ -25,16 +25,16 @@ add_factors_to_seurat(
 }
 \value{
 Seurat object with basis metadata in reduction Misc. Loadings are added
-  only when the assay and effects have exactly the same feature IDs.
+only when the assay and effects have exactly the same feature IDs.
 }
 \description{
 Add exactly aligned cell activities to a Seurat reduction
 }
 \details{
 Origin: ADAPTED / call_only.
-  Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -57,6 +57,6 @@ SeuratObject::Embeddings(object[["ebmf"]])[1:3, , drop = FALSE]
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

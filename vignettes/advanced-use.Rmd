@@ -1,14 +1,26 @@
 ---
-title: "Advanced use: coordinates, uncertainty and contrasts"
+title: "Advanced use: coordinates, uncertainty, contrasts and nonnegative programs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Advanced use: coordinates, uncertainty and contrasts}
+  %\VignetteIndexEntry{Advanced use: coordinates, uncertainty, contrasts and nonnegative programs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-This bounded example asks how a sample-group contrast translates into feature
-units. The simulated sample is the independent unit; there is no real biology.
+This tutorial answers four questions on one small simulation: which coordinates
+to read factors in, what the posterior uncertainty means, how a sample-group
+contrast translates into feature units, and how to fit and filter nonnegative
+gene programs. The simulated sample is the independent unit; there is no real
+biology. [Get started](first-fit.html) defines view, activity, effects and
+offset.
+
+## Coordinates
+
+A fit has one reconstruction but many equivalent coordinate systems. `"raw"`
+keeps flashier's own scaling. `"ldf"` (the default) gives unit-norm factors with
+the scale on one side. `"rms"` gives every activity column unit root-mean-square
+so activities are comparable across factors. Pick one and keep its activity and
+effects together.
 
 ```{r setup}
 library(flashier.utils)
@@ -35,6 +47,9 @@ Do not mix coefficients or posterior draws from different bases.
 
 ## Conditional uncertainty
 
+Posterior standard deviations come from the native fit, expressed in the
+coordinates of the view you pass.
+
 ```{r uncertainty}
 head(factor_uncertainty(fit, side = "activity", sample_side = "rows",
                        representation = view))
@@ -46,6 +61,8 @@ on estimated priors. It is neither a downstream regression standard error nor
 uncertainty about the biological identity of a factor.
 
 ## Group contrast in feature units
+
+First summarize and contrast factor activity by a metadata column.
 
 ```{r contrast}
 metadata <- data.frame(sample = rownames(X), donor = rownames(X),
@@ -60,6 +77,9 @@ names(contrast)
 observation weighting; cells are not automatically balanced by donor.
 Threshold summaries use resolved activity coordinates. Display normalization
 must not silently redefine an inferential threshold.
+
+Then test each factor against the design and push the fitted coefficient back
+through the effects to get a per-feature contrast.
 
 ```{r association}
 association <- test_factors(view, metadata, formula = ~group, engine = "lm",
@@ -81,13 +101,21 @@ contrast direction, covariates, weighting and feature units. It reports descript
 agreement, not independent biological validation. Named scientific arguments are
 preferred; see function references for complete controls.
 
-## Credits
+## Choose `ebnm_fn`, `S` and `var_type`
 
-Native FLASH and EBNM authors are credited in [Get started](first-fit.html).
-Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
-Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
-are independently implemented. See `provenance()` and
-[full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
+Choose `ebnm_fn` from the support your measurements require. Nonnegative
+activities can pair with signed effects in Gaussian EBMF. A Poisson topic model
+instead models nonnegative counts with mixed memberships. `S` specifies supplied
+noise; `var_type` decides which residual variances the Gaussian model estimates.
+`S = .5, var_type = NULL` fixes supplied noise. `S = .5, var_type = 0`
+also estimates residual variance. `max_factors` is the EBMF greedy upper bound;
+GBCD uses its distinct `kmax` argument. Initialization and backfit affect the
+numerical optimum, so compare seeds without treating agreement as calibration.
+
+Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
+explains EBNM shrinkage, prior families, EBMF, topic models and GBCD.
+Use those explanations alongside the original package manuals. No workshop
+code or prose is copied here; its repository has no identified license.
 
 ## Filter cells by total GP membership
 
@@ -141,39 +169,36 @@ programs$diagnostics
 provenance(result = programs)
 ```
 
-`effect` and `log2_fc` describe EB-SNMF point estimates. `z_score` and `lfsr`
-come from separate gene-wise linear regression followed by ashr. These statistics
-condition on estimated memberships. They do not measure uncertainty in learning
-those memberships. Unavailable statistics remain `NA`. Native FLASH PVE and
-posterior sampling remain unavailable for this representation.
+Factors are named `GEP1`, `GEP2`, ... (gene expression programs). `effect` and
+`log2_fc` describe EB-SNMF point estimates. `z_score` and `lfsr` (local false
+sign rate) come from separate gene-wise linear regression followed by ashr.
+These statistics condition on estimated memberships. They do not measure
+uncertainty in learning those memberships. Unavailable statistics remain `NA`.
+Native FLASH PVE and posterior sampling remain unavailable for this
+representation.
 
 The upstream `Baseline` label remains a varying factor. It is never converted
 to a constant offset. Output sorting loses prior lineage, so every returned
 activity support stays unknown. Default projection priors cannot be inferred.
 
-## Learn the models before choosing arguments
+## Grade-of-membership differential expression
 
-Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
-explains EBNM shrinkage, prior families, EBMF, topic models and GBCD.
-Use those explanations alongside the original package manuals. No workshop
-code or prose is copied here; its repository has no identified license.
-
-Choose `ebnm_fn` from the support your measurements require. Nonnegative
-activities can pair with signed effects in Gaussian EBMF. A Poisson topic model
-instead models nonnegative counts with mixed memberships. `S` specifies supplied
-noise; `var_type` decides which residual variances the Gaussian model estimates.
-`S = .5, var_type = NULL` fixes supplied noise. `S = .5, var_type = 0`
-also estimates residual variance. `max_factors` is the EBMF greedy upper bound;
-GBCD uses its distinct `kmax` argument. Initialization and backfit affect the
-numerical optimum, so compare seeds without treating agreement as calibration.
-
-Workshop section 5.5 uses `fastTopics::de_analysis()` for GoM DE. That method
-requires count data and nonnegative memberships whose rows sum to one.
-`test_gom_de()` calls it after checking both inputs, with a required seed. It estimates topic expression with
-fixed memberships and reports least-extreme log2 fold changes with conditional
-uncertainty. See the [original fastTopics manual](https://stephenslab.github.io/fastTopics/reference/de_analysis.html)
+Workshop section 5.5 uses `fastTopics::de_analysis()` for grade-of-membership
+(GoM) DE. That method requires count data and nonnegative memberships whose
+rows sum to one. `test_gom_de()` calls it after checking both inputs, with a
+required seed. It estimates topic expression with fixed memberships and reports
+least-extreme log2 fold changes with conditional uncertainty. See the
+[original fastTopics manual](https://stephenslab.github.io/fastTopics/reference/de_analysis.html)
 and package authors Peter Carbonetto, Kevin Luo, Kushal Dey and Matthew Stephens.
 Abhishek Sarkar and other contributors also receive credit in the package.
 `factor_features(select = "distinctive")` instead ranks descriptive coefficient
 margins in the supplied factor basis. Those margins have no GoM DE lfsr.
 GBCD's separate LM/ash statistics also differ from count-based GoM DE.
+
+## Credits
+
+Native FLASH and EBNM authors are credited in [Get started](first-fit.html).
+Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
+Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
+are independently implemented. See `provenance()` and
+[full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

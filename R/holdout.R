@@ -55,6 +55,9 @@
 
 #' Evaluate training programs on held-out biological units
 #'
+#' Cross-validate by biological unit: fit on training units through your
+#' callback, project the fitted programs onto held-out units, and score
+#' prediction of withheld entries against a training-mean baseline.
 #' Projection scores use observations seen during activity estimation. Masked
 #' scores use disjoint entries/features and never enter activity/noise fitting.
 #' Learned hyperparameters may recalibrate on permitted test observations;
@@ -64,23 +67,37 @@
 #' Paired preprocessing callbacks fit on training data then apply frozen state;
 #' masked inference receives NA before transform. Global preprocessing is labelled
 #' conditional and cannot establish independent full-pipeline validation.
-#' @param X Named numerical input in explicitly declared native sample orientation.
-#' @param metadata Sample and donor metadata.
-#' @param unit_col Required biological unit column.
-#' @param folds Data frame with sample or unit IDs and fold labels; donors cannot cross folds.
-#' @param fit_fn Required native fitting callback following the shared plan contract.
-#' @param preprocess_fn NULL or list(fit,transform); fit returns X,metadata,manifest,state,
-#'   transform(X,metadata,state,seed,settings) returns transformed X and metadata.
-#' @param evaluation projection or masked.
-#' @param activity_features,scoring_features Optional disjoint named feature sets for masked mode.
-#' @param mask Optional named logical matrix; TRUE entries are withheld for scoring.
-#' @param seed Required master seed.
-#' @param checkpoint_dir Fold checkpoints require explicit callback_configuration.
-#' @param control sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
-#'   projection_ebnm_fn, maxiter, dense_budget_bytes, cohort_col, evaluated_folds,
-#'   callback_configuration, keep_predictions, keep_fits, prior_policy ("query" or
-#'   "fixed_reference"; see project_factor_activity()).
-#' @return holdout_result with metrics, folds, failures, activities and information boundaries.
+#' @param X Named numeric matrix; `control$sample_side` says which side holds samples.
+#' @param metadata Data frame with one row per sample, a `sample` column and the unit column.
+#' @param unit_col Name of the biological unit column, e.g. `"donor"`. Required.
+#' @param folds Data frame with a `fold` column and either a `sample` or a unit
+#'   ID column; all samples of a unit must share a fold.
+#' @param fit_fn Callback `function(X, metadata, sample_side, seed, settings,
+#'   observation_aux)` that fits the training data and returns a native fit
+#'   from [fit_ebmf()] or a view. Required.
+#' @param preprocess_fn `NULL` (default) or `list(fit, transform)`: `fit(X,
+#'   metadata, ...)` returns `X`, `metadata`, `manifest`, `state` from training
+#'   data; `transform(X, metadata, state, seed, settings)` applies that frozen
+#'   state to test data.
+#' @param evaluation `"projection"` (default; score the entries used to
+#'   estimate test activities) or `"masked"` (estimate activities from some
+#'   features, score disjoint withheld entries).
+#' @param activity_features,scoring_features For `"masked"`: disjoint character
+#'   feature sets used to estimate activities and to score prediction.
+#' @param mask For `"masked"`: optional named logical matrix; `TRUE` entries are withheld for scoring.
+#' @param seed Integer master seed. Required.
+#' @param checkpoint_dir Optional directory for fold checkpoints; needs `control$callback_configuration`.
+#' @param control Named list. Required: `sample_side` (`"rows"` or `"columns"`)
+#'   and `preprocessing_manifest` (e.g. `list(scope = "identity")`) when no
+#'   `preprocess_fn`. Optional: `settings` and `observation_aux` passed to
+#'   `fit_fn`, `projection_ebnm_fn`, `maxiter`, `dense_budget_bytes`,
+#'   `cohort_col`, `evaluated_folds`, `callback_configuration`,
+#'   `keep_predictions`, `keep_fits`, `prior_policy` (`"query"` or
+#'   `"fixed_reference"`; see [project_factor_activity()]).
+#' @return A `holdout_result` with `$metrics` (per fold, model and weighting:
+#'   rmse, mae, prediction_r2 for the fit and the baseline), `$folds`,
+#'   `$failures`, `$activities` and information boundaries.
+#' @seealso [project_factor_activity()], [factor_stability()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

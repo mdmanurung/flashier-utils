@@ -26,10 +26,10 @@ the same samples: finite, nonnegative, at least two columns, and every row
 summing to one within 1e-8. EBMF activities are not memberships; normalize
 them yourself only if that is scientifically justified.}
 
-\item{sample_side}{Sample axis of `counts`: rows or columns. Memberships always
+\item{sample_side}{\code{"rows"} or \code{"columns"} of \code{counts}. Memberships always
 have samples in rows.}
 
-\item{seed}{Required nonnegative integer; the MCMC uses R's random numbers.
+\item{seed}{Nonnegative integer. Required; the MCMC uses R's random numbers.
 The caller's random number state is restored afterwards.}
 
 \item{shrink_method}{"ash" (default) or "none", as in the native function.}
@@ -37,34 +37,36 @@ The caller's random number state is restored afterwards.}
 \item{lfc_stat}{"le" (least-extreme, default), "vsnull", or one membership
 column name, as in the native function.}
 
-\item{pseudocount}{Positive native pseudocount.}
+\item{pseudocount}{Positive pseudocount added before log fold changes (native default).}
 
-\item{fit_method}{Native Poisson fitting method.}
+\item{fit_method}{Native Poisson fitting method, e.g. \code{"scd"} (native default).}
 
 \item{control}{Named native control settings from
-[fastTopics::de_analysis_control_default()]; `nc` is fixed at 1.}
+\code{\link[fastTopics:de_analysis_control_default]{fastTopics::de_analysis_control_default()}}; \code{nc} is fixed at 1.}
 
-\item{keep_native}{Retain the native result.}
+\item{keep_native}{Retain the native result (default \code{FALSE}).}
 }
 \value{
-A list with a long `statistics` table (feature, factor, log2_fc,
-  lower, upper, z, neg_log10_p, lfsr, svalue), `analysis_metadata`, and the
-  native result when requested.
+A list with a long \verb{$statistics} table (feature, factor, log2_fc,
+lower, upper, z, neg_log10_p, lfsr, svalue), \verb{$analysis_metadata}, and the
+\verb{$native} result when requested.
 }
 \description{
-Delegates to [fastTopics::de_analysis()], which fits one Poisson model per
+Find genes whose expression differs between topics or programs, given count
+data and memberships that sum to one per sample. Needs the optional
+\code{fastTopics} package. Delegates to \code{\link[fastTopics:de_analysis]{fastTopics::de_analysis()}}, which fits one Poisson model per
 feature with the supplied memberships held fixed, then summarizes log2 fold
 changes by MCMC. Counts and memberships are validated before the native call;
 nothing is normalized here.
 }
 \details{
 Statistics are conditional on the fixed memberships, so membership
-  uncertainty is ignored. `lower`/`upper` are highest-posterior-density
-  intervals at `control$conf.level` (native default 0.68), not 95% equal-tail
-  intervals. With ash shrinkage `neg_log10_p` is unavailable; without it
-  `lfsr` and `svalue` are unavailable. Native MCMC warnings, such as zero
-  acceptance rates, are kept in `analysis_metadata$warnings`. No calibration
-  claim is made for small inputs.
+uncertainty is ignored. \code{lower}/\code{upper} are highest-posterior-density
+intervals at \code{control$conf.level} (native default 0.68), not 95\% equal-tail
+intervals. With ash shrinkage \code{neg_log10_p} is unavailable; without it
+\code{lfsr} and \code{svalue} are unavailable. Native MCMC warnings, such as zero
+acceptance rates, are kept in \code{analysis_metadata$warnings}. No calibration
+claim is made for small inputs.
 }
 \examples{
 \dontrun{
@@ -74,10 +76,13 @@ subset(de$statistics, lfsr < 0.01)
 }
 \references{
 \url{https://github.com/stephenslab/fastTopics};
-  \url{https://stephenslab.github.io/fastTopics/reference/de_analysis.html}
+\url{https://stephenslab.github.io/fastTopics/reference/de_analysis.html}
+}
+\seealso{
+\code{\link[=factor_features]{factor_features()}} for descriptive rankings without count data
 }
 \author{
 Mikhael Manurung (adapter). fastTopics: Peter Carbonetto, Kevin Luo,
-  Kushal Dey and Matthew Stephens, with contributors listed in its
-  DESCRIPTION. No engine source is copied.
+Kushal Dey and Matthew Stephens, with contributors listed in its
+DESCRIPTION. No engine source is copied.
 }

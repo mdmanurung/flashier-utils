@@ -29,25 +29,33 @@ fit_multistart_ebmf(
 \arguments{
 \item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
 
-\item{sample_side}{Required rows or columns identifying samples.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
-\item{ebnm_fn}{Native EBNM function or native row/column list.}
+\item{ebnm_fn}{Prior family: one \verb{ebnm::ebnm_*} function for both sides, or a
+list of two in native row/column order (not sample/feature order). Default
+\code{ebnm::ebnm_point_normal}. Use \code{ebnm_point_exponential} for nonnegative sides.}
 
-\item{S}{Native observation standard errors.}
+\item{S}{Optional known observation standard errors (scalar, vector or
+matrix). \code{NULL} (default) estimates noise from the data.}
 
-\item{var_type}{Native residual variance setting.}
+\item{var_type}{Residual variance structure passed to flashier: \code{0L}
+(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both,
+\code{NULL} none when \code{S} is supplied.}
 
 \item{max_factors}{Positive bound on each candidate's greedy rank.}
 
-\item{backfit}{Run native backfit.}
+\item{backfit}{Run the native backfit after greedy addition (default \code{FALSE}).}
 
-\item{nullcheck}{Run native null check.}
+\item{nullcheck}{Drop factors that do not improve the objective (default \code{TRUE}).}
 
-\item{id_policy}{require IDs, or explicitly generate them.}
+\item{id_policy}{\code{"require"} (default) stops on missing dimnames;
+\code{"generate"} creates them.}
 
-\item{feature_scale}{Meaning and units of the supplied matrix.}
+\item{feature_scale}{Free-text label for what the matrix values measure,
+e.g. \code{"log1p_normalized_counts"}. Default \code{"unknown"}. Recorded, never applied.}
 
-\item{independent_unit}{Biological unit description; recorded, not inferred.}
+\item{independent_unit}{Optional free-text description of the biological
+replicate, e.g. \code{"donor"}; recorded, not inferred.}
 
 \item{n_starts}{Integer number of candidates, at least two.}
 
@@ -64,16 +72,16 @@ the smallest start ID. none leaves best_fit and selected_start unset.}
 \item{keep_fits}{Retain all successful native candidates; the selected best_fit
 is available even when FALSE.}
 
-\item{verbose}{Native verbosity.}
+\item{verbose}{Native flashier verbosity; \code{0} is silent.}
 
 \item{control}{Native pipeline settings; greedy init_fn is owned by this wrapper.}
 }
 \value{
 A multistart_result with best_fit, selected_start, candidates, optional
-  fits and analysis_metadata. All-fail errors retain their candidates table.
-  Candidate digests identify numerical coordinates and exclude elapsed time
-  and time-based fit IDs. Initializer traces include native validation probes.
-  Stability refits require an explicit callback for the full selection recipe.
+fits and analysis_metadata. All-fail errors retain their candidates table.
+Candidate digests identify numerical coordinates and exclude elapsed time
+and time-based fit IDs. Initializer traces include native validation probes.
+Stability refits require an explicit callback for the full selection recipe.
 }
 \description{
 Each candidate uses a distinct native initializer seed. Native-random starts
@@ -94,8 +102,8 @@ starts$candidates[, c("start", "init_seed", "status", "rank", "elbo", "selected"
 }
 \author{
 Mikhael Manurung; native FLASH authors Jason Willwerscheid,
-  Peter Carbonetto, Wei Wang and Matthew Stephens. No native source is copied.
-  Optional initializers: Trevor Hastie, Rahul Mazumder and Balasubramanian
-  Narasimhan (softImpute); Jim Baglama, Lothar Reichel and B. W. Lewis (irlba).
+Peter Carbonetto, Wei Wang and Matthew Stephens. No native source is copied.
+Optional initializers: Trevor Hastie, Rahul Mazumder and Balasubramanian
+Narasimhan (softImpute); Jim Baglama, Lothar Reichel and B. W. Lewis (irlba).
 }
 \keyword{internal}

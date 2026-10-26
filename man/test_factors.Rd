@@ -23,53 +23,62 @@ test_factors(
 )
 }
 \arguments{
-\item{fit}{Native fit or inferential view (never display percentiles).}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}} (never display percentiles).}
 
-\item{metadata}{Explicit sample and biological unit metadata.}
+\item{metadata}{Data frame with one row per sample, including the design
+columns, the sample ID and the biological unit.}
 
-\item{formula}{One-sided response design formula.}
+\item{formula}{One-sided design formula over \code{metadata} columns, e.g. \code{~ group + age}.}
 
-\item{engine}{lm, limma or dream, chosen explicitly. With few factors limma
+\item{engine}{\code{"lm"} (stats), \code{"limma"} or \code{"dream"} (variancePartition),
+chosen explicitly; the last two need their packages installed. With few factors limma
 and dream moderation reproduce lm (identical SE, df and p at K = 2);
 empirical Bayes moderation needs K in the tens to borrow strength.}
 
-\item{unit_col}{Required independent biological unit column.}
+\item{unit_col}{Name of the biological unit column, e.g. \code{"donor"}. Required.}
 
-\item{independence}{Required independent or repeated design declaration.}
+\item{independence}{\code{"independent"} (one sample per unit) or \code{"repeated"}
+(several samples per unit; needs \code{engine = "dream"} with the unit as a
+random effect). Required.}
 
-\item{id_col}{Sample ID column.}
+\item{id_col}{Name of the sample ID column (default \code{"sample"}).}
 
-\item{factors}{Optional unique response factors.}
+\item{factors}{Optional character factor IDs to test. Default all.}
 
-\item{contrasts}{Named term by contrast matrix; omitted terms have zero weight.}
+\item{contrasts}{Optional numeric matrix, rows named by design terms and
+columns by contrast; omitted terms have zero weight.}
 
-\item{include_intercept}{Include intercept tests when no contrasts supplied.}
+\item{include_intercept}{Also test the intercept when no contrasts are
+supplied (default \code{FALSE}).}
 
-\item{na_action}{fail or explicit joint omit.}
+\item{na_action}{\code{"fail"} (default) or \code{"omit"} rows with NA jointly.}
 
-\item{adjust}{stats::p.adjust method.}
+\item{adjust}{Multiple-testing method name for \code{\link[stats:p.adjust]{stats::p.adjust()}} (default \code{"BH"}).}
 
-\item{adjust_scope}{all_tests or by_term.}
+\item{adjust_scope}{\code{"all_tests"} (default) or \code{"by_term"}.}
 
-\item{control}{Engine settings: lm joint_coefficient_covariance, limma/dream ebayes,
-and dream native settings (dropped-method changes are forbidden).}
+\item{control}{Optional named list of engine settings: lm \code{joint_coefficient_covariance},
+limma/dream \code{ebayes}, and dream native settings (dropped-method changes are forbidden).}
 
-\item{keep_models}{Retain native fits for diagnostics.}
+\item{keep_models}{Retain native model fits for diagnostics (default \code{FALSE}).}
 }
 \value{
-table, models, design, contrasts, diagnostics, coefficient_covariance
-  where available, and analysis_metadata identifying conditional inference.
+List with \verb{$table} (one row per factor and term: \code{estimate},
+\code{std.error}, \code{statistic}, \code{df}, \code{p.value}, \code{adj.p.value}), \verb{$models}, \verb{$design}, \verb{$contrasts}, \verb{$diagnostics},
+\verb{$coefficient_covariance} where available, and \verb{$analysis_metadata}
+identifying conditional inference.
 }
 \description{
-Conditional on the fitted activity basis. Independent engines reject repeated
+Regress each factor's activity on a sample-level design and return one row
+per factor and term, with p-values. Conditional on the fitted activity basis. Independent engines reject repeated
 units. dream requires the declared unit in random effects. Native warnings and
 errors remain visible; failures are recorded. No count preprocessing or voom.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-  Credits stats::lm; limma; dream; later brms; use provenance("test_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits stats::lm; limma; dream; later brms; use provenance("test_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -84,7 +93,10 @@ metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 test_factors(view, metadata = metadata, formula = ~group, engine = "lm",unit_col="donor",independence="independent")$table
 }
+\seealso{
+\code{\link[=backproject_contrast]{backproject_contrast()}} to express a term in feature units
+}
 \author{
 Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

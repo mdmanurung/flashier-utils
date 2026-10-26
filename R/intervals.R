@@ -9,7 +9,9 @@
 
 #' Conditional equal-tail intervals from the native sampler
 #'
-#' Uses fit$sampler batches with fixed representation multipliers, conditional on
+#' Draw from flashier's posterior sampler and return intervals and sign
+#' probabilities for selected activities or effects, in the coordinates of the
+#' view you pass. Needs the native fit. Uses fit$sampler batches with fixed representation multipliers, conditional on
 #' empirical priors. Quantiles are exact sample quantiles. Draws do not include
 #' rank, optimization or biological resampling uncertainty. Mean-field
 #' variational draws are typically underdispersed, so intervals can be too narrow.
@@ -17,10 +19,12 @@
 #' Selected IDs must be present in the native fit; unmeasured reference features
 #' have no native sampler entries and are refused explicitly.
 #' @inheritParams factor_uncertainty
-#' @param level Coverage strictly between zero and one.
-#' @param nsamp At least two native draws.
-#' @param seed Optional scoped seed.
-#' @return Selected posterior means, SDs, quantiles and sign/zero probabilities.
+#' @param level Interval coverage, strictly between zero and one (default 0.95).
+#' @param nsamp Number of posterior draws, at least two (default 2000).
+#' @param seed Optional integer; the caller's RNG state is restored afterwards.
+#' @return Long table with `estimate`, `posterior.sd`, `lower`, `upper`,
+#'   `prob_positive` and `prob_zero` for the selected IDs.
+#' @seealso [factor_uncertainty()] for closed-form posterior SDs
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

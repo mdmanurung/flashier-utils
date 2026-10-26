@@ -7,22 +7,23 @@
 factor_pve(fit, factors = NULL)
 }
 \arguments{
-\item{fit}{Native flash fit or view carrying native PVE.}
+\item{fit}{Native flash fit or a view that carries native PVE.}
 
-\item{factors}{Optional unique factor IDs in requested order.}
+\item{factors}{Optional character factor IDs in the order wanted. Default all.}
 }
 \value{
-factor/pve/definition table.
+Table with columns \code{factor}, \code{pve} and \code{definition}.
 }
 \description{
-Uses native second-moment and residual-variance semantics. This is not
+Get each factor's proportion of variance explained (PVE) as flashier
+computes it. Uses native second-moment and residual-variance semantics. This is not
 unique variance decomposition or held-out prediction R squared.
 }
 \details{
 Origin: WRAPPER / none.
-  Credits native pve field; use provenance("factor_pve")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits native pve field; use provenance("factor_pve")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -37,5 +38,5 @@ factor_pve(fit)
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

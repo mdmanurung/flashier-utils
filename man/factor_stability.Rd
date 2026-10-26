@@ -24,48 +24,57 @@ factor_stability(
 )
 }
 \arguments{
-\item{X}{Named input matrix in recorded native sample orientation.}
+\item{X}{The named matrix the reference fit was fitted on, same orientation.}
 
-\item{reference_fit}{Native reference fit with wrapper metadata.}
+\item{reference_fit}{Native fit from \code{\link[=fit_ebmf]{fit_ebmf()}} carrying its recorded settings.}
 
-\item{metadata}{Explicit sample and biological unit metadata.}
+\item{metadata}{Data frame with one row per sample, a \code{sample} column and
+the unit column.}
 
-\item{unit_col}{Required donor/subject column.}
+\item{unit_col}{Name of the biological unit column, e.g. \code{"donor"}. Required.}
 
-\item{seed}{Required deterministic master seed.}
+\item{seed}{Integer master seed. Required.}
 
-\item{B}{Positive replicate count.}
+\item{B}{Number of resamples (default 100).}
 
 \item{scheme}{"bootstrap" (default) draws units with replacement; "subsample"
-draws `fraction` of the units per stratum without replacement, so no
+draws \code{fraction} of the units per stratum without replacement, so no
 duplicated rows bias empirical Bayes prior and noise estimates.}
 
 \item{fraction}{Subsample fraction in (0, 1); required for "subsample".}
 
-\item{strata}{Optional donor-level stratification columns.}
+\item{strata}{Optional names of unit-level \code{metadata} columns to stratify resampling by.}
 
-\item{fit_fn}{Callback(X, metadata, sample_side, seed, settings, observation_aux).
+\item{fit_fn}{Optional callback \verb{function(X, metadata, sample_side, seed, settings, observation_aux)}. \code{NULL} (default) replays the reference fit's
+recorded \code{\link[=fit_ebmf]{fit_ebmf()}} recipe; required for edited, projected or custom fits.
 Return a native flash fit with recorded declarations, or a representation
-created by [standardize_factors()] with explicit units and prior support.}
+created by \code{\link[=standardize_factors]{standardize_factors()}} with explicit units and prior support.}
 
-\item{preprocess_fn}{Optional per-replicate callback returning X, metadata, manifest.}
+\item{preprocess_fn}{Optional per-replicate callback returning a list with
+\code{X}, \code{metadata} and \code{manifest}.}
 
-\item{min_congruence}{Optional strict acceptance threshold: similarity must
-exceed it, and equality is unmatched.}
+\item{min_congruence}{Optional Tucker congruence in (0, 1) a refit factor
+must exceed to count as recovered; equality is unmatched. \code{NULL} keeps all
+candidates.}
 
-\item{workers}{Positive worker count; Unix fork backend for workers greater than one.}
+\item{workers}{Number of parallel workers (default 1); Unix fork backend above one.}
 
-\item{checkpoint_dir}{Optional compatible atomic checkpoint directory.}
+\item{checkpoint_dir}{Optional directory for atomic per-replicate checkpoints.}
 
-\item{keep_fits}{Retain callback fits or representations only on explicit request.}
+\item{keep_fits}{Retain every replicate fit (default \code{FALSE}; memory heavy).}
 
-\item{control}{settings, observation_aux and explicit callback_configuration.}
+\item{control}{Optional named list: \code{settings}, \code{observation_aux} and
+\code{callback_configuration} passed to \code{fit_fn}.}
 }
 \value{
-stability_result with summaries, replicates, matches, resamples, failures.
+A \code{stability_result} with \verb{$summary} (per reference factor:
+recovery rate and similarity quantiles), \verb{$replicates}, \verb{$matches},
+\verb{$resamples} and \verb{$failures}.
 }
 \description{
-Donor occurrences preserve all their visits/cells and get unique synthetic
+Refit the model on bootstrap or subsample draws of biological units (e.g.
+donors) and report how often each reference factor is recovered and how
+similar the recovered factors are. Donor occurrences preserve all their visits/cells and get unique synthetic
 IDs. Similarity quantiles summarize successful perturbations, not posterior
 uncertainty. No threshold gives candidate similarities without recovery rates.
 Automatic fitting is supported for ordinary wrapper fits and pure reorders.
@@ -76,9 +85,9 @@ their fitting procedure; supplying settings alone does not remove this guard.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-  Credits flash refits with existing congruence/assignment APIs; use provenance("factor_stability")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flash refits with existing congruence/assignment APIs; use provenance("factor_stability")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (requireNamespace("psych",quietly=TRUE) && requireNamespace("clue",quietly=TRUE)) withAutoprint(\{ # examplesIf}
@@ -96,7 +105,10 @@ metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 factor_stability(X, reference_fit = fit, metadata = metadata, unit_col = "donor",B=2,seed=4,min_congruence=0.8)$summary
 \dontshow{\}) # examplesIf}
 }
+\seealso{
+\code{\link[=factor_replicability]{factor_replicability()}} for one pair of fits
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

@@ -19,9 +19,9 @@ Remove named factors without refitting
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits flash_factors_remove; use provenance("remove_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flash_factors_remove; use provenance("remove_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -39,6 +39,6 @@ colnames(factor_activity(remaining))
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

@@ -19,7 +19,7 @@ estimate_marker_thresholds(
 The default of 0.5 suits background-subtracted counts, where values at or
 below it are treated as absent; it is not a general default. Set it from the
 assay scale (a finite value below every observation keeps all values) and
-review the `n_excluded` column. It is recorded in the analysis
+review the \code{n_excluded} column. It is recorded in the analysis
 metadata.}
 
 \item{min_observations}{Minimum eligible observations.}
@@ -30,18 +30,18 @@ metadata.}
 }
 \value{
 Candidate and authoritative thresholds, mixture parameters, sizes,
-  warnings, separation in pooled SD units, BIC support and review flags.
+warnings, separation in pooled SD units, BIC support and review flags.
 }
 \description{
 Estimate marker threshold candidates with native Gaussian mixtures
 }
 \details{
 Candidate is the maximum observation classified in the lower-mean
-  component below the lowest upper-component value. Failed, empty, poorly
-  separated, nonmonotone or BIC-unsupported fits require manual review. Native mclustBIC is explicitly bound for namespace-only use.
+component below the lowest upper-component value. Failed, empty, poorly
+separated, nonmonotone or BIC-unsupported fits require manual review. Native mclustBIC is explicitly bound for namespace-only use.
 }
 \author{
 Mikhael Manurung; mixture engine by Luca Scrucca, Chris Fraley,
-  Adrian E. Raftery and collaborators. Conceptual ImmGen-T Figure 7 workflow.
+Adrian E. Raftery and collaborators. Conceptual ImmGen-T Figure 7 workflow.
 }
 \keyword{internal}

@@ -17,44 +17,50 @@ factor_intervals(
 )
 }
 \arguments{
-\item{fit}{Native flash fit or matched representation.}
+\item{fit}{Native flash fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{side}{activity or effects.}
+\item{side}{\code{"activity"} (default) or \code{"effects"}.}
 
-\item{sample_side}{Explicit native sample side if not recorded.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}; needed only for a bare native fit.}
 
-\item{representation}{Matched view or named standardization settings;
-a bare native fit defaults to `scaling = "ldf"`, so values differ
-from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
+\item{representation}{For a native fit: a matched view or a named list of
+\code{\link[=standardize_factors]{standardize_factors()}} settings;
+a bare native fit defaults to \code{scaling = "ldf"}, so values differ
+from \code{fit$L_pm}/\code{fit$F_pm}; pass \code{representation = list(scaling = "raw")}
 for native coordinates.}
 
-\item{factors}{Optional unique factor IDs in requested order.}
+\item{factors}{Optional character factor IDs, e.g. \code{c("F2", "F1")}, in the
+order wanted. Default all.}
 
-\item{ids}{Optional sample or feature IDs.}
+\item{ids}{Optional character sample IDs (activity side) or feature IDs
+(effects side). Default all.}
 
-\item{level}{Coverage strictly between zero and one.}
+\item{level}{Interval coverage, strictly between zero and one (default 0.95).}
 
-\item{nsamp}{At least two native draws.}
+\item{nsamp}{Number of posterior draws, at least two (default 2000).}
 
-\item{seed}{Optional scoped seed.}
+\item{seed}{Optional integer; the caller's RNG state is restored afterwards.}
 }
 \value{
-Selected posterior means, SDs, quantiles and sign/zero probabilities.
+Long table with \code{estimate}, \code{posterior.sd}, \code{lower}, \code{upper},
+\code{prob_positive} and \code{prob_zero} for the selected IDs.
 }
 \description{
-Uses fit$sampler batches with fixed representation multipliers, conditional on
+Draw from flashier's posterior sampler and return intervals and sign
+probabilities for selected activities or effects, in the coordinates of the
+view you pass. Needs the native fit. Uses fit$sampler batches with fixed representation multipliers, conditional on
 empirical priors. Quantiles are exact sample quantiles. Draws do not include
 rank, optimization or biological resampling uncertainty. Mean-field
 variational draws are typically underdispersed, so intervals can be too narrow.
-A bare native fit uses LDF coordinates, as in [factor_activity()].
+A bare native fit uses LDF coordinates, as in \code{\link[=factor_activity]{factor_activity()}}.
 Selected IDs must be present in the native fit; unmeasured reference features
 have no native sampler entries and are refused explicitly.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits sampler; use provenance("factor_intervals")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits sampler; use provenance("factor_intervals")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -67,7 +73,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 factor_intervals(fit, side = "activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
 }
+\seealso{
+\code{\link[=factor_uncertainty]{factor_uncertainty()}} for closed-form posterior SDs
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

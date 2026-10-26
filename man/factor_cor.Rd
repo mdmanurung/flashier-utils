@@ -39,9 +39,9 @@ API and reports symmetry/PSD properties rather than claiming them universally.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits stats::cor; CorShrink entrypoints pending audit; use provenance("factor_cor")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits stats::cor; CorShrink entrypoints pending audit; use provenance("factor_cor")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -58,6 +58,6 @@ factor_cor(view,"pearson")$correlation
 }
 \author{
 Mikhael Manurung; R Core Team (stats::cor); Kushal Dey; Matthew Stephens; Peter Carbonetto (CorShrink).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

@@ -25,9 +25,9 @@ Backfit named existing factors
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits flash_backfit; use provenance("refit_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flash_backfit; use provenance("refit_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -45,6 +45,6 @@ factor_pve(refitted)
 }
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

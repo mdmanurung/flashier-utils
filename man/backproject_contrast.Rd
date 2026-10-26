@@ -21,41 +21,49 @@ backproject_contrast(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{factor_effects}{Named coefficients, coefficient table or draws.}
+\item{factor_effects}{Numeric vector named by factor ID, the \verb{$table} from
+\code{\link[=test_factors]{test_factors()}}, or a draws matrix (factors in columns).}
 
-\item{input}{Required coefficients or draws (never inferred from shape).}
+\item{input}{\code{"coefficients"} or \code{"draws"}. Required; never inferred from shape.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 
-\item{factor_basis}{Source activity manifest required for detached coefficients.}
+\item{factor_basis}{The \verb{$manifest} of the view the coefficients were
+estimated on. Required for a bare named vector or a detached table.}
 
-\item{term, contrasts, conditions}{Explicit table selections when applicable.}
+\item{term, contrasts, conditions}{Which rows of a \code{\link[=test_factors]{test_factors()}} table to
+use: one design term name, contrast names, or a conditions filter.}
 
-\item{allow_partial}{Report a restricted program contribution.}
+\item{allow_partial}{Allow coefficients for a subset of factors and report
+the restricted contribution (default \code{FALSE}).}
 
-\item{coefficient_covariance}{Full named coefficient covariance, when supported.}
+\item{coefficient_covariance}{Optional full covariance matrix of the
+coefficients, named by factor, to propagate uncertainty.}
 
-\item{level}{Interval coverage when supported.}
+\item{level}{Interval coverage when uncertainty is available (default 0.95).}
 
-\item{keep_draws}{Retain projected draws when supported.}
+\item{keep_draws}{Retain projected draws when \code{input = "draws"} (default \code{FALSE}).}
 
 \item{feature_block_size}{Positive block size for feature operations.}
 }
 \value{
-A backprojection_result with effects and analysis_metadata.
+A \code{backprojection_result} with \verb{$effects} (one row per feature:
+estimate, and interval when uncertainty was supplied) and \verb{$analysis_metadata}.
 }
 \description{
+Turn per-factor coefficients from \code{\link[=test_factors]{test_factors()}} (or any named vector) into
+a per-feature contrast by multiplying through the effects matrix.
 Computes B beta using the effects matching the activity model. Offsets
 cancel for contrasts. Point inputs produce no p-values or feature SEs.
 Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
 }
 \details{
 Origin: ADAPTED / none.
-  Credits FlashierDGE reconstruction workflow; use provenance("backproject_contrast")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits FlashierDGE reconstruction workflow; use provenance("backproject_contrast")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -69,7 +77,10 @@ view <- standardize_factors(fit)
 beta <- setNames(rep(1,ncol(view$activity)),colnames(view$activity))
 backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest)$effects
 }
+\seealso{
+\code{\link[=test_factors]{test_factors()}}, \code{\link[=validate_backprojection]{validate_backprojection()}}
+}
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

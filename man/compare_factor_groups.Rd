@@ -16,34 +16,37 @@ compare_factor_groups(
 )
 }
 \arguments{
-\item{fit}{Native fit or view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{metadata}{Explicit sample metadata.}
+\item{metadata}{Data frame with one row per sample; sample IDs in \code{id_col}.}
 
-\item{group}{Grouping column.}
+\item{group}{Name of the \code{metadata} column holding group labels.}
 
-\item{contrast}{Two distinct group labels, first minus second.}
+\item{contrast}{Two group labels, e.g. \code{c("treated", "control")}: first minus second.}
 
-\item{id_col}{Sample ID column.}
+\item{id_col}{Name of the sample ID column (default \code{"sample"}).}
 
-\item{unit_col}{Optional independent-unit column for counts.}
+\item{unit_col}{Optional name of the independent-unit column for counts.}
 
-\item{weights}{Optional named observation weights.}
+\item{weights}{Optional nonnegative numeric vector named by sample ID.}
 
-\item{na_action}{fail or explicit omit.}
+\item{na_action}{\code{"fail"} (default) or \code{"omit"}.}
 }
 \value{
-factor_contrast, feature_contrast, counts and matching metadata.
+List with \verb{$factor_contrast} (one row per factor),
+\verb{$feature_contrast} (one row per feature), \verb{$counts} and matching metadata.
 }
 \description{
+Difference in mean activity between two groups for each factor, and the same
+difference pushed through the effects to feature units.
 Contrast c(A,B) always means A minus B. Workflow adapted independently from
 ZemmourLib FlashierDGE. No p-values or automatic conversion to fold changes.
 }
 \details{
 Origin: ADAPTED / none.
-  Credits FlashierDGE group contrast workflow; use provenance("compare_factor_groups")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits FlashierDGE group contrast workflow; use provenance("compare_factor_groups")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -58,7 +61,10 @@ metadata <- data.frame(sample=rownames(X),donor=rownames(X),
   group=rep(c("A","B"),each=12))
 compare_factor_groups(view,metadata,"group",c("B","A"),unit_col="donor")$factor_contrast
 }
+\seealso{
+\code{\link[=summarize_factor_activity]{summarize_factor_activity()}}, \code{\link[=test_factors]{test_factors()}}, \code{\link[=backproject_contrast]{backproject_contrast()}}
+}
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

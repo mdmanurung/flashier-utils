@@ -34,6 +34,6 @@ Plot a program network with a scoped native layout
 }
 \author{
 Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
-  Layouts by igraph and ggraph authors; see credits.
+Layouts by igraph and ggraph authors; see credits.
 }
 \keyword{internal}

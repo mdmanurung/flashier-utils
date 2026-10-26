@@ -25,13 +25,13 @@ factor_gate_alignment(
 
 \item{thresholds}{Explicit named authoritative marker thresholds.}
 
-\item{direction}{`"high"` (default) compares the gate with the same number of
-highest-activity samples; `"low"` uses the lowest-activity samples, for
+\item{direction}{\code{"high"} (default) compares the gate with the same number of
+highest-activity samples; \code{"low"} uses the lowest-activity samples, for
 factors expected to mark marker-negative populations.}
 }
 \value{
 Overlap counts/scores, mean activities and selected IDs. Empty gates
-  have unavailable scores. Activity ties are broken by sample ID.
+have unavailable scores. Activity ties are broken by sample ID.
 }
 \description{
 Compare explicit marker gates with an equal-size activity population

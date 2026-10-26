@@ -25,50 +25,64 @@ fit_ebmf(
 \arguments{
 \item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
 
-\item{sample_side}{Required rows or columns identifying samples.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
-\item{ebnm_fn}{Native EBNM function or native row/column list.}
+\item{ebnm_fn}{Prior family: one \verb{ebnm::ebnm_*} function for both sides, or a
+list of two in native row/column order (not sample/feature order). Default
+\code{ebnm::ebnm_point_normal}. Use \code{ebnm_point_exponential} for nonnegative sides.}
 
-\item{S}{Native observation standard errors.}
+\item{S}{Optional known observation standard errors (scalar, vector or
+matrix). \code{NULL} (default) estimates noise from the data.}
 
-\item{var_type}{Native residual variance setting.}
+\item{var_type}{Residual variance structure passed to flashier: \code{0L}
+(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both,
+\code{NULL} none when \code{S} is supplied.}
 
-\item{max_factors}{Nonnegative upper bound on native greedy rank.}
+\item{max_factors}{Upper bound on the number of greedily added factors
+(default 50). The fit can stop earlier.}
 
-\item{backfit}{Run native backfit.}
+\item{backfit}{Run the native backfit after greedy addition (default \code{FALSE}).}
 
-\item{nullcheck}{Run native null check.}
+\item{nullcheck}{Drop factors that do not improve the objective (default \code{TRUE}).}
 
-\item{id_policy}{require IDs, or explicitly generate them.}
+\item{id_policy}{\code{"require"} (default) stops on missing dimnames;
+\code{"generate"} creates them.}
 
-\item{feature_scale}{Meaning and units of the supplied matrix.}
+\item{feature_scale}{Free-text label for what the matrix values measure,
+e.g. \code{"log1p_normalized_counts"}. Default \code{"unknown"}. Recorded, never applied.}
 
-\item{independent_unit}{Biological unit description; recorded, not inferred.}
+\item{independent_unit}{Optional free-text description of the biological
+replicate, e.g. \code{"donor"}; recorded, not inferred.}
 
-\item{seed}{Optional scoped seed.}
+\item{seed}{Optional integer; the caller's RNG state is restored afterwards.}
 
-\item{verbose}{Native verbosity.}
+\item{verbose}{Native flashier verbosity; \code{0} is silent.}
 
 \item{intercept}{none (default) or feature. A feature intercept has fixed
 sample-side ones and a signed native point-normal feature offset. It is
 excluded from semantic factor IDs; max_factors counts adaptive factors.}
 
-\item{control}{Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.}
+\item{control}{Optional named list of advanced native settings: \code{S_dim},
+\code{greedy}, \code{backfit}, \code{nullcheck} lists.}
 }
 \value{
-A native flash object with flashbridge_metadata attribute. Sparse input
-  with explicit S is unsupported by the audited native engine and refused.
+A native flash object with a \code{flashbridge_metadata} attribute that
+records the declarations. Pass it to \code{\link[=standardize_factors]{standardize_factors()}}. Sparse input
+with explicit S is unsupported by the audited native engine and refused.
 }
 \description{
-Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
+Fit flashier through one call that also records sample orientation, units
+and the independent unit, so later functions need no repeated declarations.
+Calling \code{flashier::flash()} yourself and then \code{\link[=standardize_factors]{standardize_factors()}} is
+equally valid. Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
 list are in native row/column order, independent of sample_side. A supplied
 seed restores the caller's RNG state; NULL consumes it. No preprocessing.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits flash; use provenance("fit_ebmf")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flash; use provenance("fit_ebmf")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -81,7 +95,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 fit
 }
+\seealso{
+\code{\link[=standardize_factors]{standardize_factors()}}, \code{\link[=factor_pve]{factor_pve()}}
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

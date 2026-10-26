@@ -26,9 +26,9 @@ Display factor activity on a cell embedding
 }
 \details{
 Origin: NEW_QOL / call_only.
-  Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -52,6 +52,6 @@ plot_factor_embedding(object, "ebmfumap", "F1", display = "percentile", max_samp
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

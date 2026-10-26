@@ -22,27 +22,27 @@ center_factor_activity(
 
 \item{by}{Grouping column(s).}
 
-\item{baseline}{`equal_group` or `observation_weighted`.}
+\item{baseline}{\code{equal_group} or \code{observation_weighted}.}
 
 \item{id_col}{Sample ID column.}
 
 \item{unit_col}{Optional independent-unit column (carried through).}
 
 \item{weights}{Optional named observation weights (passed to
-[summarize_factor_activity()]; the baseline itself uses group sizes `n`).}
+\code{\link[=summarize_factor_activity]{summarize_factor_activity()}}; the baseline itself uses group sizes \code{n}).}
 
 \item{na_action}{fail or explicit omit.}
 }
 \value{
-The [summarize_factor_activity()] table plus `baseline` and
-  `centered` columns, with centering declared in `analysis_metadata`.
+The \code{\link[=summarize_factor_activity]{summarize_factor_activity()}} table plus \code{baseline} and
+\code{centered} columns, with centering declared in \code{analysis_metadata}.
 }
 \description{
-Consumes [summarize_factor_activity()] (no competing calculator) and
+Consumes \code{\link[=summarize_factor_activity]{summarize_factor_activity()}} (no competing calculator) and
 subtracts a declared per-factor baseline from each group mean:
-`centered = mean - baseline[factor]`. The baseline is either the
-**equal-group** mean of group means (each group counts once) or the
-**observation-weighted** mean (group means weighted by group size `n`);
+\code{centered = mean - baseline[factor]}. The baseline is either the
+\strong{equal-group} mean of group means (each group counts once) or the
+\strong{observation-weighted} mean (group means weighted by group size \code{n});
 the choice is declared in the output metadata. Raw means, baselines,
 centered values and group counts are all returned. Display-only
 transformation: no inferential labeling, and centering never changes

@@ -11,21 +11,30 @@
 
 #' Back-project a declared factor contrast into feature units
 #'
+#' Turn per-factor coefficients from [test_factors()] (or any named vector) into
+#' a per-feature contrast by multiplying through the effects matrix.
 #' Computes B beta using the effects matching the activity model. Offsets
 #' cancel for contrasts. Point inputs produce no p-values or feature SEs.
 #' Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
-#' @param fit Native fit or matched view.
-#' @param factor_effects Named coefficients, coefficient table or draws.
-#' @param input Required coefficients or draws (never inferred from shape).
-#' @param representation Matched view or settings.
-#' @param factor_basis Source activity manifest required for detached coefficients.
-#' @param term,contrasts,conditions Explicit table selections when applicable.
-#' @param allow_partial Report a restricted program contribution.
-#' @param coefficient_covariance Full named coefficient covariance, when supported.
-#' @param level Interval coverage when supported.
-#' @param keep_draws Retain projected draws when supported.
+#' @param fit Native fit or a view from [standardize_factors()].
+#' @param factor_effects Numeric vector named by factor ID, the `$table` from
+#'   [test_factors()], or a draws matrix (factors in columns).
+#' @param input `"coefficients"` or `"draws"`. Required; never inferred from shape.
+#' @param representation For a native fit: a matched view or [standardize_factors()] settings.
+#' @param factor_basis The `$manifest` of the view the coefficients were
+#'   estimated on. Required for a bare named vector or a detached table.
+#' @param term,contrasts,conditions Which rows of a [test_factors()] table to
+#'   use: one design term name, contrast names, or a conditions filter.
+#' @param allow_partial Allow coefficients for a subset of factors and report
+#'   the restricted contribution (default `FALSE`).
+#' @param coefficient_covariance Optional full covariance matrix of the
+#'   coefficients, named by factor, to propagate uncertainty.
+#' @param level Interval coverage when uncertainty is available (default 0.95).
+#' @param keep_draws Retain projected draws when `input = "draws"` (default `FALSE`).
 #' @param feature_block_size Positive block size for feature operations.
-#' @return A backprojection_result with effects and analysis_metadata.
+#' @return A `backprojection_result` with `$effects` (one row per feature:
+#'   estimate, and interval when uncertainty was supplied) and `$analysis_metadata`.
+#' @seealso [test_factors()], [validate_backprojection()]
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

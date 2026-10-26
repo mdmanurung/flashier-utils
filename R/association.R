@@ -60,29 +60,39 @@
 
 #' Test continuous factor activities using an explicit inferential engine
 #'
-#' Conditional on the fitted activity basis. Independent engines reject repeated
+#' Regress each factor's activity on a sample-level design and return one row
+#' per factor and term, with p-values. Conditional on the fitted activity basis. Independent engines reject repeated
 #' units. dream requires the declared unit in random effects. Native warnings and
 #' errors remain visible; failures are recorded. No count preprocessing or voom.
-#' @param fit Native fit or inferential view (never display percentiles).
-#' @param metadata Explicit sample and biological unit metadata.
-#' @param formula One-sided response design formula.
-#' @param engine lm, limma or dream, chosen explicitly. With few factors limma
+#' @param fit Native fit or a view from [standardize_factors()] (never display percentiles).
+#' @param metadata Data frame with one row per sample, including the design
+#'   columns, the sample ID and the biological unit.
+#' @param formula One-sided design formula over `metadata` columns, e.g. `~ group + age`.
+#' @param engine `"lm"` (stats), `"limma"` or `"dream"` (variancePartition),
+#'   chosen explicitly; the last two need their packages installed. With few factors limma
 #'   and dream moderation reproduce lm (identical SE, df and p at K = 2);
 #'   empirical Bayes moderation needs K in the tens to borrow strength.
-#' @param id_col Sample ID column.
-#' @param unit_col Required independent biological unit column.
-#' @param independence Required independent or repeated design declaration.
-#' @param factors Optional unique response factors.
-#' @param contrasts Named term by contrast matrix; omitted terms have zero weight.
-#' @param include_intercept Include intercept tests when no contrasts supplied.
-#' @param na_action fail or explicit joint omit.
-#' @param adjust stats::p.adjust method.
-#' @param adjust_scope all_tests or by_term.
-#' @param control Engine settings: lm joint_coefficient_covariance, limma/dream ebayes,
-#'   and dream native settings (dropped-method changes are forbidden).
-#' @param keep_models Retain native fits for diagnostics.
-#' @return table, models, design, contrasts, diagnostics, coefficient_covariance
-#'   where available, and analysis_metadata identifying conditional inference.
+#' @param id_col Name of the sample ID column (default `"sample"`).
+#' @param unit_col Name of the biological unit column, e.g. `"donor"`. Required.
+#' @param independence `"independent"` (one sample per unit) or `"repeated"`
+#'   (several samples per unit; needs `engine = "dream"` with the unit as a
+#'   random effect). Required.
+#' @param factors Optional character factor IDs to test. Default all.
+#' @param contrasts Optional numeric matrix, rows named by design terms and
+#'   columns by contrast; omitted terms have zero weight.
+#' @param include_intercept Also test the intercept when no contrasts are
+#'   supplied (default `FALSE`).
+#' @param na_action `"fail"` (default) or `"omit"` rows with NA jointly.
+#' @param adjust Multiple-testing method name for [stats::p.adjust()] (default `"BH"`).
+#' @param adjust_scope `"all_tests"` (default) or `"by_term"`.
+#' @param control Optional named list of engine settings: lm `joint_coefficient_covariance`,
+#'   limma/dream `ebayes`, and dream native settings (dropped-method changes are forbidden).
+#' @param keep_models Retain native model fits for diagnostics (default `FALSE`).
+#' @return List with `$table` (one row per factor and term: `estimate`,
+#'   `std.error`, `statistic`, `df`, `p.value`, `adj.p.value`), `$models`, `$design`, `$contrasts`, `$diagnostics`,
+#'   `$coefficient_covariance` where available, and `$analysis_metadata`
+#'   identifying conditional inference.
+#' @seealso [backproject_contrast()] to express a term in feature units
 #' @export
 #' @author Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

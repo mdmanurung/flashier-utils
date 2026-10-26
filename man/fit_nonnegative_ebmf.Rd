@@ -17,15 +17,17 @@ fit_nonnegative_ebmf(
 \arguments{
 \item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
 
-\item{sample_side}{Required rows or columns identifying samples.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
-\item{max_factors}{Nonnegative upper bound on native greedy rank.}
+\item{max_factors}{Upper bound on the number of greedily added factors
+(default 50). The fit can stop earlier.}
 
 \item{initialization}{Only native_greedy is supported.}
 
-\item{seed}{Optional scoped seed.}
+\item{seed}{Optional integer; the caller's RNG state is restored afterwards.}
 
-\item{control}{Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.}
+\item{control}{Optional named list of advanced native settings: \code{S_dim},
+\code{greedy}, \code{backfit}, \code{nullcheck} lists.}
 
 \item{...}{Other explicit fit_ebmf arguments, excluding ebnm_fn.}
 }
@@ -39,9 +41,9 @@ be negative: the constraint concerns latent factors, not observations.
 }
 \details{
 Origin: ADAPTED / call_only.
-  Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -59,6 +61,6 @@ factor_activity(nonnegative)
 }
 \author{
 Peter Carbonetto; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

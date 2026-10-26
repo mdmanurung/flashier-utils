@@ -17,9 +17,10 @@ fit_gbcd_programs(
 )
 }
 \arguments{
-\item{X}{Named finite numeric matrix or double sparse Matrix.}
+\item{X}{Named finite numeric matrix or double sparse Matrix of normalized
+natural-log expression.}
 
-\item{sample_side}{Required sample axis: rows or columns.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds cells. Required.}
 
 \item{kmax}{Integer at least two; upstream initialization rank parameter.
 Final rank can exceed kmax; this wrapper imposes no claimed final-rank bound.}
@@ -30,34 +31,39 @@ natural-log expression, including log1p when declared in preprocessing.}
 \item{preprocessing}{List with nonempty character scope and description,
 and \code{log_base = "e"}.}
 
-\item{prior}{Recognized nonnegative ebnm prior, or a custom function carrying
+\item{prior}{Nonnegative \verb{ebnm::ebnm_*} prior for memberships (default
+generalized binary), or a custom function carrying
 \code{attr(prior, "support") = "nonnegative"} as an explicit caller declaration.}
 
 \item{dense_budget_bytes}{Positive workspace preflight budget; default 2 GiB.
 This estimates workspaces; it does not bound actual peak memory.}
 
-\item{keep_native}{Retain the upstream output for inspection.}
+\item{keep_native}{Retain the upstream output for inspection (default \code{FALSE}).}
 
 \item{...}{Native maxiter1, maxiter2, maxiter3, control and verbose arguments.}
 }
 \value{
-A gbcd_program_result with representation, signatures, diagnostics,
-  optional native output and analysis_metadata. Pass the representation to
-  factor extraction, feature ranking, summaries and plotting functions.
+A \code{gbcd_program_result} with \verb{$representation} (a view with factors
+\code{GEP1}, \code{GEP2}, ...), \verb{$signatures} (per gene and program: effect,
+log2_fc, z_score, lfsr), \verb{$diagnostics}, optional \verb{$native} output and
+\verb{$analysis_metadata}. Pass the representation to \code{\link[=factor_features]{factor_features()}},
+\code{\link[=summarize_factor_activity]{summarize_factor_activity()}} and the plot functions.
 }
 \description{
-Delegates fitting to the optional, pinned gbcd engine. No normalization runs.
+Fit gene expression programs (GEPs) with the GBCD method and return them as
+a view plus per-gene signature statistics. Needs the optional \code{gbcd} package
+at the pinned commit. Delegates fitting to that engine. No normalization runs.
 }
 \details{
 Effects reconstruct the natural-log input scale. Baseline is retained
-  as a varying factor, with zero offset. All activity supports remain unknown:
-  upstream output labels do not establish prior lineage after sorting.
-  Signature effect/log2_fc are EB-SNMF point estimates. z_score and lfsr come
-  from a separate conditional linear-regression/ashr stage. Unavailable
-  conditional statistics remain NA. Native FLASH PVE and posterior uncertainty
-  are unavailable. Automatic refitting/projection priors cannot be inferred.
-  Install \code{stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd}.
-  A different or unknown installed source pin is refused before fitting.
+as a varying factor, with zero offset. All activity supports remain unknown:
+upstream output labels do not establish prior lineage after sorting.
+Signature effect/log2_fc are EB-SNMF point estimates. z_score and lfsr come
+from a separate conditional linear-regression/ashr stage. Unavailable
+conditional statistics remain NA. Native FLASH PVE and posterior uncertainty
+are unavailable. Automatic refitting/projection priors cannot be inferred.
+Install \code{stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd}.
+A different or unknown installed source pin is refused before fitting.
 }
 \examples{
 \dontrun{
@@ -71,7 +77,10 @@ programs$signatures
 \references{
 \url{https://github.com/stephenslab/gbcd}
 }
+\seealso{
+\code{\link[=fit_ebmf]{fit_ebmf()}}, \code{\link[=filter_cells_by_total_membership]{filter_cells_by_total_membership()}}
+}
 \author{
 Mikhael Manurung (adapter). GBCD: Yusha Liu, Peter Carbonetto,
-  Jason Willwerscheid and Matthew Stephens. No engine source is copied.
+Jason Willwerscheid and Matthew Stephens. No engine source is copied.
 }

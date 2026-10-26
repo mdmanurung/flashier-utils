@@ -19,7 +19,7 @@ Compare two existing descriptive factor contrasts
 }
 \details{
 Marker-positive minus marker-negative contrasts can be compared
-  within different lineages. Each result must retain the same source basis.
+within different lineages. Each result must retain the same source basis.
 }
 \author{
 Mikhael Manurung; conceptual ImmGen-T Figure 7 workflow.

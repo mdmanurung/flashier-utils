@@ -21,38 +21,52 @@ factor_holdout(
 )
 }
 \arguments{
-\item{X}{Named numerical input in explicitly declared native sample orientation.}
+\item{X}{Named numeric matrix; \code{control$sample_side} says which side holds samples.}
 
-\item{metadata}{Sample and donor metadata.}
+\item{metadata}{Data frame with one row per sample, a \code{sample} column and the unit column.}
 
-\item{unit_col}{Required biological unit column.}
+\item{unit_col}{Name of the biological unit column, e.g. \code{"donor"}. Required.}
 
-\item{folds}{Data frame with sample or unit IDs and fold labels; donors cannot cross folds.}
+\item{folds}{Data frame with a \code{fold} column and either a \code{sample} or a unit
+ID column; all samples of a unit must share a fold.}
 
-\item{fit_fn}{Required native fitting callback following the shared plan contract.}
+\item{fit_fn}{Callback \verb{function(X, metadata, sample_side, seed, settings, observation_aux)} that fits the training data and returns a native fit
+from \code{\link[=fit_ebmf]{fit_ebmf()}} or a view. Required.}
 
-\item{seed}{Required master seed.}
+\item{seed}{Integer master seed. Required.}
 
-\item{preprocess_fn}{NULL or list(fit,transform); fit returns X,metadata,manifest,state,
-transform(X,metadata,state,seed,settings) returns transformed X and metadata.}
+\item{preprocess_fn}{\code{NULL} (default) or \code{list(fit, transform)}: \code{fit(X, metadata, ...)} returns \code{X}, \code{metadata}, \code{manifest}, \code{state} from training
+data; \code{transform(X, metadata, state, seed, settings)} applies that frozen
+state to test data.}
 
-\item{evaluation}{projection or masked.}
+\item{evaluation}{\code{"projection"} (default; score the entries used to
+estimate test activities) or \code{"masked"} (estimate activities from some
+features, score disjoint withheld entries).}
 
-\item{activity_features, scoring_features}{Optional disjoint named feature sets for masked mode.}
+\item{activity_features, scoring_features}{For \code{"masked"}: disjoint character
+feature sets used to estimate activities and to score prediction.}
 
-\item{mask}{Optional named logical matrix; TRUE entries are withheld for scoring.}
+\item{mask}{For \code{"masked"}: optional named logical matrix; \code{TRUE} entries are withheld for scoring.}
 
-\item{checkpoint_dir}{Fold checkpoints require explicit callback_configuration.}
+\item{checkpoint_dir}{Optional directory for fold checkpoints; needs \code{control$callback_configuration}.}
 
-\item{control}{sample_side (required), settings, observation_aux, preprocessing_manifest (required without callbacks),
-projection_ebnm_fn, maxiter, dense_budget_bytes, cohort_col, evaluated_folds,
-callback_configuration, keep_predictions, keep_fits, prior_policy ("query" or
-"fixed_reference"; see project_factor_activity()).}
+\item{control}{Named list. Required: \code{sample_side} (\code{"rows"} or \code{"columns"})
+and \code{preprocessing_manifest} (e.g. \code{list(scope = "identity")}) when no
+\code{preprocess_fn}. Optional: \code{settings} and \code{observation_aux} passed to
+\code{fit_fn}, \code{projection_ebnm_fn}, \code{maxiter}, \code{dense_budget_bytes},
+\code{cohort_col}, \code{evaluated_folds}, \code{callback_configuration},
+\code{keep_predictions}, \code{keep_fits}, \code{prior_policy} (\code{"query"} or
+\code{"fixed_reference"}; see \code{\link[=project_factor_activity]{project_factor_activity()}}).}
 }
 \value{
-holdout_result with metrics, folds, failures, activities and information boundaries.
+A \code{holdout_result} with \verb{$metrics} (per fold, model and weighting:
+rmse, mae, prediction_r2 for the fit and the baseline), \verb{$folds},
+\verb{$failures}, \verb{$activities} and information boundaries.
 }
 \description{
+Cross-validate by biological unit: fit on training units through your
+callback, project the fitted programs onto held-out units, and score
+prediction of withheld entries against a training-mean baseline.
 Projection scores use observations seen during activity estimation. Masked
 scores use disjoint entries/features and never enter activity/noise fitting.
 Learned hyperparameters may recalibrate on permitted test observations;
@@ -65,9 +79,9 @@ conditional and cannot establish independent full-pipeline validation.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-  Credits flash_init; flash_factors_init; flash_factors_fix; flash_backfit; use provenance("factor_holdout")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits flash_init; flash_factors_init; flash_factors_fix; flash_backfit; use provenance("factor_holdout")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -89,7 +103,10 @@ control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity")
 factor_holdout(X, metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback,evaluation="masked",seed=4,
   activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
 }
+\seealso{
+\code{\link[=project_factor_activity]{project_factor_activity()}}, \code{\link[=factor_stability]{factor_stability()}}
+}
 \author{
 Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

@@ -65,28 +65,43 @@
 
 #' Fit a named matrix using native empirical Bayes factorization
 #'
-#' Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
+#' Fit flashier through one call that also records sample orientation, units
+#' and the independent unit, so later functions need no repeated declarations.
+#' Calling `flashier::flash()` yourself and then [standardize_factors()] is
+#' equally valid. Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
 #' list are in native row/column order, independent of sample_side. A supplied
 #' seed restores the caller's RNG state; NULL consumes it. No preprocessing.
 #' @param X Named numeric matrix or double sparse Matrix; NA is observed missingness.
-#' @param sample_side Required rows or columns identifying samples.
-#' @param ebnm_fn Native EBNM function or native row/column list.
-#' @param S Native observation standard errors.
-#' @param var_type Native residual variance setting.
-#' @param max_factors Nonnegative upper bound on native greedy rank.
-#' @param backfit Run native backfit.
-#' @param nullcheck Run native null check.
-#' @param id_policy require IDs, or explicitly generate them.
-#' @param feature_scale Meaning and units of the supplied matrix.
-#' @param independent_unit Biological unit description; recorded, not inferred.
-#' @param seed Optional scoped seed.
-#' @param verbose Native verbosity.
-#' @param control Named pipeline settings: S_dim, greedy, backfit, nullcheck lists.
+#' @param sample_side `"rows"` or `"columns"`: which side holds samples. Required.
+#' @param ebnm_fn Prior family: one `ebnm::ebnm_*` function for both sides, or a
+#'   list of two in native row/column order (not sample/feature order). Default
+#'   `ebnm::ebnm_point_normal`. Use `ebnm_point_exponential` for nonnegative sides.
+#' @param S Optional known observation standard errors (scalar, vector or
+#'   matrix). `NULL` (default) estimates noise from the data.
+#' @param var_type Residual variance structure passed to flashier: `0L`
+#'   (default) one constant, `1L` per row, `2L` per column, `c(1L, 2L)` both,
+#'   `NULL` none when `S` is supplied.
+#' @param max_factors Upper bound on the number of greedily added factors
+#'   (default 50). The fit can stop earlier.
+#' @param backfit Run the native backfit after greedy addition (default `FALSE`).
+#' @param nullcheck Drop factors that do not improve the objective (default `TRUE`).
+#' @param id_policy `"require"` (default) stops on missing dimnames;
+#'   `"generate"` creates them.
+#' @param feature_scale Free-text label for what the matrix values measure,
+#'   e.g. `"log1p_normalized_counts"`. Default `"unknown"`. Recorded, never applied.
+#' @param independent_unit Optional free-text description of the biological
+#'   replicate, e.g. `"donor"`; recorded, not inferred.
+#' @param seed Optional integer; the caller's RNG state is restored afterwards.
+#' @param verbose Native flashier verbosity; `0` is silent.
+#' @param control Optional named list of advanced native settings: `S_dim`,
+#'   `greedy`, `backfit`, `nullcheck` lists.
 #' @param intercept none (default) or feature. A feature intercept has fixed
 #'   sample-side ones and a signed native point-normal feature offset. It is
 #'   excluded from semantic factor IDs; max_factors counts adaptive factors.
-#' @return A native flash object with flashbridge_metadata attribute. Sparse input
+#' @return A native flash object with a `flashbridge_metadata` attribute that
+#'   records the declarations. Pass it to [standardize_factors()]. Sparse input
 #'   with explicit S is unsupported by the audited native engine and refused.
+#' @seealso [standardize_factors()], [factor_pve()]
 #' @importClassesFrom Matrix sparseMatrix dMatrix
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.

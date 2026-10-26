@@ -82,18 +82,27 @@
 
 #' Compare independently fitted feature programs
 #'
-#' Tucker congruence on named shared features, with native rectangular assignment
+#' Match factors between two fits by the similarity of their feature effects
+#' and report which pairs correspond. Needs the optional `psych` and `clue`
+#' packages. Tucker congruence on named shared features, with native rectangular assignment
 #' and dummy unmatched nodes. Without a threshold all matches are candidates.
 #' Correspondence does not establish measurement invariance or activity units.
 #' Alignment is Tucker congruence only. For resampling uncertainty use
 #' [factor_stability()].
-#' @param reference,target Native fits with recorded side, or matched views.
-#' @param feature_map Optional one-to-one reference-to-target feature mapping.
-#' @param min_congruence Optional strict acceptance threshold: similarity must
-#'   exceed it, and equality is unmatched. NULL yields candidate-only.
-#' @param min_shared_features Computational minimum overlap (not scientific sufficiency).
-#' @param allow_sign_flip Optional declaration; signed support on both sides required.
-#' @return A replicability_result containing matches, full similarities and coverage metadata.
+#' @param reference,target Two native fits with recorded sample side, or two views.
+#' @param feature_map Optional character vector mapping reference feature names
+#'   (names) to target feature names (values), one to one, when the names differ.
+#' @param min_congruence Optional Tucker congruence in (0, 1) a pair must exceed
+#'   to count as matched; equality is unmatched. `NULL` (default) returns all
+#'   candidate pairs.
+#' @param min_shared_features Minimum shared features needed to compute
+#'   similarity (default 2); a computational floor, not scientific sufficiency.
+#' @param allow_sign_flip `TRUE` lets a factor match with reversed sign; needs
+#'   signed support declared on both sides. `FALSE` forbids flips. `NULL`
+#'   (default) allows them exactly when both sides declare signed support.
+#' @return A `replicability_result` with `$matches` (reference factor, target
+#'   factor, similarity), `$similarity_matrix` (all pairs) and coverage metadata.
+#' @seealso [factor_stability()] for resampling
 #' @export
 #' @author Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

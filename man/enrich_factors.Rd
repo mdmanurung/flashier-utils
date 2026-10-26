@@ -45,17 +45,17 @@ is unsupported until its missing backend and audit gate are resolved.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits perform_gsea; later fgsea/decoupleR adapters; use provenance("enrich_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
-  Network scores annotate estimated feature weights, not sample activities.
-  Their sign depends on factor orientation and native p-values do not account
-  for uncertainty in the EBMF fit. Network targets absent from the feature
-  universe are excluded; the full mapped feature universe is retained in mat.
-  By default center=FALSE: centering across factors changes the annotation
-  signal and makes scores depend on the selected factors.
-  Point-mass priors give many effects of exactly zero; fgsea ranks these ties
-  arbitrarily, and its native tie warning is retained.
+Credits perform_gsea; later fgsea/decoupleR adapters; use provenance("enrich_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
+Network scores annotate estimated feature weights, not sample activities.
+Their sign depends on factor orientation and native p-values do not account
+for uncertainty in the EBMF fit. Network targets absent from the feature
+universe are excluded; the full mapped feature universe is retained in mat.
+By default center=FALSE: centering across factors changes the annotation
+signal and makes scores depend on the selected factors.
+Point-mass priors give many effects of exactly zero; fgsea ranks these ties
+arbitrarily, and its native tie warning is retained.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -74,6 +74,6 @@ enrich_factors(view,pathways,"fgsea",factors="F1",
 }
 \author{
 Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

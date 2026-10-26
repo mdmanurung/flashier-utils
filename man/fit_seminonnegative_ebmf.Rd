@@ -16,7 +16,7 @@ fit_seminonnegative_ebmf(
 \arguments{
 \item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
 
-\item{sample_side}{Required rows or columns identifying samples.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
 \item{activity_prior}{Recognized nonnegative native EBNM prior.}
 
@@ -37,7 +37,7 @@ Observations may be negative. No centering or sign flipping is performed.
 }
 \details{
 Origin: WRAPPER / call_only. No upstream implementation source copied.
-  Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
+Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -53,6 +53,6 @@ factor_activity(fit)
 }
 \author{
 Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
-  Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
+Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
 }
 \keyword{internal}

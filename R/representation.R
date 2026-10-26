@@ -153,30 +153,47 @@
 
 #' Create matched activity and feature coordinates
 #'
-#' Uses public flashier LDF normalization, placing D on exactly one side.
+#' Turn a native flashier fit into a view: a samples by factors `activity`
+#' matrix and a features by factors `effects` matrix that share factor columns,
+#' plus an `offset` and a `manifest` recording your declarations. Most other
+#' functions take this view. Uses public flashier LDF normalization, placing D on exactly one side.
 #' Raw and LDF views reconstruct the same posterior mean. Anchor orientation
 #' requires declared signed support on both sides. No model is refitted.
 #' A projected fit retains its declared external offset on measured native axes.
 #' Intercept, initialized and projected views carry versioned per-factor support
 #' and roles. Ordinary legacy views retain their manifests; homogeneous support
 #' is derived from their global constraints without changing the basis hash.
-#' @param fit A native flashier fit.
-#' @param sample_side Explicit rows or columns for bare native fits.
-#' @param scaling Raw, ldf, or rms coordinates. \code{rms} rescales each
+#' @param fit A native flashier fit with named rows and columns.
+#' @param sample_side `"rows"` or `"columns"`: which side of the fitted matrix
+#'   holds samples. Required for a bare native fit; fits from [fit_ebmf()]
+#'   already record it.
+#' @param scaling `"ldf"` (default), `"raw"` or `"rms"`. `ldf` gives unit-norm
+#'   factors with the scale on the `d_location` side; `raw` keeps flashier's
+#'   own coordinates. \code{rms} rescales each
 #'   activity column to unit root-mean-square and compensates on the effects
 #'   side, preserving the reconstruction exactly; it is a coordinate change
 #'   (factor units), not a change to the fitted model or its uncertainty.
-#' @param type Native LDF norm: f, o, i (2, 1, m aliases).
-#' @param d_location Absorb native D into effects or activity.
-#' @param orientation as_fit or anchor_feature.
-#' @param prior_support Named activity/effects support: signed, nonnegative, unknown.
-#' @param feature_scale Optional explicit measurement units for a bare fit or an
-#'   unspecified recorded scale; cannot replace known recorded units.
+#' @param type Native LDF norm used when `scaling = "ldf"`: `"f"` (default,
+#'   2-norm), `"o"` (1-norm) or `"i"` (max norm); `2`, `1`, `m` are aliases.
+#' @param d_location `"effects"` (default) or `"activity"`: which side absorbs
+#'   the native scale D under LDF scaling.
+#' @param orientation `"as_fit"` (default) keeps native signs;
+#'   `"anchor_feature"` flips each factor so its largest effect is positive,
+#'   which needs declared signed support on both sides.
+#' @param prior_support Optional named character vector, e.g.
+#'   `c(activity = "nonnegative", effects = "signed")`; values are `"signed"`,
+#'   `"nonnegative"` or `"unknown"`. Required by functions that test signs.
+#' @param feature_scale Free-text label for what the matrix values measure,
+#'   e.g. `"log1p_normalized_counts"`. Recorded, never applied. Optional for a
+#'   bare fit or an unspecified recorded scale; cannot replace known recorded units.
 #' @param preprocessing Optional named preprocessing declaration for a bare fit;
 #'   cannot replace an existing nonempty declaration.
 #' @param independent_unit Optional independent-unit declaration for a bare fit;
 #'   cannot replace an existing declaration.
-#' @return A serializable factor_representation with basis manifest.
+#' @return A `factor_representation` list with `$activity` (samples by
+#'   factors), `$effects` (features by factors), `$offset` (per feature) and
+#'   `$manifest` (declarations, scaling and a `basis_id` hash). Serializable.
+#' @seealso [factor_activity()], [factor_effects()], [factor_features()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

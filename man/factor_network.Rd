@@ -34,6 +34,6 @@ Build a signed bipartite program network
 }
 \author{
 Mikhael Manurung. Conceptual workflow: ImmGen-T GP analysis
-  (Ziang Zhang / AgueroZZ repository; per-script authors unresolved).
+(Ziang Zhang / AgueroZZ repository; per-script authors unresolved).
 }
 \keyword{internal}

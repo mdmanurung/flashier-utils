@@ -17,33 +17,39 @@ summarize_factor_activity(
 )
 }
 \arguments{
-\item{fit}{Native fit or view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{metadata}{Explicit sample metadata.}
+\item{metadata}{Data frame with one row per sample; sample IDs in \code{id_col}.}
 
-\item{by}{One or more grouping columns.}
+\item{by}{Name of one or more \code{metadata} columns to group by.}
 
-\item{id_col}{Sample ID column.}
+\item{id_col}{Name of the sample ID column (default \code{"sample"}).}
 
-\item{unit_col}{Optional independent-unit ID for counts.}
+\item{unit_col}{Optional name of the independent-unit column, e.g. donor;
+adds an \code{n_units} count.}
 
-\item{weights}{Optional nonnegative named sample weights.}
+\item{weights}{Optional nonnegative numeric vector named by sample ID.}
 
-\item{na_action}{fail or explicit omit with recorded exclusions.}
+\item{na_action}{\code{"fail"} (default) or \code{"omit"}; omitted rows are recorded in
+\code{exclusions}.}
 
 \item{activity_threshold}{Optional single nonnegative finite threshold on the
 resolved representation coordinates; no display scaling is performed.}
 
-\item{activity_direction}{positive, negative or absolute coordinate side
-compared against the threshold with a strict > operator.}
+\item{activity_direction}{\code{"positive"} (default), \code{"negative"} or
+\code{"absolute"}: which side of the coordinates is compared against the
+threshold with a strict > operator.}
 }
 \value{
-Group/factor/n/n_units/mean/sd/median/q25/q75 table, plus active_n,
-  active_proportion and (with weights) active_weighted_proportion when a
-  threshold is supplied; no p-values.
+Table with columns \code{group} (one per \code{by} column), \code{factor}, \code{n},
+\code{n_units}, \code{mean}, \code{sd}, \code{median}, \code{q25}, \code{q75}, plus \code{active_n},
+\code{active_proportion} and (with weights) \code{active_weighted_proportion} when a
+threshold is supplied; no p-values.
 }
 \description{
-Per-observation weighting is the default; cells are not donor-balanced.
+Mean, SD and quantiles of each factor's activity within each metadata group,
+with sample and unit counts. Descriptive only; use \code{\link[=test_factors]{test_factors()}} for
+inference. Per-observation weighting is the default; cells are not donor-balanced.
 With weights, only means are supported: SD and quantiles are NA and labelled
 unavailable. Descriptive SD never estimates uncertainty of the group mean.
 Group identity uses metadata tuples, so punctuation cannot merge groups.
@@ -56,9 +62,9 @@ active_n and active_proportion remain raw observation summaries.
 }
 \details{
 Origin: NEW_QOL / none.
-  Credits metadata grouping workflow; use provenance("summarize_factor_activity")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits metadata grouping workflow; use provenance("summarize_factor_activity")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -74,7 +80,10 @@ metadata <- data.frame(sample=rownames(X),donor=rownames(X),
 summarize_factor_activity(view,metadata,"group",unit_col="donor")
 summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
 }
+\seealso{
+\code{\link[=compare_factor_groups]{compare_factor_groups()}}, \code{\link[=test_factors]{test_factors()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
+}
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

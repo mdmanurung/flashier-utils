@@ -9,8 +9,11 @@ vignette: >
 
 Do different feature priors change prediction or the programs recovered? This
 small simulation has known rank-two signal, sparse signed effects, and repeated
-samples from simulated donors. It illustrates a workflow, not a calibrated
-benchmark or a recommendation of one prior.
+samples from simulated donors. It fits a normal and a sparse (point-Laplace)
+effects prior, then compares the two fits three ways: reconstruction against
+known truth, held-out prediction by donor, and program agreement. It illustrates
+a workflow, not a calibrated benchmark or a recommendation of one prior.
+[Get started](first-fit.html) defines view, activity and effects.
 
 ```{r data}
 library(flashier.utils)
@@ -39,6 +42,8 @@ views <- lapply(fits, standardize_factors, sample_side = "rows", scaling = "raw"
 
 ## Reconstruction and known signal
 
+Both fits are scored on the training matrix and on the noise-free signal.
+
 ```{r reconstruction}
 predictions <- lapply(views, function(v)
   sweep(tcrossprod(v$activity, v$effects), 2, v$offset, "+"))
@@ -62,6 +67,11 @@ Native ELBO is not automatically comparable across different prior/noise/objecti
 settings; maximum ELBO over starts is a different question.
 
 ## Identical held-out information
+
+`factor_holdout()` splits donors into folds, refits on training donors, and
+scores withheld entries. In masked mode held-out activities are estimated from
+`activity_features` only, and prediction is scored on the disjoint
+`scoring_features`.
 
 ```{r holdout}
 folds <- data.frame(donor = paste0("d", 1:20), fold = rep(1:2, each = 10))
@@ -89,6 +99,9 @@ projection can recalibrate activity priors/noise on permitted query observations
 this is not a fully frozen hyperparameter prediction experiment.
 
 ## Program agreement and ambiguity
+
+`factor_replicability()` matches factors across the two fits by Tucker
+congruence (cosine similarity of effect vectors) with one-to-one assignment.
 
 ```{r alignment}
 alignment <- factor_replicability(views$normal, views$sparse, min_congruence = .8)

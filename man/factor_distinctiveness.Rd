@@ -14,13 +14,14 @@ factor_distinctiveness(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 
 \item{engine}{singlecelljamboreeR selects the audited local implementation.}
 
-\item{direction}{absolute, positive or negative.}
+\item{direction}{\code{"absolute"} (default), \code{"positive"} or \code{"negative"}: which
+effects are eligible.}
 
 \item{format}{long or matrix.}
 
@@ -36,9 +37,9 @@ Distinctiveness depends on the recorded common scale and orientation.
 }
 \details{
 Origin: ADAPTED / modified.
-  Credits compute_le_effects; use provenance("factor_distinctiveness")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits compute_le_effects; use provenance("factor_distinctiveness")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -55,6 +56,6 @@ head(factor_distinctiveness(view))
 }
 \author{
 Peter Carbonetto; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

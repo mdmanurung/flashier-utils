@@ -17,37 +17,45 @@ validate_backprojection(
 )
 }
 \arguments{
-\item{reconstructed}{Backprojection result or feature table.}
+\item{reconstructed}{A \code{\link[=backproject_contrast]{backproject_contrast()}} result, or its \verb{$effects} table.}
 
-\item{observed}{Direct feature-effect table.}
+\item{observed}{Data frame of directly estimated feature effects with the
+columns named in \code{id_col} and \code{estimate_col}.}
 
-\item{feature_scale}{Explicit common non-unknown feature scale.}
+\item{feature_scale}{Free-text units shared by both tables; must not be
+\code{"unknown"}. Required.}
 
-\item{contrast}{Optional single contrast label.}
+\item{contrast}{Optional single contrast label to select from \code{reconstructed}.}
 
-\item{id_col}{Feature ID column.}
+\item{id_col}{Name of the feature ID column in both tables (default \code{"feature"}).}
 
-\item{estimate_col}{Numerical effect column.}
+\item{estimate_col}{Name of the numeric effect column (default \code{"estimate"}).}
 
-\item{top_n}{Positive requested overlap sizes.}
+\item{top_n}{Integer vector of top-feature overlap sizes to report (default 20, 50, 100).}
 
-\item{zero_tolerance}{Nonnegative sign eligibility threshold.}
+\item{zero_tolerance}{Effects within this absolute value count as zero for
+sign agreement (default 0).}
 
-\item{plot}{Include scatter plot.}
+\item{plot}{Include a scatter plot (default \code{TRUE}).}
 }
 \value{
-Metrics, matched_features, residuals, plot, exclusions, analysis_metadata.
+List with \verb{$metrics} (pearson_correlation, prediction_r2,
+correlation_squared, slope, intercept, sign_concordance), \verb{$top_n_overlap},
+\verb{$matched_features}, \verb{$residuals}, \verb{$plot},
+\verb{$exclusions} and \verb{$analysis_metadata}.
 }
 \description{
+Check a \code{\link[=backproject_contrast]{backproject_contrast()}} result against the same contrast estimated
+directly per feature, e.g. a differential expression table.
 Both estimates must use the same contrast, covariates, weighting and declared
 units. Prediction R squared is distinct from squared correlation and can be
 negative. Regression slope and top-feature overlap are descriptive.
 }
 \details{
 Origin: NEW_ORCHESTRATION / none.
-  Credits new reconstruction diagnostics; no exact upstream function claimed; use provenance("validate_backprojection")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits new reconstruction diagnostics; no exact upstream function claimed; use provenance("validate_backprojection")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -66,5 +74,5 @@ validate_backprojection(result, observed = observed,feature_scale="simulated_cen
 }
 \author{
 Mikhael Manurung.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

@@ -13,15 +13,16 @@ rank_features(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{factors}{Optional unique factor IDs.}
+\item{factors}{Optional character factor IDs. Default all.}
 
-\item{direction}{absolute, positive or negative.}
+\item{direction}{\code{"absolute"} (default), \code{"positive"} or \code{"negative"}: which
+effects are eligible.}
 
 \item{ties}{Only native average ties are supported.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 }
 \value{
 feature/factor/estimate/rank/direction/basis_id table.
@@ -33,9 +34,9 @@ filters sign explicitly. No probability or significance is implied.
 }
 \details{
 Origin: ADAPTED / modified.
-  Credits rank_effects; use provenance("rank_features")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits rank_effects; use provenance("rank_features")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -52,6 +53,6 @@ head(rank_features(view,factors="F1",direction="absolute"))
 }
 \author{
 Peter Carbonetto; Matthew Stephens.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

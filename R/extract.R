@@ -25,16 +25,23 @@
 }
 
 #' Extract sample by factor activity
-#' @param fit Native flash fit or matched representation.
-#' @param sample_side Explicit native sample side if not recorded.
-#' @param representation Matched view or named standardization settings;
+#'
+#' Get the samples by factors activity matrix, optionally for a subset of
+#' factors or samples and as a long table.
+#' @param fit Native flash fit or a view from [standardize_factors()].
+#' @param sample_side `"rows"` or `"columns"`; needed only for a bare native fit.
+#' @param representation For a native fit: a matched view or a named list of
+#'   [standardize_factors()] settings;
 #'   a bare native fit defaults to `scaling = "ldf"`, so values differ
 #'   from `fit$L_pm`/`fit$F_pm`; pass `representation = list(scaling = "raw")`
 #'   for native coordinates.
-#' @param factors Optional unique factor IDs in requested order.
-#' @param samples Optional unique sample IDs in requested order.
-#' @param format matrix or long; selection precedes reshaping.
-#' @return Matrix or sample/factor/estimate table carrying basis metadata.
+#' @param factors Optional character factor IDs, e.g. `c("F2", "F1")`, in the
+#'   order wanted. Default all.
+#' @param samples Optional character sample IDs in the order wanted. Default all.
+#' @param format `"matrix"` (default) or `"long"` (sample/factor/estimate rows).
+#' @return Samples by factors matrix, or a long table with columns `sample`,
+#'   `factor`, `estimate`; both carry basis metadata attributes.
+#' @seealso [factor_effects()], [plot_factor_activity()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -58,9 +65,14 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 }
 
 #' Extract feature by factor effects
+#'
+#' Get the features by factors effects matrix, optionally for a subset of
+#' factors or features and as a long table.
 #' @inheritParams factor_activity
-#' @param features Optional unique feature IDs in requested order.
-#' @return Matrix or feature/factor/estimate table carrying basis metadata.
+#' @param features Optional character feature IDs in the order wanted. Default all.
+#' @return Features by factors matrix, or a long table with columns `feature`,
+#'   `factor`, `estimate`; both carry basis metadata attributes.
+#' @seealso [factor_activity()], [factor_features()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -85,6 +97,8 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 
 #' Extract native posterior standard deviations in a matched basis
 #'
+#' Get the posterior standard deviation of each activity or effect estimate,
+#' expressed in the coordinates of the view you pass. Needs the native fit.
 #' Native variational uncertainty is conditional on estimated priors. Posterior
 #' SD is not a downstream regression standard error. Missing moments are NA.
 #' Mean-field variational SDs are typically underdispersed. A bare native fit
@@ -92,11 +106,16 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #' Unmeasured reference features have status unavailable and reason
 #' not_in_native_fit; uncertainty is never borrowed from the source fit.
 #' @inheritParams factor_activity
-#' @param side activity or effects.
-#' @param ids Optional sample or feature IDs.
-#' @param include_lfsr Include native posterior false sign summaries if available.
-#' @param require_uncertainty Error when moments are unavailable.
-#' @return Table with estimate, posterior.sd, uncertainty_type and basis_id.
+#' @param side `"activity"` (default) or `"effects"`.
+#' @param ids Optional character sample IDs (activity side) or feature IDs
+#'   (effects side). Default all.
+#' @param include_lfsr Also return the native local false sign rate when the
+#'   prior supplies it (default `TRUE`).
+#' @param require_uncertainty Stop instead of returning NA when posterior
+#'   moments are unavailable (default `FALSE`).
+#' @return Long table with `estimate`, `posterior.sd`, `uncertainty_type`,
+#'   `basis_id` and, when available, `lfsr`.
+#' @seealso [factor_intervals()] for sampled intervals
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -149,11 +168,12 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), sample_side
 
 #' Extract native factor proportions of variance explained
 #'
-#' Uses native second-moment and residual-variance semantics. This is not
+#' Get each factor's proportion of variance explained (PVE) as flashier
+#' computes it. Uses native second-moment and residual-variance semantics. This is not
 #' unique variance decomposition or held-out prediction R squared.
-#' @param fit Native flash fit or view carrying native PVE.
-#' @param factors Optional unique factor IDs in requested order.
-#' @return factor/pve/definition table.
+#' @param fit Native flash fit or a view that carries native PVE.
+#' @param factors Optional character factor IDs in the order wanted. Default all.
+#' @return Table with columns `factor`, `pve` and `definition`.
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

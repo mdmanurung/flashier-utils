@@ -14,29 +14,30 @@ plot_feature_rankings(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{factor}{One unique factor ID.
+\item{factor}{One factor ID, e.g. \code{"F1"}.
 A fit with no biological factors cannot supply a feature selection.}
 
-\item{n}{Nonnegative maximum number per selection.}
+\item{n}{Maximum number of features per selection (default 20).}
 
-\item{direction}{absolute, positive or negative.}
+\item{direction}{\code{"absolute"} (default), \code{"positive"} or \code{"negative"}: which
+effects are eligible.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 
 \item{compare_factors}{Competition pool; NULL uses all factors.}
 }
 \value{
 Scatter plot; data include original signed effects, raw differences
-  and labels from the union of top effect and top difference candidates.
+and labels from the union of top effect and top difference candidates.
 }
 \description{
 Compare feature effects with untruncated competitor differences
 }
 \details{
 Unlike least-extreme margins, differences can oppose the target
-  effect's sign. Negative direction reverses both plotting coordinates.
+effect's sign. Negative direction reverses both plotting coordinates.
 }
 \author{
 Mikhael Manurung. Conceptual credit: Peter Carbonetto's pancreas tutorial.

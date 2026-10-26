@@ -4,11 +4,12 @@
 #' Uses singlecelljamboreeR rank_effects semantics (descending, average ties).
 #' Positive/negative inputs preserve original estimates; display selection
 #' filters sign explicitly. No probability or significance is implied.
-#' @param fit Native fit or matched view.
-#' @param factors Optional unique factor IDs.
-#' @param direction absolute, positive or negative.
+#' @param fit Native fit or a view from [standardize_factors()].
+#' @param factors Optional character factor IDs. Default all.
+#' @param direction `"absolute"` (default), `"positive"` or `"negative"`: which
+#'   effects are eligible.
 #' @param ties Only native average ties are supported.
-#' @param representation Matched view or settings.
+#' @param representation For a native fit: a matched view or [standardize_factors()] settings.
 #' @return feature/factor/estimate/rank/direction/basis_id table.
 #' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens.
@@ -148,15 +149,21 @@ factor_features_global <- function(fit, factors, n = 20L, direction = c("absolut
 
 #' Select largest and distinctive program features
 #'
+#' Rank the features that drive one factor. `"largest"` orders by effect size
+#' within the factor; `"distinctive"` orders by the margin to the strongest
+#' competing factor, so shared features drop down the list.
 #' Returns two explicit ranking views when select is both. Cutoff ties are
 #' ordered by feature ID, with signed nonzero eligibility. No biological labels.
 #' @inheritParams rank_features
-#' @param factor One unique factor ID.
+#' @param factor One factor ID, e.g. `"F1"`.
 #'   A fit with no biological factors cannot supply a feature selection.
-#' @param select largest, distinctive or both.
-#' @param compare_factors Optional competition pool; NULL uses all factors.
-#' @param n Nonnegative maximum number per selection.
-#' @return Tidy descriptive table with selection and tie rule metadata.
+#' @param select `"both"` (default), `"largest"` or `"distinctive"`.
+#' @param compare_factors Optional character factor IDs that compete for
+#'   `"distinctive"`; `NULL` (default) uses all other factors.
+#' @param n Maximum number of features per selection (default 20).
+#' @return Long table with `feature`, `factor`, `estimate`, `rank`, `direction`,
+#'   `selection` and `basis_id`, plus tie-rule metadata attributes.
+#' @seealso [plot_factor_features()], [factor_effects()]
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

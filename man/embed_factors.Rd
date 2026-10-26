@@ -37,9 +37,9 @@ Embed declared factor coordinates using native uwot
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -63,6 +63,6 @@ SeuratObject::Embeddings(object[["ebmfumap"]])[1:3, , drop = FALSE]
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

@@ -42,9 +42,9 @@ not true-effect covariance. Small factor counts limit covariance learning.
 }
 \details{
 Origin: WRAPPER / call_only.
-  Credits mashr public API (implementation audit pending); use provenance("shrink_factor_effects")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits mashr public API (implementation audit pending); use provenance("shrink_factor_effects")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -66,6 +66,6 @@ shrink_factor_effects(coefficients,"condition",term="treatment",independent_cond
 }
 \author{
 Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

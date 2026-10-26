@@ -21,47 +21,52 @@ plot_factor_features(
 )
 }
 \arguments{
-\item{fit}{Native fit or matched view.}
+\item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
-\item{factors}{Unique displayed factors.}
+\item{factors}{Character factor IDs to display, e.g. \code{c("F1", "F2")}.}
 
-\item{representation}{Matched view or settings.}
+\item{representation}{For a native fit: a matched view or \code{\link[=standardize_factors]{standardize_factors()}} settings.}
 
-\item{select}{Per-factor `largest`/`distinctive`/`both` (see
-[factor_features()]) or `global` for cross-factor selection by
-`max_k(abs(effect))` over the given factors (see
-[factor_features_global()]).}
+\item{select}{Per-factor \code{largest}/\code{distinctive}/\code{both} (see
+\code{\link[=factor_features]{factor_features()}}) or \code{global} for cross-factor selection by
+\code{max_k(abs(effect))} over the given factors (see
+\code{\link[=factor_features_global]{factor_features_global()}}).}
 
-\item{n}{Nonnegative maximum number per selection.}
+\item{n}{Maximum number of features per selection (default 20).}
 
-\item{style}{heatmap or bar.}
+\item{style}{\code{"heatmap"} (default) or \code{"bar"}.}
 
-\item{compare_factors}{Optional competition pool.}
+\item{compare_factors}{Optional character factor IDs that compete for
+\code{"distinctive"}; \code{NULL} uses all other factors.}
 
-\item{features}{Explicit feature IDs instead of ranked selection.}
+\item{features}{Optional character feature IDs to show instead of a ranked
+selection.}
 
-\item{direction}{absolute, positive or negative selection.}
+\item{direction}{\code{"absolute"} (default), \code{"positive"} or \code{"negative"}.}
 
-\item{display_normalization}{none (effect units) or max_abs (display only).}
+\item{display_normalization}{\code{"none"} (default, effect units) or \code{"max_abs"}
+(scale each factor to max 1 for display only).}
 
-\item{transpose}{Flip display axes.}
+\item{transpose}{Put features on the x axis (default \code{FALSE}).}
 
-\item{annotation}{One named factor annotation vector, including correlations.}
+\item{annotation}{Optional named numeric vector, one value per factor, shown
+as a strip; e.g. correlations.}
 
-\item{...}{Optional palette (negative, zero, positive) and limits.}
+\item{...}{Optional \code{palette} (negative, zero, positive colours) and \code{limits}.}
 }
 \value{
-A ggplot with display and basis metadata attributes.
+A ggplot object with display and basis metadata attributes.
 }
 \description{
-Independent signed-safe adaptation of the ZemmourLib tile workflow. The
+Heatmap or bar chart of the top features for one or more factors, selected
+as in \code{\link[=factor_features]{factor_features()}}. Independent signed-safe adaptation of the ZemmourLib tile workflow. The
 displayed values use the declared matched representation, never positive-only.
 }
 \details{
 Origin: ADAPTED / none.
-  Credits MyGeneTilePlot workflow; native flashier optional; use provenance("plot_factor_features")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits MyGeneTilePlot workflow; native flashier optional; use provenance("plot_factor_features")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
@@ -74,7 +79,10 @@ fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
 view <- standardize_factors(fit)
 plot_factor_features(view, factors = "F1",n=3)
 }
+\seealso{
+\code{\link[=factor_features]{factor_features()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
+}
 \author{
 David Zemmour.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

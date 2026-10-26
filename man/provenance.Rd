@@ -7,29 +7,33 @@
 provenance(function_name = NULL, result = NULL, include_dependencies = TRUE)
 }
 \arguments{
-\item{function_name}{Optional recorded function names, including retained internal implementations.}
+\item{function_name}{Optional character function names, e.g.
+\code{"factor_features"}; internal implementations are included. Default all.}
 
-\item{result}{Optional result carrying analysis_metadata.}
+\item{result}{Optional result object from this package; its recorded
+\code{analysis_metadata} selects the functions.}
 
-\item{include_dependencies}{Include installed dependency versions and SHAs.}
+\item{include_dependencies}{Add installed dependency versions and commit SHAs (default \code{TRUE}).}
 }
 \value{
-A data frame of source and reuse records with runtime metadata attributes.
+Data frame with one row per function and source: origin, authors,
+source commit and license, with runtime metadata attributes.
 }
 \description{
-The source_commit column is the audited source pin. runtime_source_commit is
+Show where each function's method comes from, who wrote it and which
+package versions ran, for methods sections and citations. The source_commit column is the audited source pin. runtime_source_commit is
 read from an installed package's RemoteSha and is unknown when absent.
 }
 \details{
 Origin: NEW_QOL / none.
-  Credits new registry interface; use provenance("provenance")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits new registry interface; use provenance("provenance")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 provenance(c("standardize_factors","backproject_contrast"))
 }
 \author{
 Mikhael Manurung.
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }

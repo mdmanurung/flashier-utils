@@ -85,7 +85,9 @@
 
 #' Refitting stability under explicit biological-unit resampling
 #'
-#' Donor occurrences preserve all their visits/cells and get unique synthetic
+#' Refit the model on bootstrap or subsample draws of biological units (e.g.
+#' donors) and report how often each reference factor is recovered and how
+#' similar the recovered factors are. Donor occurrences preserve all their visits/cells and get unique synthetic
 #' IDs. Similarity quantiles summarize successful perturbations, not posterior
 #' uncertainty. No threshold gives candidate similarities without recovery rates.
 #' Automatic fitting is supported for ordinary wrapper fits and pure reorders.
@@ -93,28 +95,37 @@
 #' a reference with no biological factors is refused before resampling.
 #' Edited, projected and custom fits require an explicit fit_fn that reproduces
 #' their fitting procedure; supplying settings alone does not remove this guard.
-#' @param X Named input matrix in recorded native sample orientation.
-#' @param reference_fit Native reference fit with wrapper metadata.
-#' @param metadata Explicit sample and biological unit metadata.
-#' @param unit_col Required donor/subject column.
-#' @param B Positive replicate count.
+#' @param X The named matrix the reference fit was fitted on, same orientation.
+#' @param reference_fit Native fit from [fit_ebmf()] carrying its recorded settings.
+#' @param metadata Data frame with one row per sample, a `sample` column and
+#'   the unit column.
+#' @param unit_col Name of the biological unit column, e.g. `"donor"`. Required.
+#' @param B Number of resamples (default 100).
 #' @param scheme "bootstrap" (default) draws units with replacement; "subsample"
 #'   draws `fraction` of the units per stratum without replacement, so no
 #'   duplicated rows bias empirical Bayes prior and noise estimates.
 #' @param fraction Subsample fraction in (0, 1); required for "subsample".
-#' @param strata Optional donor-level stratification columns.
-#' @param fit_fn Callback(X, metadata, sample_side, seed, settings, observation_aux).
+#' @param strata Optional names of unit-level `metadata` columns to stratify resampling by.
+#' @param fit_fn Optional callback `function(X, metadata, sample_side, seed,
+#'   settings, observation_aux)`. `NULL` (default) replays the reference fit's
+#'   recorded [fit_ebmf()] recipe; required for edited, projected or custom fits.
 #'   Return a native flash fit with recorded declarations, or a representation
 #'   created by [standardize_factors()] with explicit units and prior support.
-#' @param preprocess_fn Optional per-replicate callback returning X, metadata, manifest.
-#' @param min_congruence Optional strict acceptance threshold: similarity must
-#'   exceed it, and equality is unmatched.
-#' @param seed Required deterministic master seed.
-#' @param workers Positive worker count; Unix fork backend for workers greater than one.
-#' @param checkpoint_dir Optional compatible atomic checkpoint directory.
-#' @param keep_fits Retain callback fits or representations only on explicit request.
-#' @param control settings, observation_aux and explicit callback_configuration.
-#' @return stability_result with summaries, replicates, matches, resamples, failures.
+#' @param preprocess_fn Optional per-replicate callback returning a list with
+#'   `X`, `metadata` and `manifest`.
+#' @param min_congruence Optional Tucker congruence in (0, 1) a refit factor
+#'   must exceed to count as recovered; equality is unmatched. `NULL` keeps all
+#'   candidates.
+#' @param seed Integer master seed. Required.
+#' @param workers Number of parallel workers (default 1); Unix fork backend above one.
+#' @param checkpoint_dir Optional directory for atomic per-replicate checkpoints.
+#' @param keep_fits Retain every replicate fit (default `FALSE`; memory heavy).
+#' @param control Optional named list: `settings`, `observation_aux` and
+#'   `callback_configuration` passed to `fit_fn`.
+#' @return A `stability_result` with `$summary` (per reference factor:
+#'   recovery rate and similarity quantiles), `$replicates`, `$matches`,
+#'   `$resamples` and `$failures`.
+#' @seealso [factor_replicability()] for one pair of fits
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

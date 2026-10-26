@@ -1,19 +1,27 @@
 # Newly written diagnostics in explicitly matching feature units.
 #' Compare reconstructed and directly observed feature contrasts
 #'
+#' Check a [backproject_contrast()] result against the same contrast estimated
+#' directly per feature, e.g. a differential expression table.
 #' Both estimates must use the same contrast, covariates, weighting and declared
 #' units. Prediction R squared is distinct from squared correlation and can be
 #' negative. Regression slope and top-feature overlap are descriptive.
-#' @param reconstructed Backprojection result or feature table.
-#' @param observed Direct feature-effect table.
-#' @param id_col Feature ID column.
-#' @param estimate_col Numerical effect column.
-#' @param contrast Optional single contrast label.
-#' @param feature_scale Explicit common non-unknown feature scale.
-#' @param top_n Positive requested overlap sizes.
-#' @param zero_tolerance Nonnegative sign eligibility threshold.
-#' @param plot Include scatter plot.
-#' @return Metrics, matched_features, residuals, plot, exclusions, analysis_metadata.
+#' @param reconstructed A [backproject_contrast()] result, or its `$effects` table.
+#' @param observed Data frame of directly estimated feature effects with the
+#'   columns named in `id_col` and `estimate_col`.
+#' @param id_col Name of the feature ID column in both tables (default `"feature"`).
+#' @param estimate_col Name of the numeric effect column (default `"estimate"`).
+#' @param contrast Optional single contrast label to select from `reconstructed`.
+#' @param feature_scale Free-text units shared by both tables; must not be
+#'   `"unknown"`. Required.
+#' @param top_n Integer vector of top-feature overlap sizes to report (default 20, 50, 100).
+#' @param zero_tolerance Effects within this absolute value count as zero for
+#'   sign agreement (default 0).
+#' @param plot Include a scatter plot (default `TRUE`).
+#' @return List with `$metrics` (pearson_correlation, prediction_r2,
+#'   correlation_squared, slope, intercept, sign_concordance), `$top_n_overlap`,
+#'   `$matched_features`, `$residuals`, `$plot`,
+#'   `$exclusions` and `$analysis_metadata`.
 #' @export
 #' @author Mikhael Manurung.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

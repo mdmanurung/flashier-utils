@@ -22,16 +22,16 @@ factor_activity_percentile(
 }
 \value{
 Matrix with display-only class and reference/basis metadata. Values are
-  100 * ecdf(reference)(activity); ties retain native ECDF behavior.
+100 * ecdf(reference)(activity); ties retain native ECDF behavior.
 }
 \description{
 Compute explicitly display-only empirical activity percentiles
 }
 \details{
 Origin: ADAPTED / call_only.
-  Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
-  for audited sources and runtime versions. Input units and basis are retained;
-  display/conditional results do not establish biological replication.
+Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
+for audited sources and runtime versions. Input units and basis are retained;
+display/conditional results do not establish biological replication.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -50,6 +50,6 @@ head(factor_activity_percentile(view, reference_samples = rownames(X)[1:12], fac
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).
-  Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \keyword{internal}

@@ -27,7 +27,7 @@ fit_initialized_ebmf(
 \arguments{
 \item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
 
-\item{sample_side}{Required rows or columns identifying samples.}
+\item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
 \item{activity_init}{Named finite samples by factors matrix.}
 
@@ -44,26 +44,32 @@ factor names and order. Rows of both matrices are matched to X by ID.}
 
 \item{nullcheck_new}{Whether to nullcheck newly added factors.}
 
-\item{S}{Native observation standard errors.}
+\item{S}{Optional known observation standard errors (scalar, vector or
+matrix). \code{NULL} (default) estimates noise from the data.}
 
-\item{var_type}{Native residual variance setting.}
+\item{var_type}{Residual variance structure passed to flashier: \code{0L}
+(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both,
+\code{NULL} none when \code{S} is supplied.}
 
-\item{id_policy}{require IDs, or explicitly generate them.}
+\item{id_policy}{\code{"require"} (default) stops on missing dimnames;
+\code{"generate"} creates them.}
 
-\item{feature_scale}{Meaning and units of the supplied matrix.}
+\item{feature_scale}{Free-text label for what the matrix values measure,
+e.g. \code{"log1p_normalized_counts"}. Default \code{"unknown"}. Recorded, never applied.}
 
-\item{independent_unit}{Biological unit description; recorded, not inferred.}
+\item{independent_unit}{Optional free-text description of the biological
+replicate, e.g. \code{"donor"}; recorded, not inferred.}
 
-\item{seed}{Optional scoped seed.}
+\item{seed}{Optional integer; the caller's RNG state is restored afterwards.}
 
-\item{verbose}{Native verbosity.}
+\item{verbose}{Native flashier verbosity; \code{0} is silent.}
 
 \item{control}{Named S_dim, greedy, backfit and nullcheck settings; kset is
 protected for backfit/nullcheck so initialized factors cannot be bypassed.}
 }
 \value{
 Native flash fit with stable initialized IDs, role metadata and input
-  hashes. Stability refits require an explicit callback recreating initialization.
+hashes. Stability refits require an explicit callback recreating initialization.
 }
 \description{
 Initial factors are backfitted before adding adaptive factors. Their IDs are
@@ -72,9 +78,9 @@ are automatically nullchecked and removed. No intercept is added.
 }
 \details{
 Origin: WRAPPER / call_only; no upstream implementation source copied.
-  Priors use semantic sample/feature order and map to native axes once.
-  Recognized nonnegative priors require nonnegative initial values; custom
-  prior support remains unknown. Neither initialized side may have a zero column.
+Priors use semantic sample/feature order and map to native axes once.
+Recognized nonnegative priors require nonnegative initial values; custom
+prior support remains unknown. Neither initialized side may have a zero column.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -90,6 +96,6 @@ factor_effects(fit, representation = list(scaling = "raw"))
 }
 \author{
 Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
-  Wei Wang and Matthew Stephens. EBNM authors are listed in credits.
+Wei Wang and Matthew Stephens. EBNM authors are listed in credits.
 }
 \keyword{internal}

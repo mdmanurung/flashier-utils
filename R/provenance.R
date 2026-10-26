@@ -1,12 +1,16 @@
 # Newly written registry accessor; no upstream source copied.
 #' Inspect code origins and runtime dependencies
 #'
-#' The source_commit column is the audited source pin. runtime_source_commit is
+#' Show where each function's method comes from, who wrote it and which
+#' package versions ran, for methods sections and citations. The source_commit column is the audited source pin. runtime_source_commit is
 #' read from an installed package's RemoteSha and is unknown when absent.
-#' @param function_name Optional recorded function names, including retained internal implementations.
-#' @param result Optional result carrying analysis_metadata.
-#' @param include_dependencies Include installed dependency versions and SHAs.
-#' @return A data frame of source and reuse records with runtime metadata attributes.
+#' @param function_name Optional character function names, e.g.
+#'   `"factor_features"`; internal implementations are included. Default all.
+#' @param result Optional result object from this package; its recorded
+#'   `analysis_metadata` selects the functions.
+#' @param include_dependencies Add installed dependency versions and commit SHAs (default `TRUE`).
+#' @return Data frame with one row per function and source: origin, authors,
+#'   source commit and license, with runtime metadata attributes.
 #' @export
 #' @author Mikhael Manurung.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.

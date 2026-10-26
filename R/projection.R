@@ -162,18 +162,26 @@
 }
 
 #' Estimate effects for new measurements with fixed existing activities
-#' @param fit Native reference fit or representation.
-#' @param query Named new-measurement matrix; samples declared by sample_side.
-#' @param sample_side Required rows or columns.
-#' @param feature_scale Required query measurement units.
-#' @param factors Optional fixed factor IDs in source order.
-#' @param ebnm_fn Optional native row/column priors. Recorded activity prior is
-#'   inferred; the default new-feature prior is signed point-Laplace.
+#'
+#' Given new features measured on the same samples (for example a second
+#' assay), keep the fitted sample activities fixed and estimate effects for the
+#' new features. For new samples use [project_factor_activity()] instead.
+#' @param fit Native reference fit or a view from [standardize_factors()].
+#' @param query Named matrix of the new measurements on the same samples;
+#'   `sample_side` says which side holds samples.
+#' @param sample_side `"rows"` or `"columns"` of `query`. Required.
+#' @param feature_scale Free-text label for what the query values measure. Required.
+#' @param factors Optional character factor IDs to keep fixed, in source order. Default all.
+#' @param ebnm_fn Optional native prior for the new features. The recorded
+#'   activity prior is reused; the default new-feature prior is signed point-Laplace.
 #' @param maxiter Native iteration limit (default 200).
 #' @param S Optional native standard errors; sparse plus S is refused.
-#' @param dense_budget_bytes Default 256 MiB budget for dense allocations.
-#' @return Native fit, matched representation, in-sample reconstruction metrics (rmse, mae, fit_r2, correlation; not prediction) and source
-#'   basis. Cells are matched by ID; QR initialization rejects rank deficiency.
+#' @param dense_budget_bytes Budget for dense allocations in bytes (default 256 MiB).
+#' @return List with `$fit` (native), `$representation` (view with the new
+#'   features), `$reconstruction` (in-sample rmse, mae, fit_r2, correlation; not
+#'   prediction) and the source basis. Cells are matched by ID; QR initialization
+#'   rejects rank deficiency.
+#' @seealso [project_factor_activity()]
 #' @details Feature-specific residual variance is estimated. Native noise/prior
 #'   hyperparameters may recalibrate. Fixed activities retain their exact values.
 #'   Sources with an intercept or external offset use an augmented ones/activity
@@ -251,18 +259,31 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 }
 
 #' Transfer fixed reference programs to a new dataset
+#'
+#' Keep the reference feature effects fixed and estimate activities for new
+#' samples, so programs learned on one dataset can be scored on another. The
+#' query must be preprocessed the same way as the reference; you declare that.
 #' @inheritParams project_factor_features
-#' @param preprocessing Required named preprocessing manifest with scope and
-#'   transformation description; the caller declares compatibility with reference.
-#' @param feature_match exact (default) or intersection.
-#' @param gene_mapping Optional one-to-one named query-to-reference gene mapping.
-#' @param min_coverage Minimum fraction of reference genes present (default 0.5).
+#' @param query Named matrix of new samples measured on the reference features;
+#'   `sample_side` says which side holds samples. Needs at least two samples.
+#' @param preprocessing Named list with character `scope` and `description` of
+#'   the query preprocessing, e.g. `list(scope = "within_dataset", description =
+#'   "log1p library-size normalized counts")`. Required; the caller declares
+#'   compatibility with the reference.
+#' @param feature_match `"exact"` (default, all reference features must be
+#'   present) or `"intersection"` (use the shared features, subject to `min_coverage`).
+#' @param gene_mapping Optional character vector mapping query feature names
+#'   (names) to reference feature names (values), one to one.
+#' @param min_coverage Minimum fraction of reference features present (default 0.5).
 #' @param prior_policy "query" (default) re-estimates activity priors on the
 #'   query; "fixed_reference" reuses the reference fit's estimated priors.
 #' @param var_type Native query residual variance setting. NULL (default) inherits
 #'   the reference fit's recorded `var_type`; views without one use 0L.
-#' @return Native fit and full-reference matched representation, retaining source
-#'   effects and offsets exactly; coverage, exclusions and in-sample reconstruction metrics (fit_r2, not prediction).
+#' @return List with `$fit` (native), `$representation` (view with the query
+#'   samples and the exact source effects and offsets), `$reconstruction`
+#'   (in-sample fit_r2, not prediction), coverage and exclusions in the
+#'   settings, and `$warnings`.
+#' @seealso [factor_holdout()] for held-out evaluation, [project_factor_features()]
 #' @details Uses the same native fixed-program projection as holdout evaluation.
 #'   No automatic preprocessing or normalized usages. Sparse projection is retained
 #'   when offsets are zero; necessary dense copies obey the declared budget.

@@ -25,14 +25,14 @@ factor_features_global(
 }
 \value{
 Data frame with feature, argmax factor, signed estimate at the
-  argmax, selection score, rank, direction and basis_id.
+argmax, selection score, rank, direction and basis_id.
 }
 \description{
 Global selection for multi-factor heatmaps: rank each feature by
-`max_k(abs(effect[gene, k]))` (or the signed extreme for
-`direction = "positive"/"negative"`) over an explicitly selected factor
+\code{max_k(abs(effect[gene, k]))} (or the signed extreme for
+\code{direction = "positive"/"negative"}) over an explicitly selected factor
 set, with stable ties (score, then feature ID). This is not the same as
-[factor_features()], which selects per factor. Descriptive display
+\code{\link[=factor_features]{factor_features()}}, which selects per factor. Descriptive display
 selection only; no inferential labeling.
 }
 \author{
