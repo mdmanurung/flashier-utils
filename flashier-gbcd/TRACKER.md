@@ -4,7 +4,7 @@
 > (docs/plans/2026-10-07-gbcd-starcat-audited-implementation-plan.md, GB-001..006),
 > not by ticking this tracker. Each row was checked against R/, tests, NEWS, CI and
 > local receipts: 142 done, 8 superseded by a differently named design, 13 partial
-> (marked `[-]` with the gap), 1 open (custom greedy initializer). M0 evidence lives
+> (marked `[-]` with the gap), 1 open (custom greedy initializer, fixed the same day). M0 evidence lives
 > in local, untracked validation/ receipts. Scientific calibration is not claimed.
 
 Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocked
@@ -37,7 +37,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 
 - [x] Add `fit_recipe`. (superseded: recipe_version/refit_policy)
 - [x] Add `refit_requires_callback`. (superseded: refit_policy = "callback_required")
-- [ ] Mark custom greedy initializer callback-required. (open 2026-10-26: control$greedy$init_fn is not marked callback-required)
+- [x] Mark custom greedy initializer callback-required. (fixed 2026-10-26: R/fit.R refit_policy; test-resampling.R "custom greedy initializers...")
 - [x] Add stability guard before prior/config reconstruction.
 - [-] Mark `refit_factors()` results callback-required. (partial: no stability-refusal test for refit results)
 - [x] Mark `remove_factors()` results callback-required.

@@ -7,9 +7,8 @@ Keep flashier.utils scientifically honest and shippable. This thread implemented
 item of `reports/package-review-20261026.md`.
 
 ## Next action
-Ask the user whether to start triage rank 2, the GoM DE adapter (C1 in
-`docs/plans/2026-10-25-complete-package.md`), or first fix the open GBCD tracker row
-(custom `control$greedy$init_fn` fits are not marked callback-required).
+Check CI for the init_fn fix push (`gh run list --limit 2`). Then ask the user whether
+to start triage rank 2, the GoM DE adapter (C1 in `docs/plans/2026-10-25-complete-package.md`).
 
 ## State
 - Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
@@ -23,7 +22,7 @@ Ask the user whether to start triage rank 2, the GoM DE adapter (C1 in
   and factor subsets (no bug found); `.match_ids` defaults to `extra = "drop"` with
   exclusions recorded everywhere; sample-keyed holdout folds pass `extra = "fail"`.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 174 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
+  gives 175 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
 - Untracked, not mine to commit: reports/core-review-20261022/,
   reports/ebmf-cnmf-adversarial-review-20261025.md, reports/starcat-status-20261025.md,
   reports/package-review-20261026.md.
@@ -35,6 +34,8 @@ Ask the user whether to start triage rank 2, the GoM DE adapter (C1 in
   docs/plans progress lines. Profiling receipt validation/profiling-20261026/DECISION.md:
   all utility workloads under 1 s at 20k x 1000 x K20; factor_intervals 54 s is the
   native sampler, so no Rcpp.
+- GBCD tracker row 33 fixed: caller greedy init_fn fits record refit_policy
+  "callback_required" (R/fit.R), so stability refuses automatic replay.
 - Known gaps found: GB-005b lacks canonical MDS sign and declared group order;
   GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently.
 

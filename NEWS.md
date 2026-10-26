@@ -12,6 +12,8 @@
   of failing, and record them as `exclusions`. Holdout fold tables still fail on
   extra rows.
 - Projection refuses a matrix `S` with non-positive entries.
+- `fit_ebmf()` fits with a caller `control$greedy$init_fn` are marked
+  callback-required, so `factor_stability()` needs an explicit `fit_fn`.
 - `factor_intervals()` memory guard counts the transient native sampler batch.
 - Add `fit_gbcd_programs()` with pinned optional GBCD fitting, memory preflight,
   matched coordinates and separate conditional LM/ash signature statistics.
