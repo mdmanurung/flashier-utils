@@ -1,18 +1,24 @@
-# Handoff — package review items implemented; nothing pushed
+# Handoff — package review items implemented, pushed and CI-verified
 
-**Date:** 2026-10-26 · **Branch:** main, local commits ahead of origin (`git log origin/main..HEAD`) · **Status:** suite green, not pushed
+**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green, CI green
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable. This thread implemented every
 item of `reports/package-review-20261026.md`.
 
 ## Next action
-Ask the user whether to push the local commits (13c8c16 onward) to origin/main.
+Ask the user which open item to take next. Candidates: extend extra-row dropping to
+the other `.match_ids` callers, add tests for fixed_reference with a `factors=` subset
+and an intercept fit, or resume `docs/plans/2026-10-25-ease-triage.md`.
 
 ## State
 - Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
   metadata extra rows dropped, intervals guard, runtime comment); feat fixed_reference
   prior policy; feat stability subsampling; docs (Rd, LIMITATIONS L1/L5); NEWS; styler.
+- Pushed 13c8c16..HEAD to origin/main. CI run 40333350717 (R CMD check, 5 jobs) and
+  40333350725 (pkgdown) passed on 2026-10-26; Ubuntu dependency setup took ~40 min.
+- A pushed head commit tagged `[skip ci]` skips CI for the whole push; R CMD check has
+  no workflow_dispatch, so an untagged commit is needed to trigger it.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 170 blocks, 0 failures, 11 known projection maxiter warnings, ~4 min.
 - Untracked, not mine to commit: reports/core-review-20261022/,
@@ -53,7 +59,7 @@ Ask the user whether to push the local commits (13c8c16 onward) to origin/main.
 
 ## Open items
 - Untested: fixed_reference with a `factors=` subset or an intercept fit (both route
-  through native_indices; a length guard fails loudly). R CMD check not run locally.
+  through native_indices; a length guard fails loudly).
 - Possible follow-up: fix residual variance to the reference (pass reference tau as S).
 - Other `.match_ids` callers (correlation, stability, plots, program-diagnostics, holdout)
   still refuse extra metadata rows.
