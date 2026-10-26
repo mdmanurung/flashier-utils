@@ -1,5 +1,17 @@
 # flashier.utils 2.0.0.9000
 
+- Add `prior_policy = "fixed_reference"` to `project_factor_activity()` and
+  `control$prior_policy` to `factor_holdout()`. Activity priors are fixed to the
+  reference fit's estimates. Residual variance is still estimated on the query;
+  only sample-wise `var_type` removes query-set dependence.
+- `project_factor_activity()` now inherits the reference fit's `var_type`
+  (0L for views), matching `factor_holdout()`.
+- Add `scheme = "subsample"` and `fraction` to `factor_stability()` for
+  biological-unit subsampling without replacement.
+- Metadata summaries, group comparisons, ranking and `test_factors()` drop
+  metadata rows for samples absent from the fit instead of failing.
+- Projection refuses a matrix `S` with non-positive entries.
+- `factor_intervals()` memory guard counts the transient native sampler batch.
 - Add `fit_gbcd_programs()` with pinned optional GBCD fitting, memory preflight,
   matched coordinates and separate conditional LM/ash signature statistics.
 - Add `filter_cells_by_total_membership()` for the ImmGenT iterative filter.
