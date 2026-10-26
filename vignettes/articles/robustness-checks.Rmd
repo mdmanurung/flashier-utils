@@ -1,0 +1,183 @@
+---
+title: "Robustness checks for an EBMF fit"
+description: "Eight runnable checks, each mapped to one exported function, before you trust a factor."
+output: rmarkdown::html_document
+---
+
+Run these checks before you give a factor a biological name. Each one is a
+short chunk on one simulated fit, with what a bad result looks like. The
+checks do not replace replication across donors or datasets.
+[Get started](first-fit.html) defines view, activity and effects.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4)
+```
+
+```{r simulate}
+library(flashier.utils)
+set.seed(17)
+activity_truth <- cbind(c(rep(3, 12), rep(0.3, 12)), c(rep(0.3, 12), rep(3, 12))) +
+  matrix(runif(48, 0, 0.4), 24, 2)
+effect_truth <- cbind(c(2, 1.7, 1.4, 1.1, -0.6, -1.2, rep(0.1, 6)),
+                      c(rep(-0.15, 6), 2, 1.7, 1.4, 1.1, -0.8, -1.2))
+X <- tcrossprod(activity_truth, effect_truth) + matrix(rnorm(288, sd = 0.1), 24, 12)
+dimnames(X) <- list(sprintf("s%02d", 1:24), sprintf("g%02d", 1:12))
+metadata <- data.frame(sample = rownames(X), donor = rep(sprintf("d%02d", 1:12), each = 2),
+                       group = rep(c("A", "B"), each = 12))
+fit <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
+  backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
+  feature_scale = "simulated_intensity", independent_unit = "donor")
+view <- standardize_factors(fit, prior_support = c(activity = "nonnegative", effects = "signed"))
+```
+
+## 1. Did the optimizer finish, and does the rank ceiling bind?
+
+```{r convergence}
+c(rank = fit$n_factors, max_factors = 4, elbo = fit$elbo,
+  maxiter_reached = isTRUE(flashier::flash_fit(fit)[["maxiter.reached"]]))
+factor_pve(fit)
+```
+
+Bad signs: `maxiter_reached` is `TRUE`, a native warning about convergence,
+or `rank` equal to `max_factors`. A fit at the ceiling has not chosen its
+rank; raise `max_factors` and refit. Tiny PVE factors are candidates for
+noise, not automatically wrong. Keep the native warnings; do not rerun until
+they disappear.
+
+## 2. Does another seed find the same programs?
+
+```{r seeds}
+fit2 <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
+  backfit = TRUE, nullcheck = TRUE, seed = 2, verbose = 0,
+  feature_scale = "simulated_intensity")
+agreement <- factor_replicability(fit, fit2, min_congruence = 0.9)
+agreement$matches[, c("reference_factor", "target_factor", "congruence", "status")]
+```
+
+`factor_replicability()` matches factors by Tucker congruence of their
+effect vectors with one-to-one assignment. Bad signs: an `unmatched_reference`
+row, or congruence below your threshold for a factor you plan to interpret.
+Seed agreement is initialization sensitivity on fixed data. It does not
+show the program survives a change of cells.
+
+## 3. Is a factor carried by a handful of samples?
+
+```{r concentration}
+A <- factor_activity(view)
+effective_n <- colSums(A)^2 / colSums(A^2)
+top5_share <- apply(A, 2, function(a) sum(sort(a, decreasing = TRUE)[1:5]) / sum(a))
+round(rbind(effective_n, top5_share), 2)
+```
+
+Effective sample count is `(sum a)^2 / sum a^2` for nonnegative activity.
+Bad signs: an effective count near 1 to 3, or most activity mass in five
+samples. Such a factor can match well across seeds and still vanish when
+those samples are left out, which is what the EBMF versus cNMF case study
+found for its rare HLA/CD74 factors.
+
+## 4. How wide is the conditional uncertainty?
+
+```{r uncertainty}
+head(factor_uncertainty(fit, side = "effects", representation = view), 4)
+factor_intervals(fit, side = "effects", representation = view, factors = "F1",
+                 ids = c("g01", "g05", "g07"), nsamp = 200, seed = 3)
+```
+
+Posterior standard deviations and intervals are conditional on the
+estimated priors and on the fitted rank. Mean-field intervals are typically
+too narrow. Bad signs: an interval that crosses zero for an effect you want
+to call, or `prob_zero` near one. Good signs here do not substitute for
+regression standard errors or biological replication.
+
+## 5. Do the programs survive leaving donors out?
+
+```{r stability, eval=requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)}
+stability <- factor_stability(X, fit, metadata, unit_col = "donor", seed = 4, B = 8,
+  scheme = "subsample", fraction = 0.75, min_congruence = 0.9)
+stability$summary[, c("factor", "n_successful", "recovery_rate", "median_congruence",
+                      "q025_congruence")]
+```
+
+`factor_stability()` refits on resampled biological units and reports how
+often each reference factor is recovered. Use `scheme = "subsample"` so no
+duplicated rows bias the empirical Bayes priors. Bad signs: a recovery rate
+well below one, a low 2.5% congruence quantile, or failed replicates. Eight
+replicates illustrate the call; use tens to hundreds for a real estimate.
+
+## 6. Does a different prior tell the same story?
+
+```{r priors}
+fit_laplace <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_laplace),
+  backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
+  feature_scale = "simulated_intensity")
+factor_replicability(fit, fit_laplace, min_congruence = 0.9)$matches[,
+  c("reference_factor", "target_factor", "congruence", "status")]
+```
+
+A program that only appears under one prior family is a modelling choice,
+not a finding. [Compare priors](compare-priors.html) shows the full workflow
+with known truth and held-out prediction.
+
+## 7. Does the noise model change the factors?
+
+```{r noise}
+fit_genewise <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 2L,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
+  backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
+  feature_scale = "simulated_intensity")
+c(pooled = fit$n_factors, genewise = fit_genewise$n_factors)
+factor_replicability(fit, fit_genewise, min_congruence = 0.9)$matches[,
+  c("reference_factor", "target_factor", "congruence", "status")]
+```
+
+`var_type = 0` pools one residual variance; `2` estimates one per feature
+and lets high-variance features absorb their own noise. With a supplied
+`S`, the estimated variance is added to `S^2`. Factor order can swap, as
+here; the matching handles that. Bad signs: a rank change, or a factor with
+no accepted counterpart. Report which setting you used.
+
+## 8. Does metadata explain it, and on the right unit?
+
+```{r metadata}
+summarize_factor_activity(view, metadata, by = "group", unit_col = "donor")[,
+  c("group", "factor", "n", "n_units", "mean", "sd")]
+tryCatch(test_factors(view, metadata, formula = ~group, engine = "lm",
+                      unit_col = "donor", independence = "independent"),
+         error = conditionMessage)
+```
+
+Group summaries are descriptive. Two samples share each donor here, so an
+independent-unit test on 24 samples is refused rather than run. Bad signs:
+`n` much larger than `n_units`, or a p-value from an independent engine on
+repeated samples. Use the `dream` engine with the donor as a random effect,
+or aggregate to one row per unit first.
+
+```{r dream, eval=requireNamespace("variancePartition", quietly = TRUE)}
+test_factors(view, metadata, formula = ~ group + (1 | donor), engine = "dream",
+             unit_col = "donor", independence = "repeated")$table[,
+  c("factor", "term", "estimate", "p.value")]
+```
+
+Held-out prediction on donors is in [Compare priors](compare-priors.html).
+
+## Checklist
+
+1. Converged, rank below the ceiling, warnings recorded.
+2. Same programs across seeds, priors and noise models.
+3. Effective sample count well above a handful.
+4. Intervals exclude zero for effects you name, with the underdispersion caveat.
+5. Recovery rate across unit resamples close to one.
+6. Metadata association on the independent unit, not on repeated samples.
+
+## Credits
+
+Native FLASH/flashier: Jason Willwerscheid, Peter Carbonetto, Wei Wang and
+Matthew Stephens. EBNM: Jason Willwerscheid, Matthew Stephens and Peter
+Carbonetto. Factor matching delegates to William Revelle's psych and Kurt
+Hornik and Walter Böhm's clue. The concentration check follows the EBMF
+versus cNMF adversarial review in this repository; the checks are
+independently written. See the
+[full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

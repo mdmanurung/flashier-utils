@@ -1,0 +1,41 @@
+"seed","method","K_setting","rank","training_relative_sse","elapsed_seconds","qualified","warnings"
+1,"cNMF",7,7,0.12086270533567,0.822120699100196,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed01/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed01/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+1,"Signed EBMF",7,6,0.12793305388024,4.178,TRUE,NA
+1,"Semi-nonnegative EBMF",7,7,0.125293531958684,4.548,TRUE,NA
+1,"Nonnegative EBMF",7,7,0.135142141121959,3.322,TRUE,NA
+1,"cNMF",11,11,0.115134402102605,0.371746450662613,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed01/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed01/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+1,"Signed EBMF",11,6,0.12793305388024,3.92,TRUE,NA
+1,"Semi-nonnegative EBMF",11,7,0.125467080830072,5.149,TRUE,NA
+1,"Nonnegative EBMF",11,7,0.135142141121959,3.95800000000001,TRUE,NA
+2,"cNMF",7,7,0.116184486914273,0.280132388696074,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed02/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed02/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+2,"Signed EBMF",7,6,0.123046284899586,3.396,TRUE,NA
+2,"Semi-nonnegative EBMF",7,7,0.12014941921404,4.101,TRUE,NA
+2,"Nonnegative EBMF",7,7,0.128200011642267,3.055,TRUE,NA
+2,"cNMF",11,11,0.110205541189745,0.420121626928449,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed02/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed02/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+2,"Signed EBMF",11,6,0.123046284899586,3.939,TRUE,NA
+2,"Semi-nonnegative EBMF",11,8,0.119718714117624,6.288,TRUE,NA
+2,"Nonnegative EBMF",11,7,0.128200011642267,3.678,TRUE,NA
+3,"cNMF",7,7,0.111655112413908,0.273791229352355,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed03/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed03/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+3,"Signed EBMF",7,6,0.118858391420849,5.17400000000001,TRUE,NA
+3,"Semi-nonnegative EBMF",7,7,0.116384365889752,4.152,TRUE,NA
+3,"Nonnegative EBMF",7,6,0.122385941459349,5.75399999999999,TRUE,NA
+3,"cNMF",11,11,0.104504894482823,0.357087788172066,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed03/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed03/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+3,"Signed EBMF",11,6,0.118858391420849,4.958,TRUE,NA
+3,"Semi-nonnegative EBMF",11,8,0.115483883283049,5.34100000000001,TRUE,NA
+3,"Nonnegative EBMF",11,6,0.122385941459349,5.761,TRUE,NA
+4,"cNMF",7,7,0.117772264368169,0.269623473286629,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed04/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed04/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+4,"Signed EBMF",7,6,0.124461694648548,3.73500000000001,TRUE,NA
+4,"Semi-nonnegative EBMF",7,7,0.128717924680064,7.84700000000001,TRUE,NA
+4,"Nonnegative EBMF",7,7,0.124903868037441,2.935,TRUE,NA
+4,"cNMF",11,11,0.11058843282242,0.371430338360369,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed04/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed04/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+4,"Signed EBMF",11,6,0.124461694648548,4.235,TRUE,NA
+4,"Semi-nonnegative EBMF",11,8,0.120233427214246,7.032,TRUE,NA
+4,"Nonnegative EBMF",11,8,0.121398643057505,3.432,TRUE,NA
+5,"cNMF",7,7,0.123873760059582,0.284387500025332,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed05/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed05/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+5,"Signed EBMF",7,7,0.1275114262847,3.783,TRUE,NA
+5,"Semi-nonnegative EBMF",7,7,0.128218064959164,4.40200000000002,TRUE,NA
+5,"Nonnegative EBMF",7,7,0.130911764156223,2.78299999999999,TRUE,NA
+5,"cNMF",11,11,0.11679440755016,0.396587350405753,FALSE,"unclosed file <_io.TextIOWrapper name='runs/seed05/data/genes.txt' mode='r' encoding='UTF-8'> | unclosed file <_io.TextIOWrapper name='runs/seed05/checkpoints/cnmf/cnmf_tmp/cnmf.nmf_idvrun_params.yaml' mode='r' encoding='UTF-8'> | Maximum number of iterations 300 reached. Increase it to improve convergence."
+5,"Signed EBMF",11,7,0.1275114262847,3.858,TRUE,NA
+5,"Semi-nonnegative EBMF",11,8,0.127350816820392,5.87199999999999,TRUE,NA
+5,"Nonnegative EBMF",11,8,0.128150782278845,3.75700000000001,TRUE,NA

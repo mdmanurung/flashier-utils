@@ -19,6 +19,9 @@ stopifnot(!anyNA(stability$qualified))
 fit_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-fits.csv"))
 noise_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-noise.csv"))
 matching_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-matching.csv"))
+planted_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-summary.csv"))
+planted_candidates <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-candidates.csv"))
+planted_recovery <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-recovery.csv"))
 ```
 
 ## Which factorization are we comparing?
@@ -229,8 +232,111 @@ Treat positive and negative signatures separately for signed gene effects.
 The previous constrained-loading metric had a sign-handling defect;
 its old cone-coverage numbers are excluded from this case study.
 
+## Planted truth: what each method can and cannot represent
+
+The sections above have no ground truth. This section adds one. Five
+simulated datasets (300 cells, 400 genes, seeds 1 to 5) plant seven
+programs with known cell memberships and gene sets: three overlapping
+shared blocks, one private program in 12 cells, one bipolar program with
+25 up and 25 down genes, and a collinear pair of programs whose memberships
+correlate at about 0.9. Counts are Poisson; 170 genes carry no program.
+All four methods fit cNMF's own prepared matrix of all 400 genes at the true
+rank K = 7, with K = 11 as the single overspecified sensitivity. Thresholds
+were frozen before fitting: a program is recovered when the fitted factor's
+top-20 genes overlap its planted up-genes by at least 0.5 and its activity
+has Spearman correlation at least 0.5 with the planted membership.
+
+```{r planted-summary, echo=FALSE}
+planted_table <- planted_summary[, c("K_setting", "type", "method", "recovery_rate",
+                                     "median_overlap", "median_rho", "median_auc_posthoc")]
+names(planted_table) <- c("K", "Program type", "Method", "Recovered", "Gene overlap",
+                          "Activity rho", "Activity AUC")
+knitr::kable(planted_table, digits = 2,
+             caption = "Recovery by planted program type over five seeds. Gene overlap and rho are medians. AUC is a post-hoc column; see the text.")
+```
+
+```{r planted-figure, echo=FALSE, fig.height=3.5, fig.alt="Recovery rate per program type for each method at K = 7 and K = 11. Shared programs are recovered by every method; the private program fails the frozen rho rule for every method; the bipolar program is recovered as one factor only by signed and semi-nonnegative EBMF; the collinear pair is merged by every method about half the time.", fig.cap="Recovery rate by planted program type. Each point is five seeds; points are not independent replicates of a population."}
+ggplot(planted_summary, aes(type, recovery_rate, colour = method, shape = method)) +
+  geom_point(size = 2.5, position = position_dodge(width = 0.5)) +
+  facet_wrap(~K_setting, labeller = label_both) +
+  scale_colour_manual(values = c("cNMF" = "#AA3377", "Nonnegative EBMF" = "#228833",
+    "Semi-nonnegative EBMF" = "#EE6677", "Signed EBMF" = "#4477AA")) +
+  scale_shape_manual(values = c("cNMF" = 18, "Nonnegative EBMF" = 15,
+    "Semi-nonnegative EBMF" = 17, "Signed EBMF" = 16)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = NULL, y = "Recovery rate", colour = NULL, shape = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+Four results, read against the frozen rules.
+
+**Shared blocks are easy for every method.** Gene overlap is 1.0 and
+median activity AUC is above 0.99 everywhere. Signed EBMF scores 0.67
+because in four of five seeds it represents the three overlapping blocks
+with two contrast factors: one has block 1 genes positive and block 3 genes
+negative, the other pairs block 2 against block 1 or block 3. Seed 5 gives
+three separate block factors. Both representations reconstruct the data;
+the planted basis is one rotation among equivalents, as the
+[prior comparison](compare-priors.html) rotation example shows. This is a
+representation choice, not a lost signal.
+
+**The private 12-cell program is found by every method, and the frozen
+rule fails it anyway.** Gene overlap is 1.0 and member-versus-non-member AUC
+has median 1.0 for all four methods at both ranks. Spearman correlation against 288
+tied zeros is capped near 0.33 whenever the fitted activity is small but
+nonzero outside the program. The AUC column was added after seeing this and
+is labelled post-hoc; the recovery decision keeps the frozen rule, so the
+table shows 0. Prespecify a tie-robust activity metric for rare programs.
+
+```{r planted-bipolar, echo=FALSE}
+bipolar <- subset(planted_summary, type == "bipolar",
+                  c("K_setting", "method", "recovery_rate", "single_signed_rate", "split_rate"))
+names(bipolar) <- c("K", "Method", "Recovered (up genes)", "One signed factor", "Split up/down")
+knitr::kable(bipolar, digits = 2,
+             caption = "Bipolar program: recovered as one signed factor, or split into an up factor and a down factor. For nonnegative effects the one-factor column counts the down genes as the least-loaded genes of the up factor, not as a negative effect; read it with the split column.")
+```
+
+**Only signed-effect models hold a bipolar program in one factor with
+opposite signs.** Signed and semi-nonnegative EBMF recover it as a single
+factor carrying the up genes positive and the down genes negative at K = 7,
+and never split it. cNMF and nonnegative EBMF cannot represent a down
+direction: in every seed they also produce a separate down-gene factor
+whose activity is negatively correlated with the program, and their
+nonzero one-factor entries only mean the down genes were the least-loaded
+genes of the up factor. Splitting is not failure, but a downstream analysis
+that treats the two halves as independent programs would be wrong. At
+K = 11 the semi-nonnegative arm also starts to split (0.4 single-factor),
+so overspecified rank erodes this advantage.
+
+**Collinear programs merge a third to half of the time, for every method.** With
+memberships correlating at 0.9, one fitted factor often carries both gene
+sets and the other planted program is missed. The `merged_rate` column of
+the summary CSV marks those cases. No method separates the pair reliably at
+this correlation; do not read two correlated programs from one factor
+without a residual check.
+
+```{r planted-candidates, echo=FALSE}
+cand <- planted_candidates[, c("K_setting", "method", "mean_rank", "mean_false_candidates",
+                               "mean_missed", "qualified")]
+names(cand) <- c("K", "Method", "Mean rank", "False candidates", "Missed", "Qualified fits")
+knitr::kable(cand, digits = 1,
+             caption = "False candidates have no planted support (max gene overlap below 0.25). Missed counts use the frozen rule, so every private program counts as missed. Qualified means no native iteration-limit warning; all cNMF runs hit the 300-iteration cap of this pilot configuration.")
+```
+
+**Extra rank buys false candidates, not missed programs.** At K = 11, cNMF
+fills all eleven slots and 1.6 of them have no planted support; EBMF
+nullchecking stops at 6 to 8 factors with 0.2 to 1.2 unsupported factors.
+Missed counts barely move with rank for any method. An unsupported factor
+is not automatically noise: inspect `ebmf-cnmf-planted-recovery.csv` and
+the fitted effects before discarding one.
+
+This simulation is one Poisson regime with disjoint gene sets and no
+donors. It shows representational limits, not method quality on real data.
+
 ## What remains unassessed?
 
+The planted-truth section establishes representational recovery on one
+simulated regime; the following are still open.
 No donor-held-out prediction, donor replication or calibrated discovery
 uncertainty is established here. EB posterior summaries condition on the
 fitted model; they do not replace refitting or biological replication.
@@ -248,6 +354,10 @@ Results were generated on 2026-10-25 with R 4.5.1, flashier 1.0.60,
 ebnm 1.1-42 and the pinned cNMF source revision
 `5dbc5baaa0b9079b55bce554d801caa235a50457` in a cNMF 1.7.1 environment.
 Initializer seeds are 14--18. Cell-subset seeds are 101--105.
+The planted-truth section was run on 2026-10-26 with the same pinned cNMF
+revision, flashier through `fit_ebmf()`, simulation seeds 1--5 and a
+preregistration frozen before fitting; its scripts and receipts are in the
+local archive.
 Full fits, counts, source hashes, warnings and receipts remain in the local
 scientific archive. This page carries compact derived summaries and does
 not rerun either method during documentation builds.

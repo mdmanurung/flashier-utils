@@ -82,7 +82,8 @@ def check_site(repo, site):
                         for path in article_sources if path.parent != vignette_dir}
     require(len(tutorials) <= 4,
             f"Teaching vignette limit exceeded: {len(tutorials)} > 4")
-    approved_articles = {"articles/plot-gallery.Rmd", "articles/ebmf-cnmf-comparison.Rmd"}
+    approved_articles = {"articles/plot-gallery.Rmd", "articles/ebmf-cnmf-comparison.Rmd",
+                         "articles/robustness-checks.Rmd"}
     require(website_articles <= approved_articles,
             f"Unapproved website article: {sorted(website_articles - approved_articles)}")
     articles = {path.stem for path in article_sources}

@@ -459,6 +459,12 @@ https://doi.org/10.7554/eLife.43803. The audited cNMF source revision is
 `5dbc5baaa0b9079b55bce554d801caa235a50457`; its source and MIT license stay
 in the local scientific archive and are not copied into this package.
 The shifted-log variance-floor recipe adapts Jason Willwerscheid and
-flashier coauthors' single-cell tutorial. All flashier, EBNM and EBMF method
+flashier coauthors' single-cell tutorial.
+The planted-truth section of the same article (2026-10-26) simulates data
+independently, fits the same pinned cNMF revision and native flashier through
+`fit_ebmf()`, and scores recovery with clue's one-to-one assignment (Kurt
+Hornik and Walter Böhm). The `robustness-checks` article is independently
+written; its concentration check follows the adversarial review in this
+repository. All flashier, EBNM and EBMF method
 credits above apply. Only compact result summaries accompany the article;
 counts, fitted objects, full diagnostics and receipts remain outside builds.

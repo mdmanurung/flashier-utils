@@ -20,6 +20,8 @@ navbar:
           href: articles/pancreas-programs.html
         - text: EBMF versus cNMF
           href: articles/ebmf-cnmf-comparison.html
+        - text: Robustness checks
+          href: articles/robustness-checks.html
     gallery:
       text: Plot gallery
       href: articles/plot-gallery.html
@@ -42,6 +44,9 @@ articles:
   - title: Factorization case study
     contents:
       - articles/ebmf-cnmf-comparison
+  - title: Robustness checks
+    contents:
+      - articles/robustness-checks
 reference:
   - title: Fit and extract factors
     contents:

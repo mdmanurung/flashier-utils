@@ -111,6 +111,13 @@ class SiteCheckTests(unittest.TestCase):
         self.assertEqual(receipt["website_articles"], 2)
         self.assertEqual(receipt["articles"], 3)
 
+    def test_named_robustness_article(self):
+        self.add_gallery()
+        (self.repo / "vignettes/articles/robustness-checks.Rmd").write_text("Checks")
+        (self.site / "articles/robustness-checks.html").write_text("Checks")
+        receipt = self.check()
+        self.assertEqual(receipt["website_articles"], 2)
+
     def test_unapproved_nested_article(self):
         self.add_gallery()
         (self.repo / "vignettes/articles/extra.Rmd").write_text("Extra")

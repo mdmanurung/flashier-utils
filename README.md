@@ -73,7 +73,9 @@ FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-example scripts/run-r.sh .github/scripts/
 
 Set the same variable before running the case study. No data are downloaded by
 package builds. The [plot gallery](https://mdmanurung.github.io/flashier-utils/articles/plot-gallery.html)
-shows twelve plotting recipes from one simulated fit, and the
+shows twelve plotting recipes from one simulated fit,
+[Robustness checks](https://mdmanurung.github.io/flashier-utils/articles/robustness-checks.html)
+lists eight checks to run before naming a factor, and the
 [function reference](https://mdmanurung.github.io/flashier-utils/reference/index.html)
 lists complete arguments.
 
