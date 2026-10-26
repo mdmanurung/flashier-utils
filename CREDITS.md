@@ -426,6 +426,17 @@ Conditional signature statistics call the upstream linear-regression and ashr
 stages. Credit ashr authors Matthew Stephens, Peter Carbonetto and contributors;
 see the dependency citation records above.
 
+## Grade-of-membership differential expression
+
+`test_gom_de()` calls `de_analysis()` from
+[fastTopics](https://github.com/stephenslab/fastTopics), version 0.7-46, commit
+`5cf9a448b17a7eb8f139cc916e22cb3ad1766b70`. Original package authors: Peter
+Carbonetto, Kevin Luo, Kushal Dey and Matthew Stephens. Contributors: Joyce Hsiao,
+Abhishek Sarkar, Anthony Hung, Xihui Lin, Paul C. Boutros, Minzhe Wang, Tracy Ke
+and Eric Weine. The upstream package declares BSD_2_clause + file LICENSE.
+Mikhael Manurung wrote the adapter. No engine source is redistributed. ash
+shrinkage credits the ashr authors listed above.
+
 Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
 provides linked teaching material for model choice, GBCD and GoM DE.
 No workshop prose, slides or code is redistributed; the repository has no

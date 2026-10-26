@@ -5,7 +5,7 @@ test_that("the public API contains exactly the approved core", {
     "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
     "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",
     "project_factor_activity", "project_factor_features", "provenance",
-    "standardize_factors", "summarize_factor_activity", "test_factors",
+    "standardize_factors", "summarize_factor_activity", "test_factors", "test_gom_de",
     "validate_backprojection"
   )
   expect_setequal(getNamespaceExports("flashier.utils"), core)

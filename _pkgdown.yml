@@ -64,6 +64,7 @@ reference:
       - summarize_factor_activity
       - compare_factor_groups
       - test_factors
+      - test_gom_de
       - backproject_contrast
       - validate_backprojection
   - title: Check uncertainty and prediction

@@ -35,6 +35,9 @@ provenance <- function(function_name = NULL, result = NULL, include_dependencies
     if ("fit_gbcd_programs" %in% requested || identical(result_metadata$engine, "gbcd")) {
       packages <- unique(c(packages, "gbcd", "ashr"))
     }
+    if ("test_gom_de" %in% requested || identical(result_metadata$engine, "fastTopics")) {
+      packages <- unique(c(packages, "fastTopics", "ashr"))
+    }
     attr(out, "dependencies") <- do.call(rbind, lapply(packages, function(p) {
       installed <- requireNamespace(p, quietly = TRUE)
       d <- if (installed) utils::packageDescription(p) else list()

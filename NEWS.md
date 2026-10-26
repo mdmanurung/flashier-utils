@@ -1,5 +1,9 @@
 # flashier.utils 2.0.0.9000
 
+- Add `test_gom_de()`, a call-only adapter for `fastTopics::de_analysis()`.
+  It checks integer counts, positive library sizes and memberships whose rows
+  sum to one, requires a seed, and returns a long table of log2 fold changes
+  with HPD intervals, lfsr and s-values conditional on fixed memberships.
 - Add `prior_policy = "fixed_reference"` to `project_factor_activity()` and
   `control$prior_policy` to `factor_holdout()`. Activity priors are fixed to the
   reference fit's estimates. Residual variance is still estimated on the query;

@@ -168,8 +168,8 @@ GBCD uses its distinct `kmax` argument. Initialization and backfit affect the
 numerical optimum, so compare seeds without treating agreement as calibration.
 
 Workshop section 5.5 uses `fastTopics::de_analysis()` for GoM DE. That method
-requires count data and nonnegative memberships whose rows sum to one. It
-accepts a topic fit or that membership matrix. It estimates topic expression with
+requires count data and nonnegative memberships whose rows sum to one.
+`test_gom_de()` calls it after checking both inputs, with a required seed. It estimates topic expression with
 fixed memberships and reports least-extreme log2 fold changes with conditional
 uncertainty. See the [original fastTopics manual](https://stephenslab.github.io/fastTopics/reference/de_analysis.html)
 and package authors Peter Carbonetto, Kevin Luo, Kushal Dey and Matthew Stephens.

@@ -39,7 +39,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"all"'
-          extra-packages: any::rcmdcheck, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683, github::kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3, github::stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd
+          extra-packages: any::rcmdcheck, github::willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683, github::kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3, github::stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd, github::stephenslab/fastTopics@5cf9a448b17a7eb8f139cc916e22cb3ad1766b70
       - name: Verify optional dependencies load
         shell: Rscript {0}
         run: |
