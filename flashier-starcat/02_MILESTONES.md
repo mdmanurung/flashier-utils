@@ -1,5 +1,12 @@
 # Revised Development Milestones
 
+> **Reconciled 2026-10-26.** No reference-layer milestone has shipped: R/ and tests
+> contain no `build_factor_reference()`, `project_reference()` or STARCAT graph code,
+> so the open boxes below are accurate. Related groundwork that did ship:
+> `project_factor_activity(prior_policy = "fixed_reference")` (commit 3922cd4) fixes
+> activity priors to a reference fit, and the M0-style baseline was captured under
+> the 2026-10-25 package plan (A0) rather than this tracker.
+
 The plan is split into a **core reference/projection track**, a **conditional residual-program track**, and an **experimental prior-transport track**.
 
 Core release does not wait for experimental prior transport.

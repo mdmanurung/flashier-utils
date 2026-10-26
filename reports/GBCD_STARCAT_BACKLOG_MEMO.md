@@ -4,13 +4,21 @@ Date: 2026-10-16. The full GBCD and STARCAT builds remain descoped and are
 tracked in-repo: `flashier-gbcd/` and `flashier-starcat/` (trackers at 0%).
 This memo anchors the backlog and states the entry conditions.
 
+**Reconciled 2026-10-26.** The "0%" trackers were stale, not a record of zero
+progress. GBCD-related fitting shipped under the audited plan's GB items:
+semi-nonnegative, intercept, initialized and multistart fitting (GB-001/002/003/006,
+2026-10-13/14) and the optional exact-pin GBCD adapter `fit_gbcd_programs()`
+(GB-004, 70a30d6, 2026-10-23). GB-005b display ordering is partial (no canonical
+MDS sign or declared group order). STARCAT remains unstarted apart from the
+`fixed_reference` projection policy (3922cd4). No release GO is recorded.
+
 ## Scope summary
 
 - **GBCD** (`flashier-gbcd/`): gene-batch-condition decomposition build per the
   in-repo spec — GB-00x item series. GB-005 (activity prevalence threshold +
   bounded within-group MDS ordering in `summarize_factor_activity()` /
   `plot_factor_activity()`) is DELIVERED and tested (2026-10-16). The
-  remaining GB items are unstarted.
+  remaining GB items are unstarted. (Superseded 2026-10-26: see the note above.)
 - **STARCAT** (`flashier-starcat/`): sample-side catalog build. Unstarted.
 
 ## Entry conditions (what unblocks the build)
