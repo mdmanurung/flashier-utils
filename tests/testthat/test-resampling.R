@@ -126,3 +126,13 @@ test_that("stability records metadata rows absent from the data", {
   expect_equal(out$analysis_metadata$exclusions$sample,"s99")
   expect_false("s99" %in% out$resamples$original_sample)
 })
+test_that("custom greedy initializers require an explicit stability callback", {
+  X <- fixture_matrix()
+  md <- data.frame(sample=rownames(X),donor=rep(paste0("d",1:6),each=2))
+  fit <- fit_ebmf(X,"rows",max_factors=1L,backfit=TRUE,seed=4,verbose=0L,feature_scale="intensity",
+    control=list(greedy=list(init_fn=flashier::flash_greedy_init_default)))
+  expect_identical(attr(fit,"flashbridge_metadata")$refit_policy,"callback_required")
+  expect_error(factor_stability(X,fit,md,"donor",B=1L,seed=1),"explicit fit_fn")
+  plain <- fit_ebmf(X,"rows",max_factors=1L,backfit=TRUE,seed=4,verbose=0L,feature_scale="intensity")
+  expect_identical(attr(plain,"flashbridge_metadata")$refit_policy,"ordinary")
+})
