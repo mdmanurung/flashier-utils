@@ -1,14 +1,15 @@
 # Handoff — package review items implemented, pushed and CI-verified
 
-**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green; CI pending on the follow-up push
+**Date:** 2026-10-26 · **Branch:** main, in sync with origin · **Status:** suite green; CI green at bc920ec; triage rank 1 done
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable. This thread implemented every
 item of `reports/package-review-20261026.md`.
 
 ## Next action
-Check CI for the follow-up push (`gh run list --limit 2`). Then ask the user whether to
-start `docs/plans/2026-10-25-ease-triage.md` (rank 1: ledger cleanup; rank 2: GoM DE).
+Ask the user whether to start triage rank 2, the GoM DE adapter (C1 in
+`docs/plans/2026-10-25-complete-package.md`), or first fix the open GBCD tracker row
+(custom `control$greedy$init_fn` fits are not marked callback-required).
 
 ## State
 - Commits: fix (projection var_type inheritance, matrix S check, tolerant fixed check,
@@ -28,6 +29,14 @@ start `docs/plans/2026-10-25-ease-triage.md` (rank 1: ledger cleanup; rank 2: Go
   reports/package-review-20261026.md.
 - Runtime: R4_51 via scripts/run-r.sh. Installed roxygen2 is 8.1.0, package records 8.1.1;
   `devtools::document()` still writes correct Rd.
+
+- Triage rank 1 (2026-10-26): ledgers reconciled in 2884978 (GBCD tracker 150 done,
+  13 partial, 1 open; memo and STARCAT notes). Local-only edits: development/ ledger,
+  docs/plans progress lines. Profiling receipt validation/profiling-20261026/DECISION.md:
+  all utility workloads under 1 s at 20k x 1000 x K20; factor_intervals 54 s is the
+  native sampler, so no Rcpp.
+- Known gaps found: GB-005b lacks canonical MDS sign and declared group order;
+  GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently.
 
 ## Locked decisions
 - `prior_policy` defaults to "query"; "fixed_reference" is opt-in (2026-10-26 plan).
