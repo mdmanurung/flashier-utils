@@ -1,0 +1,439 @@
+[
+  {
+    "source": "vignettes/backprojection.Rmd",
+    "headings": [
+      "## Compare groups",
+      "## Check the reconstruction",
+      "## Project coefficients from a model",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "contrast",
+      "validation",
+      "coefficients",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/contrasts.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Fit factors and declare metadata",
+      "## Describe group differences",
+      "## Test an association",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "fit",
+      "summaries",
+      "repeated",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/credits.Rmd",
+    "headings": [
+      "## Function origins",
+      "## Dependency authors and citations",
+      "### flashier (1.0.60)",
+      "### ebnm (1.1-42)",
+      "### Matrix (1.7-6)",
+      "### digest (0.6.39)",
+      "### ggplot2 (4.0.3)",
+      "### rlang (1.3.0)",
+      "### stats (4.5.1)",
+      "### utils (4.5.1)",
+      "### methods (4.5.1)",
+      "### parallel (4.5.1)",
+      "### limma (3.66.0)",
+      "### variancePartition (1.40.2)",
+      "### mashr (0.2.79)",
+      "### ashr (2.2-63)",
+      "### CorShrink (0.1-6)",
+      "### psych (2.6.5)",
+      "### clue (0.3-68)",
+      "### reformulas (0.4.4)",
+      "### BiocParallel (1.44.0)",
+      "### fgsea (1.36.2)",
+      "### decoupleR (2.16.0)",
+      "### SeuratObject (5.4.0)",
+      "### uwot (0.2.5)",
+      "### pkgdown (2.2.1)",
+      "## Audited workflow repositories",
+      "## Gene-program interpretation and transfer (development)",
+      "### igraph",
+      "### ggraph",
+      "### ggrepel",
+      "### patchwork",
+      "### pROC",
+      "### mclust",
+      "## Published pancreas worked example",
+      "## Real-data tutorial sources"
+    ],
+    "chunks": [],
+    "disposition": "CREDITS.md",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/dataset-transfer.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## New measurements on the same cells",
+      "# Estimated effect of each panel gene on its strongest published program.",
+      "## New cells with fixed reference programs",
+      "# Rows of the cached counts follow the order of the cached metadata.",
+      "# One-to-one mapping names query genes and values identify reference genes.",
+      "## Published-data example",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "load-programs",
+      "new-effects",
+      "new-cells",
+      "transferred-activity",
+      "intersection",
+      "serialization",
+      "function-credits"
+    ],
+    "disposition": "pancreas-programs",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/edit-fits.Rmd",
+    "headings": [
+      "## Start from a fit",
+      "## Reorder factors",
+      "## Remove factors",
+      "## Fix a factor, then refit the others",
+      "## Check variance explained",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "fit",
+      "reorder",
+      "remove",
+      "fix-refit",
+      "pve",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/enrichment.Rmd",
+    "headings": [
+      "## Data and objects",
+      "# Mean shifted-log difference between a cell type and all other types,",
+      "# averaged over the three technologies.",
+      "## Gene-set enrichment",
+      "## Signed network scores",
+      "## Read the results",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "load-programs",
+      "marker-sets",
+      "gene-sets",
+      "network",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/first-fit.Rmd",
+    "headings": [
+      "## Fit a matrix",
+      "## Plot sample activity",
+      "## Find contributing features",
+      "## Fit non-negative factors",
+      "## Fit nonnegative activities with signed effects",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "fit",
+      "activity",
+      "features",
+      "nonnegative",
+      "seminonnegative",
+      "function-credits"
+    ],
+    "disposition": "first-fit",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/holdout.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Define a split",
+      "## Project held-out samples",
+      "## Predict masked features",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "folds",
+      "projection",
+      "masked",
+      "function-credits"
+    ],
+    "disposition": "compare-priors",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/largest-distinctive.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Rank features",
+      "## Rank every feature",
+      "## Plot selected features",
+      "## Competitor comparisons",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "load-programs",
+      "activity-by-type",
+      "rankings",
+      "full-rankings",
+      "plot",
+      "pancreas-comparisons",
+      "function-credits"
+    ],
+    "disposition": "pancreas-programs",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/multi-cohort.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Fit one shared set of factors",
+      "## Prepare coefficients",
+      "## Shrink effects",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "fit",
+      "coefficients",
+      "shrink",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/pancreas-programs.Rmd",
+    "headings": [
+      "## Prepare a local example cache",
+      "# Choose a local archive outside package builds.",
+      "# Match the published gene filter before calculating library sizes.",
+      "## Restore published coordinates without refitting",
+      "# The input matrix uses shifted log measurements. The unmodified tutorial F",
+      "# has its own fixed coordinate normalization; it is not a log-fold change.",
+      "## Borrow the original factors 4\u20136 comparison",
+      "# Semi-NMF effects preserve both signs; choose competing factors explicitly.",
+      "## Shared-gene networks and descriptive diagnostics",
+      "## Transfer the reference programs to another technology",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "prepare-cache",
+      "load-cache",
+      "restore-programs",
+      "restore-calls",
+      "pancreas-annotation",
+      "pancreas-explicit-markers",
+      "pancreas-networks",
+      "pancreas-transfer",
+      "function-credits"
+    ],
+    "disposition": "pancreas-programs",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/program-annotation.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Signed programs and shared genes",
+      "## Compare against a chosen set of programs",
+      "## Record user-authored labels",
+      "## Published-data example",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "load-programs",
+      "network",
+      "comparisons",
+      "evidence",
+      "annotations",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/program-diagnostics.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Signature weights and expression",
+      "## Rank factors by metadata and check factor correlation",
+      "## Declare thresholds once",
+      "## One-versus-rest descriptive classification",
+      "# F1 is active in every cell type; acinar cells have the lowest mean F1 activity,",
+      "# so ask whether low activity identifies them.",
+      "## Published-data example",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "load-programs",
+      "cells",
+      "signature",
+      "rank-correlate",
+      "diagnostics",
+      "specificity",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/protein-interpretation.Rmd",
+    "headings": [
+      "## Data and objects",
+      "# Conditional lineage-specific group labels on the same source basis.",
+      "## Candidate mixture thresholds require review",
+      "## Compare equal-size populations",
+      "## RNA-to-ADT projection with fixed activities",
+      "# synthetic ADT oracle on the same cells: known signed protein effects",
+      "# fit protein effects on TRAINING cells only (activities fixed)",
+      "# held-out cells: predict ADT from their RNA activities alone (never fit)",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "simulate",
+      "proteins",
+      "contrasts",
+      "mixtures",
+      "gates",
+      "gates-low",
+      "rna-adt",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/provenance.Rmd",
+    "headings": [
+      "## Find a function's source",
+      "## Record package versions",
+      "## Function credits"
+    ],
+    "chunks": [
+      "citations",
+      "sources",
+      "versions",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/representation-units.Rmd",
+    "headings": [
+      "## Extract matching matrices",
+      "## Choose a scale",
+      "## Retain measurement units",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "matrices",
+      "scales",
+      "units",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/single-cell.Rmd",
+    "headings": [
+      "## Data and objects",
+      "## Fit factors on shifted-log expression",
+      "## Add activities and compute an embedding",
+      "## Display activity percentiles",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "fit",
+      "group-means",
+      "seurat",
+      "embedding-metadata",
+      "percentiles",
+      "percentile-embedding",
+      "function-credits"
+    ],
+    "disposition": "reference only",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/stability-replicability.Rmd",
+    "headings": [
+      "## Resample units",
+      "## Match separate fits",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "setup",
+      "metadata",
+      "bootstrap",
+      "matching",
+      "function-credits"
+    ],
+    "disposition": "compare-priors",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  },
+  {
+    "source": "vignettes/uncertainty.Rmd",
+    "headings": [
+      "## Factor posterior intervals",
+      "## Project coefficient uncertainty",
+      "## Sources",
+      "## Function credits"
+    ],
+    "chunks": [
+      "fit",
+      "intervals",
+      "draws",
+      "function-credits"
+    ],
+    "disposition": "advanced-use",
+    "policy": "Merge core task and essential qualifications; drop optional tours and repeated setup; preserve full source in local archive"
+  }
+]

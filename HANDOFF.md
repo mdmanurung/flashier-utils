@@ -14,11 +14,10 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 `docs/plans/2026-10-25-complete-package.md`).
 
 ## State
-- Uncommitted: none of mine. Untracked reports/core-review-20261022/,
-  reports/ebmf-cnmf-adversarial-review-20261025.md, reports/package-review-20261026.md,
-  reports/starcat-status-20261025.md are not mine to commit. reports/api-review-20261026/
-  (REPORT, MIGRATION, proposed-arguments.csv, edge-matrix.csv) stays untracked like the
-  earlier reviews; probe harness and check log are in validation/api-review-20261026/.
+- Review reports are committed (user asked, 2026-10-26): core-review-20261022/,
+  ebmf-cnmf-adversarial-review-20261025.md, package-review-20261026.md,
+  starcat-status-20261025.md and api-review-20261026/. Probe harness and check log stay
+  local in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
 - Last green CI: bc920ec (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
