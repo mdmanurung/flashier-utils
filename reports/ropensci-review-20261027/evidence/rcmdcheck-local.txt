@@ -1,0 +1,17 @@
+R CMD check (goodpractice/rcmdcheck on clone of 22c8877): errors 0 warnings 1 notes 0
+
+checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+LaTeX errors found:
+! LaTeX Error: File `inconsolata.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+! Emergency stop.
+<read *> 
+         
+l.326 ^^M
+         
+!  ==> Fatal error occurred, no output PDF file produced!

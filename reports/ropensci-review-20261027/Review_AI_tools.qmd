@@ -1,0 +1,326 @@
+---
+title: "flashier.utils 2.0.0.9000 — AI-Assisted Tool Checks and Standards Gates"
+author: "Mikhael Manurung (AI-assisted, Claude Code / Fable 5.1)"
+date: 2026-10-27
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  eval: false
+---
+
+# Prompt
+
+> review this package using https://github.com/ropensci-review-tools/goodpractice https://docs.ropensci.org/goodpractice/reference/learn_skill_gp.html https://github.com/ropensci-review-tools/autotest https://github.com/ropensci-review-tools/pkgcheck https://github.com/ropensci-review-tools/ropensci-skills
+
+# Skill
+
+Skill `run-package-review` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Ground rules (non-negotiable — these make the report trustworthy)
+>
+> - **Read-only.** Do not edit, fix, or add to the package to make a check pass.
+>   Throwaway probes in a scratch session are fine; changes to the package tree
+>   are not.
+> - **Run it for real.** Don't review from reading alone. Execute the suite,
+>   measure coverage, run the analysis tools — repeatedly and, where cheap,
+>   shuffled / re-seeded to surface flakiness.
+> - **Evidence, not assertion.** Every finding cites what proves it: a
+>   `file.R:line`, a command's output, a reproduced probe. No hand-waving.
+> - **Non-destructive & authorized.** Never run destructive, paid, or network
+>   operations without explicit authorization. Note the offline path and mark
+>   live paths **"not run."**
+> - **Coverage numbers are evidence, not the verdict.** High line coverage can
+>   mean breadth, not depth — say so.
+> - **Full transparency in the output.** The report reproduces the _prompt_ that
+>   triggered it, the _skill text_ used (skills change over time, so capture the
+>   version that ran), the _model_, the _method_ (exact commands, tool versions,
+>   what was and wasn't modified), and what was **not run** and why. See
+>   `references/report-template.md`.
+>
+> ## Workflow
+>
+> 1. **Confirm scope & authorization.** Which package (path / working tree)?
+>    Which review pass(es)? Is network / paid / live-API access authorized, or
+>    offline-only? Note any conflict of interest (see `package-review`).
+> 2. **(Optional) Establish design context first.** For an unfamiliar package,
+>    extract its design history from the git log before reviewing — it surfaces
+>    the architecture, the churn hotspots, and the decisions behind the code.
+>    Follow `references/git-design-history.md`.
+> 3. **Pick the review pass(es).** Each is an independent, focused report. The
+>    dimensions below come straight from `package-review`'s "evaluate beyond the
+>    checkboxes" list, and mirror real rOpenSci review reports.
+> 4. **Run the pass for real** under the ground rules above, capturing evidence
+>    as you go (commands, versions, timings, skips, warnings, reproduced probes).
+> 5. **Write the report** from `references/report-template.md`, one file per pass
+>    (`Review_AI_<pass>.qmd`). Fill the transparency header, then the findings.
+> 6. **Link it back.** Reports are meant to be attached to / linked from the
+>    public review issue. Keep them self-contained (`embed-resources: true`).
+
+
+Skill `package-standards` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Workflow
+>
+> 1. **Figure out the starting point.** Is this a new package or an existing one?
+>    For an existing package, read `DESCRIPTION`, the `R/` files, `tests/`,
+>    `README`, and the CI config under `.github/workflows/` before judging anything.
+>
+> 2. **Prefer the automated gate.** rOpenSci checks every submission with
+>    [`pkgcheck`](https://docs.ropensci.org/pkgcheck/). If R is available, the
+>    fastest path to a real answer is to run it rather than eyeballing:
+>
+>    ```r
+>    pkgcheck::pkgcheck()        # local report
+>    ```
+>
+>    or wire in the GitHub Action `ropensci-review-tools/pkgcheck-action`. Treat a
+>    clean pkgcheck run as the source of truth; use this skill to interpret and fix
+>    what it flags, and to cover the things pkgcheck can't see (doc quality, vignette
+>    usefulness, API design).
+>
+> 3. **Audit/build by area.** The checklist below covers the gates for each area;
+>    reach for a reference only when you need the exact rule, list, or procedure for
+>    the specific area in front of you. Work in this order — earlier items unblock later:
+>    - Naming, DESCRIPTION, dependencies → `references/description-naming-deps.md`
+>    - Documentation: roxygen2, README, vignettes → `references/documentation.md`
+>    - Testing, code style, CI, cross-platform → `references/testing-style-ci.md`
+>    - Security (secrets, fixtures, CI) → `references/security.md`
+>
+> 4. **Use `usethis` to scaffold**, don't hand-write boilerplate. It produces
+>    exactly the structure rOpenSci expects: `use_readme_rmd()`, `use_testthat()`,
+>    `use_vignette()`, `use_citation()`, `use_package_doc()`, `use_github_action()`,
+>    `use_tidy_contributing()`, `git_vaccinate()`.
+>
+> 5. **Report** as two lists: **Required fixes** (gates) and **Recommendations**.
+>    Tie each item to the area it came from so the user can act on it.
+>
+> ## The quick checklist (the gates worth memorizing)
+>
+> These are the high-signal, frequently-missed requirements — enough to answer most
+> audit and setup questions directly. Only open the matching reference when you need
+> the detail or long tail behind one of these lines.
+>
+> - **Name**: lowercase, not already on CRAN/Bioconductor; check with `pak::pkg_name_check()`.
+> - **Title**: Title Case, no trailing period, and no "in R"/"with R" (R is implied);
+>   single-quote external software/package names.
+> - **Description**: don't start with the package name or "This package…"; lead with
+>   what it does; wrap URLs in `<angle brackets>`.
+> - **License**: a CRAN- or OSI-accepted license, with copyright holders marked `cph`.
+> - **Authors@R**: roles set; ORCIDs via `comment = c(ORCID = ...)`; don't list editors.
+> - **Dependencies**: `Imports` not `Depends` (re-export rather than `Depends` if you
+>   must expose a dep); test/doc tooling in `Suggests`; fewer is better. Prefer the
+>   modern package per domain: HTTP → `httr2`/`httr`/`curl`/`crul` (not `RCurl`);
+>   JSON → `jsonlite` (not `rjson`/`RJSONIO`); XML → `xml2`; spatial → `sf` (not
+>   `sp`/`rgdal`). Don't add a dep for syntactic sugar you can write in base R.
+> - **Docs**: roxygen2 for everything; every exported function has `@param`, `@return`,
+>   and a runnable `@examples`; package-level `?pkgname` doc exists.
+> - **README**: generated from `README.Rmd`; has badges (CI, coverage, repostatus),
+>   install instructions, a usage demo, and citation info — readable with no domain knowledge.
+> - **Vignette**: at least one HTML vignette with a realistic, basic→advanced walkthrough.
+> - **Tests**: a testthat suite covering major functionality _and_ error paths;
+>   **coverage below 75% needs justification** before review.
+> - **Code style**: tidyverse style (Air or styler to format, lintr to check);
+>   use cli/`message()` for output, never `print()`/`cat()` outside print methods.
+> - **CI**: GitHub Actions running `R CMD check` on **release, oldrel, and devel** R;
+>   coverage reported (Codecov); badges in README. Multi-OS when there's compiled
+>   code, system calls, encoding/text work, or path handling.
+> - **Repo hygiene**: Git; default branch `main` not `master`; `NEWS.md` present;
+>   `.Rbuildignore` and `.gitignore` populated (`usethis::git_vaccinate()`).
+> - **Secrets**: API keys from env vars / keyring, never printed; fixtures scrubbed.
+
+
+Skill `stats-standards` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## What "standards" means here
+>
+> Unlike the general guide's "guidelines", statistical review centers on explicit
+> **standards** that can be tracked automatically:
+>
+> - **General Standards** (`G`-prefixed, e.g. `G1.0`, `G2.0a`, `G5.4`) apply to
+>   **every** statistical package — documentation, input validation, algorithm
+>   robustness, output consistency, testing.
+> - **Category-specific standards** apply per analytical domain. Every package must
+>   comply with the **General Standards plus at least one category**.
+>
+> Codes are hierarchical alphanumerics with decimal sub-standards (e.g. `G2.0a`,
+> `RE1.1`). The full text of all standards is in `references/standards-categories.md`.
+>
+> ### Categories
+>
+> | Code      | Category                                                     |
+> | --------- | ------------------------------------------------------------ |
+> | `BS`      | Bayesian & Monte Carlo                                       |
+> | `EA`      | Exploratory Data Analysis & Summary Statistics               |
+> | `ML`      | Machine Learning                                             |
+> | `RE`      | Regression & Supervised Learning                             |
+> | `SP`      | Spatial                                                      |
+> | `TS`      | Time Series                                                  |
+> | `UL`/`US` | Dimensionality Reduction, Clustering & Unsupervised Learning |
+> | `PD`      | Probability Distributions                                    |
+>
+> Pick every category your package touches; you must satisfy each category's
+> standards (or mark them not-applicable with a reason).
+>
+> ## Workflow for authors
+>
+> 1. **Make the package generally compliant first** with `package-standards`.
+> 2. **Identify your categories** from the table above.
+> 3. **Scaffold standards documentation** with srr:
+>
+>    ```r
+>    srr::srr_stats_roxygen(category = c("regression"))   # your categories
+>    ```
+>
+>    This writes `R/srr-stats-standards.R` pre-filled with every applicable standard
+>    as an `@srrstatsTODO` tag.
+>
+> 4. **Annotate the code.** For each standard, near the code that satisfies it,
+>    change the tag from `@srrstatsTODO` to either:
+>    - **`@srrstats "G2.0a" describe how this is met`** — the standard is satisfied;
+>      say where/how.
+>    - **`@srrstatsNA "RE1.2" reason it does not apply`** — the standard genuinely
+>      doesn't apply; give the reason.
+>
+>    The srr roclet runs on `devtools::document()` / `roxygen2::roxygenise()` and
+>    reports the state of standards on screen. Leaving `@srrstatsTODO` tags means the
+>    documentation is incomplete.
+>
+> 5. **Generate the compliance report and pre-submission check:**
+>
+>    ```r
+>    srr::srr_report()             # HTML report of standards coverage
+>    srr::srr_stats_pre_submit()   # completeness gate before submitting
+>    ```
+>
+> 6. **Run `autotest`** to catch undocumented/incorrect edge-case behavior — it
+>    mutates inputs to surface mishandled cases:
+>
+>    ```r
+>    autotest::autotest_package()
+>    ```
+>
+> 7. Submit via the normal `ropensci/software-review` process (see
+>    `peer-review-author`). The editor verifies standards with
+>    `@ropensci-review-bot check srr`, and pkgcheck includes a "srr documentation
+>    complete" check.
+>
+> ## Workflow for reviewers
+>
+> - Do everything in `package-review`, **plus** assess alignment against
+>   **each applicable standard** rather than just the general checklist.
+> - Read the `srr_report()` output: is each standard either satisfied (`@srrstats`)
+>   or justifiably not-applicable (`@srrstatsNA`)? Are the claims accurate?
+> - Check that the chosen categories actually cover what the package does.
+> - Confirm `autotest` issues are addressed or explained.
+
+
+`goodpractice::learn_skill_gp()` was not available in goodpractice 1.2.0.1 (the function is documented for a later release); goodpractice ran through pkgcheck instead.
+
+# Report
+
+## Method
+
+Reviewed commit `22c8877` (`main`), on a fresh `git clone` so that untracked local archives and nested `DESCRIPTION` files were absent. R 4.5.1; pkgcheck 0.3.4.5, goodpractice 1.2.0.1, pkgstats 0.2.5.4, autotest 0.2.0.3, covr 3.6.5, lintr 3.4.0, cyclocomp 1.1.2, rcmdcheck 1.4.0; flashier 1.0.60 at `fd44811`, ebnm 1.1-42 (`evidence/sessionInfo.txt`).
+
+- `pkgcheck::pkgcheck(clone)` with `GITHUB_TOKEN` set: 27 structure checks, pkgstats and goodpractice (R CMD check, covr, cyclocomp, lintr) in one run. `checks_to_markdown()` errored ("can only write character objects"); all values below are read from the saved result object (`evidence/pkgcheck-checks.csv`, `goodpractice-results.csv`, `goodpractice-lint-counts.csv`, `pkgstats.csv`, `rcmdcheck-local.txt`).
+- `autotest::autotest_package(test = TRUE)`: three attempts. (1) On the working tree: aborted, "Multiple 'DESCRIPTION' files found" (untracked archives). (2) On a minimal copy (DESCRIPTION, NAMESPACE, R, man, inst, tests, vignettes): aborted with testthat "Test failures." after running every example; all examples pass under `devtools::run_examples(run_donttest = TRUE)` on the same copy. (3) Same copy without `tests/`: completed, 124 rows (`evidence/autotest-results.csv`), but with an older installed flashier.utils 1.0.0.9000 earlier on the library path, which explains the four errors (missing `intercept` argument, missing `plot_factor_data`). (4) Rerun with the current package installed first on the path: autotest aborted internally ("cannot coerce type 'object' to vector of type 'any'"). Result: diagnostics from attempt 3 are usable; its errors are artefacts.
+- `srr`: not installed and the package carries no `@srrstats` tags; not run.
+- Standards gates checked by reading `DESCRIPTION`, `README.md`, `.github/workflows/`, `R/`, `man/`, `tests/`.
+- No package files were modified by this pass.
+
+## Headline
+
+Amber. R CMD check is clean on all five CI jobs and the package passes 22 of 27 pkgcheck structure checks, with 88.3 percent coverage, roxygen everywhere, a pkgdown site, URL and BugReports and `main` as default branch. Five rOpenSci gates fail, none in R code: two exports lack examples, there is no CONTRIBUTING file, no package-level documentation, CI does not test R oldrel, and package names in `Title`/`Description` are not single-quoted. The statistical-software track is not started (no srr standards).
+
+## Findings
+
+### pkgcheck structure checks
+
+| Check | Result | Note |
+|---|---|---|
+| uses_roxygen2 | pass | |
+| has_url, has_bugs | pass | |
+| has_vignette | pass | 4 tutorials, 3 articles |
+| pkgdown, repo_has_website | pass | |
+| branch_is_master | pass (main) | |
+| license | pass | MIT + file LICENSE |
+| unique_fn_names | note | `provenance` (4 CRAN packages), `test_factors` (plspm) |
+| fns_have_exs | **fail** | `project_factor_activity`, `project_factor_features` have no `@examples` |
+| fns_have_return_vals | pass | |
+| has_contrib_md | **fail** | no CONTRIBUTING.md |
+| has_citation | fail (recommendation) | no inst/CITATION |
+| has_orcid | fail (recommendation) | none of the three authors |
+| has_scrap | pass | |
+| left_assign | pass | 2025 `<-`, 0 `=` |
+| num_imports | pass | 9 imports, 82nd percentile |
+| obsolete_pkg_deps | pass | |
+| on_cran | no | |
+| renv_activated | no | |
+| uses_dontrun | note | `fit_gbcd_programs`, `test_gom_de` wrap all examples (optional engines) |
+| srr_okay | not applicable | no srr tags |
+
+pkgstats percentiles (`evidence/pkgstats.csv`): 4108 lines of R (90th percentile), 3593 lines of tests (93rd), 55 test files (98th), 4 vignettes (93rd); noteworthy low values are relative whitespace in R and tests (4th percentile, dense one-line style) and `fn_call_network_size` 0 (pkgstats could not build the call network; ctags without GNU global).
+
+### goodpractice (28 failed checks)
+
+- R CMD check (local, on the clone): 0 errors, 1 warning, 0 notes. The warning is `inconsolata.sty` missing for the PDF manual on this machine; the CI matrix (ubuntu release and devel, macOS, Windows, full-engines) is clean on `22c8877`. Not a package defect.
+- covr: 88.3 percent (goodpractice's threshold is higher than rOpenSci's 75 percent gate; passes the gate).
+- cyclocomp: 5 functions above 95 (see the complexity report).
+- `description_pkgname_single_quoted`: `flashier` appears unquoted in `Title` and `Description` (**gate**: rOpenSci asks for `'flashier'`).
+- `rd_has_examples`: `project_factor_activity.Rd`, `project_factor_features.Rd` (**gate**).
+- `roxygen2_has_export_or_nord`: `R/correlation.R:32` (internal function with a reference page; deliberate, see complexity report).
+- `roxygen2_duplicate_params`: `@param fit` in `R/backprojection.R:19` and `R/features.R:7`.
+- `complexity_unused_internal`: `.display_options` (`R/plot-suite.R:13`).
+- `complexity_function_length`: `.align_programs` (79 lines), `test_factors` (101 lines).
+- `on_exit_has_add`: `R/ids.R:80`, `R/stability.R:71`.
+- `rcmdcheck_can_convert_rd_to_pdf_2`: the LaTeX font issue above.
+- lintr (goodpractice defaults, 80-character limit; `evidence/goodpractice-lint-counts.csv`): line length 2591, `expect_identical` 381 (tests), outer negation 87, numeric leading zero 23, undesirable operator 19 (`<<-` in capture closures), library/require 13 (vignettes), paste 8, expect_length 7, if-not-else 5, and single digits for seven others. `duplicate_argument_linter` at `tests/testthat/test-comparison.R:46` is a deliberate invalid-input fixture.
+
+### autotest (attempt 3, diagnostics only)
+
+| Test | Count | Reading |
+|---|---|---|
+| par_is_demonstrated (warning) | 49 | parameters never shown in examples; 9 each for `backproject_contrast` and `standardize_factors`, 8 for `plot_factor_data`, 6 for `fit_ebmf` |
+| fn_without_example (warning) | 18 | 16 internal functions with reference pages plus the two exports above |
+| single_char_case (diagnostic) | 31 | character arguments matched case-sensitively (`match.arg`); expected behaviour |
+| return_desc_includes_class (diagnostic) | 6 | `@return` does not name the class (`factor_effects` returns data.frame) |
+| subst_int_for_logical, subst_char_for_logical, single_par_as_length_2 | 8 | logical arguments accept integers or length-2 vectors silently, for example `allow_partial` in `backproject_contrast` |
+| int_range (diagnostic) | 2 | `var_type` range not documented |
+| error rows | 4 | artefacts of the stale installed version (`intercept` exists in `R/fit.R:126`; `plot_factor_data` is exported) |
+
+### Standards gates (package-standards)
+
+Failing gates:
+
+1. Two exports without examples (`project_factor_activity`, `project_factor_features`).
+2. No `CONTRIBUTING.md` (community guidelines).
+3. No package-level documentation (`?flashier.utils`; no `_PACKAGE` roxygen block).
+4. CI tests release and devel on Ubuntu, release on macOS and Windows, but not R oldrel.
+5. `Title`/`Description` do not single-quote `flashier`.
+
+Strong recommendations: ORCIDs in `Authors@R`; `README.Rmd` generating the README, with CI, coverage and repostatus badges (README has none); coverage upload (no Codecov step); `inst/CITATION`; `CODE_OF_CONDUCT.md`; `.lintr` config and a styler pass (2591 lines over 80 characters).
+
+Verified healthy: roxygen2 with markdown for all 63 Rd pages; every export has `@return` and `@author`; `Imports` not `Depends`; `NEWS.md`; `.Rbuildignore` excludes the archives; `main` branch; `Config/testthat/edition: 3`; CI runs R CMD check on 4 platforms plus a full-engines job; a site checker enforces attribution and link integrity on every pkgdown build.
+
+### Statistical track (stats-standards)
+
+The package implements unsupervised matrix factorisation post-processing, so the General standards (G) and the Dimensionality Reduction, Clustering and Unsupervised Learning category (UL) would apply. No `@srrstats` tags exist and `srr` is not installed. If the statistical track is wanted: `srr::srr_stats_roxygen(category = "unsupervised")`, then annotate; autotest's 49 undemonstrated parameters map directly onto G1.4 and G5 example standards.
+
+## Not run (reason)
+
+- `srr::srr_report()`: package not installed, no tags to report.
+- `goodpractice::learn_skill_gp()`: not in the installed version.
+- autotest with the current package first on the path: autotest internal error, cause not isolated.
+- pkgcheck `checks_to_markdown()`: errored; values read from the result object.
+- `R CMD check` on R oldrel: not in CI.
+
+## Suggested fix priority
+
+1. _(Gate.)_ Add `@examples` to `project_factor_activity` and `project_factor_features`.
+2. _(Gate.)_ Add `CONTRIBUTING.md` and a package-level `_PACKAGE` doc block.
+3. _(Gate.)_ Add an R oldrel job to `.github/workflows/R-CMD-check.yaml`; single-quote `'flashier'` in `DESCRIPTION`.
+4. _(Recommendation.)_ README.Rmd with badges and a Codecov step; ORCIDs; CITATION; Code of Conduct.
+5. _(Recommendation.)_ Demonstrate the 49 undocumented-in-examples parameters, starting with `standardize_factors` and `backproject_contrast`; name return classes in `@return`.

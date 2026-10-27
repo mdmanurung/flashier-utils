@@ -1,13 +1,13 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-10-27 · **Branch:** main · **Status:** D1 technical validation batch committed locally; CI pending
+**Date:** 2026-10-27 · **Branch:** main · **Status:** 22c8877 (D1 validation) green on R CMD check and pkgdown; rOpenSci-style review reports committed under reports/ropensci-review-20261027
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 4`: the D1 batch (planted validation sections, projection verbosity fix) must be green. Then: rOpenSci-style review report requested by the user on 2026-10-27 (goodpractice, pkgcheck, autotest, ropensci-skills passes) under reports/ropensci-review-20261027/.
+Nothing pending. Candidate next batch: the review fix lists (reports/ropensci-review-20261027/README.md), starting with the five rOpenSci gates in Review_AI_tools.qmd; the user decides which to apply. Reusable skill: ~/.claude/skills/r-package-review.
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -23,11 +23,12 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
   local in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
-- Last green CI: 9871f1b (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
+- Last green CI: 22c8877 (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
 - Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; document() still works.
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-10-27 rOpenSci-style review (read-only): pkgcheck/goodpractice/autotest/coverage/complexity/dependency/performance passes with evidence CSVs under reports/ropensci-review-20261027; 5 standards gates fail (examples for 2 projection exports, CONTRIBUTING, package doc, oldrel CI, quoted 'flashier'); no R code defects beyond style. Skill saved at ~/.claude/skills/r-package-review.
 - 2026-10-27 D1 technical part: validation/planted-validation-20261027 (PREREG frozen; paired masked prediction 25 folds x 3 arms, all beat training mean; compare_prior_fits evidence bound in 15/15 pairs; subsample stability 300/300 refits; refit check reproduces 20261026 fits to 1e-14). Finding: signed-arm shared-block factors unstable under subsampling (0.05-1.0), nonnegative arms 1.0. Article section added; projection paths store verbosity 0.
 - 2026-10-27: compare_prior_fits() promoted from validation/implementation-all-20261025/candidate to R/comparison.R with its oracle tests (test-comparison.R) plus native-fit and bound-holdout tests; factor_holdout records input_digest/evaluation_digest; print/plot methods; registry, CREDITS, pkgdown index and compare-priors tutorial updated. A1 done; A2 evidence binding is implemented for stability (exact basis) and masked paired holdout (digests), comparison reports beyond print/plot not built. GB-005b completed (canonical MDS sign, group_order, dense refusal). Release memo gates renamed REL-001a/b.
 - fit_ebmf always takes the explicit init/greedy/backfit/nullcheck path and calls flash_set_verbose, so verbose=0 silences flashier's zero-factor report (the flash() wrapper never stored the level). Okabe-Ito default for discrete colours in plot_factor_scatter/data/activity(structure); activity plots carry a scaling subtitle. Per-seed candidate counts (ebmf-cnmf-planted-candidates-seeds.csv, written by evaluate.R) feed the comparison figure.

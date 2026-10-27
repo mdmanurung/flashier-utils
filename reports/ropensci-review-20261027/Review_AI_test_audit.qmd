@@ -1,0 +1,142 @@
+---
+title: "flashier.utils 2.0.0.9000 — AI-Assisted Test-Suite Audit"
+author: "Mikhael Manurung (AI-assisted, Claude Code / Fable 5.1)"
+date: 2026-10-27
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  eval: false
+---
+
+# Prompt
+
+> review this package using https://github.com/ropensci-review-tools/goodpractice https://docs.ropensci.org/goodpractice/reference/learn_skill_gp.html https://github.com/ropensci-review-tools/autotest https://github.com/ropensci-review-tools/pkgcheck https://github.com/ropensci-review-tools/ropensci-skills
+
+# Skill
+
+Skill `run-test-audit` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Ground rules (these make the report trustworthy)
+>
+> - **Read the tests _and_ the code.** You cannot judge branch coverage from the
+>   tests alone.
+> - **Run the suite for real, more than once** — and shuffled / re-seeded where
+>   cheap — to surface flakiness.
+> - **Read-only.** No edits to fix or add tests. Throwaway probes in a scratch
+>   session are fine; changes to the package tree are not.
+> - **Non-destructive & authorized.** Don't run destructive, paid, or network
+>   operations without authorization — note the offline path and mark live paths
+>   **"not run."**
+> - **Coverage is evidence, not the verdict.** High line coverage can mean
+>   breadth (lines execute), not depth (outputs are checked). Say which.
+>
+> ## Method
+>
+> 1. **Map the surface.** Enumerate the public/exported set
+>    (`getNamespaceExports()`) against the functions actually referenced by tests.
+>    Note untested exports.
+> 2. **Run it, repeatedly.** Execute with `devtools::test()` (twice; shuffled/
+>    re-seeded where cheap), capturing pass/fail/warn/**skip** counts, timing, and
+>    any silent skips. Measure line coverage with `covr::package_coverage()`.
+> 3. **Check coverage depth**, not just the number: happy path, edge cases
+>    (`NULL` / `NA` / empty / boundary), **every error branch**, each meaningful
+>    conditional.
+> 4. **Check the assertions mean something.** Flag tautologies, no-assertion
+>    tests, over-loose matchers (bare `expect_error()` with no `class=`/`regexp=`),
+>    and over-mocked tests that only verify the mock.
+> 5. **Hunt flakiness sources**: wall-clock/time dependence, unseeded randomness,
+>    global state, order-dependence between files, hidden skips. Review snapshots.
+> 6. **Reproduce suspected defects** with throwaway probes and cite the result.
+> 7. **Review consistency & maintainability**: duplicated setup, mega-`test_that()`
+>    blocks, dead/`.blob` test files, misleading tags.
+
+
+# Report
+
+## Method
+
+Reviewed commit: `22c8877` on `main` (working tree clean at review time). R 4.5.1, testthat 3.3.2, covr 3.6.5, flashier 1.0.60 (pinned commit `fd44811`), ebnm 1.1-42.
+
+- Suite run 1: `devtools::load_all(); testthat::test_dir("tests/testthat")` on 2026-10-27 before the last commit: 1779 passed, 0 failed, 0 skipped on this machine (all Suggests engines installed), 11 warnings.
+- Suite run 2: `covr::package_coverage(type = "tests")`, which re-executes the suite under instrumentation; exit 0, 88.33 percent line coverage (`evidence/coverage-by-file.csv`).
+- Suite run 3: GitHub Actions R CMD check on `22c8877`, 5 jobs (ubuntu release and devel, macOS, Windows, full-engines) all green.
+- Export surface mapped with `getNamespaceExports()` against every `name(` occurrence in `tests/testthat/*.R`.
+- Flakiness probes: `tests/testthat/test-gbcd.R` (the only file with no top-level `set.seed`) run twice under `load_all`; grep for `Sys.time`, `Sys.Date`, `skip`.
+- A shuffled-order run was not performed (testthat 3.3.2 has no shuffle option; files share no global state beyond `helper-*.R` fixtures).
+- No package files were modified by this pass.
+
+## Headline
+
+Green with one amber. 200 `test_that()` blocks in 55 files cover all 30 exports, 88.3 percent of lines, with no bare `expect_error()` and every skip tied to an optional engine. Depth is uneven: four files sit below 81 percent and the uncovered lines there are mostly error branches of the long validation preambles. One assertion depends on wall-clock time.
+
+## Findings
+
+### A. Coverage gaps
+
+- _(Medium.)_ `R/backprojection.R` 67.5 percent: 39 uncovered lines in `.validate_basis`, `backproject_contrast` (lines 61 to 98) and `.backproject_draws` (110 to 144). The function has 28 `stop()` calls; `tests/testthat/test-backprojection.R` has 5 `expect_error()` calls, so most guards are never driven.
+- _(Medium.)_ `R/shrinkage.R` 66.7 percent: 14 uncovered lines in `shrink_factor_effects` (40 to 74), the `V` validation and control branches. There is no `test-shrinkage.R`; the function is internal and reached only through other tests.
+- _(Low.)_ `R/holdout.R` 80.8 percent: 35 uncovered lines; lines 131 to 177 are the argument guards of `factor_holdout` (26 `stop()` calls), lines 5 to 51 the metric and projection helpers' error paths.
+- _(Low.)_ `R/stability.R` 82.0 percent: 31 uncovered lines, including the `.checkpoint_replicate` mismatch branch (line 73 to 79) and `.resample_aux` paths.
+- _(Low.)_ Least-referenced exports: `plot_factor_pve` (2 call sites in tests), `plot_factor_weights` (4). Both are exercised only for class and build success.
+
+### B. Weak or meaningless tests
+
+- _(Low.)_ Plot exports are asserted mostly through `ggplot2::ggplot_build()` succeeding plus attribute checks; no plot-data value checks for `plot_factor_pve`, `plot_factor_weights`, `plot_factor_scatter`.
+- _(Low.)_ goodpractice's `expect_identical_linter` flags 381 `expect_equal()` calls where `expect_identical()` would be stricter (`evidence/goodpractice-lint-counts.csv`). Style, not defect: many compare floating-point matrices with tolerance.
+- Verified not a defect: `duplicate_argument_linter` at `tests/testthat/test-comparison.R:46` (`c(F1 = "factor", F1 = "initialized")`) is a deliberate invalid-input fixture.
+
+### C. Instability / flakiness
+
+- _(Low.)_ `tests/testthat/test-fu0-preflight.R:40` asserts `expect_lt(elapsed, 5)` on wall-clock time around an early-exit error. The intent (fail at entry, not after a fit) is sound; the bound can fail on a loaded CI runner. Replace with a mock counter or drop the time assertion.
+- Verified healthy: `test-gbcd.R` seeds every random draw through `.with_seed()` (lines 3, 102, 105, 141, 148) and gives identical results on two runs.
+- Verified healthy: 29 `skip*` calls, all `skip_if_not_installed()` for Suggests engines (limma, variancePartition, CorShrink, SeuratObject, uwot, fgsea, decoupleR, gbcd, flashier capability probe). None skip silently on CI's full-engines job.
+- 11 warnings "Maximum number of iterations reached" from `test-projection.R` (lines 18 to 39) are native flashier warnings on tiny fixtures; they are expected and documented in HANDOFF.md but they add noise to every run.
+
+### D. Consistency / maintainability
+
+- _(Low.)_ Dense one-line style: `semicolon_linter` reports 67 hits in `R/` and the tests use the same `a<-1;b<-2` style, which makes failure line numbers coarse.
+- _(Low.)_ No `_snaps/` snapshots; print output of `print.prior_comparison` is checked with `expect_output()` regex only.
+
+## Verified healthy (no action)
+
+- All 30 exports are referenced by tests; `tests/testthat/test-core-api.R` pins the export list and positional-argument contracts.
+- 0 bare `expect_error()`; every error assertion carries a regexp.
+- Seeds are explicit (`seed =` or `set.seed`) in every file but `test-gbcd.R`, which seeds internally.
+- Independent oracles exist for the scientific contracts (`test-fnd-oracles.R`, `helper-upstream.R` re-implements upstream ranking helpers; `test-comparison.R` has analytic span/cone answers).
+- CI runs the suite on 5 platforms, with a separate job installing every optional engine.
+
+## Coverage snapshot
+
+| File | Line coverage |
+|---|---|
+| Total | 88.3 |
+| program-diagnostics.R | 97.1 |
+| runtime.R | 97.1 |
+| fit.R | 95.5 |
+| initialized.R | 95.3 |
+| extract.R | 94.8 |
+| stability.R | 82.0 |
+| holdout.R | 80.8 |
+| validation.R | 80.9 |
+| program-markers.R | 79.7 |
+| correlation.R | 79.4 |
+| backprojection.R | 67.5 |
+| shrinkage.R | 66.7 |
+
+Full table: `evidence/coverage-by-file.csv`.
+
+## Not run (reason)
+
+- Shuffled or re-seeded suite order: no testthat option in 3.3.2; not scripted by hand.
+- `R CMD check` on oldrel R: not in the CI matrix (see the tools report).
+- Timing of the suite on CI runners: not collected.
+
+## Suggested fix priority
+
+1. _(Medium.)_ Add `test-shrinkage.R` and `backproject_contrast` guard tests for the uncovered error branches (A).
+2. _(Low.)_ Replace the wall-clock assertion in `test-fu0-preflight.R:40` (C).
+3. _(Low.)_ Add plot-data assertions for the three least-tested plot exports (A, B).
+4. _(Low.)_ Silence or assert the 11 expected projection iteration warnings so a new warning is visible (C).

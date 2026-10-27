@@ -1,0 +1,107 @@
+---
+title: "flashier.utils 2.0.0.9000 — AI-Assisted Dependency Review"
+author: "Mikhael Manurung (AI-assisted, Claude Code / Fable 5.1)"
+date: 2026-10-27
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  eval: false
+---
+
+# Prompt
+
+> review this package using https://github.com/ropensci-review-tools/goodpractice https://docs.ropensci.org/goodpractice/reference/learn_skill_gp.html https://github.com/ropensci-review-tools/autotest https://github.com/ropensci-review-tools/pkgcheck https://github.com/ropensci-review-tools/ropensci-skills
+
+# Skill
+
+Skill `run-dependency-review` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Ground rules (these make the report trustworthy)
+>
+> - **Prune the tree, not the count.** Only recommend removing a dependency when
+>   (a) it is reachable **only** through this package's own direct import (a
+>   prunable leaf), and (b) its usage is light enough to replace without losing
+>   correctness or readability. Removing a package that `httr2`/`dplyr`/etc. also
+>   pull in is cosmetic.
+> - **Count real usage.** Base recommendations on how many times, and where, each
+>   imported function is actually called — not on reputation.
+> - **Base-R replacement must preserve behaviour and readability.** A two-line
+>   helper that reads worse than the dependency is not a win.
+> - **Respect the maintainer's stated preferences** (e.g. a deliberate tidyverse
+>   or zero-dependency stance).
+> - **Read-only.** Don't edit `DESCRIPTION` or `R/` to prove a point; propose,
+>   with evidence.
+>
+> ## Method
+>
+> 1. **Build the recursive dependency tree** (e.g. `pkgnet::DependencyReporter`,
+>    or `tools::package_dependencies(recursive = TRUE)` / `pak::pkg_deps_tree()`).
+>    Record the node/edge counts.
+> 2. **Reverse-dependency analysis** over that edge list: for each candidate,
+>    _which_ packages require it? This separates **prunable leaves** (reachable
+>    only via this package's import) from packages **pinned** by core dependencies
+>    you must keep. Cutting a pinned package prunes nothing.
+> 3. **Usage counts** of every imported function across `R/*.R` — how many call
+>    sites, and in which functions.
+> 4. **Base-R feasibility** of replacing each usage, judged on correctness and
+>    readability. Note where a replacement rides along with a refactor recommended
+>    elsewhere (e.g. an engine that collapses N call sites to one).
+> 5. **Weigh footprint**: compiled/large dependencies (e.g. a `stringi` pulled in
+>    only via `stringr`) are higher-value cuts than tiny pure-R ones.
+
+
+# Report
+
+## Method
+
+Reviewed commit `22c8877`. Recursive tree from `tools::package_dependencies(Imports, recursive = TRUE, which = c("Depends","Imports","LinkingTo"))` against the installed library on this machine (R 4.5.1; flashier at the pinned commit `fd44811`, which is a development revision, not CRAN 1.0.x). Reverse analysis: for each direct import, the set of packages reachable only through it. Usage counted as `pkg::fn` call sites over `R/*.R` (`evidence/dependency-tree.csv`). Suggests gating checked by grepping `.check_engine("pkg"` and `requireNamespace("pkg"`. goodpractice `no_obsolete_deps` passed. No package files were modified by this pass.
+
+## Headline
+
+Nothing is prunable. The install tree has 106 non-base packages; 66 of them are reachable only through the flashier commit pin, and the other eight Imports add zero nodes that flashier does not already require. The actionable dependency issue is the `Remotes:` pin itself, which makes the package uninstallable from CRAN mirrors and ties users to `remotes::install_github()`.
+
+## Summary
+
+| Import | Call sites in R/ | Recursive subtree (non-base) | Unique to this import | Prunable | Verdict |
+|---|---|---|---|---|---|
+| flashier | 58 | 66 | 66 | no | core engine |
+| ebnm | 91 | within flashier's | 0 | no | core priors (pinned by flashier) |
+| ggplot2 | 164 | within flashier's | 0 | no | 8 plot exports; also pinned by flashier |
+| Matrix | 12 | 0 unique | 0 | no | sparse inputs; pinned |
+| digest | 20 | 0 unique | 0 | no | basis and config hashes; pinned |
+| stats | 87 | base | 0 | no | |
+| utils | 45 | base | 0 | no | |
+| methods | 4 | base | 0 | no | `slot`, `as`, `is` on sparse classes |
+| parallel | 1 | base | 0 | no | `mclapply` in `factor_stability` |
+
+Suggests: 26 packages. Every Suggests package with a `pkg::` call site in `R/` is gated by `.check_engine()` (`R/association.R:2`, 18 call sites across 10 files) or `requireNamespace()` (psych, clue, ggrepel, gbcd), so a missing engine gives the explicit "Requested engine X is unavailable" error rather than a load failure. Three Suggests have no call site in `R/`: `patchwork`, `softImpute`, `irlba` (used by the plot gallery article and by flashier's own initializers through `fit_multistart_ebmf`); `decoupleR` is reached through `getExportedValue`, not `::`.
+
+## Tier 1, clear wins
+
+None. Removing any direct import leaves the install tree unchanged because flashier's pinned revision already imports ebnm, ggplot2, Matrix and digest.
+
+## Tier 2, worth doing
+
+- _(Medium.)_ Document and test the flashier pin. `DESCRIPTION` pins `willwerscheid/flashier@fd44811` and CI installs it from GitHub on every job (`.github/workflows/R-CMD-check.yaml:42`). The README says the install "pulls the pinned flashier commit" but not why, and nothing records whether CRAN flashier 1.0.x passes the suite. A short NEWS or README note naming the feature that needs the commit, plus one CI job on CRAN flashier (allowed to fail), would tell users whether `install.packages("flashier")` is enough.
+- _(Low.)_ The three other Remotes (`CorShrink`, `gbcd`, `fastTopics`) are Suggests, which is the right tier; pkgcheck notes none of them are on CRAN, so a CRAN submission would need them moved to `Additional_repositories` or dropped.
+
+## Tier 3, defer
+
+- `parallel::mclapply` is fork-only, so `workers > 1` silently degrades on Windows. Switching to the already-installed `BiocParallel` (a Suggests) would cost an import; keep `parallel` and document the Windows limit (already noted in the roxygen for `workers`).
+
+## Keep, removal buys nothing
+
+- `digest` (20 sites): every manifest `basis_id` and holdout `config_hash` is a SHA-256 of large objects; base R has no equivalent without writing to disk.
+- `methods` (4 sites): needed for S4 slot access on `Matrix` classes.
+- `ggplot2` (164 sites): the whole display layer; pinned by flashier anyway.
+
+## Recommendation
+
+Keep all nine Imports. Record the reason for the flashier commit pin and test against CRAN flashier so the pin can be lifted when upstream releases. Keep the Suggests gating pattern; it is uniformly applied.
+
+## Caveat
+
+Tree membership reflects the library installed on this machine on 2026-10-27; the flashier development revision pulls packages (for example `fastTopics`, `cowplot`, `Polychrome`) that CRAN flashier may not.

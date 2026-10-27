@@ -1,0 +1,24 @@
+                    measure  value percentile noteworthy
+1                   files_R   32.0       89.1           
+4           files_vignettes    8.0       98.2           
+5               files_tests   55.0       98.5           
+6                     loc_R 4108.0       90.2           
+7             loc_vignettes 1559.0       94.0           
+8                 loc_tests 3593.0       93.0           
+9             num_vignettes    4.0       93.5           
+12                  n_fns_r  147.0       91.0           
+13         n_fns_r_exported   65.0       89.6           
+14     n_fns_r_not_exported   82.0       91.4           
+15         n_fns_per_file_r    4.6       66.9           
+16        num_params_per_fn    7.0       86.0           
+17             loc_per_fn_r   26.0       71.8           
+18         loc_per_fn_r_exp   50.0       79.9           
+19     loc_per_fn_r_not_exp   12.0       63.2           
+20         rel_whitespace_R    2.5        3.8       TRUE
+21 rel_whitespace_vignettes   26.9       32.4           
+22     rel_whitespace_tests    4.4        4.3       TRUE
+23      doclines_per_fn_exp   32.0       38.8           
+24  doclines_per_fn_not_exp    0.0       19.8           
+25     fn_call_network_size    0.0        4.5       TRUE
+── It is good practice to ──────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────

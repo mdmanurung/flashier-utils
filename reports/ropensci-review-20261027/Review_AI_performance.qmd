@@ -1,0 +1,112 @@
+---
+title: "flashier.utils 2.0.0.9000 — AI-Assisted Performance Review"
+author: "Mikhael Manurung (AI-assisted, Claude Code / Fable 5.1)"
+date: 2026-10-27
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  eval: false
+---
+
+# Prompt
+
+> review this package using https://github.com/ropensci-review-tools/goodpractice https://docs.ropensci.org/goodpractice/reference/learn_skill_gp.html https://github.com/ropensci-review-tools/autotest https://github.com/ropensci-review-tools/pkgcheck https://github.com/ropensci-review-tools/ropensci-skills
+
+# Skill
+
+Skill `run-performance-review` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Ground rules (these make the report trustworthy)
+>
+> - **Trace before you profile.** Understand the data/compute path end to end —
+>   where I/O happens, where results accumulate — before quoting numbers.
+> - **Anchor on measured data.** Profile real inputs, or measure the package's own
+>   recorded fixtures (`object.size()`, row/column counts, per-row cost). State
+>   which figures are _measured_ and which are _extrapolated_.
+> - **Extrapolate explicitly.** Show the multipliers (rows/site/year, bytes/row,
+>   transient vs. persistent) so a reader can check the arithmetic and see the
+>   assumptions.
+> - **Distinguish the persistent result from the transient peak** — the peak
+>   (in-flight parse + accumulated result + concatenation copy) is usually what
+>   OOMs, not the final object.
+> - **Measured wins only.** Recommend an optimization only where the trace or a
+>   measurement shows it matters; keep behaviour identical.
+> - **Read-only.** Don't edit the package; propose, with evidence.
+>
+> ## Method
+>
+> 1. **Trace the hot path** over `R/*.R`: every I/O / HTTP egress point, the
+>    chunking strategy, any caching / temp files / streaming, and where results
+>    are accumulated vs. flushed. Sketch the call chain.
+> 2. **Measure anchors.** Profile representative inputs (`Rprof`,
+>    `bench::mark()`, `profmem`/`gc()` for allocation), or measure the recorded
+>    fixtures: sizes, parsed rows/cols, in-memory `object.size()`, per-row bytes,
+>    resolution.
+> 3. **Identify what scales** and what doesn't — separate the cheap summary paths
+>    from the ones whose cost grows with input.
+> 4. **Extrapolate scenarios** from the measured per-unit anchors to realistic
+>    large queries, tabulating rows · final size · **peak transient**.
+> 5. **Enumerate risks**: memory-bound large operations (no streaming/incremental
+>    flush), silent partial results on truncation, no caching → repeated work, no
+>    resumability/checkpointing.
+
+
+# Report
+
+## Method
+
+Reviewed commit `22c8877`. Trace over `R/*.R` of every densification (`as.matrix(`, 11 sites), every memory budget guard, and every parallel or checkpoint path. Measured anchors come from two archives on this machine: the profiling decision of 2026-10-26 (`Rprof` on simulated 5k and 20k samples by 1000 features, K = 20) and the planted-truth validation run of 2026-10-27 (300 cells by 400 genes, K = 7, 8 cores). Extrapolations are labelled as such. No package files were modified by this pass.
+
+## Headline
+
+The package's own code is cheap; time and memory sit in the native flashier fit and sampler, which the package calls but does not own. At 20k samples by 1000 features every utility except `factor_intervals` runs under one second, and `factor_intervals` spends 95 percent of its 54 seconds inside flashier's posterior sampler. The risks are memory on dense held-out copies and the fork-only parallel backend, and both are already guarded or documented.
+
+## Architecture of the hot path
+
+- Fit: `fit_ebmf()` (`R/fit.R:123`) is a thin orchestration of `flash_init`, `flash_greedy`, `flash_backfit`, `flash_nullcheck`; all cost is native.
+- Extraction: `standardize_factors()` and `factor_activity()` scale and name the native `L`/`F`; vectorised `sweep` and `%*%` only.
+- Uncertainty: `factor_intervals()` calls flashier's sampler, which draws full `L` and `F` matrices per draw even when one factor is requested (`validation/profiling-20261026/DECISION.md`).
+- Held-out prediction: `factor_holdout()` loops folds (`lapply`, `R/holdout.R:181`), densifies the test block three times (`as.matrix(testX)` at lines 192, 212, 228) and projects activities with a fixed-effects backfit (`.native_projection`, `R/holdout.R:19`).
+- Stability: `factor_stability()` refits B times through `parallel::mclapply` when `workers > 1` (`R/stability.R:228`), with atomic per-replicate checkpoints (`.checkpoint_replicate`, `R/stability.R:62`).
+
+## Measured anchors
+
+| Workload | Size | Seconds | Source |
+|---|---|---|---|
+| standardize_factors (ldf / rms) | 20k x 1000, K = 20 | 0.15 / 0.12 | profiling 2026-10-26 (measured) |
+| factor_activity long format | same | 0.11 | measured |
+| factor_uncertainty activity | same | 0.42 | measured |
+| factor_cor pearson | same | 0.29 | measured |
+| factor_replicability 5k vs 20k fit | same | 0.70 | measured |
+| factor_intervals F1, nsamp 200 | same | 53.6 (95 percent native sampler) | measured |
+| native greedy fit | 5k / 20k x 1000 | 163 / 518 (flashier) | measured, not package code |
+| factor_holdout one fold, K = 7, backfit | 240 train x 400 genes | about 7 | planted validation (measured) |
+| factor_stability 20 refits, 4 workers | 300 x 400, K = 7 | 53 to 56 per arm | planted validation (measured) |
+
+## What scales, what does not
+
+- Linear in cells: extraction, scaling, long tables, correlation.
+- Linear in `B` (stability) and folds (holdout), each unit a full native fit; parallel only across replicates, never within a fit.
+- `factor_intervals`: linear in `nsamp` times the cost of a full `L`/`F` draw; the per-factor request does not reduce it. Extrapolated from the anchor: 1000 draws at 20k x 1000 is about 4.5 minutes.
+- Dense held-out copies: `8 * n_test * n_features * 4` bytes per fold, checked against `control$dense_budget_bytes` (default 256 MB, `R/holdout.R:173-190`). Extrapolated: a 20 percent fold of 100k cells by 2000 genes is 1.3 GB and would be refused by default, which is the intended behaviour.
+
+## Risks identified
+
+- _(Medium.)_ `factor_intervals` on large fits: there is no streaming or per-factor sampler; the only lever is `nsamp`. Evidence: profiling decision, `rprof-top-self.txt`.
+- _(Low.)_ `parallel::mclapply` is fork-only; `workers > 1` on Windows runs serially (documented at `R/stability.R:120`). No silent truncation.
+- _(Low.)_ `plot_factor_activity(order_within_group = "mds1")` densifies a within-group distance matrix; it now refuses above 256 MB (`R/plots.R:199`) instead of allocating.
+- Verified guarded: `fit_gbcd_programs` preflight (`R/gbcd.R:11`, default 2 GiB), `.projection_budget` for feature projections (`R/projection.R:25`), the holdout budget above.
+- Verified: no caching layer and no repeated work inside a call; stability and holdout checkpoints make long runs resumable.
+
+## Recommendations
+
+- Document the `factor_intervals` cost model in its roxygen (draws times full-matrix sampler) and suggest `nsamp` tiers; no code change.
+- Keep the Rcpp decision (not justified) unless a reference-layer workload shows a package-owned hot loop.
+- Add a `skip_on_cran()`-free but network-free large-input test that asserts the holdout budget refusal message, so the guard is covered (it is among the uncovered lines in the test audit).
+
+## Caveats
+
+Anchors are single runs on one 8-core node; fit times vary with convergence. The 20k-row profile used K = 20 point-normal priors; heavier priors cost more inside flashier, not in this package.

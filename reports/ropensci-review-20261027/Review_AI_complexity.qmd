@@ -1,0 +1,122 @@
+---
+title: "flashier.utils 2.0.0.9000 — AI-Assisted Code-Complexity Analysis"
+author: "Mikhael Manurung (AI-assisted, Claude Code / Fable 5.1)"
+date: 2026-10-27
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  eval: false
+---
+
+# Prompt
+
+> review this package using https://github.com/ropensci-review-tools/goodpractice https://docs.ropensci.org/goodpractice/reference/learn_skill_gp.html https://github.com/ropensci-review-tools/autotest https://github.com/ropensci-review-tools/pkgcheck https://github.com/ropensci-review-tools/ropensci-skills
+
+# Skill
+
+Skill `run-complexity` from ropensci-review-tools/ropensci-skills, commit 9dccd2e1d5a303b12861c5d223afae67d6c91b11 (2026-08-25); operative sections reproduced verbatim:
+
+> ## Ground rules (these make the report trustworthy)
+>
+> - **Measure first.** Rank functions by a real metric before reading source; the
+>   eye is a poor complexity meter and misses structural duplication entirely.
+> - **Read the code to interpret the numbers.** A high score can be benign
+>   (a chain of `&&` guards); a low score can hide 85× duplication. The metric
+>   points; you judge.
+> - **Confirm behavioural claims with runtime probes.** If you say a function is
+>   inert or its error path is broken, reproduce it in a scratch session and paste
+>   the result.
+> - **Read-only.** No refactoring the package to prove a point. Throwaway probes
+>   are fine; changes to the package tree are not.
+> - **Preserve the user-facing surface.** Every internal-refactor recommendation
+>   must keep exported names, signatures, and return types identical. Genuine
+>   API/UX changes are flagged **separately** as optional, not folded into
+>   "simplification".
+>
+> ## Method
+>
+> 1. **Per-function metrics.** With `devtools::load_all()`, compute cyclomatic
+>    complexity for every function in the namespace (e.g. `cyclocomp::cyclocomp()`),
+>    plus lines-of-code, maximum brace-nesting depth, and `if`/`for` counts from
+>    the deparsed bodies. Rank; note the distribution (most functions are usually
+>    trivial — complexity concentrates in a few).
+> 2. **Static call-graph.** Over `R/*.R`, use token analysis
+>    (`utils::getParseData()`) to measure **duplication** (near-identical bodies)
+>    and to count **call sites** of key helpers. Cyclomatic complexity is blind to
+>    copy-paste across files; this is where you find it.
+> 3. **Targeted source reading** of the top offenders to characterise _why_ they
+>    are complex (god-function, deep nesting, repeated block) and whether it's
+>    genuine or measurement artefact.
+> 4. **Runtime probes** to confirm behavioural findings surfaced while measuring
+>    (e.g. validation that never runs, an error path that throws the wrong error).
+
+
+# Report
+
+## Method
+
+Reviewed commit `22c8877`. Under `devtools::load_all()`: `cyclocomp::cyclocomp()` (1.1.2) for all 144 namespace functions, plus lines of deparsed body, `if`/`for`/`stop()` counts and maximum indentation (`evidence/complexity-per-function.csv`). Static token analysis with `utils::getParseData()` over `R/*.R`: call-site counts of internal helpers, 4-token shingle Jaccard similarity between every pair of functions with at least 20 shingles, and statement lines over 60 characters repeated three or more times. goodpractice 1.2.0.1 (inside pkgcheck 0.3.4.5) results in `evidence/goodpractice-results.csv`; lintr 3.4.0 run separately with a 120-character limit. Runtime probes: none were needed, no behavioural claim below rests on reading alone except where marked. No package files were modified by this pass.
+
+## Headline
+
+Complexity concentrates in five functions and is structural, not duplicated. Median cyclomatic complexity is 11.5 and the 90th percentile 64, but `factor_holdout` (168), `factor_stability` (145), `.program_source` (138), `.make_representation` (103) and `standardize_factors` (97) carry long validation preambles and one inline closure each. No near-duplicate bodies exist (no pair above 0.25 shingle Jaccard). The real cost is readability: 472 lines over 120 characters and 2591 over 80.
+
+## Measured profile
+
+| Function | File | cc | LOC | if | stop() | nesting | Verdict |
+|---|---|---|---|---|---|---|---|
+| factor_holdout | holdout.R | 168 | 312 | 68 | 26 | 11 | hotspot 1 |
+| factor_stability | stability.R | 145 | 218 | 47 | 17 | 10 | hotspot 1 |
+| .program_source | comparison.R | 138 | 87 | 21 | 10 | 8 | hotspot 2 |
+| .make_representation | representation.R | 103 | 58 | 12 | 7 | 8 | guard chain |
+| standardize_factors | representation.R | 97 | 183 | 41 | 12 | 9 | hotspot 3 |
+| .factor_support | representation.R | 82 | 32 | 5 | 4 | 6 | guard chain (benign) |
+| backproject_contrast | backprojection.R | 79 | 127 | 30 | 15 | 10 | hotspot 3 |
+| .program_evidence | comparison.R | 77 | 61 | 11 | 7 | 9 | guard chain |
+| shrink_factor_effects | shrinkage.R | 72 | 98 | 19 | 14 | 6 | guard chain |
+| test_factors | association.R | 72 | 181 | 24 | 8 | 9 | hotspot 3 |
+
+Distribution over 144 functions: median 11.5, 75th percentile 27, 90th 64.1, 95th 76, max 168. 30 of 144 are exported. goodpractice's 50-line rule flags 2 functions (`.align_programs` 79 lines, `test_factors` 101 lines by its line count); by deparsed body 23 functions exceed 50 lines.
+
+Helper reuse is high: `.attach_provenance` 59 call sites, `.resolved_parameters` 51, `.validate_ids` 51, `.select_ids` 40, `.resolve_view` 36, `.program_number` 30.
+
+## Hotspot 1: `factor_holdout` and `factor_stability`
+
+`R/holdout.R:127-277`. Lines 130 to 177 are 26 argument guards; lines 180 to 254 are one closure passed to `.checkpoint_replicate()` inside `lapply()`, nesting 11 deep, containing preprocessing, projection, scoring and the macro aggregation. `factor_stability` (`R/stability.R:149-258`) has the same shape.
+
+Refactor, surface unchanged: extract `.holdout_inputs(...)` returning the validated list (folds, labels, evaluated, preprocessing, budget) and `.holdout_fold(i, ...)` for the per-fold body, and `.holdout_score(observed, prediction, baseline, units, cohort)` for the metric rows. The exported signature, `analysis_metadata` and result schema stay identical; the tests in `test-holdout.R` are the regression net. Expected effect: three functions with cc around 40 to 60 each.
+
+## Hotspot 2: `.program_source`
+
+`R/comparison.R:19-80`: one function handles native fits/views (lines 21 to 29) and declared matrix lists (30 to 65) and then shared checks (66 to 79). Split into `.program_source_native()` and `.program_source_declared()` with the shared tail in `.program_source()`. The declared branch's `expand()` closure can become a top-level helper.
+
+## Hotspot 3: `standardize_factors`, `backproject_contrast`, `test_factors`
+
+All three (183, 127, 181 LOC) are long because every optional argument is validated inline before a short computation. The pattern already used elsewhere, `.program_number()` and `.select_ids()`, could absorb the repeated scalar/ID checks; the six statement lines repeated three or more times across files (`evidence` section below) are candidates for one helper each: the `control` list validation (4 copies) and the `direction` `match.arg` (4 copies).
+
+## Minor
+
+- _(Medium.)_ `R/alignment.R:6` assigns `T <- target$effects` and uses `T` as a matrix name through line 29. `T` is the base alias of `TRUE`; the shadowing is local and works, but it breaks lintr's `T_and_F_symbol_linter` nine times and reads as a boolean. Rename to `target_effects`.
+- _(Low.)_ `.display_options` (`R/plot-suite.R:13`) has no call site in `R/` (goodpractice `complexity_unused_internal`, confirmed by grep). Delete or use it in `plot_factor_activity`, which reimplements the same option check at `R/plots.R:206`.
+- Not dead, despite the static count: `.default_fit_callback` is passed as a value at `R/stability.R:192`; `.ns_has_function` is passed to `vapply()` at `R/fit.R:29`.
+- _(Low.)_ `on.exit()` without `add = TRUE` at `R/ids.R:80` and `R/stability.R:71` (goodpractice `on_exit_has_add`). Each is the only `on.exit` in its function, so no handler is lost today.
+- _(Low.)_ `R/correlation.R:32`: `factor_cor` is documented with examples but not exported and carries no `@noRd` (goodpractice `roxygen2_has_export_or_nord`). This is a deliberate design (33 internal functions have reference pages and provenance rows), so document the choice in the roxygen block or add `@keywords internal`.
+- _(Low.)_ Duplicate `@param fit` text between `R/backprojection.R:19` and `R/features.R:7` (goodpractice `roxygen2_duplicate_params`); use `@inheritParams`.
+- _(Low.)_ lintr counts (120-character limit, object-name linter off): line length 471, indentation 170, semicolon 67, commas 63, infix spaces 44, brace 33. A single `styler::style_pkg()` run with a 120-character limit would clear most; `styler` is already used in this repository's history.
+
+Repeated statement lines (3 or more copies): `direction <- match.arg(direction, c("absolute","positive","negative"))` (4), the `control` list guard (4), `generated <- c(rows = ..., columns = ...)` (3), `flash_factors_init(object, pair, ebnm_fn = priors)` (3), `flash_set_verbose(object, verbose = verbose)` (3), the heatmap palette default (3).
+
+## User-facing recommendations (API unchanged, optional)
+
+- `factor_holdout()` takes 13 arguments plus a 13-key `control` list. The split above does not change that; a documented `holdout_control()` constructor would make the allowed keys discoverable without changing the signature.
+- Function names `provenance` and `test_factors` exist in other CRAN packages (pkgcheck `unique_fn_names`: provenance 4.4, plspm 0.6.0 and three others). Not a conflict for users who namespace, but worth knowing before a CRAN submission.
+
+## Suggested fix priority
+
+1. _(Medium.)_ Rename `T` in `R/alignment.R` (Minor).
+2. _(Medium.)_ Split `factor_holdout` and `factor_stability` into input, per-fold and scoring helpers (Hotspot 1).
+3. _(Low.)_ Split `.program_source` (Hotspot 2); delete `.display_options` or use it in `plots.R`.
+4. _(Low.)_ Run styler at 120 characters; add `add = TRUE` to the two `on.exit` calls; `@inheritParams` for the duplicated `fit` parameter.
