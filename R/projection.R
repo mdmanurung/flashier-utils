@@ -189,6 +189,22 @@
 #'   separate from semantic factors; dependent augmented columns are refused.
 #' @author Mikhael Manurung; native engine Jason Willwerscheid, Peter Carbonetto,
 #'   Wei Wang and Matthew Stephens. Conceptual transfer: STARCAT authors.
+#' @examples
+#' set.seed(3)
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows", max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity")
+#' view <- standardize_factors(fit, scaling = "raw")
+#' # Six new features measured on the same 24 samples; activities stay fixed.
+#' Y <- tcrossprod(view$activity, matrix(rnorm(12), 6, 2)) + matrix(rnorm(144, sd = 0.2), 24, 6)
+#' dimnames(Y) <- list(rownames(X), paste0("p", 1:6))
+#' projected <- project_factor_features(view, Y, "rows", "simulated_protein",
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20)
+#' projected$representation$effects
+#' projected$reconstruction
 #' @export
 project_factor_features <- function(fit, query, sample_side, feature_scale, factors = NULL, ebnm_fn = NULL, maxiter = 200L, S = NULL, dense_budget_bytes = 256 * 1024^2) {
   side <- match.arg(sample_side, c("rows", "columns"))
@@ -305,6 +321,23 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' @author Mikhael Manurung; native flashier authors Jason Willwerscheid,
 #'   Peter Carbonetto, Wei Wang and Matthew Stephens. Conceptual STARCAT credit:
 #'   Dylan Kotliar and Michelle Curtis; no source reuse.
+#' @examples
+#' set.seed(3)
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows", max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity")
+#' view <- standardize_factors(fit, scaling = "raw")
+#' # Eight new samples on the same 16 features; effects stay fixed.
+#' query <- tcrossprod(matrix(rnorm(16), 8, 2), view$effects) + matrix(rnorm(128, sd = 0.2), 8, 16)
+#' dimnames(query) <- list(paste0("q", 1:8), colnames(X))
+#' projected <- project_factor_activity(view, query, "rows", "simulated_centered_intensity",
+#'   preprocessing = list(scope = "identity"),
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20)
+#' projected$representation$activity
+#' projected$reconstruction
 #' @export
 project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, prior_policy = c("query", "fixed_reference"), feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2) {
   side <- match.arg(sample_side, c("rows", "columns"))

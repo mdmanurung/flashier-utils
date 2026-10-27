@@ -7,7 +7,7 @@ Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-Nothing pending. Candidate next batch: the review fix lists (reports/ropensci-review-20261027/README.md), starting with the five rOpenSci gates in Review_AI_tools.qmd; the user decides which to apply. Reusable skill: ~/.claude/skills/r-package-review.
+`gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -28,6 +28,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-10-27 rOpenSci gate fixes: examples for the two projection exports, R/flashier.utils-package.R, CONTRIBUTING.md (Rbuildignored), ubuntu oldrel-1 CI job, 'flashier' quoted in DESCRIPTION.
 - 2026-10-27 rOpenSci-style review (read-only): pkgcheck/goodpractice/autotest/coverage/complexity/dependency/performance passes with evidence CSVs under reports/ropensci-review-20261027; 5 standards gates fail (examples for 2 projection exports, CONTRIBUTING, package doc, oldrel CI, quoted 'flashier'); no R code defects beyond style. Skill saved at ~/.claude/skills/r-package-review.
 - 2026-10-27 D1 technical part: validation/planted-validation-20261027 (PREREG frozen; paired masked prediction 25 folds x 3 arms, all beat training mean; compare_prior_fits evidence bound in 15/15 pairs; subsample stability 300/300 refits; refit check reproduces 20261026 fits to 1e-14). Finding: signed-arm shared-block factors unstable under subsampling (0.05-1.0), nonnegative arms 1.0. Article section added; projection paths store verbosity 0.
 - 2026-10-27: compare_prior_fits() promoted from validation/implementation-all-20261025/candidate to R/comparison.R with its oracle tests (test-comparison.R) plus native-fit and bound-holdout tests; factor_holdout records input_digest/evaluation_digest; print/plot methods; registry, CREDITS, pkgdown index and compare-priors tutorial updated. A1 done; A2 evidence binding is implemented for stability (exact basis) and masked paired holdout (digests), comparison reports beyond print/plot not built. GB-005b completed (canonical MDS sign, group_order, dense refusal). Release memo gates renamed REL-001a/b.

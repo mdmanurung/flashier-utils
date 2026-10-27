@@ -55,6 +55,23 @@ Sources with an intercept or external offset use an augmented ones/activity
 basis to estimate new signed point-normal feature offsets. Offsets are kept
 separate from semantic factors; dependent augmented columns are refused.
 }
+\examples{
+set.seed(3)
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows", max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity")
+view <- standardize_factors(fit, scaling = "raw")
+# Six new features measured on the same 24 samples; activities stay fixed.
+Y <- tcrossprod(view$activity, matrix(rnorm(12), 6, 2)) + matrix(rnorm(144, sd = 0.2), 24, 6)
+dimnames(Y) <- list(rownames(X), paste0("p", 1:6))
+projected <- project_factor_features(view, Y, "rows", "simulated_protein",
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20)
+projected$representation$effects
+projected$reconstruction
+}
 \seealso{
 \code{\link[=project_factor_activity]{project_factor_activity()}}
 }

@@ -19,5 +19,7 @@ checks, pkgstats percentiles, local R CMD check output, autotest results,
 sessionInfo). Large tool objects stay in the local scratch area and are not
 committed.
 
-No package files were modified by the review. Fixes are listed per report under
+No package files were modified by the review. The five gates in `Review_AI_tools.qmd`
+were fixed in the following commit (examples, package doc, CONTRIBUTING, oldrel CI,
+quoted 'flashier'); the reports describe the state at `22c8877`. Fixes are listed per report under
 "Suggested fix priority" and are applied in separate commits, if at all.

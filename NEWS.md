@@ -1,5 +1,10 @@
 # flashier.utils 2.0.0.9000
 
+- rOpenSci gates: `project_factor_activity()` and `project_factor_features()`
+  gained runnable examples, a package-level help page (`?flashier.utils`) and
+  `CONTRIBUTING.md` were added, CI now also checks R oldrel, and DESCRIPTION
+  single-quotes 'flashier'.
+
 - New `compare_prior_fits()` compares two saved fits, views or declared
   program matrices: loading cosines, bidirectional span and support-bounded
   feasible coverage with solver certification, residual gene profiles, and
