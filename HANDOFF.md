@@ -1,13 +1,13 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-10-27 · **Branch:** main · **Status:** f95c2d3 pushed, R CMD check (5 jobs) and pkgdown green; follow-up docs push pending CI
+**Date:** 2026-10-27 · **Branch:** main · **Status:** 9871f1b pushed, R CMD check (5 jobs) and pkgdown green; working tree clean
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 4`: the 2026-10-27 batch (REL-001 rename, GB-005b completion, compare_prior_fits promotion) must be green on R CMD check and pkgdown. Then the next triage rank is 4 (planted recovery and paired masked-prediction validation, D1).
+Nothing pending. Next triage rank is 4: planted recovery and paired masked-prediction validation (D1 technical part, 2–4 days; see docs/plans/2026-10-25-ease-triage.md).
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -23,7 +23,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
   local in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
-- Last green CI: f95c2d3 (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
+- Last green CI: 9871f1b (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
 - Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; document() still works.
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
