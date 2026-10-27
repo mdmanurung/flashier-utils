@@ -62,6 +62,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - No staged comparison API promoted to R/ until contracts are qualified (2026-10-25).
 
 ## Findings to keep
+- SCI-004a/b are the protocol's scientific gates (fixed-B point projection; supplied-profile consensus recovery) and remain open. The release software gates in reports/GO_MEMO_SCI004.md are REL-001a/b (renamed 2026-10-27).
 - Fixed priors alone do not remove query-set dependence: only fixed priors plus sample-wise
   var_type do (same cell, two query sets: 5e-7 vs 4e-4 to 9e-4).
 - fastTopics' matrix path checks row sums one-sided and only warns; test_gom_de checks both sides.
@@ -81,7 +82,6 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 
 ## Open items
 - GB-005b display order lacks canonical MDS sign and declared group order — fix on request.
-- GO_MEMO_SCI004.md and the audited plan define SCI-004a/b differently — reconcile before any release GO.
 - GBCD tracker has 13 partial rows (small missing tests) — flashier-gbcd/TRACKER.md.
 - Possible follow-up: fix residual variance to the reference (reference tau as S).
 - StarCAT (SC-*), SCI-*, VAL-* backlogs unchanged; need data and Slurm.
