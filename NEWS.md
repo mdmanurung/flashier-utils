@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- New `compare_prior_fits()` compares two saved fits, views or declared
+  program matrices: loading cosines, bidirectional span and support-bounded
+  feasible coverage with solver certification, residual gene profiles, and
+  optional evidence bound to the exact source basis. `factor_holdout()`
+  records `input_digest` and `evaluation_digest` so paired masked holdouts can
+  be attached as bound evidence. Print and plot methods included.
+
 - `plot_factor_activity()` structure plots: `order_within_group = "mds1"` now
   fixes the MDS sign (first nonzero displayed coordinate positive) so the order
   is reproducible across platforms, a new `group_order` argument declares the

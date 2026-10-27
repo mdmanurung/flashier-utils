@@ -73,6 +73,7 @@ reference:
     contents:
       - summarize_factor_activity
       - compare_factor_groups
+      - compare_prior_fits
       - test_factors
       - test_gom_de
       - backproject_contrast

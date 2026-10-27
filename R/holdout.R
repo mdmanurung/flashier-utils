@@ -269,6 +269,8 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
     diagnostics = list(failures = failures, prior_noise_policy = prior_note, prior_policy = prior_policy, auxiliary_policy = "named_sample_feature_subset"),
     activities = lapply(results[successful], function(result) result$activity), fold_results = results,
     analysis_metadata = list(evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
-      config_hash = config_hash, program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,
+      config_hash = config_hash, input_digest = digest::digest(list(X, md), algo = "sha256"),
+      evaluation_digest = digest::digest(list(evaluation, labels, evaluated, mask, activity_features, scoring_features), algo = "sha256"),
+      program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,
       dense_budget_bytes = budget, projection_is_unseen_entry_prediction = FALSE)), class = "holdout_result"), "factor_holdout", match.call(), .resolved_parameters("factor_holdout", environment()))
 }

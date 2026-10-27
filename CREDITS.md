@@ -31,6 +31,7 @@ citations for your installed versions.
 | `plot_factor_data` | Mikhael Manurung; conceptual: MOFA2 authors as above | plot_data_heatmap / plot_data_scatter display workflow | NEW_QOL / none |
 | `backproject_contrast` | David Zemmour | FlashierDGE reconstruction workflow | ADAPTED / none |
 | `provenance` | Mikhael Manurung | new registry interface | NEW_QOL / none |
+| `compare_prior_fits` | Mikhael Manurung; R Core Team | stats::optim (L-BFGS-B), svd, qr | NEW_ORCHESTRATION / none |
 | `fit_nonnegative_ebmf` | Peter Carbonetto; Matthew Stephens | flashier_nmf workflow; bounded native recipe | ADAPTED / call_only |
 | `refit_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_backfit | WRAPPER / call_only |
 | `fix_factors` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash_factors_fix; flash_factors_unfix | WRAPPER / call_only |

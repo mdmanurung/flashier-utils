@@ -7,7 +7,7 @@ Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-Nothing pending. Candidate for the next batch: triage rank 3, the saved-fit comparison API (A1–A2 in `docs/plans/2026-10-25-complete-package.md`); staged candidate stays under validation/ until contracts are qualified (locked decision below).
+`gh run list --limit 4`: the 2026-10-27 batch (REL-001 rename, GB-005b completion, compare_prior_fits promotion) must be green on R CMD check and pkgdown. Then the next triage rank is 4 (planted recovery and paired masked-prediction validation, D1).
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -28,6 +28,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-10-27: compare_prior_fits() promoted from validation/implementation-all-20261025/candidate to R/comparison.R with its oracle tests (test-comparison.R) plus native-fit and bound-holdout tests; factor_holdout records input_digest/evaluation_digest; print/plot methods; registry, CREDITS, pkgdown index and compare-priors tutorial updated. A1 done; A2 evidence binding is implemented for stability (exact basis) and masked paired holdout (digests), comparison reports beyond print/plot not built. GB-005b completed (canonical MDS sign, group_order, dense refusal). Release memo gates renamed REL-001a/b.
 - fit_ebmf always takes the explicit init/greedy/backfit/nullcheck path and calls flash_set_verbose, so verbose=0 silences flashier's zero-factor report (the flash() wrapper never stored the level). Okabe-Ito default for discrete colours in plot_factor_scatter/data/activity(structure); activity plots carry a scaling subtitle. Per-seed candidate counts (ebmf-cnmf-planted-candidates-seeds.csv, written by evaluate.R) feed the comparison figure.
 - Plot-first docs: first-fit (PVE, ranked weights), compare-priors (effects vs truth, metrics, held-out, congruence), advanced-use (coordinates, intervals, group distributions, backprojection, filter history), pancreas (weights, projected activity), robustness-checks (one figure per check, `plot_congruence()` helper in the article), comparison (candidates figure). ggplot2 only (Imports); patchwork/ggrepel not used in tutorials.
 - 09cb71d CI fix after the display suite (undocumented arg; tolerant prior chunk).
@@ -59,7 +60,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - GBCD: optional exact pin 670e3afb…; Baseline stays a factor; activity support unknown; copy no algorithms.
 - Keep LM/ash statistics separate from EB-SNMF effects; invent no FLASH uncertainty/PVE.
 - ImmGenT membership filter defaults: threshold 10, 12 passes; paired rescaling preserves reconstruction.
-- No staged comparison API promoted to R/ until contracts are qualified (2026-10-25).
+- compare_prior_fits promoted 2026-10-27 with the A1 acceptance oracles in tests/testthat/test-comparison.R (supersedes the 2026-10-25 hold). Remaining A2 work: comparison reports beyond print/plot.
 
 ## Findings to keep
 - SCI-004a/b are the protocol's scientific gates (fixed-B point projection; supplied-profile consensus recovery) and remain open. The release software gates in reports/GO_MEMO_SCI004.md are REL-001a/b (renamed 2026-10-27).

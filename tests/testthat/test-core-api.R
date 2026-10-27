@@ -1,6 +1,6 @@
 test_that("the public API contains exactly the approved core", {
   core <- c(
-    "backproject_contrast", "compare_factor_groups", "factor_activity",
+    "backproject_contrast", "compare_factor_groups", "compare_prior_fits", "factor_activity",
     "factor_effects", "factor_features", "factor_holdout", "factor_intervals",
     "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
     "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",

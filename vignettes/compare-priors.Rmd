@@ -201,10 +201,31 @@ alone therefore cannot establish lost signal. A broader study must also assess
 weak, correlated, overlapping, nonnegative and spurious/missing programs with
 repeated seeds and explicit failure accounting.
 
+## Joint coverage of the two program sets
+
+One-to-one matching asks "which factor is which". `compare_prior_fits()` asks a
+different question: can each factor of one fit be rebuilt from all factors of
+the other? Span coverage allows any signed combination; feasible coverage
+respects each factor's declared activity support. Both describe loading
+representability only, never program usage or biology.
+
+```{r coverage}
+comparison <- compare_prior_fits(views$normal, views$sparse)
+comparison
+```
+
+```{r coverage-figure, fig.width=7, fig.height=3, fig.alt="Two panels, feasible and span. Each shows the uncovered squared loading fraction for reference factors F1 and F2 at their observed poles; all values are near zero.", fig.cap="Uncovered loading fraction of each normal-prior factor when rebuilt from the sparse-prior factors, over the 24 simulated genes. Points are the two observed activity poles (shape and colour); zero means fully representable. Simulated data, one fit per prior, no replication."}
+plot(comparison, "coverage")
+```
+
+```{r coverage-table}
+comparison$coverage[, c("source", "factor", "pole", "span_residual", "feasible_residual", "feasible_status")]
+```
+
 ## Credits
 
 FLASH/EBNM authors are credited in [Get started](first-fit.html). Matching delegates
-to William Revelle's psych and Kurt Hornik/Walter Böhm's clue. SVD and metrics use
+to William Revelle's psych and Kurt Hornik/Walter Böhm's clue. SVD, metrics and the bounded coverage solver (`stats::optim`) use
 R Core functions; the experiment and its figures (ggplot2, Hadley Wickham and
 contributors) are independently implemented.
 [Full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
