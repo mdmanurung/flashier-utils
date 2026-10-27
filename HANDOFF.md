@@ -1,13 +1,13 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-10-26 · **Branch:** main · **Status:** 617f6d1 (docs reorder + roxygen markdown) pushed, CI pending; planted-truth/robustness batch committed locally, not pushed
+**Date:** 2026-10-27 · **Branch:** main · **Status:** 15912dd pushed, R CMD check and pkgdown green; working tree clean
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 4`: the plot-first docs commit after 09cb71d must be green on R CMD check and pkgdown (every tutorial and article gained figure chunks with fig.alt/fig.cap; no R code changed).
+Nothing pending. Candidate for the next batch: triage rank 3, the saved-fit comparison API (A1–A2 in `docs/plans/2026-10-25-complete-package.md`); staged candidate stays under validation/ until contracts are qualified (locked decision below).
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -23,7 +23,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
   local in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
-- Last green CI: bc920ec (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
+- Last green CI: 15912dd (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
 - Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; document() still works.
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
