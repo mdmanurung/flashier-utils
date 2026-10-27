@@ -7,6 +7,14 @@
   records `input_digest` and `evaluation_digest` so paired masked holdouts can
   be attached as bound evidence. Print and plot methods included.
 
+- The comparison article gains two planted-truth sections: paired held-out
+  gene prediction against a training-mean baseline and refit stability under
+  cell subsampling, with derived CSVs in `vignettes/articles/data/planted-*.csv`.
+
+- Held-out and feature projections (`factor_holdout()`, `project_factor_activity()`)
+  also store verbosity 0 on the native object, so flashier's "numerically
+  zero" factor report no longer prints during projection.
+
 - `plot_factor_activity()` structure plots: `order_within_group = "mds1"` now
   fixes the MDS sign (first nonzero displayed coordinate positive) so the order
   is reproducible across platforms, a new `group_order` argument declares the

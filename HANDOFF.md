@@ -1,13 +1,13 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-10-27 · **Branch:** main · **Status:** 9871f1b pushed, R CMD check (5 jobs) and pkgdown green; working tree clean
+**Date:** 2026-10-27 · **Branch:** main · **Status:** D1 technical validation batch committed locally; CI pending
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-Nothing pending. Next triage rank is 4: planted recovery and paired masked-prediction validation (D1 technical part, 2–4 days; see docs/plans/2026-10-25-ease-triage.md).
+`gh run list --limit 4`: the D1 batch (planted validation sections, projection verbosity fix) must be green. Then: rOpenSci-style review report requested by the user on 2026-10-27 (goodpractice, pkgcheck, autotest, ropensci-skills passes) under reports/ropensci-review-20261027/.
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -28,6 +28,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-10-27 D1 technical part: validation/planted-validation-20261027 (PREREG frozen; paired masked prediction 25 folds x 3 arms, all beat training mean; compare_prior_fits evidence bound in 15/15 pairs; subsample stability 300/300 refits; refit check reproduces 20261026 fits to 1e-14). Finding: signed-arm shared-block factors unstable under subsampling (0.05-1.0), nonnegative arms 1.0. Article section added; projection paths store verbosity 0.
 - 2026-10-27: compare_prior_fits() promoted from validation/implementation-all-20261025/candidate to R/comparison.R with its oracle tests (test-comparison.R) plus native-fit and bound-holdout tests; factor_holdout records input_digest/evaluation_digest; print/plot methods; registry, CREDITS, pkgdown index and compare-priors tutorial updated. A1 done; A2 evidence binding is implemented for stability (exact basis) and masked paired holdout (digests), comparison reports beyond print/plot not built. GB-005b completed (canonical MDS sign, group_order, dense refusal). Release memo gates renamed REL-001a/b.
 - fit_ebmf always takes the explicit init/greedy/backfit/nullcheck path and calls flash_set_verbose, so verbose=0 silences flashier's zero-factor report (the flash() wrapper never stored the level). Okabe-Ito default for discrete colours in plot_factor_scatter/data/activity(structure); activity plots carry a scaling subtitle. Per-seed candidate counts (ebmf-cnmf-planted-candidates-seeds.csv, written by evaluate.R) feed the comparison figure.
 - Plot-first docs: first-fit (PVE, ranked weights), compare-priors (effects vs truth, metrics, held-out, congruence), advanced-use (coordinates, intervals, group distributions, backprojection, filter history), pancreas (weights, projected activity), robustness-checks (one figure per check, `plot_congruence()` helper in the article), comparison (candidates figure). ggplot2 only (Imports); patchwork/ggrepel not used in tutorials.
@@ -63,6 +64,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - compare_prior_fits promoted 2026-10-27 with the A1 acceptance oracles in tests/testthat/test-comparison.R (supersedes the 2026-10-25 hold). Remaining A2 work: comparison reports beyond print/plot.
 
 ## Findings to keep
+- Planted stability (2026-10-27): signed EBMF shared-block factors rotate under cell subsampling (recovery 0.05-1.0 at congruence 0.9) while nonnegative arms recover them in every refit; semi-nonnegative bipolar factor next least stable (0.30-0.90).
 - SCI-004a/b are the protocol's scientific gates (fixed-B point projection; supplied-profile consensus recovery) and remain open. The release software gates in reports/GO_MEMO_SCI004.md are REL-001a/b (renamed 2026-10-27).
 - Fixed priors alone do not remove query-set dependence: only fixed priors plus sample-wise
   var_type do (same cell, two query sets: 5e-7 vs 4e-4 to 9e-4).

@@ -1,0 +1,16 @@
+"seed","reference","target","evidence_state","n_pairs_cosine_ge_0.9","median_span_residual","median_feasible_residual","feasible_unassessed"
+1,"signed","semi","driver_bound_paired_evaluation_attached",4,0.0389925524190536,0.285534351212247,0
+1,"signed","nonnegative","driver_bound_paired_evaluation_attached",2,0.145506955868077,0.466341155882,0
+1,"semi","nonnegative","driver_bound_paired_evaluation_attached",5,0.0268339605113458,0.028015593660431,0
+2,"signed","semi","driver_bound_paired_evaluation_attached",4,0.0279882111988066,0.25694177818013,0
+2,"signed","nonnegative","driver_bound_paired_evaluation_attached",2,0.125317191660646,0.475872359596649,0
+2,"semi","nonnegative","driver_bound_paired_evaluation_attached",5,0.0119371550303657,0.0120741311217931,0
+3,"signed","semi","driver_bound_paired_evaluation_attached",4,0.0374874558724554,0.124485056308092,0
+3,"signed","nonnegative","driver_bound_paired_evaluation_attached",2,0.0819117008372121,0.433094178448615,0
+3,"semi","nonnegative","driver_bound_paired_evaluation_attached",5,0.0137191107928522,0.0141626499679513,0
+4,"signed","semi","driver_bound_paired_evaluation_attached",4,0.0107428690110002,0.161382745826582,0
+4,"signed","nonnegative","driver_bound_paired_evaluation_attached",2,0.0491267174808825,0.419199146086942,0
+4,"semi","nonnegative","driver_bound_paired_evaluation_attached",5,0.0110597210228179,0.011451377809753,0
+5,"signed","semi","driver_bound_paired_evaluation_attached",5,0.0194333748648241,0.243253418164782,0
+5,"signed","nonnegative","driver_bound_paired_evaluation_attached",3,0.0797274558479565,0.385240788683784,0
+5,"semi","nonnegative","driver_bound_paired_evaluation_attached",6,0.0198460625035191,0.0202448301921736,0

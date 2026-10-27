@@ -28,6 +28,7 @@
     S_dim <- if (row_match) 1L else 2L
   }
   object <- flashier::flash_init(data, S = S, var_type = var_type, S_dim = S_dim)
+  object <- flashier::flash_set_verbose(object, 0L) # the backfit's verbose argument does not reach the zero-factor report
   pair <- if (sample_side == "rows") list(A0, training$effects) else list(training$effects, A0)
   if (is.null(g)) {
     object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)

@@ -225,6 +225,7 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
       NULL
     }
     object <- flashier::flash_init(native_data, S = S, S_dim = S_dim, var_type = if (side == "rows") 2L else 1L)
+    object <- flashier::flash_set_verbose(object, 0L)
     if (isTRUE(affine)) {
       offset_priors <- priors
       offset_priors[[if (side == "rows") 2 else 1]] <- ebnm::ebnm_point_normal

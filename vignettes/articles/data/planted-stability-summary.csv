@@ -1,0 +1,16 @@
+"method","type","factors","mean_recovery_rate","mean_recovery_rate_all_requested","median_congruence"
+"Nonnegative EBMF","bipolar",5,0.99,0.99,0.974240363725363
+"Semi-nonnegative EBMF","bipolar",4,0.7125,0.7125,0.978943054451768
+"Signed EBMF","bipolar",5,1,1,0.986482881837029
+"Nonnegative EBMF","collinear",5,0.93,0.93,0.999865230315814
+"Semi-nonnegative EBMF","collinear",5,0.94,0.94,0.978552552188026
+"Signed EBMF","collinear",8,1,1,0.984167350253331
+"Nonnegative EBMF","no_planted_match",5,0.98,0.98,0.954589275222607
+"Semi-nonnegative EBMF","no_planted_match",6,0.85,0.85,0.999821417123266
+"Signed EBMF","no_planted_match",3,0.666666666666667,0.666666666666667,0.999979968284148
+"Nonnegative EBMF","private",5,0.89,0.89,0.998108065209554
+"Semi-nonnegative EBMF","private",5,0.95,0.95,0.985839227471817
+"Signed EBMF","private",5,0.97,0.97,0.97790323100216
+"Nonnegative EBMF","shared",15,1,1,0.998545309800286
+"Semi-nonnegative EBMF","shared",15,1,1,0.9942501768217
+"Signed EBMF","shared",14,0.578571428571429,0.578571428571429,0.979697095497458

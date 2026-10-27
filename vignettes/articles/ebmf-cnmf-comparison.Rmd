@@ -23,6 +23,11 @@ planted_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-summary.csv")
 planted_candidates <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-candidates.csv"))
 planted_candidate_seeds <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-candidates-seeds.csv"))
 planted_recovery <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-recovery.csv"))
+heldout <- read.csv(file.path(case_dir, "planted-holdout-metrics.csv"))
+heldout_summary <- read.csv(file.path(case_dir, "planted-holdout-summary.csv"))
+heldout_evidence <- read.csv(file.path(case_dir, "planted-holdout-evidence.csv"))
+planted_stability <- read.csv(file.path(case_dir, "planted-stability.csv"))
+planted_stability_summary <- read.csv(file.path(case_dir, "planted-stability-summary.csv"))
 ```
 
 ## Which factorization are we comparing?
@@ -350,10 +355,82 @@ the fitted effects before discarding one.
 This simulation is one Poisson regime with disjoint gene sets and no
 donors. It shows representational limits, not method quality on real data.
 
+## Planted truth: paired held-out prediction and refit stability
+
+Representational recovery says what a fit can express on its training cells.
+Two further questions were frozen in a second preregistration on 2026-10-27
+and run on the same simulated counts (seeds 1 to 5): does each EBMF arm
+predict withheld gene expression better than a training-mean baseline, and
+do its factors survive refitting on cell subsamples? Both experiments use
+the simulated cell as the unit; the simulation has no donors.
+
+```{r heldout-figure, echo=FALSE, fig.height=3.5, fig.alt="Three panels, one per EBMF arm. Each shows held-out prediction R-squared for 25 folds as points, fixed programs in blue triangles and the training-mean baseline in orange circles, with a dashed line joining the two values of each fold.", fig.cap="Held-out prediction R-squared for 100 scoring genes withheld from 60 test cells per fold (5 folds by 5 simulation seeds, 25 folds per arm). Fixed programs: factors fitted on the training cells, activities inferred from the 300 activity genes only. Training mean: per-gene mean of the training cells. Each dashed segment is one fold; higher is better. Simulated Poisson counts, cell unit, no donors."}
+obs <- heldout[heldout$weighting == "observation", ]
+obs$fold_id <- paste(obs$seed, obs$fold)
+obs$model <- factor(obs$model, c("training_mean", "fixed_programs"), c("training mean", "fixed programs"))
+ggplot(obs, aes(model, prediction_r2)) +
+  geom_line(aes(group = fold_id), colour = "grey70", linetype = "dashed") +
+  geom_point(aes(colour = model, shape = model), size = 2) +
+  facet_wrap(~method) +
+  scale_colour_manual(values = c("training mean" = "#E69F00", "fixed programs" = "#0072B2")) +
+  scale_shape_manual(values = c("training mean" = 16, "fixed programs" = 17)) +
+  theme_minimal() + theme(legend.position = "none") +
+  labs(x = NULL, y = "held-out prediction R-squared", subtitle = "25 folds per arm; dashed segment = one fold")
+```
+
+```{r heldout-table, echo=FALSE}
+hs <- heldout_summary[, c("method", "folds_scored", "folds_with_gain", "median_r2_fixed_programs", "median_r2_training_mean", "min_rank", "max_rank")]
+names(hs) <- c("Method", "Folds scored", "Folds with gain", "Median R2 fixed", "Median R2 mean", "Min rank", "Max rank")
+knitr::kable(hs, digits = 3, caption = "Folds with gain: fixed programs beat the training mean on held-out R-squared. Denominator is 25 requested folds; failed folds would stay in it. Rank is the training fit's factor count after nullcheck.")
+```
+
+Every arm beats the baseline on most folds, which is the minimum a program
+model must do; it does not rank the arms. The two holdouts behind each pair
+of arms share input, folds and masks, so `compare_prior_fits()` accepts
+them as bound paired evidence (state
+`r unique(heldout_evidence$evidence_state)` in all
+`r nrow(heldout_evidence)` pairs). That label certifies the pairing of the
+evaluation, not the full-data factors, which were fitted once on all cells.
+
+```{r planted-stability-figure, echo=FALSE, fig.height=3.5, fig.alt="Dot plot of refit recovery rate per planted program type for each EBMF arm. Each point is one reference factor from one seed; black bars mark the mean per type.", fig.cap="Recovery of each full-data factor across 20 refits on 80 percent cell subsamples (Tucker congruence at or above 0.9). Each point is one reference factor from one seed, labelled by the planted program it maps to; factors with no planted match (best gene overlap below 0.25) are shown separately. Bars are means over factors. Simulated cells, no donors."}
+ps <- planted_stability
+ps$type <- factor(ps$type, c("shared", "private", "bipolar", "collinear", "no_planted_match"))
+means <- aggregate(recovery_rate_all_requested ~ method + type, ps, mean)
+ggplot(ps, aes(type, recovery_rate_all_requested)) +
+  geom_jitter(width = 0.15, height = 0, shape = 1, colour = "#0072B2") +
+  geom_crossbar(data = means, aes(ymin = recovery_rate_all_requested, ymax = recovery_rate_all_requested), width = 0.5) +
+  facet_wrap(~method) + theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  labs(x = "planted program type of the reference factor", y = "recovery rate (20 requested refits)")
+```
+
+```{r planted-stability-table, echo=FALSE}
+ss <- planted_stability_summary[, c("method", "type", "factors", "mean_recovery_rate_all_requested", "median_congruence")]
+names(ss) <- c("Method", "Type", "Factors", "Mean recovery (all requested)", "Median congruence")
+knitr::kable(ss, digits = 2, caption = "Recovery uses all 20 requested refits as denominator. Median congruence is over successful refits with a finite assigned similarity.")
+```
+
+**The signed arm's shared-block factors are the least stable objects here.**
+Planted programs P1 to P3 overlap in cells 80 to 120 and 180 to 200. Under the
+signed prior their factors recover in anywhere from 1 to 20 of the 20 refits
+while their median congruence stays above 0.9; both nonnegative arms recover
+every shared-block factor in every refit. That pattern is consistent with
+rotation inside the shared subspace that a signed prior leaves free and a
+nonnegativity constraint pins down. The semi-nonnegative arm's bipolar
+factor is the next least stable, consistent with a signed-effects bipolar
+program splitting differently across refits. Treat both as simulation
+observations, not rules for real data.
+
+Refit stability under cell subsampling is a necessary check, not evidence
+of biological replication: the 240-cell subsamples share the generating
+model with the reference. Starts were not repeated here (one start per
+fit, as in the recovery experiment).
+
 ## What remains unassessed?
 
-The planted-truth section establishes representational recovery on one
-simulated regime; the following are still open.
+The planted-truth sections establish representational recovery, held-out
+gene prediction against a baseline and refit stability on one simulated
+regime with cells as units; the following are still open.
 No donor-held-out prediction, donor replication or calibrated discovery
 uncertainty is established here. EB posterior summaries condition on the
 fitted model; they do not replace refitting or biological replication.
@@ -375,6 +452,10 @@ The planted-truth section was run on 2026-10-26 with the same pinned cNMF
 revision, flashier through `fit_ebmf()`, simulation seeds 1--5 and a
 preregistration frozen before fitting; its scripts and receipts are in the
 local archive.
+The held-out prediction and refit stability sections were run on 2026-10-27
+under a second frozen preregistration, through `factor_holdout()`,
+`factor_stability()` and `compare_prior_fits()`, with the same simulated
+counts; scripts and receipts are in the local archive.
 Full fits, counts, source hashes, warnings and receipts remain in the local
 scientific archive. This page carries compact derived summaries and does
 not rerun either method during documentation builds.
