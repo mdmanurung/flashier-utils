@@ -29,14 +29,25 @@ fit <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
   backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
   feature_scale = "simulated_intensity", independent_unit = "donor")
 view <- standardize_factors(fit, prior_support = c(activity = "nonnegative", effects = "signed"))
+library(ggplot2)
+plot_congruence <- function(m, threshold = 0.9) {
+  d <- as.data.frame(as.table(m)); names(d) <- c("reference", "target", "congruence")
+  ggplot(d, aes(target, reference, fill = abs(congruence) >= threshold)) + geom_tile() +
+    geom_text(aes(label = round(congruence, 2))) +
+    scale_fill_manual(values = c(`TRUE` = "#0072B2", `FALSE` = "grey85"), name = "accepted") +
+    theme_minimal() + coord_fixed()
+}
 ```
+
+`plot_congruence()` is a six-line helper used by checks 2, 6 and 7: a tile
+is coloured when its absolute congruence clears the threshold.
 
 ## 1. Did the optimizer finish, and does the rank ceiling bind?
 
-```{r convergence}
+```{r convergence, fig.width=5, fig.height=2.5, fig.alt="Bar chart of proportion of variance explained for the fitted factors.", fig.cap="PVE per factor. Two factors, below the ceiling of four."}
 c(rank = fit$n_factors, max_factors = 4, elbo = fit$elbo,
   maxiter_reached = isTRUE(flashier::flash_fit(fit)[["maxiter.reached"]]))
-factor_pve(fit)
+plot_factor_pve(fit)
 ```
 
 Bad signs: `maxiter_reached` is `TRUE`, a native warning about convergence,
@@ -47,12 +58,13 @@ they disappear.
 
 ## 2. Does another seed find the same programs?
 
-```{r seeds}
+```{r seeds, fig.width=4, fig.height=3, fig.alt="Congruence matrix between seed 1 and seed 2 factors; diagonal cells are coloured as accepted.", fig.cap="Congruence between seeds. Coloured tiles clear 0.9."}
 fit2 <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
   backfit = TRUE, nullcheck = TRUE, seed = 2, verbose = 0,
   feature_scale = "simulated_intensity")
 agreement <- factor_replicability(fit, fit2, min_congruence = 0.9)
+plot_congruence(agreement$congruence_matrix)
 agreement$matches[, c("reference_factor", "target_factor", "congruence", "status")]
 ```
 
@@ -64,11 +76,16 @@ show the program survives a change of cells.
 
 ## 3. Is a factor carried by a handful of samples?
 
-```{r concentration}
+```{r concentration, fig.width=7, fig.height=3, fig.alt="Activity of every sample per factor as a dot strip; the effective sample count is printed above each factor.", fig.cap="Activity of each of the 24 simulated samples per factor (jittered horizontally only). A factor carried by a handful of samples shows a few high dots over a floor near zero; here each factor has about 12 effective samples."}
 A <- factor_activity(view)
 effective_n <- colSums(A)^2 / colSums(A^2)
 top5_share <- apply(A, 2, function(a) sum(sort(a, decreasing = TRUE)[1:5]) / sum(a))
 round(rbind(effective_n, top5_share), 2)
+labels <- data.frame(factor = names(effective_n), estimate = max(A) * 1.1,
+                     label = sprintf("n_eff = %.1f", effective_n))
+ggplot(factor_activity(view, format = "long"), aes(factor, estimate)) +
+  geom_jitter(width = 0.15, height = 0) +
+  geom_text(data = labels, aes(label = label)) + theme_minimal()
 ```
 
 Effective sample count is `(sum a)^2 / sum a^2` for nonnegative activity.
@@ -79,10 +96,14 @@ found for its rare HLA/CD74 factors.
 
 ## 4. How wide is the conditional uncertainty?
 
-```{r uncertainty}
-head(factor_uncertainty(fit, side = "effects", representation = view), 4)
-factor_intervals(fit, side = "effects", representation = view, factors = "F1",
-                 ids = c("g01", "g05", "g07"), nsamp = 200, seed = 3)
+```{r uncertainty, fig.width=6, fig.height=3, fig.alt="Point ranges of each feature effect for F1 with 95 percent conditional intervals; a dashed line marks zero.", fig.cap="Equal-tail 95% intervals from 200 posterior draws for every F1 feature effect, conditional on the estimated priors and rank. An interval that crosses the dashed zero line is a feature you cannot call."}
+intervals <- factor_intervals(fit, side = "effects", representation = view,
+                              factors = "F1", nsamp = 200, seed = 3)
+ggplot(intervals, aes(feature, mean)) +
+  geom_pointrange(aes(ymin = lower, ymax = upper)) +
+  geom_hline(yintercept = 0, linetype = 2) + theme_minimal()
+intervals[intervals$feature %in% c("g01", "g05", "g07"),
+          c("feature", "mean", "lower", "upper", "prob_zero")]
 ```
 
 Posterior standard deviations and intervals are conditional on the
@@ -93,11 +114,24 @@ regression standard errors or biological replication.
 
 ## 5. Do the programs survive leaving donors out?
 
-```{r stability, eval=requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)}
+```{r stability, eval=requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE), fig.width=5, fig.height=3, fig.alt="Two panels per factor: the recovery rate over eight refits, and the median congruence with its 2.5 to 97.5 percent range and a dashed line at 0.9.", fig.cap="Recovery across eight donor-subsample refits (nine of twelve donors each). Left: fraction of refits in which the factor was recovered. Right: congruence of the recovered factor, median and empirical 2.5 to 97.5% range over refits. Refits share data and are not independent replicates."}
 stability <- factor_stability(X, fit, metadata, unit_col = "donor", seed = 4, B = 8,
   scheme = "subsample", fraction = 0.75, min_congruence = 0.9)
 stability$summary[, c("factor", "n_successful", "recovery_rate", "median_congruence",
                       "q025_congruence")]
+stability_long <- rbind(
+  data.frame(factor = stability$summary$factor, panel = "recovery rate (8 refits)",
+             value = stability$summary$recovery_rate, lower = NA, upper = NA),
+  data.frame(factor = stability$summary$factor, panel = "congruence: median, 2.5% to 97.5%",
+             value = stability$summary$median_congruence,
+             lower = stability$summary$q025_congruence, upper = stability$summary$q975_congruence))
+stability_long$panel <- factor(stability_long$panel, unique(stability_long$panel))
+ggplot(stability_long, aes(factor, value)) +
+  geom_pointrange(aes(ymin = lower, ymax = upper), na.rm = TRUE) +
+  geom_hline(data = data.frame(panel = "congruence: median, 2.5% to 97.5%", y = 0.9),
+             aes(yintercept = y), linetype = 2) +
+  facet_wrap(~panel) + scale_y_continuous(limits = c(0, 1)) + theme_minimal() +
+  labs(y = NULL)
 ```
 
 `factor_stability()` refits on resampled biological units and reports how
@@ -108,14 +142,13 @@ replicates illustrate the call; use tens to hundreds for a real estimate.
 
 ## 6. Does a different prior tell the same story?
 
-```{r priors}
+```{r priors, fig.width=4, fig.height=3, fig.alt="Congruence matrix between the point-exponential/normal fit and the point-exponential/point-normal fit.", fig.cap="Congruence across effect priors, or the optimizer's error message if that prior fails."}
 fit_other <- tryCatch(fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 0L,
   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_normal),
   backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
   feature_scale = "simulated_intensity"), error = conditionMessage)
 if (is.character(fit_other)) fit_other else
-  factor_replicability(fit, fit_other, min_congruence = 0.9)$matches[,
-    c("reference_factor", "target_factor", "congruence", "status")]
+  plot_congruence(factor_replicability(fit, fit_other, min_congruence = 0.9)$congruence_matrix)
 ```
 
 A program that only appears under one prior family is a modelling choice,
@@ -126,14 +159,13 @@ truth and held-out prediction.
 
 ## 7. Does the noise model change the factors?
 
-```{r noise}
+```{r noise, fig.width=4, fig.height=3, fig.alt="Congruence matrix between the pooled-variance and gene-wise-variance fits; the accepted tiles sit off the diagonal because factor order swapped.", fig.cap="Congruence across noise models. Off-diagonal accepted tiles mean the order swapped, not that a factor was lost."}
 fit_genewise <- fit_ebmf(X, "rows", max_factors = 4, S = 0.1, var_type = 2L,
   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
   backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
   feature_scale = "simulated_intensity")
 c(pooled = fit$n_factors, genewise = fit_genewise$n_factors)
-factor_replicability(fit, fit_genewise, min_congruence = 0.9)$matches[,
-  c("reference_factor", "target_factor", "congruence", "status")]
+plot_congruence(factor_replicability(fit, fit_genewise, min_congruence = 0.9)$congruence_matrix)
 ```
 
 `var_type = 0` pools one residual variance; `2` estimates one per feature
@@ -144,7 +176,13 @@ no accepted counterpart. Report which setting you used.
 
 ## 8. Does metadata explain it, and on the right unit?
 
-```{r metadata}
+```{r metadata, fig.width=7, fig.height=3, fig.alt="Dot plot of activity by group A and B for each factor: small grey dots are the 24 samples, larger black diamonds are the twelve donor means, two samples per donor.", fig.cap="Activity by group. Small dots are samples (24); diamonds are donor means (12 donors, two samples each). The donor is the independent unit, so the diamonds are what a test may compare."}
+activity_meta <- merge(factor_activity(view, format = "long"), metadata, by = "sample")
+donor_means <- aggregate(estimate ~ donor + group + factor, activity_meta, mean)
+ggplot(activity_meta, aes(group, estimate)) +
+  geom_jitter(width = 0.1, height = 0, colour = "grey60", size = 1) +
+  geom_point(data = donor_means, shape = 18, size = 3) +
+  facet_wrap(~factor) + theme_minimal() + labs(y = "activity")
 summarize_factor_activity(view, metadata, by = "group", unit_col = "donor")[,
   c("group", "factor", "n", "n_units", "mean", "sd")]
 tryCatch(test_factors(view, metadata, formula = ~group, engine = "lm",
@@ -181,6 +219,8 @@ Native FLASH/flashier: Jason Willwerscheid, Peter Carbonetto, Wei Wang and
 Matthew Stephens. EBNM: Jason Willwerscheid, Matthew Stephens and Peter
 Carbonetto. Factor matching delegates to William Revelle's psych and Kurt
 Hornik and Walter Böhm's clue. The concentration check follows the EBMF
-versus cNMF adversarial review in this repository; the checks are
-independently written. See the
+versus cNMF adversarial review in this repository; the checks and figures
+(ggplot2, Hadley Wickham and contributors) are independently written. The PVE
+display follows the MOFA2 plotting workflow of Ricard Argelaguet, Damien Arnol,
+Danila Bredikhin and Britta Velten conceptually, with no source reused. See the
 [full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

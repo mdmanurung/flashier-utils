@@ -40,6 +40,23 @@ views <- lapply(fits, standardize_factors, sample_side = "rows", scaling = "raw"
   prior_support = c(activity = "signed", effects = "signed"))
 ```
 
+```{r effects-figure, fig.width=7, fig.height=4, fig.alt="Grid of bar charts, rows F1 and F2, columns truth, normal and sparse. The truth has eight alternating-sign genes per factor; the normal prior gives every one of the 24 genes a nonzero effect; the sparse prior leaves the genes outside each block near zero.", fig.cap="Feature effects per factor (rows) under each fit (columns) for the 24 simulated genes. Simulated intensities, no biology. Factor order and sign are arbitrary across columns; the planted truth is one basis among rotations."}
+library(ggplot2)
+dimnames(B) <- list(colnames(X), c("F1", "F2"))
+effects_long <- do.call(rbind, lapply(c(truth = "truth", names(views)), function(p)
+  cbind(fit = p, as.data.frame(as.table(if (p == "truth") B else views[[p]]$effects)))))
+names(effects_long)[2:4] <- c("feature", "factor", "effect")
+effects_long$fit <- factor(effects_long$fit, c("truth", "normal", "sparse"))
+ggplot(effects_long, aes(feature, effect)) + geom_col(fill = "grey30") +
+  geom_hline(yintercept = 0) + facet_grid(factor ~ fit) + theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 7)) +
+  labs(x = "simulated gene", y = "effect (simulated intensity units)")
+```
+
+The sparse prior pushes the genes outside each planted block toward zero.
+The normal prior gives every gene a small effect. Both reconstruct the
+training matrix about equally well, as the next section shows.
+
 ## Reconstruction and known signal
 
 Both fits are scored on the training matrix and on the noise-free signal.
@@ -53,11 +70,27 @@ metrics <- function(observed, predicted) {
     prediction_r2 = 1 - sum((observed - predicted)^2) /
                           sum((observed - mean(observed))^2))
 }
-rbind(normal_training = metrics(X, predictions$normal),
+scores <- rbind(normal_training = metrics(X, predictions$normal),
       sparse_training = metrics(X, predictions$sparse),
       normal_truth = metrics(signal, predictions$normal),
       sparse_truth = metrics(signal, predictions$sparse))
 vapply(fits, function(f) f$n_factors, numeric(1))
+```
+
+```{r reconstruction-figure, fig.width=7, fig.height=3.5, fig.alt="Grid of bar charts, rows rmse, mae and prediction R squared, columns normal and sparse prior; each panel has a training bar and a truth bar labelled with its value. Corresponding bars are nearly equal across the two columns.", fig.cap="Reconstruction of the training matrix and of the noise-free signal, one fit per matrix (no replicates, so no uncertainty is shown). Simulated data. The two priors are indistinguishable on this criterion."}
+scores_long <- as.data.frame(as.table(scores))
+names(scores_long) <- c("fit", "metric", "value")
+scores_long$prior <- sub("_.*", "", scores_long$fit)
+scores_long$target <- sub(".*_", "", scores_long$fit)
+ggplot(scores_long, aes(target, value)) + geom_col(fill = "grey30", width = 0.6) +
+  geom_text(aes(label = round(value, 3)), vjust = -0.3, size = 3) +
+  facet_grid(metric ~ prior, scales = "free_y") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.25))) +
+  theme_minimal() + labs(x = "scored against", y = NULL)
+```
+
+```{r reconstruction-table}
+round(scores, 3)
 ```
 
 Training reconstruction rewards fitting observed noise. Truth recovery is
@@ -88,8 +121,24 @@ results <- lapply(priors, function(p) {
       preprocessing_manifest = list(scope = "identity"), maxiter = 1000))
 })
 stopifnot(all(vapply(results, function(r) nrow(r$failures) == 0L, logical(1))))
-lapply(results, function(r) r$metrics[r$metrics$weighting == "macro_unit",
-                                    c("fold", "model", "rmse", "prediction_r2")])
+holdout <- do.call(rbind, lapply(names(results), function(p) {
+  m <- results[[p]]$metrics
+  cbind(prior = p, m[m$weighting == "macro_unit", c("fold", "model", "rmse", "prediction_r2")])
+}))
+```
+
+```{r holdout-figure, fig.width=7, fig.height=4, fig.alt="Grid of dot charts, rows held-out RMSE and prediction R squared, columns normal and sparse prior. In each panel the fitted programs (filled circle) and the training-mean baseline (open triangle) are shown for fold 1 and fold 2. Both priors beat the baseline on both folds by a similar margin.", fig.cap="Held-out prediction per donor fold (10 donors, 30 samples per fold; macro-averaged over donors). Baseline is the training mean of each scoring feature. Two folds give no interval; each point is one refit."}
+holdout_long <- rbind(
+  data.frame(holdout[, 1:3], metric = "rmse", value = holdout$rmse),
+  data.frame(holdout[, 1:3], metric = "prediction_r2", value = holdout$prediction_r2))
+ggplot(holdout_long, aes(factor(fold), value, shape = model)) +
+  geom_point(size = 3) + scale_shape_manual(values = c(fixed_programs = 16, training_mean = 2)) +
+  facet_grid(metric ~ prior, scales = "free_y") + theme_minimal() +
+  labs(x = "donor fold", y = NULL, shape = NULL) + theme(legend.position = "bottom")
+```
+
+```{r holdout-table}
+holdout
 ```
 
 Donors never cross folds. Held-out activities use only permitted features; the
@@ -106,7 +155,15 @@ congruence (cosine similarity of effect vectors) with one-to-one assignment.
 ```{r alignment}
 alignment <- factor_replicability(views$normal, views$sparse, min_congruence = .8)
 alignment$matches
-alignment$similarity_matrix
+```
+
+```{r alignment-figure, fig.width=4, fig.height=3, fig.alt="Two by two heatmap of congruence between normal-prior and sparse-prior factors; the diagonal cells are near one and the off-diagonal cells near zero.", fig.cap="Tucker congruence (cosine of effect vectors over the 24 shared genes) between the two fits. Acceptance threshold is 0.8; numbers are printed so colour is not the only encoding."}
+congruence <- as.data.frame(as.table(alignment$congruence_matrix))
+names(congruence) <- c("normal", "sparse", "congruence")
+ggplot(congruence, aes(sparse, normal, fill = congruence)) + geom_tile() +
+  geom_text(aes(label = round(congruence, 2))) +
+  scale_fill_gradient2(low = "#D55E00", mid = "white", high = "#0072B2", limits = c(-1, 1)) +
+  theme_minimal() + coord_fixed()
 ```
 
 Inspect unmatched factors, feature coverage, and assignment margins as well as
@@ -148,5 +205,6 @@ repeated seeds and explicit failure accounting.
 
 FLASH/EBNM authors are credited in [Get started](first-fit.html). Matching delegates
 to William Revelle's psych and Kurt Hornik/Walter Böhm's clue. SVD and metrics use
-R Core functions; the experiment is independently implemented.
+R Core functions; the experiment and its figures (ggplot2, Hadley Wickham and
+contributors) are independently implemented.
 [Full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

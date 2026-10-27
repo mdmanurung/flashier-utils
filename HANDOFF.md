@@ -7,7 +7,7 @@ Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 4`: the CI fix commit after 120c0bf must be green on R CMD check and pkgdown (120c0bf failed on an undocumented `representation` arg and an ebnm nlm error in robustness-checks.Rmd; both fixed).
+`gh run list --limit 4`: the plot-first docs commit after 09cb71d must be green on R CMD check and pkgdown (every tutorial and article gained figure chunks with fig.alt/fig.cap; no R code changed).
 
 ## Previous next action
 Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
@@ -28,6 +28,8 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- Plot-first docs: first-fit (PVE, ranked weights), compare-priors (effects vs truth, metrics, held-out, congruence), advanced-use (coordinates, intervals, group distributions, backprojection, filter history), pancreas (weights, projected activity), robustness-checks (one figure per check, `plot_congruence()` helper in the article), comparison (candidates figure). ggplot2 only (Imports); patchwork/ggrepel not used in tutorials.
+- 09cb71d CI fix after the display suite (undocumented arg; tolerant prior chunk).
 - 617f6d1 docs site reordered value-first; roxygen markdown enabled (DESCRIPTION `Roxygen:`), all Rd regenerated; stale tracked docs/plans file removed.
 - Planted-truth benchmark: archive `validation/ebmf-cnmf-planted-20261026/` (PREREG, JOURNAL, simulate/fit-cnmf/fit-ebmf/evaluate, receipt, SHA256). Derived CSVs in vignettes/articles/data/ebmf-cnmf-planted-*.csv; new section in ebmf-cnmf-comparison.Rmd. Deviations logged: auc_posthoc column added after first evaluation (PREREG rule unchanged); collinear cor 0.89-0.91 vs 0.85 target. All cNMF runs hit the 300-iteration cap (pilot config).
 - New website article vignettes/articles/robustness-checks.Rmd; allowlisted in check-site.py + test fixture; navbar entry.

@@ -1,5 +1,10 @@
 # flashier.utils 2.0.0.9000
 
+- Every tutorial and website article now leads with figures: PVE, ranked
+  weights, activity by group, congruence heatmaps, conditional intervals,
+  held-out prediction and stability recovery are plotted before the numbers
+  are printed. Reference pages render markdown (roxygen markdown mode).
+
 - Add a display suite modelled on MOFA2's downstream plots, independently
   written on ggplot2: `plot_factor_weights()` (all effects ranked, top
   labelled), `plot_factor_scatter()` (two factors, metadata colour/shape),

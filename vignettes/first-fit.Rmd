@@ -59,9 +59,17 @@ The default `scaling = "ldf"` splits the fit into unit-norm factors with the
 scale placed on the effects side. `"raw"` keeps flashier's own coordinates and
 `"rms"` gives each activity column unit root-mean-square. All three reconstruct
 the same matrix. A factor's proportion of variance explained (PVE) comes from
-`factor_pve(fit)`.
+`factor_pve(fit)`; the bar chart is the first thing to look at after a fit.
+
+```{r pve, fig.width=5, fig.height=3, fig.alt="Bar chart of proportion of variance explained for factors F1 to F3; F1 carries most of it.", fig.cap="Proportion of variance explained per factor."}
+plot_factor_pve(fit)
+```
 
 ## Interpret one factor
+
+```{r weights, fig.width=7, fig.height=4, fig.alt="All F1 feature effects ranked by size, an S-shaped curve with the five largest SNP-gene pairs labelled at each end.", fig.cap="F1 feature effects, ranked. Labels mark the five largest in absolute value."}
+plot_factor_weights(view, factors = "F1", n_label = 5)
+```
 
 ```{r features}
 factor_features(view, factor = "F1", select = "largest", n = 5)[,
@@ -91,6 +99,8 @@ before assigning biological labels.
 Native FLASH: Jason Willwerscheid, Peter Carbonetto, Wei Wang and Matthew Stephens.
 EBNM: Jason Willwerscheid, Matthew Stephens and Peter Carbonetto. Feature ranking
 adapts singlecelljamboreeR helpers by Peter Carbonetto and Matthew Stephens;
-activity displays credit David Zemmour / Zemmour Lab workflows.
+activity displays credit David Zemmour / Zemmour Lab workflows; the ranked weights
+and PVE displays follow the MOFA2 plotting workflow of Ricard Argelaguet, Damien
+Arnol, Danila Bredikhin and Britta Velten conceptually, with no source reused.
 Use `citation("flashier")`, `citation("ebnm")`, and `provenance("factor_features")`.
 [Full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

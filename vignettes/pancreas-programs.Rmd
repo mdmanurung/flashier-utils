@@ -47,6 +47,10 @@ factor_features(view, factor = "F4", select = "both", n = 5)[,
   c("feature", "estimate", "selection")]
 ```
 
+```{r weights, fig.width=7, fig.height=3.5, fig.alt="Ranked gene effects for programs F4 and F1 with the eight largest genes labelled.", fig.cap="Ranked gene effects for two restored programs. Labels mark the eight largest effects."}
+plot_factor_weights(view, factors = c("F4", "F1"), n_label = 8)
+```
+
 `restore_programs()` restores published NMF coordinates through public native
 initialization; it does not claim an independently fitted model. Largest effects
 show contribution; distinctive effects depend on the selected competitors and
@@ -75,6 +79,14 @@ projected$reconstruction
 stopifnot(identical(projected$representation$effects, view$effects))
 ```
 
+```{r transfer-figure, fig.width=7, fig.height=5, fig.alt="Heatmap of projected program activity in query cells grouped by published cell type.", fig.cap="Projected activity of the fixed programs in the Smart-seq2 query cells, grouped by cell type."}
+query_metadata <- cache$metadata[match(rownames(projected$representation$activity),
+                                       cache$metadata$id), ]
+query_metadata$sample <- as.character(query_metadata$id)
+plot_factor_activity(projected$representation, metadata = query_metadata,
+                     group = "celltype")
+```
+
 Query counts use the reference library-size normalization and shifted-log rule.
 Source effects stay fixed while query activities are re-estimated. Reconstruction
 uses the same query observations used for activity inference, so it is fit
@@ -87,7 +99,9 @@ prediction and [Advanced use](advanced-use.html) for coordinate uncertainty.
 
 Published programs/tutorial: Peter Carbonetto and the cited study authors.
 Native FLASH/EBNM authors and feature-helper authors appear in
-[Get started](first-fit.html). Display workflows credit David Zemmour / Zemmour Lab;
+[Get started](first-fit.html). Display workflows credit David Zemmour / Zemmour Lab and, for ranked
+weights, the MOFA2 plotting workflow of Ricard Argelaguet, Damien Arnol, Danila
+Bredikhin and Britta Velten (conceptual only);
 reference transfer conceptually credits STARCAT (Dylan Kotliar and Michelle Curtis).
 No upstream workflow source or input data are redistributed.
 [Full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

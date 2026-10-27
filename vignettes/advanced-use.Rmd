@@ -39,6 +39,16 @@ stopifnot(max(abs(tcrossprod(raw$activity, raw$effects) -
                   tcrossprod(view$activity, view$effects))) < 1e-8)
 ```
 
+```{r coordinates-figure, fig.width=6, fig.height=3, fig.alt="Boxplots of activity per factor under raw and RMS scaling. Raw spreads differ between F1 and F2; RMS makes them equal.", fig.cap="Activity of all 40 simulated samples per factor in raw and RMS coordinates (points) with a box summary. Same fit, same reconstruction, different units; RMS forces unit root-mean-square per factor."}
+library(ggplot2)
+activity_long <- rbind(cbind(scaling = "raw", as.data.frame(as.table(raw$activity))),
+                       cbind(scaling = "rms", as.data.frame(as.table(view$activity))))
+names(activity_long)[2:4] <- c("sample", "factor", "activity")
+ggplot(activity_long, aes(factor, activity)) + geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, height = 0, size = 1, alpha = 0.6) +
+  facet_wrap(~scaling) + theme_minimal()
+```
+
 RMS scaling changes factor units while preserving their product. LDF scaling
 also preserves the product, with its diagonal absorbed on exactly one side.
 Always use the matching activity/effect pair and retain `view$offset` when
@@ -50,9 +60,14 @@ Do not mix coefficients or posterior draws from different bases.
 Posterior standard deviations come from the native fit, expressed in the
 coordinates of the view you pass.
 
-```{r uncertainty}
+```{r uncertainty, fig.width=6, fig.height=3, fig.alt="Point ranges of each feature effect plus or minus one posterior standard deviation, one panel per factor. Ranges are narrow relative to the effects.", fig.cap="Feature effects for the 12 simulated genes with ± 1 posterior SD, conditional on the estimated priors and fitted rank (mean-field, typically too narrow). Not a regression standard error."}
+effect_sd <- factor_uncertainty(fit, side = "effects", sample_side = "rows",
+                                representation = view)
+ggplot(effect_sd, aes(feature, estimate)) +
+  geom_pointrange(aes(ymin = estimate - posterior.sd, ymax = estimate + posterior.sd)) +
+  geom_hline(yintercept = 0, linetype = 2) + facet_wrap(~factor) + theme_minimal()
 head(factor_uncertainty(fit, side = "activity", sample_side = "rows",
-                       representation = view))
+                        representation = view))
 ```
 
 Keep the native fit for posterior moments and sampling; a representation alone
@@ -64,9 +79,10 @@ uncertainty about the biological identity of a factor.
 
 First summarize and contrast factor activity by a metadata column.
 
-```{r contrast}
+```{r contrast, fig.width=7, fig.height=3, fig.alt="Boxplots of activity by group A and B for each factor.", fig.cap="Activity by sample group. The descriptive contrast below summarizes these distributions."}
 metadata <- data.frame(sample = rownames(X), donor = rownames(X),
                        group = rep(c("A", "B"), each = 20))
+plot_factor_activity(view, metadata = metadata, group = "group", style = "distribution")
 head(summarize_factor_activity(view, metadata, by = "group", unit_col = "donor"))
 contrast <- compare_factor_groups(view, metadata, group = "group",
                                   contrast = c("A", "B"), unit_col = "donor")
@@ -87,6 +103,11 @@ association <- test_factors(view, metadata, formula = ~group, engine = "lm",
 reconstructed <- backproject_contrast(view, association$table,
   input = "coefficients", factor_basis = view$manifest, term = "groupB")
 head(reconstructed$effects)
+```
+
+```{r backprojection-figure, fig.width=6, fig.height=3, fig.alt="Bar chart of the backprojected B minus A contrast per feature.", fig.cap="Backprojected group contrast per simulated gene in simulated intensity units (B minus A; 20 independent samples per group). Point estimates only; no uncertainty is attached."}
+ggplot(reconstructed$effects, aes(feature, estimate)) + geom_col() +
+  geom_hline(yintercept = 0) + theme_minimal() + labs(y = "B − A")
 ```
 
 Here `groupB` means B minus A, opposite to the descriptive contrast above.
@@ -130,8 +151,13 @@ nonnegative_fit <- fit_ebmf(X, "rows", max_factors = 2,
   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal),
   nullcheck = FALSE, backfit = TRUE, seed = 18, verbose = 0)
 filtered <- filter_cells_by_total_membership(nonnegative_fit, max_val = 10, numiter = 12)
-filtered$history
 filtered$removed_samples
+```
+
+```{r membership-figure, fig.width=6, fig.height=2.5, fig.alt="Step chart of samples remaining after each of the twelve filtering passes.", fig.cap="Samples remaining after each discrete pass (steps, not a continuous trend). The count stops changing once no sample exceeds the cutoff."}
+ggplot(filtered$history, aes(iteration, remaining)) + geom_step() + geom_point() +
+  scale_x_continuous(breaks = filtered$history$iteration) +
+  expand_limits(y = 0) + theme_minimal() + labs(y = "samples remaining")
 ```
 
 Activities must be nonnegative. Signed feature effects remain valid. The result
@@ -200,5 +226,5 @@ GBCD's separate LM/ash statistics also differ from count-based GoM DE.
 Native FLASH and EBNM authors are credited in [Get started](first-fit.html).
 Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
 Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
-are independently implemented. See `provenance()` and
+and the ggplot2 figures are independently implemented. See `provenance()` and
 [full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
