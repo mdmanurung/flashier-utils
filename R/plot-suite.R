@@ -2,6 +2,14 @@
 # plotting (Ricard Argelaguet, Damien Arnol, Danila Bredikhin, Britta Velten).
 # Independently written on ggplot2; no MOFA2 source is reused.
 
+.okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
+
+# Colourblind-safe discrete scale for up to eight categories; NULL (ggplot default) beyond that.
+.discrete_scale <- function(x, aesthetic = "colour") {
+  if (is.null(x) || is.numeric(x) || length(unique(x)) > length(.okabe_ito)) return(NULL)
+  ggplot2::scale_colour_manual(values = .okabe_ito, aesthetics = aesthetic)
+}
+
 .display_options <- function(options, allowed = c("palette", "limits")) {
   if (length(options) && (is.null(names(options)) || any(!names(options) %in% allowed))) stop("Unknown display option")
   options
@@ -134,7 +142,9 @@ plot_factor_scatter <- function(fit, factors, metadata = NULL, color = NULL, sha
   if (!is.null(shape)) mapping$shape <- ggplot2::aes(shape = .data[[shape]])$shape
   p <- ggplot2::ggplot(table, mapping) + ggplot2::geom_point(alpha = 0.8) +
     ggplot2::geom_hline(yintercept = 0, colour = "grey70") + ggplot2::geom_vline(xintercept = 0, colour = "grey70") +
-    ggplot2::labs(x = paste(factors[1], "activity"), y = paste(factors[2], "activity"), colour = color, shape = shape)
+    ggplot2::labs(x = paste(factors[1], "activity"), y = paste(factors[2], "activity"), colour = color, shape = shape,
+                  subtitle = paste("Scaling:", view$manifest$scaling)) +
+    .discrete_scale(if (is.null(color)) NULL else table[[color]])
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, factors = factors,
     included_samples = ids[rows], excluded_samples = ids[-rows], max_samples = max_samples, seed = seed,
     exclusions = match$exclusions))
@@ -275,7 +285,8 @@ plot_factor_data <- function(fit, X, factor, n = 20L, style = "heatmap", sample_
     p <- ggplot2::ggplot(table, mapping) + ggplot2::geom_point(alpha = 0.7, size = 1.2) +
       ggplot2::facet_wrap(~feature, scales = "free_y") +
       ggplot2::labs(x = paste(factor, "activity"), y = "Observed value", colour = group,
-                    subtitle = paste("Feature scale:", view$manifest$feature_scale))
+                    subtitle = paste("Feature scale:", view$manifest$feature_scale)) +
+      .discrete_scale(if (is.null(groups)) NULL else table$group)
   }
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, style = style, display_scale = if (style == "heatmap") scale else "none",
     factor = factor, selected_features = features, direction = direction, included_samples = ids[ordered],

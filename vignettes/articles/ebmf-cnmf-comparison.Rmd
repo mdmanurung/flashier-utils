@@ -21,6 +21,7 @@ noise_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-noise.csv"))
 matching_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-matching.csv"))
 planted_summary <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-summary.csv"))
 planted_candidates <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-candidates.csv"))
+planted_candidate_seeds <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-candidates-seeds.csv"))
 planted_recovery <- read.csv(file.path(case_dir, "ebmf-cnmf-planted-recovery.csv"))
 ```
 
@@ -315,17 +316,19 @@ the summary CSV marks those cases. No method separates the pair reliably at
 this correlation; do not read two correlated programs from one factor
 without a residual check.
 
-```{r candidates-figure, echo=FALSE, fig.height=4, fig.alt="Grid of bar charts, rows false candidates and missed programs, columns K = 7 and K = 11, one bar per method labelled with its value. False candidates rise at K = 11, most for cNMF; missed programs stay near two for every method and K.", fig.cap="Unsupported factors and missed programs per fit, mean over five simulation seeds (seeds are the only replication; no interval is shown). Missed counts use the frozen rule, so the private program counts as missed for every method."}
-cand_long <- rbind(
-  data.frame(planted_candidates[, c("K_setting", "method")], what = "false candidates",
-             value = planted_candidates$mean_false_candidates),
-  data.frame(planted_candidates[, c("K_setting", "method")], what = "missed programs",
-             value = planted_candidates$mean_missed))
-ggplot(cand_long, aes(method, value)) + geom_col(fill = "grey30", width = 0.6) +
-  geom_text(aes(label = value), vjust = -0.3, size = 3) +
+```{r candidates-figure, echo=FALSE, fig.height=4, fig.alt="Grid of charts, rows false candidates and missed programs, columns K = 7 and K = 11. Each method shows five small open points, one per simulation seed, and a black bar at their mean. False candidates rise at K = 11, most for cNMF; missed programs stay near two for every method and K.", fig.cap="Unsupported factors and missed programs per fit. Open points are the five simulation seeds (the only replication); bars are their means. Missed counts use the frozen rule, so the private program counts as missed for every method."}
+cand_seeds <- rbind(
+  data.frame(planted_candidate_seeds[, c("seed", "K_setting", "method")], what = "false candidates",
+             value = planted_candidate_seeds$false_candidates),
+  data.frame(planted_candidate_seeds[, c("seed", "K_setting", "method")], what = "missed programs",
+             value = planted_candidate_seeds$missed))
+cand_means <- aggregate(value ~ K_setting + method + what, cand_seeds, mean)
+ggplot(cand_seeds, aes(method, value)) +
+  geom_crossbar(data = cand_means, aes(ymin = value, ymax = value), width = 0.5) +
+  geom_jitter(width = 0.12, height = 0, shape = 1, size = 2) +
   facet_grid(what ~ K_setting, labeller = labeller(K_setting = label_both)) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
-  labs(x = NULL, y = "mean per fit") + theme_minimal() +
+  scale_y_continuous(breaks = 0:4) +
+  labs(x = NULL, y = "count per fit") + theme_minimal() +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 

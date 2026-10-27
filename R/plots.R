@@ -198,18 +198,19 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = N
   palette <- if (is.null(options$palette)) c("#2166ac", "white", "#b2182b") else options$palette
   if (style == "heatmap") {
     if (length(palette) != 3L) stop("Heatmap palette requires three colors")
-    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) + ggplot2::geom_tile() + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits)
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) + ggplot2::geom_tile() + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits) + ggplot2::labs(fill = "Activity")
     if (!is.null(group)) p <- p + ggplot2::facet_wrap(~group, scales = "free_y")
   } else if (style == "structure") {
     table$sample <- factor(table$sample, levels = displayed)
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$estimate, fill = .data$factor)) + ggplot2::geom_col() + ggplot2::labs(y = "Display proportion")
-    if (!is.null(options$palette)) p <- p + ggplot2::scale_fill_manual(values = options$palette)
+    p <- p + if (!is.null(options$palette)) ggplot2::scale_fill_manual(values = options$palette) else .discrete_scale(table$factor, "fill")
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   } else {
-    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$group, y = .data$estimate)) + ggplot2::facet_wrap(~factor)
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$group, y = .data$estimate)) + ggplot2::facet_wrap(~factor) + ggplot2::labs(y = "Activity")
     p <- if (style == "point") p + ggplot2::geom_point() else p + ggplot2::geom_boxplot()
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   }
+  p <- p + ggplot2::labs(subtitle = paste("Scaling:", view$manifest$scaling))
   ordering <- list(order_within_group = order_within_group)
   if (!is.null(group_order)) {
     ordering <- c(ordering, list(displayed_sample_order = displayed, group_order = group_order,

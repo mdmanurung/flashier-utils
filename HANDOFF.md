@@ -28,6 +28,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- fit_ebmf always takes the explicit init/greedy/backfit/nullcheck path and calls flash_set_verbose, so verbose=0 silences flashier's zero-factor report (the flash() wrapper never stored the level). Okabe-Ito default for discrete colours in plot_factor_scatter/data/activity(structure); activity plots carry a scaling subtitle. Per-seed candidate counts (ebmf-cnmf-planted-candidates-seeds.csv, written by evaluate.R) feed the comparison figure.
 - Plot-first docs: first-fit (PVE, ranked weights), compare-priors (effects vs truth, metrics, held-out, congruence), advanced-use (coordinates, intervals, group distributions, backprojection, filter history), pancreas (weights, projected activity), robustness-checks (one figure per check, `plot_congruence()` helper in the article), comparison (candidates figure). ggplot2 only (Imports); patchwork/ggrepel not used in tutorials.
 - 09cb71d CI fix after the display suite (undocumented arg; tolerant prior chunk).
 - 617f6d1 docs site reordered value-first; roxygen markdown enabled (DESCRIPTION `Roxygen:`), all Rd regenerated; stale tracked docs/plans file removed.

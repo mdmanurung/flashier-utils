@@ -1,0 +1,41 @@
+"seed","method","K_setting","rank","false_candidates","missed"
+1,"cNMF",7,7,0,2
+1,"Signed EBMF",7,6,0,3
+1,"Semi-nonnegative EBMF",7,7,1,2
+1,"Nonnegative EBMF",7,7,1,3
+1,"cNMF",11,11,1,2
+1,"Signed EBMF",11,6,0,3
+1,"Semi-nonnegative EBMF",11,7,0,2
+1,"Nonnegative EBMF",11,7,1,3
+2,"cNMF",7,7,0,2
+2,"Signed EBMF",7,6,0,3
+2,"Semi-nonnegative EBMF",7,7,1,2
+2,"Nonnegative EBMF",7,7,1,3
+2,"cNMF",11,11,2,2
+2,"Signed EBMF",11,6,0,3
+2,"Semi-nonnegative EBMF",11,8,1,2
+2,"Nonnegative EBMF",11,7,1,3
+3,"cNMF",7,7,0,2
+3,"Signed EBMF",7,6,0,3
+3,"Semi-nonnegative EBMF",7,7,1,2
+3,"Nonnegative EBMF",7,6,1,3
+3,"cNMF",11,11,1,2
+3,"Signed EBMF",11,6,0,3
+3,"Semi-nonnegative EBMF",11,8,2,2
+3,"Nonnegative EBMF",11,6,1,3
+4,"cNMF",7,7,0,2
+4,"Signed EBMF",7,6,1,4
+4,"Semi-nonnegative EBMF",7,7,1,3
+4,"Nonnegative EBMF",7,7,1,2
+4,"cNMF",11,11,2,2
+4,"Signed EBMF",11,6,1,4
+4,"Semi-nonnegative EBMF",11,8,2,2
+4,"Nonnegative EBMF",11,8,1,2
+5,"cNMF",7,7,0,2
+5,"Signed EBMF",7,7,0,2
+5,"Semi-nonnegative EBMF",7,7,0,2
+5,"Nonnegative EBMF",7,7,1,2
+5,"cNMF",11,11,2,2
+5,"Signed EBMF",11,7,0,2
+5,"Semi-nonnegative EBMF",11,8,1,2
+5,"Nonnegative EBMF",11,8,1,2

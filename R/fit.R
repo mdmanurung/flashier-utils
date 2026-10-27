@@ -168,11 +168,12 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
       object
     } else if (max_factors == 0L) {
       flashier::flash_init(X, S = S, var_type = var_type, S_dim = control$S_dim)
-    } else if (!length(control)) {
-      flashier::flash(X, S = S, ebnm_fn = ebnm_fn, var_type = var_type,
-                     greedy_Kmax = max_factors, backfit = backfit, nullcheck = nullcheck, verbose = verbose)
     } else {
+      # Same steps as flashier::flash(), plus flash_set_verbose: the per-call
+      # verbose argument does not reach the zero-factor report, which reads
+      # the level stored on the object (default 1).
       object <- flashier::flash_init(X, S = S, var_type = var_type, S_dim = control$S_dim)
+      object <- flashier::flash_set_verbose(object, verbose = verbose)
       object <- do.call(flashier::flash_greedy, c(list(flash = object, Kmax = max_factors, ebnm_fn = ebnm_fn, verbose = verbose), greedy))
       if (backfit) object <- do.call(flashier::flash_backfit, c(list(flash = object, verbose = verbose), refit))
       if (nullcheck) object <- do.call(flashier::flash_nullcheck, c(list(flash = object, verbose = verbose), check))

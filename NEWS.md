@@ -1,5 +1,11 @@
 # flashier.utils 2.0.0.9000
 
+- `fit_ebmf()` now stores the requested verbosity on the native object, so
+  `verbose = 0` also silences flashier's "numerically zero" factor report.
+  Discrete colours in `plot_factor_scatter()`, `plot_factor_data()` and the
+  structure style of `plot_factor_activity()` default to the Okabe-Ito
+  palette for up to eight categories; activity displays label the scaling.
+
 - Every tutorial and website article now leads with figures: PVE, ranked
   weights, activity by group, congruence heatmaps, conditional intervals,
   held-out prediction and stability recovery are plotted before the numbers
