@@ -47,6 +47,53 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - API cleanup: 12 single-value/reserved args removed from 7 exports, 4 trailing reorders,
   S/var_type/one-sample guards, factor_intervals side default; 322-probe edge matrix.
 
+## rOpenSci publication readiness — to do (added 2026-10-27)
+
+Source: reports/ropensci-review-20261027 (state at 22c8877; gates fixed in 00ac52d).
+Order is by what unblocks the next step. Estimates are hands-on effort.
+
+- [ ] P1 Decide the dependency story (half a day). Run the full suite and the four
+  vignettes against CRAN flashier 1.0.x in a scratch library. If green: drop the
+  `Remotes:` pin for flashier, keep the three Suggests remotes (CorShrink, gbcd,
+  fastTopics) and document them as optional GitHub installs. If not green: record
+  the failing feature in NEWS and README and keep the pin with a one-line reason.
+  Acceptance: DESCRIPTION installable with `install.packages()` for Imports, or a
+  documented reason in README.
+- [ ] P2 srr statistical standards (1–2 weeks). `srr::srr_stats_roxygen(category =
+  "unsupervised")` writes R/srr-stats-standards.R; annotate every G and UL standard
+  next to the code with `@srrstats` or `@srrstatsNA` plus a reason; no
+  `@srrstatsTODO` left. Acceptance: `srr::srr_stats_pre_submit()` clean,
+  `srr::srr_report()` committed under reports/.
+- [ ] P3 autotest clean run (2–3 days). Reproduce the two aborts (package `tests/`
+  present; S4/ggplot return value) in a minimal example and either work around in
+  `~/.claude/skills/r-package-review/scripts/autotest.sh` or report upstream.
+  Demonstrate the 49 undocumented-in-examples parameters (start with
+  standardize_factors, backproject_contrast, plot_factor_data, fit_ebmf); name
+  return classes in `@return` for the 6 flagged pages. Acceptance:
+  `autotest_package(test = TRUE)` returns no `error` rows; remaining diagnostics
+  listed in the srr report.
+- [ ] P4 Community files and README (1 day). README.Rmd that renders README.md;
+  badges (R CMD check, Codecov, repostatus, lifecycle); Codecov upload step in
+  R-CMD-check.yaml; CODE_OF_CONDUCT.md; inst/CITATION; ORCID for the maintainer in
+  Authors@R. Acceptance: pkgcheck `has_citation`, `has_orcid` pass; README shows
+  live badges.
+- [ ] P5 Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
+  rename `T` in R/alignment.R; delete or use `.display_options`; `@inheritParams` for the
+  duplicated `fit` parameter; `add = TRUE` on the two `on.exit` calls. Acceptance:
+  goodpractice lintr count under 50 excluding tests.
+- [ ] P6 Test depth (1 day). test-shrinkage.R; `backproject_contrast` guard tests;
+  replace the wall-clock assertion in test-fu0-preflight.R:40; plot-data assertions for
+  plot_factor_pve/weights/scatter. Acceptance: backprojection.R and shrinkage.R above
+  85 percent line coverage.
+- [ ] P7 Scope and overlap statement (half a day). One paragraph for the submission
+  issue: category (statistical, unsupervised learning), overlap with flashier itself,
+  MOFA2 and cNMF tooling, what this package adds (named views, provenance, bound
+  evidence). Check `pkgcheck::fn_names_on_cran()` for `provenance` and
+  `test_factors` and decide whether to rename before submission.
+- [ ] P8 Pre-submission check (half a day). `pkgcheck::pkgcheck()` on a fresh clone
+  must report ready; `R CMD check` clean on all 6 CI jobs; then follow the
+  peer-review-author checklist (ropensci-skills) to open the software-review issue.
+
 ## Locked decisions
 - `prior_policy` defaults to "query"; "fixed_reference" is opt-in (user, 2026-10-26).
 - `.match_ids` defaults to `extra = "drop"` with exclusions recorded; sample-keyed holdout folds pass `extra = "fail"` (user, 2026-10-26).
