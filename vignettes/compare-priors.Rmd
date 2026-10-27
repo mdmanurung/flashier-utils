@@ -209,16 +209,13 @@ the other? Span coverage allows any signed combination; feasible coverage
 respects each factor's declared activity support. Both describe loading
 representability only, never program usage or biology.
 
-```{r coverage}
-comparison <- compare_prior_fits(views$normal, views$sparse)
-comparison
-```
-
 ```{r coverage-figure, fig.width=7, fig.height=3, fig.alt="Two panels, feasible and span. Each shows the uncovered squared loading fraction for reference factors F1 and F2 at their observed poles; all values are near zero.", fig.cap="Uncovered loading fraction of each normal-prior factor when rebuilt from the sparse-prior factors, over the 24 simulated genes. Points are the two observed activity poles (shape and colour); zero means fully representable. Simulated data, one fit per prior, no replication."}
+comparison <- compare_prior_fits(views$normal, views$sparse)
 plot(comparison, "coverage")
 ```
 
 ```{r coverage-table}
+comparison
 comparison$coverage[, c("source", "factor", "pole", "span_residual", "feasible_residual", "feasible_status")]
 ```
 
