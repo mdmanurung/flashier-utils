@@ -104,7 +104,11 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #' @param order_within_group `"input"` (default, current order) or `"mds1"`. mds1
 #'   requires style = "structure" and a group column; groups keep their first
 #'   displayed appearance, singleton and zero-distance groups keep input order,
-#'   and remaining ties keep original displayed order.
+#'   and remaining ties keep original displayed order. The MDS sign is
+#'   canonical: the first nonzero coordinate in displayed order is positive.
+#' @param group_order Optional character vector naming every displayed group
+#'   once, in the order the structure plot should show them (default first
+#'   appearance). Requires style = "structure" and a group column.
 #' @param ... Optional `palette` and `limits`.
 #' @return A ggplot object with included/excluded IDs and display metadata attributes.
 #' @seealso [summarize_factor_activity()], [plot_factor_features()]
@@ -129,12 +133,15 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #' plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
 plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = NULL,
     style = "heatmap", display_normalization = "none", max_samples = 2000L,
-    seed = NULL, order_within_group = c("input", "mds1"), ...) {
+    seed = NULL, order_within_group = c("input", "mds1"), group_order = NULL, ...) {
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))
   order_within_group <- match.arg(order_within_group)
   if (order_within_group == "mds1" && (style != "structure" || is.null(group))) {
     stop("mds1 ordering requires style='structure' and an explicit group column")
+  }
+  if (!is.null(group_order) && (style != "structure" || is.null(group))) {
+    stop("group_order requires style='structure' and an explicit group column")
   }
   if (length(max_samples) != 1L || !is.finite(max_samples) || max_samples < 1 || max_samples != as.integer(max_samples)) stop("max_samples must be a positive integer")
   view <- .resolve_view(fit)
@@ -169,25 +176,35 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = N
     })
   }
   displayed <- rownames(A)[included]
+  declared_order <- group_order
   group_order <- NULL
-  if (style == "structure" && order_within_group == "mds1") {
+  if (style == "structure" && (order_within_group == "mds1" || !is.null(declared_order))) {
     displayed_groups <- groups[included]
     group_order <- unique(displayed_groups)
+    if (!is.null(declared_order)) {
+      .select_ids(declared_order, group_order, "group order")
+      if (anyDuplicated(declared_order) || !setequal(declared_order, group_order)) {
+        stop("group_order must name every displayed group exactly once")
+      }
+      group_order <- declared_order
+    }
     ordered <- character()
     for (g in group_order) {
       rows <- which(displayed_groups == g)
       ids_g <- displayed[rows]
-      if (length(rows) < 2L) {
+      if (order_within_group == "input" || length(rows) < 2L) {
         ordered <- c(ordered, ids_g)
         next
       }
+      if (8 * length(rows)^2 > 256 * 1024^2) stop("Dense within-group distances exceed 256 MB; lower max_samples")
       distances <- as.matrix(stats::dist(A[included[rows], , drop = FALSE], method = "euclidean"))
       if (max(distances) == 0) {
         ordered <- c(ordered, ids_g)
         next
       }
-      mds <- stats::cmdscale(stats::as.dist(distances), k = 1)
-      ordered <- c(ordered, ids_g[order(mds[, 1], rows)])
+      mds <- stats::cmdscale(stats::as.dist(distances), k = 1)[, 1]
+      mds <- mds * .first_nonzero_sign(mds)
+      ordered <- c(ordered, ids_g[order(mds, rows)])
     }
     displayed <- ordered
   }
@@ -214,10 +231,18 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = N
   ordering <- list(order_within_group = order_within_group)
   if (!is.null(group_order)) {
     ordering <- c(ordering, list(displayed_sample_order = displayed, group_order = group_order,
-      ordering_distance = "euclidean", ordering_embedding = "cmdscale_k1"))
+      group_order_source = if (is.null(declared_order)) "first_appearance" else "declared"))
+    if (order_within_group == "mds1") ordering <- c(ordering, list(ordering_distance = "euclidean",
+      ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive"))
   }
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization,
     exclusions = match$exclusions, included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
     sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed), ordering)
   .attach_provenance(p, "plot_factor_activity", match.call(), .resolved_parameters("plot_factor_activity", environment()))
+}
+
+# Sign that makes the first nonzero entry positive (1 for an all-zero vector).
+.first_nonzero_sign <- function(x) {
+  first <- which(x != 0)[1]
+  if (is.na(first)) 1 else sign(x[first])
 }

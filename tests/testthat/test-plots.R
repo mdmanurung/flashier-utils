@@ -35,9 +35,21 @@ test_that("structure plots order displayed samples within groups by 1D MDS", {
   meta <- attr(p, "analysis_metadata")
   # Independent re-derivation of the documented algorithm for group a.
   d <- stats::dist(A[1:4, , drop = FALSE], method = "euclidean")
-  mds <- stats::cmdscale(d, k = 1)
-  reference <- paste0("s", 1:4)[order(mds[, 1], 1:4)]
+  mds <- stats::cmdscale(d, k = 1)[, 1]
+  mds <- mds * sign(mds[which(mds != 0)[1]])
+  reference <- paste0("s", 1:4)[order(mds, 1:4)]
   expect_equal(meta$displayed_sample_order[1:4], reference)
+  expect_equal(meta$ordering_sign, "first_nonzero_positive")
+  expect_equal(meta$group_order_source, "first_appearance")
+  # Canonical sign: the same samples supplied in reverse row order keep the order.
+  reversed_view <- .make_representation(A[7:1, , drop = FALSE], view$effects, view$manifest)
+  reversed <- plot_factor_activity(reversed_view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", order_within_group = "mds1")
+  reversed_meta <- attr(reversed, "analysis_metadata")
+  expect_equal(reversed_meta$group_order, c("c", "b", "a"))
+  mds_rev <- stats::cmdscale(stats::dist(A[4:1, , drop = FALSE]), k = 1)[, 1]
+  mds_rev <- mds_rev * sign(mds_rev[which(mds_rev != 0)[1]])
+  expect_equal(reversed_meta$displayed_sample_order[4:7], paste0("s", 4:1)[order(mds_rev, 1:4)])
   # Group order is first appearance; singleton and zero-distance groups keep input order.
   expect_equal(meta$group_order, c("a", "b", "c"))
   expect_equal(meta$displayed_sample_order[5], "s5")
@@ -63,6 +75,24 @@ test_that("structure plots order displayed samples within groups by 1D MDS", {
     order_within_group = "mds1"), "structure")
   expect_error(plot_factor_activity(view, style = "structure", display_normalization = "row_sum",
     order_within_group = "mds1"), "group")
+  # Declared group order applies with or without MDS; it must name every group once.
+  declared <- plot_factor_activity(view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", group_order = c("c", "a", "b"))
+  declared_meta <- attr(declared, "analysis_metadata")
+  expect_equal(declared_meta$group_order, c("c", "a", "b"))
+  expect_equal(declared_meta$group_order_source, "declared")
+  expect_equal(declared_meta$displayed_sample_order, paste0("s", c(6, 7, 1:4, 5)))
+  expect_null(declared_meta$ordering_embedding)
+  both <- plot_factor_activity(view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", order_within_group = "mds1", group_order = c("c", "a", "b"))
+  expect_equal(attr(both, "analysis_metadata")$displayed_sample_order, c("s6", "s7", reference, "s5"))
+  expect_error(plot_factor_activity(view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", group_order = c("a", "b")), "every displayed group")
+  expect_error(plot_factor_activity(view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", group_order = c("a", "a", "b", "c")), "unique")
+  expect_error(plot_factor_activity(view, metadata, group = "cohort", style = "structure",
+    display_normalization = "row_sum", group_order = c("a", "b", "z")), "Unknown group order")
+  expect_error(plot_factor_activity(view, metadata, group = "cohort", group_order = c("a", "b", "c")), "structure")
 })
 test_that("activity plots record metadata rows absent from the fit", {
   metadata <- data.frame(sample=c("s3","s1","s2","s99"),cohort=c("b","a","a","a"))

@@ -1,5 +1,11 @@
 # flashier.utils 2.0.0.9000
 
+- `plot_factor_activity()` structure plots: `order_within_group = "mds1"` now
+  fixes the MDS sign (first nonzero displayed coordinate positive) so the order
+  is reproducible across platforms, a new `group_order` argument declares the
+  group display order, and within-group distance matrices above 256 MB are
+  refused instead of allocated.
+
 - `fit_ebmf()` now stores the requested verbosity on the native object, so
   `verbose = 0` also silences flashier's "numerically zero" factor report.
   Discrete colours in `plot_factor_scatter()`, `plot_factor_data()` and the

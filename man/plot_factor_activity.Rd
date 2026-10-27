@@ -14,6 +14,7 @@ plot_factor_activity(
   max_samples = 2000L,
   seed = NULL,
   order_within_group = c("input", "mds1"),
+  group_order = NULL,
   ...
 )
 }
@@ -40,7 +41,12 @@ style only).}
 \item{order_within_group}{\code{"input"} (default, current order) or \code{"mds1"}. mds1
 requires style = "structure" and a group column; groups keep their first
 displayed appearance, singleton and zero-distance groups keep input order,
-and remaining ties keep original displayed order.}
+and remaining ties keep original displayed order. The MDS sign is
+canonical: the first nonzero coordinate in displayed order is positive.}
+
+\item{group_order}{Optional character vector naming every displayed group
+once, in the order the structure plot should show them (default first
+appearance). Requires style = "structure" and a group column.}
 
 \item{...}{Optional \code{palette} and \code{limits}.}
 }

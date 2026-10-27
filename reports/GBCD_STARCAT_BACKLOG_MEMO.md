@@ -8,8 +8,8 @@ This memo anchors the backlog and states the entry conditions.
 progress. GBCD-related fitting shipped under the audited plan's GB items:
 semi-nonnegative, intercept, initialized and multistart fitting (GB-001/002/003/006,
 2026-10-13/14) and the optional exact-pin GBCD adapter `fit_gbcd_programs()`
-(GB-004, 70a30d6, 2026-10-23). GB-005b display ordering is partial (no canonical
-MDS sign or declared group order). STARCAT remains unstarted apart from the
+(GB-004, 70a30d6, 2026-10-23). GB-005b display ordering was completed on
+2026-10-27 (canonical MDS sign, declared `group_order`, dense-distance refusal). STARCAT remains unstarted apart from the
 `fixed_reference` projection policy (3922cd4). No release GO is recorded.
 
 ## Scope summary
