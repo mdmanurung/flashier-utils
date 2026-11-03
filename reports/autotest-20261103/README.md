@@ -17,8 +17,7 @@ artefact of the 2026-10-27 review is gone).
    S7, `typeof(p) == "object"`. `repro-s7-abort.R` reproduces it with a
    one-function package; `upstream-issue.md` is a draft report (not posted).
    Workaround: `exclude` the seven `plot_*` exports.
-2. **`get_Rd_param` on character tests.** After the 2026-11-03 example additions,
-   autotest aborts in `test_single_char_as_random -> char_param_is_arbitrary ->
+2. **`get_Rd_param` on character tests.** In later runs autotest also aborts in `test_single_char_as_random -> char_param_is_arbitrary ->
    get_Rd_param` with `argument is of length zero`. Bisecting by function points at
    `standardize_factors`, but the abort also reproduces on the source from before the
    example additions and the air reformat when that function is tested alone, while a

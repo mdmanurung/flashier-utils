@@ -7,11 +7,12 @@ Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 6`: 9475da3 (renames) must pass R CMD check (5 jobs + roxygen-drift +
-full-engines), pkgdown and test-coverage. Then P3: fresh clone to scratch and
-`~/.claude/skills/r-package-review/scripts/autotest.sh <clone> <ev>`; the old autotest errors
-were stale-library artefacts. Codecov needs the `CODECOV_TOKEN` secret (user); ORCID for
-Authors@R still needed from the user (pkgcheck has_orcid).
+`gh run list --limit 4` must be green for c86a0e6 (R CMD check incl. roxygen-drift, pkgdown,
+test-coverage). Then P2 (srr): add `srr::srr_stats_roclet` to DESCRIPTION Roxygen roclets
+and `any::srr` to the roxygen-drift job in the same commit; `srr::srr_stats_roxygen(category =
+"unsupervised")`; annotate G then UL standards with file:line; @srrstatsNA where flashier
+does the fitting. User still owes: ORCID for Authors@R, CODECOV_TOKEN secret, and a
+decision on filing reports/autotest-20261103/upstream-issue.md.
 
 ## Previous next action
 `gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
@@ -36,6 +37,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-11-03 P3: autotest report reports/autotest-20261103/ (S7 abort repro + draft issue; remaining errors are autotest call-reconstruction artefacts); var_type contract enforced at 3 entry points (14239c2); examples demonstrate flagged parameters; @return names classes. air format at 120 and a .lintr without big exclusions (lint was 200 s/file): 36 real lints in R/.
 - 2026-11-03 docs push: lucid-writer review fixes in ebmf-cnmf-comparison (inline CSV numbers, conditional congruence, split counts, cNMF cap, held-out replicate count) and robustness-checks; vignette code checks. All 7 vignettes render locally. Autotest aborts inside autotest on ggplot2 S7 objects (`cannot coerce type 'object'`): next step is excluding plot_* and reporting upstream.
 - 2026-11-03 renames: factor_provenance(), test_factor_association(); old names exported as .Deprecated() aliases in R/deprecated.R (CRAN clashes: provenance x4, test_factors x1).
 - 2026-11-03 P4: README.Rmd + badges, CODE_OF_CONDUCT.md, inst/CITATION, test-coverage workflow, roxygen-drift CI job; credits review reports/credits-review-20261103/ (scales, irlba, softImpute credited; CorShrink pin named; patchwork dropped).
@@ -82,7 +84,7 @@ Order is by what unblocks the next step. Estimates are hands-on effort.
   next to the code with `@srrstats` or `@srrstatsNA` plus a reason; no
   `@srrstatsTODO` left. Acceptance: `srr::srr_stats_pre_submit()` clean,
   `srr::srr_report()` committed under reports/.
-- [ ] P3 autotest clean run (2–3 days). Reproduce the two aborts (package `tests/`
+- [~] P3 2026-11-03: as clean as autotest 0.2.0.3 allows; see reports/autotest-20261103/README.md. Original: autotest clean run (2–3 days). Reproduce the two aborts (package `tests/`
   present; S4/ggplot return value) in a minimal example and either work around in
   `~/.claude/skills/r-package-review/scripts/autotest.sh` or report upstream.
   Demonstrate the 49 undocumented-in-examples parameters (start with
@@ -95,7 +97,7 @@ Order is by what unblocks the next step. Estimates are hands-on effort.
   R-CMD-check.yaml; CODE_OF_CONDUCT.md; inst/CITATION; ORCID for the maintainer in
   Authors@R. Acceptance: pkgcheck `has_citation`, `has_orcid` pass; README shows
   live badges.
-- [x] P5 done 2026-11-03 (lint count not re-measured; lint run timed out). Original: Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
+- [x] P5 done 2026-11-03: 36 real lints in R/ (lintr defaults at 120, package context; 73 no-visible-global artefacts excluded). Original: Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
   rename `T` in R/alignment.R; delete or use `.display_options`; `@inheritParams` for the
   duplicated `fit` parameter; `add = TRUE` on the two `on.exit` calls. Acceptance:
   goodpractice lintr count under 50 excluding tests.
