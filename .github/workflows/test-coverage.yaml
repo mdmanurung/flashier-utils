@@ -1,0 +1,40 @@
+# Follows r-lib/actions' test-coverage example. Optional engines are installed
+# so their tests run; the upload never fails CI while Codecov is being set up.
+name: test-coverage
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - name: Install GSL for mashr
+        run: sudo apt-get update && sudo apt-get install -y libgsl-dev
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          dependencies: '"all"'
+          extra-packages: any::covr, any::xml2
+          needs: coverage
+      - name: Test coverage
+        shell: Rscript {0}
+        run: |
+          cov <- covr::package_coverage(quiet = FALSE, clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package"))
+          print(cov)
+          covr::to_cobertura(cov)
+      - uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: false
+          files: ./cobertura.xml
+          plugins: noop
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
