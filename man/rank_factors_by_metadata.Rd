@@ -39,7 +39,7 @@ A zero-factor fit returns a typed empty ranking table.
 }
 \details{
 Origin: ADAPTED / none.
-Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
+Credits ANOVA_factors / stats::lm workflow; use factor_provenance("rank_factors_by_metadata")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

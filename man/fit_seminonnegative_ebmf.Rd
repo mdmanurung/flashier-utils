@@ -37,7 +37,7 @@ Observations may be negative. No centering or sign flipping is performed.
 }
 \details{
 Origin: WRAPPER / call_only. No upstream implementation source copied.
-Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
+Use factor_provenance("fit_seminonnegative_ebmf") for source pins and authors.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}

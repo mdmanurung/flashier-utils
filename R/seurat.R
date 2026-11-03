@@ -11,7 +11,7 @@
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); Paul Hoffman; Rahul Satija; David Collins; Yuhan Hao; Austin Hartman; Gesmira Molla; Andrew Butler; Tim Stuart; Madeline Kowalski; Saket Choudhary; Skylar Li; Longda Jiang; Anagha Shenoy; Jeff Farrell; Shiwei Zheng; Christoph Hafemeister; Patrick Roelli (SeuratObject).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
-#'   Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
+#'   Credits CreateDimReducObject workflow; AddLatentData conceptual context; use factor_provenance("add_factors_to_seurat")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -78,7 +78,7 @@ add_factors_to_seurat <- function(object, fit, reduction = "ebmf", assay = NULL,
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
+#'   Credits Seurat/uwot public embedding APIs; use factor_provenance("embed_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -163,7 +163,7 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / call_only.
-#'   Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
+#'   Credits factor-space activity display workflow; use factor_provenance("plot_factor_embedding")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -254,7 +254,7 @@ plot_factor_embedding <- function(object, reduction, factors, display = "activit
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
-#'   Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
+#'   Credits stats::ecdf display workflow; use factor_provenance("factor_activity_percentile")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE

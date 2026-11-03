@@ -66,7 +66,7 @@ you supply; z-scoring is a display choice recorded in the metadata.
 }
 \details{
 Origin: NEW_QOL / none.
-Credits MOFA2 data-level display workflow; use provenance("plot_factor_data")
+Credits MOFA2 data-level display workflow; use factor_provenance("plot_factor_data")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

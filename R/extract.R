@@ -48,7 +48,7 @@
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits native means / ldf; use provenance("factor_activity")
+#'   Credits native means / ldf; use factor_provenance("factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -81,7 +81,7 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits native means / ldf; use provenance("factor_effects")
+#'   Credits native means / ldf; use factor_provenance("factor_effects")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -126,7 +126,7 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits native posterior moments / public accessors; use provenance("factor_uncertainty")
+#'   Credits native posterior moments / public accessors; use factor_provenance("factor_uncertainty")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -190,7 +190,7 @@ factor_uncertainty <- function(
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / none.
-#'   Credits native pve field; use provenance("factor_pve")
+#'   Credits native pve field; use factor_provenance("factor_pve")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

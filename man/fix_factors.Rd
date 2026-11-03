@@ -37,7 +37,7 @@ Fix or unfix a named native factor side
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits flash_factors_fix; flash_factors_unfix; use provenance("fix_factors")
+Credits flash_factors_fix; flash_factors_unfix; use factor_provenance("fix_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

@@ -19,7 +19,7 @@ Remove named factors without refitting
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits flash_factors_remove; use provenance("remove_factors")
+Credits flash_factors_remove; use factor_provenance("remove_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

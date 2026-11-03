@@ -29,7 +29,7 @@ Compute explicitly display-only empirical activity percentiles
 }
 \details{
 Origin: ADAPTED / call_only.
-Credits stats::ecdf display workflow; use provenance("factor_activity_percentile")
+Credits stats::ecdf display workflow; use factor_provenance("factor_activity_percentile")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

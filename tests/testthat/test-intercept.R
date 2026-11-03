@@ -138,7 +138,7 @@ test_that("zero biological rank refuses factor consumers before native calls", {
       expect_error(rank_features(view, factors = "F1"), "no biological factors")
       expect_equal(nrow(rank_features(view)), 0L)
       expect_error(backproject_contrast(view, numeric(), "coefficients", factor_basis = view$manifest), "no biological factors")
-      expect_error(test_factors(view, metadata, ~group, "lm", unit_col = "donor", independence = "independent"), "no biological factors")
+      expect_error(test_factor_association(view, metadata, ~group, "lm", unit_col = "donor", independence = "independent"), "no biological factors")
       expect_error(factor_network(view), "no biological factors")
       expect_error(plot_feature_rankings(view, "F1"), "no biological factors")
       expect_error(plot_factor_features(view, "F1"), "no biological factors")

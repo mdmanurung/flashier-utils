@@ -658,7 +658,7 @@ Matthew Stephens. Activity and feature display workflows credit David Zemmour
 and the Zemmour Lab. These recipes call public APIs; no upstream source is copied.
 Plot styling uses ggplot2 by Hadley Wickham, Thomas Lin Pedersen and the
 contributors listed in the full credits. Use `citation("ggplot2")` for its method.
-Use `citation("flashier")`, `citation("ebnm")` and `provenance()` for methods
+Use `citation("flashier")`, `citation("ebnm")` and `factor_provenance()` for methods
 and runtime records. See [full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).
 
 The [R Graph Gallery density page](https://r-graph-gallery.com/density-plot.html)

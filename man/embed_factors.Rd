@@ -37,7 +37,7 @@ Embed declared factor coordinates using native uwot
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits Seurat/uwot public embedding APIs; use provenance("embed_factors")
+Credits Seurat/uwot public embedding APIs; use factor_provenance("embed_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

@@ -22,7 +22,7 @@
 #' Summarize activities by explicit metadata groups
 #'
 #' Mean, SD and quantiles of each factor's activity within each metadata group,
-#' with sample and unit counts. Descriptive only; use [test_factors()] for
+#' with sample and unit counts. Descriptive only; use [test_factor_association()] for
 #' inference. Per-observation weighting is the default; cells are not donor-balanced.
 #' With weights, only means are supported: SD and quantiles are NA and labelled
 #' unavailable. Descriptive SD never estimates uncertainty of the group mean.
@@ -51,12 +51,12 @@
 #'   `n_units`, `mean`, `sd`, `median`, `q25`, `q75`, plus `active_n`,
 #'   `active_proportion` and (with weights) `active_weighted_proportion` when a
 #'   threshold is supplied; no p-values.
-#' @seealso [compare_factor_groups()], [test_factors()], [plot_factor_activity()]
+#' @seealso [compare_factor_groups()], [test_factor_association()], [plot_factor_activity()]
 #' @export
 #' @author David Zemmour / Zemmour Lab (ImmGenT workflows).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits metadata grouping workflow; use provenance("summarize_factor_activity")
+#'   Credits metadata grouping workflow; use factor_provenance("summarize_factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -215,7 +215,7 @@ center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group"
 #' @author Stephens Lab; individual script authors not verified.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
-#'   Credits ANOVA_factors / stats::lm workflow; use provenance("rank_factors_by_metadata")
+#'   Credits ANOVA_factors / stats::lm workflow; use factor_provenance("rank_factors_by_metadata")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -281,12 +281,12 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
 #' @param na_action `"fail"` (default) or `"omit"`.
 #' @return List with `$factor_contrast` (one row per factor),
 #'   `$feature_contrast` (one row per feature), `$counts` and matching metadata.
-#' @seealso [summarize_factor_activity()], [test_factors()], [backproject_contrast()]
+#' @seealso [summarize_factor_activity()], [test_factor_association()], [backproject_contrast()]
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
-#'   Credits FlashierDGE group contrast workflow; use provenance("compare_factor_groups")
+#'   Credits FlashierDGE group contrast workflow; use factor_provenance("compare_factor_groups")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

@@ -49,7 +49,7 @@
 #' @author Mikhael Manurung. Conceptual workflow: MOFA2 plot_weights (Ricard Argelaguet, Damien Arnol, Danila Bredikhin, Britta Velten).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits MOFA2 ranked-weight display workflow; use provenance("plot_factor_weights")
+#'   Credits MOFA2 ranked-weight display workflow; use factor_provenance("plot_factor_weights")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @seealso [plot_factor_features()], [factor_features()]
@@ -122,7 +122,7 @@ plot_factor_weights <- function(fit, factors, representation = NULL, n_label = 1
 #' @author Mikhael Manurung. Conceptual workflow: MOFA2 plot_factors (Ricard Argelaguet, Damien Arnol, Danila Bredikhin, Britta Velten).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits MOFA2 factor-scatter display workflow; use provenance("plot_factor_scatter")
+#'   Credits MOFA2 factor-scatter display workflow; use factor_provenance("plot_factor_scatter")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @seealso [plot_factor_activity()], [plot_factor_embedding()]
@@ -188,7 +188,7 @@ plot_factor_scatter <- function(fit, factors, metadata = NULL, color = NULL, sha
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / none.
-#'   Credits native pve field; use provenance("plot_factor_pve")
+#'   Credits native pve field; use factor_provenance("plot_factor_pve")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @seealso [factor_pve()]
@@ -245,7 +245,7 @@ plot_factor_pve <- function(fit, factors = NULL) {
 #' @author Mikhael Manurung. Conceptual workflow: MOFA2 plot_data_heatmap and plot_data_scatter (Ricard Argelaguet, Damien Arnol, Danila Bredikhin, Britta Velten).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits MOFA2 data-level display workflow; use provenance("plot_factor_data")
+#'   Credits MOFA2 data-level display workflow; use factor_provenance("plot_factor_data")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @seealso [factor_features()], [plot_factor_weights()]

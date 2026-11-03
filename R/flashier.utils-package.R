@@ -7,7 +7,7 @@
 #' Get started tutorial walks through the workflow.
 #'
 #' Every exported function's reference page names its original authors;
-#' [provenance()] returns the audited source registry. Full credits:
+#' [factor_provenance()] returns the audited source registry. Full credits:
 #' \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #'
 #' @keywords internal

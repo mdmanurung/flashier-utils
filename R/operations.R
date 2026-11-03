@@ -84,7 +84,7 @@
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
-#'   Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
+#'   Credits flashier_nmf workflow; bounded native recipe; use factor_provenance("fit_nonnegative_ebmf")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -126,7 +126,7 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
 #' @author Mikhael Manurung. Native FLASH: Jason Willwerscheid, Peter Carbonetto,
 #'   Wei Wang and Matthew Stephens; native EBNM authors are listed in credits.
 #' @details Origin: WRAPPER / call_only. No upstream implementation source copied.
-#'   Use provenance("fit_seminonnegative_ebmf") for source pins and authors.
+#'   Use factor_provenance("fit_seminonnegative_ebmf") for source pins and authors.
 #' @keywords internal
 #' @examplesIf FALSE
 #' set.seed(3)
@@ -175,7 +175,7 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits flash_backfit; use provenance("refit_factors")
+#'   Credits flash_backfit; use factor_provenance("refit_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -215,7 +215,7 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits flash_factors_fix; flash_factors_unfix; use provenance("fix_factors")
+#'   Credits flash_factors_fix; flash_factors_unfix; use factor_provenance("fix_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -264,7 +264,7 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits flash_factors_remove; use provenance("remove_factors")
+#'   Credits flash_factors_remove; use factor_provenance("remove_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -297,7 +297,7 @@ remove_factors <- function(fit, factors) {
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits flash_factors_reorder; use provenance("reorder_factors")
+#'   Credits flash_factors_reorder; use factor_provenance("reorder_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE

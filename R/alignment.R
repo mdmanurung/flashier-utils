@@ -123,7 +123,7 @@
 #' @author Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
-#'   Credits psych::factor.congruence; clue::solve_LSAP (probe pending); use provenance("factor_replicability")
+#'   Credits psych::factor.congruence; clue::solve_LSAP (probe pending); use factor_provenance("factor_replicability")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)

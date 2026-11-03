@@ -42,7 +42,7 @@ citations for your installed versions.
 | `rank_factors_by_metadata` | Stephens Lab; individual script authors not verified | ANOVA_factors / stats::lm workflow | ADAPTED / none |
 | `compare_factor_groups` | David Zemmour | FlashierDGE group contrast workflow | ADAPTED / none |
 | `validate_backprojection` | Mikhael Manurung | new reconstruction diagnostics; no exact upstream function claimed | NEW_ORCHESTRATION / none |
-| `test_factors` | Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream) | stats::lm; limma; dream; later brms | NEW_ORCHESTRATION / call_only |
+| `test_factor_association` | Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream) | stats::lm; limma; dream; later brms | NEW_ORCHESTRATION / call_only |
 | `enrich_factors` | Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR) | perform_gsea; later fgsea/decoupleR adapters | WRAPPER / call_only |
 | `factor_stability` | Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens | flash refits with existing congruence/assignment APIs | NEW_ORCHESTRATION / call_only |
 | `factor_replicability` | Mikhael Manurung; William Revelle (psych); Kurt Hornik and Walter Böhm (clue) | psych::factor.congruence; clue::solve_LSAP (probe pending) | NEW_ORCHESTRATION / call_only |

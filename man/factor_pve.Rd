@@ -21,7 +21,7 @@ unique variance decomposition or held-out prediction R squared.
 }
 \details{
 Origin: WRAPPER / none.
-Credits native pve field; use provenance("factor_pve")
+Credits native pve field; use factor_provenance("factor_pve")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

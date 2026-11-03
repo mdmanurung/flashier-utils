@@ -85,7 +85,7 @@ their fitting procedure; supplying settings alone does not remove this guard.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-Credits flash refits with existing congruence/assignment APIs; use provenance("factor_stability")
+Credits flash refits with existing congruence/assignment APIs; use factor_provenance("factor_stability")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

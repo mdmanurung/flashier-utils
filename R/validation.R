@@ -26,7 +26,7 @@
 #' @author Mikhael Manurung.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / none.
-#'   Credits new reconstruction diagnostics; no exact upstream function claimed; use provenance("validate_backprojection")
+#'   Credits new reconstruction diagnostics; no exact upstream function claimed; use factor_provenance("validate_backprojection")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

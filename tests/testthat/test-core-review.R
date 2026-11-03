@@ -90,7 +90,7 @@ test_that("group labels cannot overwrite reserved summary columns", {
 test_that("non-lm engines refuse unsupported formula offsets", {
   f <- association_fixture()
   f$metadata$z <- 5 * (f$metadata$group == "B")
-  expect_error(test_factors(f$view, f$metadata, ~ group + offset(z), "limma",
+  expect_error(test_factor_association(f$view, f$metadata, ~ group + offset(z), "limma",
     unit_col = "donor", independence = "independent"
   ), "offsets.*only")
 })

@@ -1,5 +1,10 @@
 # flashier.utils 2.0.0.9000
 
+- Renamed `provenance()` to `factor_provenance()` and `test_factors()` to
+  `test_factor_association()`: CRAN packages AgriFusionR, dataset, metasurvey
+  and provenance export `provenance()`, and plspm exports `test_factors()`. The
+  old names still work for one release and warn with `.Deprecated()`.
+
 - Community files for rOpenSci review: README.Rmd with R CMD check, Codecov,
   repostatus and lifecycle badges; CODE_OF_CONDUCT.md (Contributor Covenant);
   `citation("flashier.utils")`; a test-coverage workflow; a CI job that fails

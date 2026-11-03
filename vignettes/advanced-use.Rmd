@@ -98,7 +98,7 @@ Then test each factor against the design and push the fitted coefficient back
 through the effects to get a per-feature contrast.
 
 ```{r association}
-association <- test_factors(view, metadata, formula = ~group, engine = "lm",
+association <- test_factor_association(view, metadata, formula = ~group, engine = "lm",
                             unit_col = "donor", independence = "independent")
 reconstructed <- backproject_contrast(view, association$table,
   input = "coefficients", factor_basis = view$manifest, term = "groupB")
@@ -192,7 +192,7 @@ factor_features(view, "GEP1", select = "distinctive")
 plot_factor_features(view, "GEP1")
 programs$signatures
 programs$diagnostics
-provenance(result = programs)
+factor_provenance(result = programs)
 ```
 
 Factors are named `GEP1`, `GEP2`, ... (gene expression programs). `effect` and
@@ -226,5 +226,5 @@ GBCD's separate LM/ash statistics also differ from count-based GoM DE.
 Native FLASH and EBNM authors are credited in [Get started](first-fit.html).
 Group contrasts and reconstruction adapt David Zemmour / Zemmour Lab workflows.
 Regression uses R Core's `stats::lm`; the coordinate and reconstruction checks
-and the ggplot2 figures are independently implemented. See `provenance()` and
+and the ggplot2 figures are independently implemented. See `factor_provenance()` and
 [full credits](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

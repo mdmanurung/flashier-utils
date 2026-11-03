@@ -34,7 +34,7 @@ filters sign explicitly. No probability or significance is implied.
 }
 \details{
 Origin: ADAPTED / modified.
-Credits rank_effects; use provenance("rank_features")
+Credits rank_effects; use factor_provenance("rank_features")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

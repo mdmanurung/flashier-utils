@@ -45,7 +45,7 @@ Alignment is Tucker congruence only. For resampling uncertainty use
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-Credits psych::factor.congruence; clue::solve_LSAP (probe pending); use provenance("factor_replicability")
+Credits psych::factor.congruence; clue::solve_LSAP (probe pending); use factor_provenance("factor_replicability")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

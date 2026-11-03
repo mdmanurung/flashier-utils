@@ -64,7 +64,7 @@ displayed values use the declared matched representation, never positive-only.
 }
 \details{
 Origin: ADAPTED / none.
-Credits MyGeneTilePlot workflow; native flashier optional; use provenance("plot_factor_features")
+Credits MyGeneTilePlot workflow; native flashier optional; use factor_provenance("plot_factor_features")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

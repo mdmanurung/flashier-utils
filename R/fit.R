@@ -119,7 +119,7 @@
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: WRAPPER / call_only.
-#'   Credits flash; use provenance("fit_ebmf")
+#'   Credits flash; use factor_provenance("fit_ebmf")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

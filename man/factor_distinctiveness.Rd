@@ -37,7 +37,7 @@ Distinctiveness depends on the recorded common scale and orientation.
 }
 \details{
 Origin: ADAPTED / modified.
-Credits compute_le_effects; use provenance("factor_distinctiveness")
+Credits compute_le_effects; use factor_provenance("factor_distinctiveness")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

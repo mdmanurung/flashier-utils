@@ -24,7 +24,7 @@ backproject_contrast(
 \item{fit}{Native fit or a view from \code{\link[=standardize_factors]{standardize_factors()}}.}
 
 \item{factor_effects}{Numeric vector named by factor ID, the \verb{$table} from
-\code{\link[=test_factors]{test_factors()}}, or a draws matrix (factors in columns).}
+\code{\link[=test_factor_association]{test_factor_association()}}, or a draws matrix (factors in columns).}
 
 \item{input}{\code{"coefficients"} or \code{"draws"}. Required; never inferred from shape.}
 
@@ -33,7 +33,7 @@ backproject_contrast(
 \item{factor_basis}{The \verb{$manifest} of the view the coefficients were
 estimated on. Required for a bare named vector or a detached table.}
 
-\item{term, contrasts, conditions}{Which rows of a \code{\link[=test_factors]{test_factors()}} table to
+\item{term, contrasts, conditions}{Which rows of a \code{\link[=test_factor_association]{test_factor_association()}} table to
 use: one design term name, contrast names, or a conditions filter.}
 
 \item{allow_partial}{Allow coefficients for a subset of factors and report
@@ -53,7 +53,7 @@ A \code{backprojection_result} with \verb{$effects} (one row per feature:
 estimate, and interval when uncertainty was supplied) and \verb{$analysis_metadata}.
 }
 \description{
-Turn per-factor coefficients from \code{\link[=test_factors]{test_factors()}} (or any named vector) into
+Turn per-factor coefficients from \code{\link[=test_factor_association]{test_factor_association()}} (or any named vector) into
 a per-feature contrast by multiplying through the effects matrix.
 Computes B beta using the effects matching the activity model. Offsets
 cancel for contrasts. Point inputs produce no p-values or feature SEs.
@@ -61,7 +61,7 @@ Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
 }
 \details{
 Origin: ADAPTED / none.
-Credits FlashierDGE reconstruction workflow; use provenance("backproject_contrast")
+Credits FlashierDGE reconstruction workflow; use factor_provenance("backproject_contrast")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }
@@ -80,7 +80,7 @@ beta <- setNames(rep(1, ncol(view$activity)), colnames(view$activity))
 backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest)$effects
 }
 \seealso{
-\code{\link[=test_factors]{test_factors()}}, \code{\link[=validate_backprojection]{validate_backprojection()}}
+\code{\link[=test_factor_association]{test_factor_association()}}, \code{\link[=validate_backprojection]{validate_backprojection()}}
 }
 \author{
 David Zemmour.

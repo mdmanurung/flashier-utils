@@ -294,7 +294,7 @@
 #'   Native EBMF: Jason Willwerscheid, Peter Carbonetto, Wei Wang, Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / none.
-#'   Credits base R linear algebra and stats::optim; use provenance("compare_prior_fits")
+#'   Credits base R linear algebra and stats::optim; use factor_provenance("compare_prior_fits")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   coverage describes loading representability, not program usage or biological replication.
 #' @examples

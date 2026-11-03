@@ -56,7 +56,7 @@ not_in_native_fit; uncertainty is never borrowed from the source fit.
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits native posterior moments / public accessors; use provenance("factor_uncertainty")
+Credits native posterior moments / public accessors; use factor_provenance("factor_uncertainty")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

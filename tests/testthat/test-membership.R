@@ -32,7 +32,7 @@ test_that("ImmGenT filtering repeats normalization and preserves paired reconstr
   expect_true(out$converged)
   expect_identical(serialize(view, NULL), before)
   expect_false(attr(out, "analysis_metadata")$native_fit_refitted)
-  expect_equal(provenance("filter_cells_by_total_membership")$code_reuse, "none")
+  expect_equal(factor_provenance("filter_cells_by_total_membership")$code_reuse, "none")
   expect_warning(partial <- filter_cells_by_total_membership(view,
     max_val = 1.5, numiter = 1
   ), "reached numiter")

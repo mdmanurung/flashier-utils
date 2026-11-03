@@ -103,7 +103,7 @@
 #' @author Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
-#'   Credits stats::lm; limma; dream; later brms; use provenance("test_factors")
+#'   Credits stats::lm; limma; dream; later brms; use factor_provenance("test_factor_association")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -121,8 +121,8 @@
 #'   sample = rownames(X), donor = rownames(X),
 #'   group = rep(c("A", "B"), each = 12)
 #' )
-#' test_factors(view, metadata = metadata, formula = ~group, engine = "lm", unit_col = "donor", independence = "independent")$table
-test_factors <- function(
+#' test_factor_association(view, metadata = metadata, formula = ~group, engine = "lm", unit_col = "donor", independence = "independent")$table
+test_factor_association <- function(
   fit, metadata, formula, engine, unit_col, independence, id_col = "sample",
   factors = NULL, contrasts = NULL, include_intercept = FALSE, na_action = "fail", adjust = "BH",
   adjust_scope = "all_tests", control = list(),
@@ -251,5 +251,5 @@ test_factors <- function(
   .attach_provenance(list(
     table = table, models = if (keep_models) models else NULL, design = data$design, contrasts = C,
     coefficient_covariance = covariance, diagnostics = list(warnings = warnings, errors = errors, native_attributes = if (engine == "dream") attributes(models) else NULL), analysis_metadata = metadata
-  ), "test_factors", match.call(), .resolved_parameters("test_factors", environment()))
+  ), "test_factor_association", match.call(), .resolved_parameters("test_factor_association", environment()))
 }

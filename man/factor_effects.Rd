@@ -41,7 +41,7 @@ factors or features and as a long table.
 }
 \details{
 Origin: NEW_QOL / none.
-Credits native means / ldf; use provenance("factor_effects")
+Credits native means / ldf; use factor_provenance("factor_effects")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

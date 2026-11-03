@@ -21,7 +21,7 @@ total variance explained.
 }
 \details{
 Origin: WRAPPER / none.
-Credits native pve field; use provenance("plot_factor_pve")
+Credits native pve field; use factor_provenance("plot_factor_pve")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

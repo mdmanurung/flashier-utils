@@ -145,7 +145,7 @@
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_ORCHESTRATION / call_only.
-#'   Credits flash refits with existing congruence/assignment APIs; use provenance("factor_stability")
+#'   Credits flash refits with existing congruence/assignment APIs; use factor_provenance("factor_stability")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)

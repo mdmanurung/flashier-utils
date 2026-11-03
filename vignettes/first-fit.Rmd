@@ -102,5 +102,5 @@ adapts singlecelljamboreeR helpers by Peter Carbonetto and Matthew Stephens;
 activity displays credit David Zemmour / Zemmour Lab workflows; the ranked weights
 and PVE displays follow the MOFA2 plotting workflow of Ricard Argelaguet, Damien
 Arnol, Danila Bredikhin and Britta Velten conceptually, with no source reused.
-Use `citation("flashier")`, `citation("ebnm")`, and `provenance("factor_features")`.
+Use `citation("flashier")`, `citation("ebnm")`, and `factor_provenance("factor_features")`.
 [Full credits and licenses](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

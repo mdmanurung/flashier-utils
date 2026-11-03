@@ -44,7 +44,7 @@ ZemmourLib FlashierDGE. No p-values or automatic conversion to fold changes.
 }
 \details{
 Origin: ADAPTED / none.
-Credits FlashierDGE group contrast workflow; use provenance("compare_factor_groups")
+Credits FlashierDGE group contrast workflow; use factor_provenance("compare_factor_groups")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }
@@ -66,7 +66,7 @@ metadata <- data.frame(
 compare_factor_groups(view, metadata, "group", c("B", "A"), unit_col = "donor")$factor_contrast
 }
 \seealso{
-\code{\link[=summarize_factor_activity]{summarize_factor_activity()}}, \code{\link[=test_factors]{test_factors()}}, \code{\link[=backproject_contrast]{backproject_contrast()}}
+\code{\link[=summarize_factor_activity]{summarize_factor_activity()}}, \code{\link[=test_factor_association]{test_factor_association()}}, \code{\link[=backproject_contrast]{backproject_contrast()}}
 }
 \author{
 David Zemmour.

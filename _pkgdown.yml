@@ -74,7 +74,7 @@ reference:
       - summarize_factor_activity
       - compare_factor_groups
       - compare_prior_fits
-      - test_factors
+      - test_factor_association
       - test_gom_de
       - backproject_contrast
       - validate_backprojection
@@ -87,4 +87,4 @@ reference:
       - factor_holdout
   - title: Authors and sources
     contents:
-      - provenance
+      - factor_provenance

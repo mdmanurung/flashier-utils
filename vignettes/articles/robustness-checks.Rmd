@@ -185,7 +185,7 @@ ggplot(activity_meta, aes(group, estimate)) +
   facet_wrap(~factor) + theme_minimal() + labs(y = "activity")
 summarize_factor_activity(view, metadata, by = "group", unit_col = "donor")[,
   c("group", "factor", "n", "n_units", "mean", "sd")]
-tryCatch(test_factors(view, metadata, formula = ~group, engine = "lm",
+tryCatch(test_factor_association(view, metadata, formula = ~group, engine = "lm",
                       unit_col = "donor", independence = "independent"),
          error = conditionMessage)
 ```
@@ -197,7 +197,7 @@ repeated samples. Use the `dream` engine with the donor as a random effect,
 or aggregate to one row per unit first.
 
 ```{r dream, eval=requireNamespace("variancePartition", quietly = TRUE)}
-test_factors(view, metadata, formula = ~ group + (1 | donor), engine = "dream",
+test_factor_association(view, metadata, formula = ~ group + (1 | donor), engine = "dream",
              unit_col = "donor", independence = "repeated")$table[,
   c("factor", "term", "estimate", "p.value")]
 ```

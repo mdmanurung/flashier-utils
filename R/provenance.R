@@ -15,12 +15,12 @@
 #' @author Mikhael Manurung.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits new registry interface; use provenance("provenance")
+#'   Credits new registry interface; use factor_provenance("factor_provenance")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
-#' provenance(c("standardize_factors", "backproject_contrast"))
-provenance <- function(function_name = NULL, result = NULL, include_dependencies = TRUE) {
+#' factor_provenance(c("standardize_factors", "backproject_contrast"))
+factor_provenance <- function(function_name = NULL, result = NULL, include_dependencies = TRUE) {
   result_metadata <- if (is.list(result) && !is.null(result$analysis_metadata)) {
     result$analysis_metadata
   } else if (inherits(result, "factor_representation")) {
@@ -55,7 +55,7 @@ provenance <- function(function_name = NULL, result = NULL, include_dependencies
   }
   attr(out, "analysis_metadata") <- result_metadata
   result_metadata <- attr(out, "analysis_metadata")
-  out <- .attach_provenance(out, "provenance", match.call(), .resolved_parameters("provenance", environment()))
+  out <- .attach_provenance(out, "factor_provenance", match.call(), .resolved_parameters("factor_provenance", environment()))
   attr(out, "accessor_metadata") <- attr(out, "analysis_metadata")
   attr(out, "analysis_metadata") <- result_metadata
   out

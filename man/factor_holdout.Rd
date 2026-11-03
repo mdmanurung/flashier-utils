@@ -81,7 +81,7 @@ conditional and cannot establish independent full-pipeline validation.
 }
 \details{
 Origin: NEW_ORCHESTRATION / call_only.
-Credits flash_init; flash_factors_init; flash_factors_fix; flash_backfit; use provenance("factor_holdout")
+Credits flash_init; flash_factors_init; flash_factors_fix; flash_backfit; use factor_provenance("factor_holdout")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

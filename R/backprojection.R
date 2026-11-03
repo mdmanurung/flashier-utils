@@ -11,19 +11,19 @@
 
 #' Back-project a declared factor contrast into feature units
 #'
-#' Turn per-factor coefficients from [test_factors()] (or any named vector) into
+#' Turn per-factor coefficients from [test_factor_association()] (or any named vector) into
 #' a per-feature contrast by multiplying through the effects matrix.
 #' Computes B beta using the effects matching the activity model. Offsets
 #' cancel for contrasts. Point inputs produce no p-values or feature SEs.
 #' Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
 #' @param fit Native fit or a view from [standardize_factors()].
 #' @param factor_effects Numeric vector named by factor ID, the `$table` from
-#'   [test_factors()], or a draws matrix (factors in columns).
+#'   [test_factor_association()], or a draws matrix (factors in columns).
 #' @param input `"coefficients"` or `"draws"`. Required; never inferred from shape.
 #' @param representation For a native fit: a matched view or [standardize_factors()] settings.
 #' @param factor_basis The `$manifest` of the view the coefficients were
 #'   estimated on. Required for a bare named vector or a detached table.
-#' @param term,contrasts,conditions Which rows of a [test_factors()] table to
+#' @param term,contrasts,conditions Which rows of a [test_factor_association()] table to
 #'   use: one design term name, contrast names, or a conditions filter.
 #' @param allow_partial Allow coefficients for a subset of factors and report
 #'   the restricted contribution (default `FALSE`).
@@ -34,12 +34,12 @@
 #' @param feature_block_size Positive block size for feature operations.
 #' @return A `backprojection_result` with `$effects` (one row per feature:
 #'   estimate, and interval when uncertainty was supplied) and `$analysis_metadata`.
-#' @seealso [test_factors()], [validate_backprojection()]
+#' @seealso [test_factor_association()], [validate_backprojection()]
 #' @export
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
-#'   Credits FlashierDGE reconstruction workflow; use provenance("backproject_contrast")
+#'   Credits FlashierDGE reconstruction workflow; use factor_provenance("backproject_contrast")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

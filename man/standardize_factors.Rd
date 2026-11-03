@@ -74,7 +74,7 @@ is derived from their global constraints without changing the basis hash.
 }
 \details{
 Origin: ADAPTED / call_only.
-Credits ldf; use provenance("standardize_factors")
+Credits ldf; use factor_provenance("standardize_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

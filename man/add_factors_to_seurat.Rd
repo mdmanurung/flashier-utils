@@ -32,7 +32,7 @@ Add exactly aligned cell activities to a Seurat reduction
 }
 \details{
 Origin: ADAPTED / call_only.
-Credits CreateDimReducObject workflow; AddLatentData conceptual context; use provenance("add_factors_to_seurat")
+Credits CreateDimReducObject workflow; AddLatentData conceptual context; use factor_provenance("add_factors_to_seurat")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

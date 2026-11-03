@@ -80,7 +80,7 @@ seed restores the caller's RNG state; NULL consumes it. No preprocessing.
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits flash; use provenance("fit_ebmf")
+Credits flash; use factor_provenance("fit_ebmf")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

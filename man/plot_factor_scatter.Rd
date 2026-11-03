@@ -42,7 +42,7 @@ shaped by sample metadata, to see how programs co-occur across samples.
 }
 \details{
 Origin: NEW_QOL / none.
-Credits MOFA2 factor-scatter display workflow; use provenance("plot_factor_scatter")
+Credits MOFA2 factor-scatter display workflow; use factor_provenance("plot_factor_scatter")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

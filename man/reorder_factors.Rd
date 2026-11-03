@@ -19,7 +19,7 @@ Reorder native factors by exact named permutation
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits flash_factors_reorder; use provenance("reorder_factors")
+Credits flash_factors_reorder; use factor_provenance("reorder_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

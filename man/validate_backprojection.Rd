@@ -53,7 +53,7 @@ negative. Regression slope and top-feature overlap are descriptive.
 }
 \details{
 Origin: NEW_ORCHESTRATION / none.
-Credits new reconstruction diagnostics; no exact upstream function claimed; use provenance("validate_backprojection")
+Credits new reconstruction diagnostics; no exact upstream function claimed; use factor_provenance("validate_backprojection")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

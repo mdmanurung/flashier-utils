@@ -213,7 +213,7 @@
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / call_only.
-#'   Credits ldf; use provenance("standardize_factors")
+#'   Credits ldf; use factor_provenance("standardize_factors")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

@@ -54,7 +54,7 @@ test_that("GBCD conversion keeps effects, labels and conditional statistics sepa
   expect_equal(out$signatures$lfsr[1], .1)
   expect_false(out$signatures$statistics_available[1])
   expect_identical(out$native, raw)
-  expect_true(all(c("gbcd", "ashr") %in% attr(provenance(result = view), "dependencies")$package))
+  expect_true(all(c("gbcd", "ashr") %in% attr(factor_provenance(result = view), "dependencies")$package))
   expect_equal(nrow(factor_activity(view)), nrow(Y))
   expect_equal(nrow(factor_effects(view)), ncol(Y))
   expect_s3_class(plot_factor_features(view, "GEP1"), "ggplot")
@@ -126,7 +126,7 @@ test_that("installed pinned GBCD agrees exactly with direct calls in both orient
     expect_equal(wrapped$representation$activity, direct$L)
     expect_equal(wrapped$representation$effects, log(2) * direct$F$lfc)
     expect_identical(wrapped$analysis_metadata$engine, "gbcd")
-    deps <- attr(provenance(result = wrapped), "dependencies")
+    deps <- attr(factor_provenance(result = wrapped), "dependencies")
     expect_true(all(c("gbcd", "ashr") %in% deps$package))
     expect_identical(deps$runtime_source_commit[deps$package == "gbcd"], .gbcd_pin)
   }

@@ -14,7 +14,7 @@ Get started tutorial walks through the workflow.
 }
 \details{
 Every exported function's reference page names its original authors;
-\code{\link[=provenance]{provenance()}} returns the audited source registry. Full credits:
+\code{\link[=factor_provenance]{factor_provenance()}} returns the audited source registry. Full credits:
 \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
 \seealso{

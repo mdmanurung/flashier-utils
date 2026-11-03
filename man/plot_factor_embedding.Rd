@@ -35,7 +35,7 @@ name also works.
 }
 \details{
 Origin: NEW_QOL / call_only.
-Credits factor-space activity display workflow; use provenance("plot_factor_embedding")
+Credits factor-space activity display workflow; use factor_provenance("plot_factor_embedding")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

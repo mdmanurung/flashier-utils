@@ -5,13 +5,15 @@ test_that("the public API contains exactly the approved core", {
     "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
     "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",
     "plot_factor_weights", "plot_factor_scatter", "plot_factor_pve", "plot_factor_data", "plot_factor_embedding",
-    "project_factor_activity", "project_factor_features", "provenance",
-    "standardize_factors", "summarize_factor_activity", "test_factors", "test_gom_de",
+    "project_factor_activity", "project_factor_features", "factor_provenance",
+    "standardize_factors", "summarize_factor_activity", "test_factor_association", "test_gom_de",
     "validate_backprojection"
   )
-  expect_setequal(getNamespaceExports("flashier.utils"), core)
-  records <- provenance(include_dependencies = FALSE)$`function`
-  internal <- setdiff(records, core)
+  # Renamed in 2026-11; the old names stay exported for one release and warn.
+  deprecated <- c("provenance", "test_factors")
+  expect_setequal(getNamespaceExports("flashier.utils"), c(core, deprecated))
+  records <- factor_provenance(include_dependencies = FALSE)$`function`
+  internal <- setdiff(records, c(core, deprecated))
   expect_length(internal, 33L)
   expect_true(all(vapply(internal, function(name) {
     is.function(get(name, asNamespace("flashier.utils"), inherits = FALSE))
@@ -31,7 +33,7 @@ test_that("approved positional calls bind their declared scientific arguments", 
     factor_uncertainty = quote(factor_uncertainty(fit, side, orientation, representation)),
     plot_factor_activity = quote(plot_factor_activity(fit, metadata, group, factors, style)),
     plot_factor_features = quote(plot_factor_features(fit, factors, representation, selection)),
-    test_factors = quote(test_factors(fit, metadata, formula, engine, unit, independence, id)),
+    test_factor_association = quote(test_factor_association(fit, metadata, formula, engine, unit, independence, id)),
     validate_backprojection = quote(validate_backprojection(reconstructed, observed, scale, contrast))
   )
   expected <- list(
@@ -45,7 +47,7 @@ test_that("approved positional calls bind their declared scientific arguments", 
     factor_uncertainty = list(sample_side = quote(orientation), representation = quote(representation)),
     plot_factor_activity = list(factors = quote(factors), style = quote(style)),
     plot_factor_features = list(representation = quote(representation), select = quote(selection)),
-    test_factors = list(unit_col = quote(unit), independence = quote(independence), id_col = quote(id)),
+    test_factor_association = list(unit_col = quote(unit), independence = quote(independence), id_col = quote(id)),
     validate_backprojection = list(feature_scale = quote(scale), contrast = quote(contrast))
   )
   for (name in names(cases)) {
@@ -69,7 +71,7 @@ test_that("single-value and reserved arguments stay removed", {
   removed <- list(
     factor_replicability = c("alignment", "bootstrap", "refit_inputs", "control"),
     factor_stability = c("resample", "alignment"), factor_holdout = c("freeze_noise", "workers"),
-    test_factors = "factor_uncertainty", backproject_contrast = "uncertainty",
+    test_factor_association = "factor_uncertainty", backproject_contrast = "uncertainty",
     plot_factor_activity = "engine", plot_factor_features = "engine"
   )
   for (name in names(removed)) {

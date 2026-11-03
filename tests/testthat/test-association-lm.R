@@ -1,6 +1,6 @@
 test_that("lm contrasts, SE and joint covariance match native engines", {
   d <- association_fixture()
-  out <- test_factors(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent", control = list(joint_coefficient_covariance = TRUE))
+  out <- test_factor_association(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent", control = list(joint_coefficient_covariance = TRUE))
   native <- lm(d$view$activity[, 1] ~ group, data = d$metadata)
   expect_equal(out$table$estimate[1], unname(coef(native)["groupB"]))
   expect_equal(out$table$std.error[1], unname(summary(native)$coefficients["groupB", "Std. Error"]))
@@ -10,7 +10,7 @@ test_that("lm contrasts, SE and joint covariance match native engines", {
   index <- match(paste0(colnames(d$view$activity), ":groupB"), rownames(V))
   expect_equal(unname(out$coefficient_covariance$groupB), unname(V[index, index]))
   reverse <- matrix(c(0, -1), 2, dimnames = list(c("(Intercept)", "groupB"), "AminusB"))
-  reversed <- test_factors(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent", contrasts = reverse)
+  reversed <- test_factor_association(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent", contrasts = reverse)
   expect_equal(reversed$table$estimate, -out$table$estimate)
   expect_equal(attr(out$table, "analysis_metadata")$basis_id, d$view$manifest$basis_id)
 })

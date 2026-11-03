@@ -35,7 +35,7 @@ remotes::install_github("mdmanurung/flashier-utils")
 
 Optional packages unlock some functions: `psych` and `clue` for
 `factor_replicability()` and `factor_stability()`; `limma` or `variancePartition`
-for the matching `test_factors()` engines; `gbcd` for `fit_gbcd_programs()`;
+for the matching `test_factor_association()` engines; `gbcd` for `fit_gbcd_programs()`;
 `fastTopics` for `test_gom_de()`. Each page in the function reference names what
 it needs.
 
@@ -66,7 +66,7 @@ the `view`: uncertainty functions need the fit, everything else takes the view.
 |----|----|
 | Fit, or standardize an existing fit | `fit_ebmf()`, `standardize_factors()`, `factor_activity()`, `factor_effects()`, `factor_pve()` |
 | Interpret factors | `factor_features()`, `plot_factor_features()`, `plot_factor_weights()`, `plot_factor_activity()`, `plot_factor_scatter()`, `plot_factor_data()`, `plot_factor_embedding()`, `plot_factor_pve()` |
-| Relate factors to metadata | `summarize_factor_activity()`, `compare_factor_groups()`, `test_factors()`, `backproject_contrast()` |
+| Relate factors to metadata | `summarize_factor_activity()`, `compare_factor_groups()`, `test_factor_association()`, `backproject_contrast()` |
 | Check uncertainty and reproducibility | `factor_uncertainty()`, `factor_intervals()`, `factor_stability()`, `factor_replicability()`, `factor_holdout()` |
 | Transfer programs to new data | `project_factor_activity()`, `project_factor_features()` |
 

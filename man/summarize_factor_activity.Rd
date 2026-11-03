@@ -48,7 +48,7 @@ threshold is supplied; no p-values.
 }
 \description{
 Mean, SD and quantiles of each factor's activity within each metadata group,
-with sample and unit counts. Descriptive only; use \code{\link[=test_factors]{test_factors()}} for
+with sample and unit counts. Descriptive only; use \code{\link[=test_factor_association]{test_factor_association()}} for
 inference. Per-observation weighting is the default; cells are not donor-balanced.
 With weights, only means are supported: SD and quantiles are NA and labelled
 unavailable. Descriptive SD never estimates uncertainty of the group mean.
@@ -62,7 +62,7 @@ active_n and active_proportion remain raw observation summaries.
 }
 \details{
 Origin: NEW_QOL / none.
-Credits metadata grouping workflow; use provenance("summarize_factor_activity")
+Credits metadata grouping workflow; use factor_provenance("summarize_factor_activity")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }
@@ -85,7 +85,7 @@ summarize_factor_activity(view, metadata, "group", unit_col = "donor")
 summarize_factor_activity(view, metadata, "group", activity_threshold = 0.5)
 }
 \seealso{
-\code{\link[=compare_factor_groups]{compare_factor_groups()}}, \code{\link[=test_factors]{test_factors()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
+\code{\link[=compare_factor_groups]{compare_factor_groups()}}, \code{\link[=test_factor_association]{test_factor_association()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
 }
 \author{
 David Zemmour / Zemmour Lab (ImmGenT workflows).

@@ -25,7 +25,7 @@
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
-#'   Credits MyGeneTilePlot workflow; native flashier optional; use provenance("plot_factor_features")
+#'   Credits MyGeneTilePlot workflow; native flashier optional; use factor_provenance("plot_factor_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
@@ -125,7 +125,7 @@ plot_factor_features <- function(
 #' @author David Zemmour.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / none.
-#'   Credits MyStructurePlot / ImmGenT display workflow; use provenance("plot_factor_activity")
+#'   Credits MyStructurePlot / ImmGenT display workflow; use factor_provenance("plot_factor_activity")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples

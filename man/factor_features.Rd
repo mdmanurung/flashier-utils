@@ -45,7 +45,7 @@ ordered by feature ID, with signed nonzero eligibility. No biological labels.
 }
 \details{
 Origin: NEW_QOL / none.
-Credits rank_effects; compute_le_effects; use provenance("factor_features")
+Credits rank_effects; compute_le_effects; use factor_provenance("factor_features")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

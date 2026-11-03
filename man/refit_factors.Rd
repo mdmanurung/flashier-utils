@@ -25,7 +25,7 @@ Backfit named existing factors
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits flash_backfit; use provenance("refit_factors")
+Credits flash_backfit; use factor_provenance("refit_factors")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

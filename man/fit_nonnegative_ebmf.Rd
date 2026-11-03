@@ -41,7 +41,7 @@ be negative: the constraint concerns latent factors, not observations.
 }
 \details{
 Origin: ADAPTED / call_only.
-Credits flashier_nmf workflow; bounded native recipe; use provenance("fit_nonnegative_ebmf")
+Credits flashier_nmf workflow; bounded native recipe; use factor_provenance("fit_nonnegative_ebmf")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

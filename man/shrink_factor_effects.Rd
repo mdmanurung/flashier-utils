@@ -42,7 +42,7 @@ not true-effect covariance. Small factor counts limit covariance learning.
 }
 \details{
 Origin: WRAPPER / call_only.
-Credits mashr public API (implementation audit pending); use provenance("shrink_factor_effects")
+Credits mashr public API (implementation audit pending); use factor_provenance("shrink_factor_effects")
 for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }

@@ -15,7 +15,7 @@
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
-#'   Credits rank_effects; use provenance("rank_features")
+#'   Credits rank_effects; use factor_provenance("rank_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -64,7 +64,7 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: ADAPTED / modified.
-#'   Credits compute_le_effects; use provenance("factor_distinctiveness")
+#'   Credits compute_le_effects; use factor_provenance("factor_distinctiveness")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
@@ -190,7 +190,7 @@ factor_features_global <- function(fit, factors, n = 20L, direction = c("absolut
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @details Origin: NEW_QOL / none.
-#'   Credits rank_effects; compute_le_effects; use provenance("factor_features")
+#'   Credits rank_effects; compute_le_effects; use factor_provenance("factor_features")
 #'   for audited sources and runtime versions. Input units and basis are retained;
 #'   display/conditional results do not establish biological replication.
 #' @examples
