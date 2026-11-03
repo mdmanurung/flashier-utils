@@ -1,6 +1,6 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-11-03 · **Branch:** main · **Status:** rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done (227d637..9475da3); P3, P2, P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
+**Date:** 2026-11-03 · **Branch:** main · **Status:** rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done; P3 done as far as autotest 0.2.0.3 allows (227d637..d0a6ed8); P2 (srr) and P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
