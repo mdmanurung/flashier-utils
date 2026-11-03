@@ -60,16 +60,20 @@ arbitrarily, and its native tie warning is retained.
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-pathways <- list(panelA=paste0("g",1:6),panelB=paste0("g",7:12))
-enrich_factors(view,pathways,"fgsea",factors="F1",
-  control=list(seed=4,minSize=3L,nPermSimple=100L,eps=1e-3))$table
+pathways <- list(panelA = paste0("g", 1:6), panelB = paste0("g", 7:12))
+enrich_factors(view, pathways, "fgsea",
+  factors = "F1",
+  control = list(seed = 4, minSize = 3L, nPermSimple = 100L, eps = 1e-3)
+)$table
 \dontshow{\}) # examplesIf}
 }
 \author{

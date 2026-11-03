@@ -31,7 +31,7 @@ for audited sources and runtime versions. Input units and basis are retained;
 display/conditional results do not establish biological replication.
 }
 \examples{
-provenance(c("standardize_factors","backproject_contrast"))
+provenance(c("standardize_factors", "backproject_contrast"))
 }
 \author{
 Mikhael Manurung.

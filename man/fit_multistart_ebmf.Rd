@@ -94,9 +94,12 @@ fitted model and does not measure biological interpretability or uncertainty.
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
 X <- matrix(rnorm(192), 16, 12,
-  dimnames = list(paste0("s", 1:16), paste0("g", 1:12)))
-starts <- fit_multistart_ebmf(X, "rows", n_starts = 2, max_factors = 1,
-  seed = 4, verbose = 0)
+  dimnames = list(paste0("s", 1:16), paste0("g", 1:12))
+)
+starts <- fit_multistart_ebmf(X, "rows",
+  n_starts = 2, max_factors = 1,
+  seed = 4, verbose = 0
+)
 starts$candidates[, c("start", "init_seed", "status", "rank", "elbo", "selected")]
 \dontshow{\}) # examplesIf}
 }

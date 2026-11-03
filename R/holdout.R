@@ -1,11 +1,14 @@
 # Native fixed-program projection on a NEW object; no same-dimension update shortcut.
 .prediction_metrics <- function(observed, predicted) {
   keep <- is.finite(observed)
-  o <- observed[keep]; p <- predicted[keep]
+  o <- observed[keep]
+  p <- predicted[keep]
   if (!length(o) || any(!is.finite(p))) stop("No finite scored entries or nonfinite predictions")
   sst <- sum((o - mean(o))^2)
-  c(rmse = sqrt(mean((o-p)^2)), mae = mean(abs(o-p)), prediction_r2 = if (sst > 0) 1-sum((o-p)^2)/sst else NA_real_,
-    correlation = if (length(o)>1L && stats::sd(o)>0 && stats::sd(p)>0) stats::cor(o,p) else NA_real_, n_scored_entries = length(o))
+  c(
+    rmse = sqrt(mean((o - p)^2)), mae = mean(abs(o - p)), prediction_r2 = if (sst > 0) 1 - sum((o - p)^2) / sst else NA_real_,
+    correlation = if (length(o) > 1L && stats::sd(o) > 0 && stats::sd(p) > 0) stats::cor(o, p) else NA_real_, n_scored_entries = length(o)
+  )
 }
 
 # Reference activity priors for the view's factors, in native positions; ghat is raw-coordinate.
@@ -18,12 +21,15 @@
 }
 .native_projection <- function(Y, training, sample_side, priors, maxiter = 100L, S = NULL, var_type = 0L, return_fit = FALSE, g = NULL) {
   K <- ncol(training$effects)
-  if (!K) return(matrix(numeric(), nrow(Y), 0L, dimnames = list(rownames(Y), character())))
+  if (!K) {
+    return(matrix(numeric(), nrow(Y), 0L, dimnames = list(rownames(Y), character())))
+  }
   A0 <- matrix(0.1, nrow(Y), K, dimnames = list(rownames(Y), colnames(training$effects)))
   data <- if (sample_side == "rows") Y else t(Y)
   S_dim <- NULL
   if (!is.null(S) && is.null(dim(S)) && length(S) > 1L) {
-    row_match <- setequal(names(S), rownames(data)); column_match <- setequal(names(S), colnames(data))
+    row_match <- setequal(names(S), rownames(data))
+    column_match <- setequal(names(S), colnames(data))
     if (row_match == column_match) stop("Projection S vector has ambiguous axis IDs")
     S_dim <- if (row_match) 1L else 2L
   }
@@ -39,7 +45,8 @@
     for (k in seq_len(K)) {
       fns <- priors
       fns[[side]] <- local({
-        base <- priors[[side]]; gk <- g[[k]]
+        base <- priors[[side]]
+        gk <- g[[k]]
         function(x, s, g_init = NULL, fix_g = FALSE, output = NULL) base(x, s, g_init = gk, fix_g = TRUE, output = output)
       })
       object <- flashier::flash_factors_init(object, lapply(pair, function(m) m[, k, drop = FALSE]), ebnm_fn = fns)
@@ -108,26 +115,37 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' folds <- data.frame(sample=metadata$sample,fold=rep(c("train","test"),c(16,8)))
-#' callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()) {
-#'   fit_ebmf(X,sample_side,max_factors=2,seed=seed,verbose=0,nullcheck=FALSE,
-#'     feature_scale="simulated_centered_intensity")
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' folds <- data.frame(sample = metadata$sample, fold = rep(c("train", "test"), c(16, 8)))
+#' callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+#'   fit_ebmf(X, sample_side,
+#'     max_factors = 2, seed = seed, verbose = 0, nullcheck = FALSE,
+#'     feature_scale = "simulated_centered_intensity"
+#'   )
 #' }
-#' control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test")
-#' factor_holdout(X, metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback,evaluation="masked",seed=4,
-#'   activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
-factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preprocess_fn = NULL,
-    evaluation = "projection", activity_features = NULL, scoring_features = NULL, mask = NULL,
-    checkpoint_dir = NULL, control = list()) {
+#' control <- list(sample_side = "rows", preprocessing_manifest = list(scope = "identity"), evaluated_folds = "test")
+#' factor_holdout(X,
+#'   metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback, evaluation = "masked", seed = 4,
+#'   activity_features = paste0("g", 1:8), scoring_features = paste0("g", 9:16), control = control
+#' )$metrics
+factor_holdout <- function(
+  X, metadata, unit_col, folds, fit_fn, seed, preprocess_fn = NULL,
+  evaluation = "projection", activity_features = NULL, scoring_features = NULL, mask = NULL,
+  checkpoint_dir = NULL, control = list()
+) {
+  # Validate arguments; resolve the sample side and prior policy.
   if (missing(seed) || missing(unit_col) || missing(fit_fn) || !is.function(fit_fn)) stop("Choose biological unit, fit_fn and seed explicitly")
   allowed <- c("sample_side", "settings", "observation_aux", "preprocessing_manifest", "projection_ebnm_fn", "maxiter", "dense_budget_bytes", "cohort_col", "evaluated_folds", "callback_configuration", "keep_predictions", "keep_fits", "prior_policy")
   if (!is.list(control) || any(!names(control) %in% allowed)) stop("Unsupported holdout control")
@@ -136,6 +154,7 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   prior_policy <- match.arg(if (is.null(control$prior_policy)) "query" else control$prior_policy, c("query", "fixed_reference"))
   prior_note <- if (prior_policy == "query") "recalibrated_on_permitted_test_entries" else "activity_prior_fixed_to_training; noise_recalibrated_on_permitted_test_entries"
   evaluation <- match.arg(evaluation, c("projection", "masked"))
+  # Match samples to metadata and give each sample its fold label.
   X <- .validate_matrix(X)
   samples <- if (side == "rows") rownames(X) else colnames(X)
   features <- if (side == "rows") colnames(X) else rownames(X)
@@ -144,7 +163,9 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   units <- as.character(md[[unit_col]])
   if (any(!nzchar(trimws(units)))) stop("Biological unit IDs cannot be empty")
   if (!is.data.frame(folds) || !"fold" %in% names(folds)) stop("folds requires named sample/unit and fold columns")
-  if ("sample" %in% names(folds)) labels <- .match_ids(samples, folds, extra = "fail", required_columns = c("sample", "fold"))$metadata$fold else {
+  if ("sample" %in% names(folds)) {
+    labels <- .match_ids(samples, folds, extra = "fail", required_columns = c("sample", "fold"))$metadata$fold
+  } else {
     if (!unit_col %in% names(folds)) stop("folds has no sample or declared unit IDs")
     ids <- .validate_ids(as.character(folds[[unit_col]]), "Fold unit")
     if (!setequal(ids, unique(units))) stop("Fold unit IDs differ from metadata")
@@ -155,6 +176,7 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   for (unit in unique(units)) if (length(unique(labels[units == unit])) != 1L) stop("A donor's visits/cells cross folds")
   evaluated <- if (is.null(control$evaluated_folds)) unique(labels) else control$evaluated_folds
   .select_ids(evaluated, unique(labels), "fold")
+  # Check the preprocessing contract, the mask and the feature split.
   if (is.null(preprocess_fn)) {
     preprocessing <- control$preprocessing_manifest
     if (!is.list(preprocessing) || is.null(preprocessing$scope) || !preprocessing$scope %in% c("identity", "within_sample", "external_reference", "conditional_global")) stop("Without callbacks declare preprocessing_manifest$scope: identity, within_sample, external_reference or conditional_global")
@@ -175,103 +197,145 @@ factor_holdout <- function(X, metadata, unit_col, folds, fit_fn, seed, preproces
   if (length(budget) != 1L || !is.finite(budget) || budget <= 0) stop("dense_budget_bytes must be positive")
   if (!is.null(checkpoint_dir) && is.null(control$callback_configuration)) stop("Checkpointing callbacks requires explicit callback_configuration including captured inputs")
   if (!is.null(checkpoint_dir)) dir.create(checkpoint_dir, recursive = TRUE, showWarnings = FALSE)
-  config_hash <- digest::digest(list(X, md, folds, control, preprocessing, seed, evaluation, mask, activity_features, scoring_features,
-    body(fit_fn), formals(fit_fn), lapply(preprocess_fn, function(fn) list(body(fn), formals(fn))), .engine_metadata()), algo = "sha256")
+  # Hash the configuration for checkpoints; draw one seed per evaluated fold.
+  config_hash <- digest::digest(list(
+    X, md, folds, control, preprocessing, seed, evaluation, mask, activity_features, scoring_features,
+    body(fit_fn), formals(fit_fn), lapply(preprocess_fn, function(fn) list(body(fn), formals(fn))), .engine_metadata()
+  ), algo = "sha256")
   fold_seeds <- .with_seed(seed, sample.int(.Machine$integer.max - 1L, length(evaluated)))
   results <- lapply(seq_along(evaluated), function(i) {
     label <- evaluated[i]
     path <- if (is.null(checkpoint_dir)) NULL else file.path(checkpoint_dir, paste0("fold-", i, ".rds"))
-    .checkpoint_replicate(path, config_hash, function() tryCatch({
-      train <- which(labels != label); test <- which(labels == label)
-      subset_samples <- function(index) if (side == "rows") X[index, , drop = FALSE] else X[, index, drop = FALSE]
-      trainX <- subset_samples(train); testX <- subset_samples(test)
-      auxiliary <- if (is.null(control$observation_aux)) list() else control$observation_aux
-      train_aux <- .resample_aux(auxiliary, data.frame(original_sample = samples[train], sample = samples[train]), X, side)
-      test_aux <- .resample_aux(auxiliary, data.frame(original_sample = samples[test], sample = samples[test]), X, side)
-      if (8 * length(test) * length(features) * 4 > budget) stop("Held-out dense inference/scoring copies exceed the declared memory budget")
-      truth <- if (side == "rows") as.matrix(testX) else t(as.matrix(testX))
-      inference <- truth
-      score <- is.finite(truth)
-      if (evaluation == "masked") {
-        masked <- if (is.null(mask)) matrix(FALSE, nrow(truth), ncol(truth)) else if (side == "rows") mask[test, , drop = FALSE] else t(mask[, test, drop = FALSE])
-        if (!is.null(activity_features)) masked[, !colnames(truth) %in% activity_features] <- TRUE
-        if (!is.null(scoring_features)) { score[, !colnames(truth) %in% scoring_features] <- FALSE; masked[, colnames(truth) %in% scoring_features] <- TRUE }
-        score <- score & masked
-        inference[masked] <- NA_real_
-        if (!any(score) || any(rowSums(is.finite(inference)) == 0L)) stop("A masked fold has no scoring entries or no permitted activity observations for a sample")
-      }
-      inferenceX <- if (side == "rows") inference else t(inference)
-      prepared <- if (is.null(preprocess_fn)) list(X = trainX, metadata = md[train, , drop = FALSE], manifest = preprocessing, observation_aux = train_aux) else
-        preprocess_fn$fit(trainX, md[train, , drop = FALSE], training_ids = samples[train], seed = fold_seeds[i], settings = control$settings)
-      if (!is.list(prepared) || !all(c("X", "metadata", "manifest") %in% names(prepared))) stop("Training preprocessing must expose X, metadata and fitted manifest")
-      transformed <- if (is.null(preprocess_fn)) list(X = inferenceX, metadata = md[test, , drop = FALSE]) else
-        preprocess_fn$transform(inferenceX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
-      train_fit <- fit_fn(prepared$X, prepared$metadata, side, fold_seeds[i], control$settings, observation_aux = if (is.null(prepared$observation_aux)) train_aux else prepared$observation_aux)
-      view <- standardize_factors(train_fit, sample_side = side, scaling = "raw")
-      if (!identical(view$manifest$sample_ids, samples[train]) || !identical(view$manifest$feature_ids, features)) stop("Training callback changed required sample/feature IDs")
-      Y <- if (side == "rows") as.matrix(transformed$X) else t(as.matrix(transformed$X))
-      if (!identical(dimnames(Y), dimnames(truth))) stop("Held-out transform changed sample/feature axes")
-      if (evaluation == "masked" && any(is.finite(Y[score]))) stop("Held-out preprocessing filled scoring entries; masked information boundary violated")
-      Y <- sweep(Y, 2L, view$offset, "-")
-      priors <- control$projection_ebnm_fn
-      if (is.null(priors) && ncol(view$effects)) {
-        names <- attr(train_fit, "flashbridge_metadata")$prior_identifiers
-        if (is.null(names) || any(names == "custom_callback_required")) stop("Projection requires explicit native prior functions for a custom/bare callback")
-        priors <- lapply(names, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))
-      }
-      A <- .native_projection(Y, view, side, priors, if (is.null(control$maxiter)) 100L else control$maxiter, S = test_aux$S, var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) 0L else attr(train_fit, "flashbridge_metadata")$configuration$var_type,
-        g = if (prior_policy == "fixed_reference" && ncol(view$effects)) .reference_activity_g(train_fit, view))
-      prediction <- sweep(tcrossprod(A, view$effects), 2L, view$offset, "+")
-      # Score transformation occurs after activity inference using the same frozen training state.
-      if (!is.null(preprocess_fn)) {
-        scoring <- preprocess_fn$transform(testX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
-        truth <- if (side == "rows") as.matrix(scoring$X) else t(as.matrix(scoring$X))
-        if (!identical(dim(truth), dim(Y)) || !identical(dimnames(truth), dimnames(Y))) {
-          stop("Scoring transform changed sample/feature axes")
-        }
-      }
-      trainingY <- if (side == "rows") prepared$X else Matrix::t(prepared$X)
-      baseline <- matrix(Matrix::colMeans(trainingY, na.rm = TRUE), length(test), length(features), byrow = TRUE)
-      observed <- truth; observed[!score] <- NA_real_
-      metric_rows <- list()
-      score_rows <- function(indices, weighting, unit = NA_character_, cohort = NA_character_) {
-        for (model in c("fixed_programs", "training_mean")) {
-          predicted <- if (model == "fixed_programs") prediction else baseline
-          values <- .prediction_metrics(observed[indices, , drop = FALSE], predicted[indices, , drop = FALSE])
-          metric_rows[[length(metric_rows)+1L]] <<- data.frame(fold = label, evaluation_type = evaluation, model = model, weighting = weighting, unit = unit, cohort = cohort,
-            rmse = values["rmse"], mae = values["mae"], prediction_r2 = values["prediction_r2"], correlation = values["correlation"], n_scored_entries = values["n_scored_entries"],
-            n_samples = length(indices), n_units = length(unique(units[test][indices])), n_features = sum(colSums(score[indices, , drop = FALSE]) > 0))
-        }
-      }
-      score_rows(seq_along(test), "observation")
-      for (unit in unique(units[test])) score_rows(which(units[test] == unit), "unit", unit = unit)
-      if (!is.null(control$cohort_col)) for (cohort in unique(as.character(md[[control$cohort_col]][test]))) score_rows(which(as.character(md[[control$cohort_col]][test]) == cohort), "cohort", cohort = cohort)
-      metrics <- do.call(rbind, metric_rows)
-      for (weighting in c("unit", if (!is.null(control$cohort_col)) "cohort")) for (model in c("fixed_programs", "training_mean")) {
-        rows <- metrics$weighting == weighting & metrics$model == model
-        macro <- metrics[which(rows)[1], , drop = FALSE]
-        for (name in c("rmse", "mae", "prediction_r2", "correlation")) macro[[name]] <- if (all(is.na(metrics[[name]][rows]))) NA_real_ else mean(metrics[[name]][rows], na.rm = TRUE)
-        macro$weighting <- paste0("macro_", weighting); macro$unit <- macro$cohort <- NA_character_
-        macro$n_samples <- length(test); macro$n_units <- length(unique(units[test])); macro$n_scored_entries <- sum(metrics$n_scored_entries[rows])
-        metrics <- rbind(metrics, macro)
-      }
-      attr(A, "analysis_metadata") <- c(view$manifest, list(training_basis_id = view$manifest$basis_id, heldout_sample_ids = rownames(A), program_values_fixed = TRUE, prior_noise_policy = if (prior_policy == "query") "recalibrate_on_permitted_observed_entries" else prior_note, prior_policy = prior_policy))
-      list(status = "supported", fold = label, metrics = metrics, activity = A, effects = view$effects, preparation = prepared$manifest,
-           training_ids = samples[train], scoring_ids = samples[test], train_basis = view$manifest,
-           prediction = if (isTRUE(control$keep_predictions)) prediction else NULL, fit = if (isTRUE(control$keep_fits)) train_fit else NULL)
-    }, error = function(e) list(status = "failed", fold = label, reason = conditionMessage(e))))
+    .checkpoint_replicate(path, config_hash, function() {
+      tryCatch(
+        {
+          # Split training and held-out samples with their auxiliary data.
+          train <- which(labels != label)
+          test <- which(labels == label)
+          subset_samples <- function(index) if (side == "rows") X[index, , drop = FALSE] else X[, index, drop = FALSE]
+          trainX <- subset_samples(train)
+          testX <- subset_samples(test)
+          auxiliary <- if (is.null(control$observation_aux)) list() else control$observation_aux
+          train_aux <- .resample_aux(auxiliary, data.frame(original_sample = samples[train], sample = samples[train]), X, side)
+          test_aux <- .resample_aux(auxiliary, data.frame(original_sample = samples[test], sample = samples[test]), X, side)
+          if (8 * length(test) * length(features) * 4 > budget) stop("Held-out dense inference/scoring copies exceed the declared memory budget")
+          # Held-out inference matrix; masked mode hides every scoring entry.
+          truth <- if (side == "rows") as.matrix(testX) else t(as.matrix(testX))
+          inference <- truth
+          score <- is.finite(truth)
+          if (evaluation == "masked") {
+            masked <- if (is.null(mask)) matrix(FALSE, nrow(truth), ncol(truth)) else if (side == "rows") mask[test, , drop = FALSE] else t(mask[, test, drop = FALSE])
+            if (!is.null(activity_features)) masked[, !colnames(truth) %in% activity_features] <- TRUE
+            if (!is.null(scoring_features)) {
+              score[, !colnames(truth) %in% scoring_features] <- FALSE
+              masked[, colnames(truth) %in% scoring_features] <- TRUE
+            }
+            score <- score & masked
+            inference[masked] <- NA_real_
+            if (!any(score) || any(rowSums(is.finite(inference)) == 0L)) stop("A masked fold has no scoring entries or no permitted activity observations for a sample")
+          }
+          inferenceX <- if (side == "rows") inference else t(inference)
+          # Fit on training samples only; transform held-out data with the training state.
+          prepared <- if (is.null(preprocess_fn)) {
+            list(X = trainX, metadata = md[train, , drop = FALSE], manifest = preprocessing, observation_aux = train_aux)
+          } else {
+            preprocess_fn$fit(trainX, md[train, , drop = FALSE], training_ids = samples[train], seed = fold_seeds[i], settings = control$settings)
+          }
+          if (!is.list(prepared) || !all(c("X", "metadata", "manifest") %in% names(prepared))) stop("Training preprocessing must expose X, metadata and fitted manifest")
+          transformed <- if (is.null(preprocess_fn)) {
+            list(X = inferenceX, metadata = md[test, , drop = FALSE])
+          } else {
+            preprocess_fn$transform(inferenceX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
+          }
+          train_fit <- fit_fn(prepared$X, prepared$metadata, side, fold_seeds[i], control$settings, observation_aux = if (is.null(prepared$observation_aux)) train_aux else prepared$observation_aux)
+          view <- standardize_factors(train_fit, sample_side = side, scaling = "raw")
+          if (!identical(view$manifest$sample_ids, samples[train]) || !identical(view$manifest$feature_ids, features)) stop("Training callback changed required sample/feature IDs")
+          # Project held-out activities with the training effects fixed.
+          Y <- if (side == "rows") as.matrix(transformed$X) else t(as.matrix(transformed$X))
+          if (!identical(dimnames(Y), dimnames(truth))) stop("Held-out transform changed sample/feature axes")
+          if (evaluation == "masked" && any(is.finite(Y[score]))) stop("Held-out preprocessing filled scoring entries; masked information boundary violated")
+          Y <- sweep(Y, 2L, view$offset, "-")
+          priors <- control$projection_ebnm_fn
+          if (is.null(priors) && ncol(view$effects)) {
+            prior_ids <- attr(train_fit, "flashbridge_metadata")$prior_identifiers
+            if (is.null(prior_ids) || any(prior_ids == "custom_callback_required")) stop("Projection requires explicit native prior functions for a custom/bare callback")
+            priors <- lapply(prior_ids, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))
+          }
+          A <- .native_projection(Y, view, side, priors, if (is.null(control$maxiter)) 100L else control$maxiter,
+            S = test_aux$S, var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) 0L else attr(train_fit, "flashbridge_metadata")$configuration$var_type,
+            g = if (prior_policy == "fixed_reference" && ncol(view$effects)) .reference_activity_g(train_fit, view)
+          )
+          prediction <- sweep(tcrossprod(A, view$effects), 2L, view$offset, "+")
+          # Score transformation occurs after activity inference using the same frozen training state.
+          if (!is.null(preprocess_fn)) {
+            scoring <- preprocess_fn$transform(testX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
+            truth <- if (side == "rows") as.matrix(scoring$X) else t(as.matrix(scoring$X))
+            if (!identical(dim(truth), dim(Y)) || !identical(dimnames(truth), dimnames(Y))) {
+              stop("Scoring transform changed sample/feature axes")
+            }
+          }
+          # Score the projection and the training-mean baseline per observation, unit and cohort.
+          trainingY <- if (side == "rows") prepared$X else Matrix::t(prepared$X)
+          baseline <- matrix(Matrix::colMeans(trainingY, na.rm = TRUE), length(test), length(features), byrow = TRUE)
+          observed <- truth
+          observed[!score] <- NA_real_
+          metric_rows <- list()
+          score_rows <- function(indices, weighting, unit = NA_character_, cohort = NA_character_) {
+            for (model in c("fixed_programs", "training_mean")) {
+              predicted <- if (model == "fixed_programs") prediction else baseline
+              values <- .prediction_metrics(observed[indices, , drop = FALSE], predicted[indices, , drop = FALSE])
+              metric_rows[[length(metric_rows) + 1L]] <<- data.frame(
+                fold = label, evaluation_type = evaluation, model = model, weighting = weighting, unit = unit, cohort = cohort,
+                rmse = values["rmse"], mae = values["mae"], prediction_r2 = values["prediction_r2"], correlation = values["correlation"], n_scored_entries = values["n_scored_entries"],
+                n_samples = length(indices), n_units = length(unique(units[test][indices])), n_features = sum(colSums(score[indices, , drop = FALSE]) > 0)
+              )
+            }
+          }
+          score_rows(seq_along(test), "observation")
+          for (unit in unique(units[test])) score_rows(which(units[test] == unit), "unit", unit = unit)
+          if (!is.null(control$cohort_col)) for (cohort in unique(as.character(md[[control$cohort_col]][test]))) score_rows(which(as.character(md[[control$cohort_col]][test]) == cohort), "cohort", cohort = cohort)
+          metrics <- do.call(rbind, metric_rows)
+          # Macro rows: average the per-unit and per-cohort metrics.
+          for (weighting in c("unit", if (!is.null(control$cohort_col)) "cohort")) {
+            for (model in c("fixed_programs", "training_mean")) {
+              rows <- metrics$weighting == weighting & metrics$model == model
+              macro <- metrics[which(rows)[1], , drop = FALSE]
+              for (name in c("rmse", "mae", "prediction_r2", "correlation")) macro[[name]] <- if (all(is.na(metrics[[name]][rows]))) NA_real_ else mean(metrics[[name]][rows], na.rm = TRUE)
+              macro$weighting <- paste0("macro_", weighting)
+              macro$unit <- macro$cohort <- NA_character_
+              macro$n_samples <- length(test)
+              macro$n_units <- length(unique(units[test]))
+              macro$n_scored_entries <- sum(metrics$n_scored_entries[rows])
+              metrics <- rbind(metrics, macro)
+            }
+          }
+          attr(A, "analysis_metadata") <- c(view$manifest, list(training_basis_id = view$manifest$basis_id, heldout_sample_ids = rownames(A), program_values_fixed = TRUE, prior_noise_policy = if (prior_policy == "query") "recalibrate_on_permitted_observed_entries" else prior_note, prior_policy = prior_policy))
+          list(
+            status = "supported", fold = label, metrics = metrics, activity = A, effects = view$effects, preparation = prepared$manifest,
+            training_ids = samples[train], scoring_ids = samples[test], train_basis = view$manifest,
+            prediction = if (isTRUE(control$keep_predictions)) prediction else NULL, fit = if (isTRUE(control$keep_fits)) train_fit else NULL
+          )
+        },
+        error = function(e) list(status = "failed", fold = label, reason = conditionMessage(e))
+      )
+    })
   })
+  # Collect failures and assemble the result.
   names(results) <- evaluated
   successful <- vapply(results, function(result) result$status == "supported", logical(1))
   failures <- data.frame(fold = evaluated[!successful], reason = vapply(results[!successful], function(result) result$reason, character(1)))
-  .attach_provenance(structure(list(schema_version = "1.0.0", metrics = do.call(rbind, lapply(results[successful], function(result) result$metrics)),
+  .attach_provenance(structure(list(
+    schema_version = "1.0.0", metrics = do.call(rbind, lapply(results[successful], function(result) result$metrics)),
     folds = data.frame(sample = samples, unit = units, fold = labels), failures = failures,
     feature_coverage = data.frame(feature = features, used_for_activity = if (is.null(activity_features)) NA else features %in% activity_features, scored = if (is.null(scoring_features)) NA else features %in% scoring_features),
     diagnostics = list(failures = failures, prior_noise_policy = prior_note, prior_policy = prior_policy, auxiliary_policy = "named_sample_feature_subset"),
     activities = lapply(results[successful], function(result) result$activity), fold_results = results,
-    analysis_metadata = list(evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
+    analysis_metadata = list(
+      evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
       config_hash = config_hash, input_digest = digest::digest(list(X, md), algo = "sha256"),
       evaluation_digest = digest::digest(list(evaluation, labels, evaluated, mask, activity_features, scoring_features), algo = "sha256"),
       program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,
-      dense_budget_bytes = budget, projection_is_unseen_entry_prediction = FALSE)), class = "holdout_result"), "factor_holdout", match.call(), .resolved_parameters("factor_holdout", environment()))
+      dense_budget_bytes = budget, projection_is_unseen_entry_prediction = FALSE
+    )
+  ), class = "holdout_result"), "factor_holdout", match.call(), .resolved_parameters("factor_holdout", environment()))
 }

@@ -10,8 +10,8 @@ test_that("every actual callable export has a source record", {
 })
 
 test_that("runtime accessor preserves result origin separately from its own call", {
-  result<-factor_activity(fixture_view())
-  out<-provenance(result=result)
-  expect_equal(attr(out,"analysis_metadata"),attr(result,"analysis_metadata"))
-  expect_equal(attr(out,"accessor_metadata")[["function"]],"provenance")
+  result <- factor_activity(fixture_view())
+  out <- provenance(result = result)
+  expect_equal(attr(out, "analysis_metadata"), attr(result, "analysis_metadata"))
+  expect_equal(attr(out, "accessor_metadata")[["function"]], "provenance")
 })

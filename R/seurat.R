@@ -154,7 +154,7 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' @param display `"activity"` (default) or `"percentile"` (display-only
 #'   empirical percentile against `reference_samples`).
 #' @param ... Optional `reference_samples` (percentile reference IDs),
-#'   `max_samples` (default 2000), `seed`, `palette` (negative, zero, positive
+#'   `max_samples` (default 2000), `seed` (default 1), `palette` (negative, zero, positive
 #'   colours), `limits`; and `activity_reduction` for a Seurat object only.
 #' @return A ggplot object; `$data` has `sample`, `factor`, `estimate`, `x`, `y`,
 #'   with sampled IDs, reference IDs and basis metadata attributes.
@@ -185,8 +185,7 @@ embed_factors <- function(object, reduction = "ebmf", method = "umap", dims = NU
 #' plot_factor_embedding(object, "ebmfumap", "F1", display = "percentile", max_samples = 12, seed = 4)
 plot_factor_embedding <- function(object, reduction, factors, display = "activity", ...) {
   display <- match.arg(display, c("activity", "percentile"))
-  options <- list(...)
-  if (length(options) && (is.null(names(options)) || any(!names(options) %in% c("activity_reduction", "reference_samples", "max_samples", "seed", "palette", "limits")))) stop("Unknown display setting")
+  options <- .display_options(list(...), c("activity_reduction", "reference_samples", "max_samples", "seed", "palette", "limits"))
   if (inherits(object, "Seurat")) {
     .check_engine("SeuratObject", c("Embeddings", "Misc"))
     if (!is.character(reduction) || length(reduction) != 1L || !reduction %in% SeuratObject::Reductions(object)) stop("Missing embedding reduction")
@@ -220,25 +219,26 @@ plot_factor_embedding <- function(object, reduction, factors, display = "activit
   }
   bound <- if (is.null(options$max_samples)) 2000L else options$max_samples
   if (length(bound) != 1L || !is.finite(bound) || bound < 1L || bound != as.integer(bound)) stop("max_samples must be a positive integer")
-  rows <- .with_seed(options$seed, if (nrow(A) > bound) sort(sample.int(nrow(A), bound)) else seq_len(nrow(A)))
+  seed <- if (is.null(options$seed)) 1L else options$seed
+  rows <- .with_seed(seed, if (nrow(A) > bound) sort(sample.int(nrow(A), bound)) else seq_len(nrow(A)))
   ids <- rownames(A)[rows]
   table <- .long_matrix(A[rows, , drop = FALSE], "sample")
   table$x <- rep(geometry[ids, 1], ncol(A))
   table$y <- rep(geometry[ids, 2], ncol(A))
-  palette <- if (is.null(options$palette)) c("#2166ac", "white", "#b2182b") else options$palette
+  palette <- if (is.null(options$palette)) .diverging_palette else options$palette
   if (length(palette) != 3L) stop("palette requires three colors")
   p <- ggplot2::ggplot(table, ggplot2::aes(.data$x, .data$y, color = .data$estimate)) +
     ggplot2::geom_point() +
     ggplot2::facet_wrap(~factor) +
     ggplot2::labs(color = if (display == "activity") "Activity" else "Display percentile")
   p <- if (display == "activity") {
-    p + ggplot2::scale_color_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits)
+    p + ggplot2::scale_color_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits, oob = scales::squish)
   } else {
     p + ggplot2::scale_color_gradient(low = palette[1], high = palette[3], limits = c(0, 100))
   }
   attr(p, "analysis_metadata") <- utils::modifyList(metadata, list(
     display_only = TRUE, display = display, reference_sample_ids = if (display == "percentile") reference else NULL,
-    included_samples = ids, excluded_samples = setdiff(rownames(A), ids), max_samples = bound, seed = options$seed
+    included_samples = ids, excluded_samples = setdiff(rownames(A), ids), max_samples = bound, seed = seed
   ))
   .attach_provenance(p, "plot_factor_embedding", match.call(), .resolved_parameters("plot_factor_embedding", environment()))
 }

@@ -28,8 +28,10 @@
     B <- B[selected, , drop = FALSE]
     rownames(B) <- unname(feature_map[selected])
   }
-  sizes <- data.frame(pathway = names(pathways), input_size = lengths(pathways),
-                       overlap_size = vapply(pathways, function(set) length(intersect(set, rownames(B))), integer(1)))
+  sizes <- data.frame(
+    pathway = names(pathways), input_size = lengths(pathways),
+    overlap_size = vapply(pathways, function(set) length(intersect(set, rownames(B))), integer(1))
+  )
   list(view = view, B = B, pathways = pathways, network = network, sizes = sizes, mapping_excluded = excluded, signal = signal)
 }
 
@@ -67,31 +69,38 @@
 #'   arbitrarily, and its native tie warning is retained.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' pathways <- list(panelA=paste0("g",1:6),panelB=paste0("g",7:12))
-#' enrich_factors(view,pathways,"fgsea",factors="F1",
-#'   control=list(seed=4,minSize=3L,nPermSimple=100L,eps=1e-3))$table
+#' pathways <- list(panelA = paste0("g", 1:6), panelB = paste0("g", 7:12))
+#' enrich_factors(view, pathways, "fgsea",
+#'   factors = "F1",
+#'   control = list(seed = 4, minSize = 3L, nPermSimple = 100L, eps = 1e-3)
+#' )$table
 enrich_factors <- function(fit, pathways, engine, factors = NULL, representation = NULL,
-                            signal = "effects", feature_map = NULL, control = list()) {
+                           signal = "effects", feature_map = NULL, control = list()) {
   if (missing(engine)) stop("Choose enrichment engine explicitly")
   engine <- match.arg(engine, c("fgsea", "decoupleR", "susie"))
   if (engine == "susie") stop("SuSiE mode is unsupported: install and audit susieR/singlecelljamboreeR before enabling this capability")
   if (is.data.frame(pathways) && engine != "decoupleR") stop("Weighted networks require engine='decoupleR'")
-  if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control))))) stop("control must be a uniquely named list")
+  if (!.is_named_list(control)) stop("control must be a uniquely named list")
   data <- .enrichment_input(fit, pathways, factors, representation, signal, feature_map)
   eligible <- data$sizes$overlap_size > 0L
   sets <- data$pathways[eligible]
-  seed <- control$seed; control$seed <- NULL
-  metadata <- c(data$view$manifest, list(engine = engine, signal = data$signal, universe = rownames(data$B),
+  seed <- control$seed
+  control$seed <- NULL
+  metadata <- c(data$view$manifest, list(
+    engine = engine, signal = data$signal, universe = rownames(data$B),
     mapping_excluded = data$mapping_excluded, duplicate_policy = "unique_pathway_members_one_to_one_feature_map",
     pathway_sizes = data$sizes, organism = attr(pathways, "organism"), annotation_version = attr(pathways, "annotation_version"),
-    control = control, seed = seed, ranking_ties = "native_fgsea_warning_retained"))
+    control = control, seed = seed, ranking_ties = "native_fgsea_warning_retained"
+  ))
   if (!is.null(data$network)) {
     metadata$network_hash <- digest::digest(data$network, algo = "sha256")
     metadata$network_targets_excluded <- setdiff(data$network$target, rownames(data$B))
@@ -123,8 +132,11 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
     .check_engine("decoupleR", symbol)
     fn <- getExportedValue("decoupleR", symbol)
     if (any(!names(control) %in% setdiff(names(formals(fn)), c("mat", "network", ".source", ".target", ".mor", ".likelihood")))) stop("Unsupported decoupleR control")
-    network <- if (is.null(data$network)) do.call(rbind, lapply(names(sets), function(name) data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1))) else
+    network <- if (is.null(data$network)) {
+      do.call(rbind, lapply(names(sets), function(name) data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1)))
+    } else {
       data$network[data$network$target %in% rownames(data$B), , drop = FALSE]
+    }
     native <- do.call(fn, c(list(mat = data$B, network = network), control))
     table <- as.data.frame(native)
     if (!is.null(data$network) || !is.null(factors)) {

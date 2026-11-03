@@ -24,7 +24,8 @@ summarize_factors(
 
 \item{compare_factors}{Optional comparison pool.}
 
-\item{...}{Threshold settings passed to factor_diagnostics.}
+\item{...}{\code{activity_threshold} and \code{feature_threshold} (both required) and other
+settings passed to \code{factor_diagnostics()}.}
 }
 \value{
 Summary table with list columns of positive and negative features.

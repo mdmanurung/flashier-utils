@@ -51,14 +51,16 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-factor_features(view, factor = "F1",select="both",n=3)
+factor_features(view, factor = "F1", select = "both", n = 3)
 }
 \seealso{
 \code{\link[=plot_factor_features]{plot_factor_features()}}, \code{\link[=factor_effects]{factor_effects()}}

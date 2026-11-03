@@ -85,23 +85,31 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-  group=rep(c("A","B"),each=12))
-folds <- data.frame(sample=metadata$sample,fold=rep(c("train","test"),c(16,8)))
-callback <- function(X,metadata,sample_side,seed,settings,observation_aux=list()) {
-  fit_ebmf(X,sample_side,max_factors=2,seed=seed,verbose=0,nullcheck=FALSE,
-    feature_scale="simulated_centered_intensity")
+metadata <- data.frame(
+  sample = rownames(X), donor = rownames(X),
+  group = rep(c("A", "B"), each = 12)
+)
+folds <- data.frame(sample = metadata$sample, fold = rep(c("train", "test"), c(16, 8)))
+callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+  fit_ebmf(X, sample_side,
+    max_factors = 2, seed = seed, verbose = 0, nullcheck = FALSE,
+    feature_scale = "simulated_centered_intensity"
+  )
 }
-control <- list(sample_side="rows",preprocessing_manifest=list(scope="identity"),evaluated_folds="test")
-factor_holdout(X, metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback,evaluation="masked",seed=4,
-  activity_features=paste0("g",1:8),scoring_features=paste0("g",9:16),control=control)$metrics
+control <- list(sample_side = "rows", preprocessing_manifest = list(scope = "identity"), evaluated_folds = "test")
+factor_holdout(X,
+  metadata = metadata, unit_col = "donor", folds = folds, fit_fn = callback, evaluation = "masked", seed = 4,
+  activity_features = paste0("g", 1:8), scoring_features = paste0("g", 9:16), control = control
+)$metrics
 }
 \seealso{
 \code{\link[=project_factor_activity]{project_factor_activity()}}, \code{\link[=factor_stability]{factor_stability()}}

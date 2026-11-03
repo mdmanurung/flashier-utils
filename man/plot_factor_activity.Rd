@@ -12,7 +12,7 @@ plot_factor_activity(
   style = "heatmap",
   display_normalization = "none",
   max_samples = 2000L,
-  seed = NULL,
+  seed = 1L,
   order_within_group = c("input", "mds1"),
   group_order = NULL,
   ...
@@ -36,7 +36,7 @@ style only).}
 
 \item{max_samples}{Maximum samples drawn for display (default 2000).}
 
-\item{seed}{Optional integer for the sample draw.}
+\item{seed}{Integer seed for the sample draw (default 1), recorded in the metadata.}
 
 \item{order_within_group}{\code{"input"} (default, current order) or \code{"mds1"}. mds1
 requires style = "structure" and a group column; groups keep their first
@@ -71,16 +71,20 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-  group=rep(c("A","B"),each=12))
-plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
+metadata <- data.frame(
+  sample = rownames(X), donor = rownames(X),
+  group = rep(c("A", "B"), each = 12)
+)
+plot_factor_activity(view, metadata = metadata, group = "group", max_samples = 12, seed = 4)
 }
 \seealso{
 \code{\link[=summarize_factor_activity]{summarize_factor_activity()}}, \code{\link[=plot_factor_features]{plot_factor_features()}}

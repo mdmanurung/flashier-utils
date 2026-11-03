@@ -7,8 +7,8 @@
 factor_diagnostics(
   fit,
   factors = NULL,
-  activity_threshold = 0.1,
-  feature_threshold = 0.25,
+  activity_threshold,
+  feature_threshold,
   activity_direction = "positive",
   display_normalization = "max_abs",
   membership_burden = FALSE
@@ -19,9 +19,10 @@ factor_diagnostics(
 
 \item{factors}{Optional factor IDs.}
 
-\item{activity_threshold}{Activity threshold, strictly exceeded.}
+\item{activity_threshold}{Activity threshold, strictly exceeded. Required:
+the cut is the caller's choice (on the \code{display_normalization} scale).}
 
-\item{feature_threshold}{Absolute effect threshold, strictly exceeded.}
+\item{feature_threshold}{Absolute effect threshold, strictly exceeded. Required.}
 
 \item{activity_direction}{positive, negative or absolute.}
 

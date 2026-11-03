@@ -20,7 +20,7 @@ object: the embedding reduction name.}
 empirical percentile against \code{reference_samples}).}
 
 \item{...}{Optional \code{reference_samples} (percentile reference IDs),
-\code{max_samples} (default 2000), \code{seed}, \code{palette} (negative, zero, positive
+\code{max_samples} (default 2000), \code{seed} (default 1), \code{palette} (negative, zero, positive
 colours), \code{limits}; and \code{activity_reduction} for a Seurat object only.}
 }
 \value{

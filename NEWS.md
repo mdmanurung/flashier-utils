@@ -1,5 +1,17 @@
 # flashier.utils 2.0.0.9000
 
+- Display subsamples rerun identically by default: `plot_factor_activity()`,
+  `plot_factor_scatter()`, `plot_factor_data()` and `plot_factor_embedding()`
+  now default to `seed = 1` (was unseeded) and record the seed. Heatmap and
+  embedding colour limits squish out-of-range values to the end colours
+  instead of greying them out (`scales` added to Imports).
+- Internal `factor_diagnostics()` (and `summarize_factors()`,
+  `plot_factor_diagnostics()`, which pass to it) no longer default
+  `activity_threshold = 0.1` and `feature_threshold = 0.25`; callers name both.
+- Style pass: `.lintr` (120 columns), styler over `R/` and `tests/`, step
+  comments in the long exports, shared helpers for repeated argument checks
+  and plot palettes. No numerical change.
+
 - DESCRIPTION now requires flashier (>= 1.0.60). Against CRAN flashier 1.0.7
   the suite fails 10 masked-holdout expectations (`test-holdout.R`,
   `test-core-review.R:103`): 1.0.7 rejects data with an all-missing row or

@@ -18,8 +18,11 @@
     if (any(vapply(ids, is.null, logical(1)))) ids <- dimnames(native$Y)
     if (length(ids) != 2L) stop("Empty fit has no retained IDs; use fit_ebmf with explicit IDs")
     for (i in 1:2) .validate_ids(ids[[i]], "Empty native fit")
-    return(lapply(ids, function(id) matrix(numeric(), length(id), 0L,
-                                         dimnames = list(id, character()))))
+    return(lapply(ids, function(id) {
+      matrix(numeric(), length(id), 0L,
+        dimnames = list(id, character())
+      )
+    }))
   }
   pair <- list(fit$L_pm, fit$F_pm)
   if (!all(vapply(pair, is.matrix, logical(1)))) stop("Native posterior means are unavailable; a named two-dimensional fit is required")
@@ -28,34 +31,38 @@
 }
 
 .support_records <- function(ids, indices, support, roles = NULL) {
-  data.frame(factor = ids, native_index = indices,
+  data.frame(
+    factor = ids, native_index = indices,
     role = if (is.null(roles)) rep("factor", length(ids)) else unname(roles[ids]),
     activity_support = rep(unname(support["activity"]), length(ids)),
-    effect_support = rep(unname(support["effects"]), length(ids)))
+    effect_support = rep(unname(support["effects"]), length(ids))
+  )
 }
 
 .factor_support <- function(manifest) {
   records <- manifest$factor_support
   if (is.null(records)) {
     if (!is.null(manifest$support_version)) stop("Missing factor_support records")
-    return(.support_records(manifest$factor_ids, manifest$native_indices,
-      manifest$constraints, manifest$factor_roles))
+    return(.support_records(
+      manifest$factor_ids, manifest$native_indices,
+      manifest$constraints, manifest$factor_roles
+    ))
   }
   required <- c("factor", "native_index", "role", "activity_support", "effect_support")
   if (!identical(manifest$support_version, "1.0.0") || !is.data.frame(records) ||
-      !identical(names(records), required) ||
-      anyNA(records[, setdiff(required, "native_index"), drop = FALSE]) ||
-      (!identical(manifest$mapping_scope, "gbcd_components") && anyNA(records$native_index)) ||
-      !identical(records$factor, manifest$factor_ids) ||
-      !is.numeric(records$native_index) ||
-      !identical(as.numeric(records$native_index), as.numeric(manifest$native_indices)) ||
-      any(!records$role %in% c("factor", "initialized")) ||
-      any(!records$activity_support %in% c("signed", "nonnegative", "unknown")) ||
-      any(!records$effect_support %in% c("signed", "nonnegative", "unknown"))) {
+    !identical(names(records), required) ||
+    anyNA(records[, setdiff(required, "native_index"), drop = FALSE]) ||
+    (!identical(manifest$mapping_scope, "gbcd_components") && anyNA(records$native_index)) ||
+    !identical(records$factor, manifest$factor_ids) ||
+    !is.numeric(records$native_index) ||
+    !identical(as.numeric(records$native_index), as.numeric(manifest$native_indices)) ||
+    any(!records$role %in% c("factor", "initialized")) ||
+    any(!records$activity_support %in% c("signed", "nonnegative", "unknown")) ||
+    any(!records$effect_support %in% c("signed", "nonnegative", "unknown"))) {
     stop("Invalid versioned factor_support records")
   }
   if (!is.null(manifest$factor_roles) &&
-      !identical(records$role, unname(manifest$factor_roles[records$factor]))) {
+    !identical(records$role, unname(manifest$factor_roles[records$factor]))) {
     stop("factor_support roles differ from native roles")
   }
   summary <- .support_summary(records, manifest$constraints)
@@ -64,7 +71,9 @@
 }
 
 .support_summary <- function(records, empty_support) {
-  if (!nrow(records)) return(empty_support)
+  if (!nrow(records)) {
+    return(empty_support)
+  }
   stats::setNames(vapply(records[c("activity_support", "effect_support")], function(values) {
     values <- unique(values)
     if (length(values) == 1L) values else "unknown"
@@ -79,13 +88,13 @@
   indices <- manifest$native_indices
   nonnative <- identical(manifest$mapping_scope, "gbcd_components")
   if (nonnative && (!identical(manifest$engine, "gbcd") ||
-      !identical(manifest$engine_component_indices, seq_len(ncol(A))) ||
-      !identical(indices, rep(NA_integer_, ncol(A))) ||
-      !is.null(manifest$native_factor_ids) || !is.null(manifest$native_pve))) {
+    !identical(manifest$engine_component_indices, seq_len(ncol(A))) ||
+    !identical(indices, rep(NA_integer_, ncol(A))) ||
+    !is.null(manifest$native_factor_ids) || !is.null(manifest$native_pve))) {
     stop("Invalid GBCD component mapping")
   }
   if (!nonnative && (!is.numeric(indices) || length(indices) != ncol(A) || anyNA(indices) ||
-      any(!is.finite(indices)) || any(indices < 1 | indices != floor(indices)) || anyDuplicated(indices))) {
+    any(!is.finite(indices)) || any(indices < 1 | indices != floor(indices)) || anyDuplicated(indices))) {
     stop("native_indices must be unique positive integers, one per factor")
   }
   for (key in c("activity_multiplier", "effects_multiplier")) {
@@ -100,20 +109,26 @@
   if (!is.null(manifest$native_factor_ids)) {
     .validate_ids(manifest$native_factor_ids, "Native factor")
     if (any(indices > length(manifest$native_factor_ids)) ||
-        !identical(manifest$native_factor_ids[indices], manifest$factor_ids) ||
-        !identical(names(manifest$factor_roles), manifest$native_factor_ids) ||
-        anyNA(manifest$factor_roles) ||
-        any(!manifest$factor_roles %in% c("offset", "factor", "initialized")) ||
-        any(manifest$factor_roles[indices] == "offset")) stop("Invalid native factor identity/role mapping")
+      !identical(manifest$native_factor_ids[indices], manifest$factor_ids) ||
+      !identical(names(manifest$factor_roles), manifest$native_factor_ids) ||
+      anyNA(manifest$factor_roles) ||
+      any(!manifest$factor_roles %in% c("offset", "factor", "initialized")) ||
+      any(manifest$factor_roles[indices] == "offset")) {
+      stop("Invalid native factor identity/role mapping")
+    }
   }
   support <- .factor_support(manifest)
   manifest$basis_id <- NULL
   manifest$basis_id <- digest::digest(list(manifest = manifest, activity = A, effects = B, offset = offset), algo = "sha256")
-  structure(list(activity = A, effects = B, offset = offset,
-                 factors = data.frame(factor = if (ncol(A)) colnames(A) else character(), native_index = manifest$native_indices,
-                                      constraints = if (is.null(manifest$factor_support)) rep(paste(manifest$constraints, collapse = "/"), ncol(A)) else paste(support$activity_support, support$effect_support, sep = "/"),
-                                      zeroed = colSums(abs(A)) == 0 | colSums(abs(B)) == 0),
-                 manifest = manifest), class = "factor_representation")
+  structure(list(
+    activity = A, effects = B, offset = offset,
+    factors = data.frame(
+      factor = if (ncol(A)) colnames(A) else character(), native_index = manifest$native_indices,
+      constraints = if (is.null(manifest$factor_support)) rep(paste(manifest$constraints, collapse = "/"), ncol(A)) else paste(support$activity_support, support$effect_support, sep = "/"),
+      zeroed = colSums(abs(A)) == 0 | colSums(abs(B)) == 0
+    ),
+    manifest = manifest
+  ), class = "factor_representation")
 }
 
 .validate_view <- function(view) {
@@ -203,15 +218,17 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' raw <- standardize_factors(fit,scaling="raw")
-#' max(abs(tcrossprod(raw$activity,raw$effects)-tcrossprod(view$activity,view$effects)))
+#' raw <- standardize_factors(fit, scaling = "raw")
+#' max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(view$activity, view$effects)))
 standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type = "f",
                                 d_location = "effects", orientation = "as_fit", prior_support = NULL,
                                 feature_scale = NULL, preprocessing = NULL, independent_unit = NULL) {
@@ -232,13 +249,15 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   if (!is.null(feature_scale)) {
     .measurement_scale(feature_scale)
     if (!is.null(metadata$feature_scale) && metadata$feature_scale != "unknown" &&
-        !identical(feature_scale, metadata$feature_scale)) stop("feature_scale conflicts with recorded units")
+      !identical(feature_scale, metadata$feature_scale)) {
+      stop("feature_scale conflicts with recorded units")
+    }
     metadata$feature_scale <- feature_scale
   }
   if (!is.null(preprocessing)) {
     if (!is.list(preprocessing) || (length(preprocessing) &&
-        (is.null(names(preprocessing)) || anyNA(names(preprocessing)) ||
-         any(!nzchar(names(preprocessing))) || anyDuplicated(names(preprocessing))))) {
+      (is.null(names(preprocessing)) || anyNA(names(preprocessing)) ||
+        any(!nzchar(names(preprocessing))) || anyDuplicated(names(preprocessing))))) {
       stop("preprocessing must be a named list")
     }
     if (length(metadata$preprocessing) && !identical(preprocessing, metadata$preprocessing)) {
@@ -248,7 +267,9 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   }
   if (!is.null(independent_unit)) {
     if (!is.character(independent_unit) || length(independent_unit) != 1L ||
-        is.na(independent_unit) || !nzchar(trimws(independent_unit))) stop("Declare one independent_unit")
+      is.na(independent_unit) || !nzchar(trimws(independent_unit))) {
+      stop("Declare one independent_unit")
+    }
     if (!is.null(metadata$independent_unit) && !identical(independent_unit, metadata$independent_unit)) {
       stop("independent_unit conflicts with recorded declaration")
     }
@@ -261,8 +282,8 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     moments <- flashier::flash_fit_get_p2m(flashier::flash_fit(fit), order[1])
     # Native second moments include a 1e-10 numerical floor on fixed ones.
     if (length(intercept_index) != 1L || !intercept_index %in% seq_len(fit$n_factors) ||
-        any(abs(raw[[1]][, intercept_index] - 1) > 1e-12) ||
-        any(abs(moments[, intercept_index] - 1) > 1e-8)) {
+      any(abs(raw[[1]][, intercept_index] - 1) > 1e-12) ||
+      any(abs(moments[, intercept_index] - 1) > 1e-8)) {
       stop("Native feature intercept must retain deterministic sample-side ones")
     }
     native_offset <- raw[[2]][, intercept_index]
@@ -273,7 +294,7 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   if (K == 0L) factors <- character()
   pair <- raw
   multipliers <- list(rep(1, K), rep(1, K))
-  s_k <- rep(1, K)   # RMS scale; populated only when scaling == "rms" and K > 0
+  s_k <- rep(1, K) # RMS scale; populated only when scaling == "rms" and K > 0
   if (scaling == "rms" && K > 0L) {
     # RMS scaling: shrink each activity column to unit root-mean-square and
     # compensate on the effects side, preserving tcrossprod(activity, effects)
@@ -294,10 +315,12 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     pair[[target]] <- sweep(pair[[target]], 2L, native$D[native_indices], "*")
     # The ratio uses a nonzero mean entry to recover each fixed native multiplier.
     # For an entirely zero native side use zero, matching native zero normalization.
-    multipliers <- lapply(1:2, function(side) vapply(seq_len(K), function(k) {
-      nonzero <- which(raw[[side]][, k] != 0)
-      if (!length(nonzero)) 0 else pair[[side]][nonzero[1], k] / raw[[side]][nonzero[1], k]
-    }, numeric(1)))
+    multipliers <- lapply(1:2, function(side) {
+      vapply(seq_len(K), function(k) {
+        nonzero <- which(raw[[side]][, k] != 0)
+        if (!length(nonzero)) 0 else pair[[side]][nonzero[1], k] / raw[[side]][nonzero[1], k]
+      }, numeric(1))
+    })
   }
   for (i in 1:2) colnames(pair[[i]]) <- factors
   support <- if (is.null(prior_support)) metadata$prior_support else prior_support
@@ -323,7 +346,8 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
   fit_id <- metadata$fit_id
   if (is.null(fit_id)) fit_id <- digest::digest(list(raw, sample_side), algo = "sha256")
   runtime <- .engine_metadata()
-  manifest <- c(list(schema_version = "1.0.0", representation_version = "1.0.0", fit_id = fit_id,
+  manifest <- c(list(
+    schema_version = "1.0.0", representation_version = "1.0.0", fit_id = fit_id,
     sample_side = sample_side, native_indices = native_indices, scaling = scaling,
     ldf_type = if (scaling == "ldf") type else NULL,
     d_location = if (scaling == "ldf") d_location else NULL,
@@ -333,10 +357,12 @@ standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type =
     activity_center = rep(0, K), activity_scale = rep(1, K), offset_definition = "zero",
     feature_scale = if (is.null(metadata$feature_scale)) "unknown" else metadata$feature_scale,
     preprocessing = if (is.null(metadata$preprocessing)) list() else metadata$preprocessing,
-    independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve[native_indices]), runtime)
+    independent_unit = metadata$independent_unit, prior_identifiers = metadata$prior_identifiers, prior_sample_side = metadata$sample_side, constraints = support, native_pve = fit$pve[native_indices]
+  ), runtime)
   offset <- metadata[["offset"]]
-  if (is.null(offset)) offset <- stats::setNames(rep(0, nrow(pair[[2]])), rownames(pair[[2]]))
-  else {
+  if (is.null(offset)) {
+    offset <- stats::setNames(rep(0, nrow(pair[[2]])), rownames(pair[[2]]))
+  } else {
     .validate_ids(names(offset), "Offset feature")
     if (!all(rownames(pair[[2]]) %in% names(offset))) stop("Native features are absent from the recorded offset")
     offset <- offset[rownames(pair[[2]])]

@@ -40,7 +40,7 @@
   list(value = value, warnings = warnings)
 }
 .projection_metrics <- function(Y, A, B, offset, budget) {
-  # ponytail: stream reconstruction by rows; no full dense query copy is required.
+  # stream reconstruction by rows; no full dense query copy is required.
   width <- ncol(Y)
   block <- max(1L, min(nrow(Y), floor(budget / (8 * max(1, width) * 4))))
   n <- so <- sp <- soo <- spp <- sop <- sse <- sae <- 0
@@ -150,7 +150,8 @@
   metadata$factor_support <- manifest$factor_support
   attr(object, "flashbridge_metadata") <- metadata
   native_fit <- flashier::flash_fit(object)
-  iteration_fields <- native_fit[grep("iter|converg|backfit", names(native_fit))]
+  # Native backfit warm-start setting; flashier records no per-run iteration count.
+  iteration_fields <- native_fit[intersect("warmstart.backfits", names(native_fit))]
   iteration_fields$iteration_limit <- settings$maxiter
   iteration_fields$iteration_limit_reached <- any(grepl("Maximum number of iterations reached", native$warnings, fixed = TRUE))
   metrics <- .projection_metrics(query, A, B[colnames(query), , drop = FALSE], offset[colnames(query)], budget)
@@ -194,15 +195,18 @@
 #' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
 #'   matrix(rnorm(384, sd = 0.2), 24, 16)
 #' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-#' fit <- fit_ebmf(X, "rows", max_factors = 2, seed = 4, verbose = 0,
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
 #'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
-#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity")
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit, scaling = "raw")
 #' # Six new features measured on the same 24 samples; activities stay fixed.
 #' Y <- tcrossprod(view$activity, matrix(rnorm(12), 6, 2)) + matrix(rnorm(144, sd = 0.2), 24, 6)
 #' dimnames(Y) <- list(rownames(X), paste0("p", 1:6))
 #' projected <- project_factor_features(view, Y, "rows", "simulated_protein",
-#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20)
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20
+#' )
 #' projected$representation$effects
 #' projected$reconstruction
 #' @export
@@ -326,20 +330,24 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
 #'   matrix(rnorm(384, sd = 0.2), 24, 16)
 #' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
-#' fit <- fit_ebmf(X, "rows", max_factors = 2, seed = 4, verbose = 0,
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
 #'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
-#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity")
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit, scaling = "raw")
 #' # Eight new samples on the same 16 features; effects stay fixed.
 #' query <- tcrossprod(matrix(rnorm(16), 8, 2), view$effects) + matrix(rnorm(128, sd = 0.2), 8, 16)
 #' dimnames(query) <- list(paste0("q", 1:8), colnames(X))
 #' projected <- project_factor_activity(view, query, "rows", "simulated_centered_intensity",
 #'   preprocessing = list(scope = "identity"),
-#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20)
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), maxiter = 20
+#' )
 #' projected$representation$activity
 #' projected$reconstruction
 #' @export
 project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, prior_policy = c("query", "fixed_reference"), feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2) {
+  # Validate arguments and resolve the reference view and prior policy.
   side <- match.arg(sample_side, c("rows", "columns"))
   .measurement_scale(feature_scale)
   prior_policy <- match.arg(prior_policy)
@@ -354,6 +362,7 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   .program_number(maxiter, "maxiter", TRUE, 1)
   .program_number(min_coverage, "min_coverage")
   if (min_coverage > 1) stop("min_coverage must be <= 1")
+  # Map query genes to reference features and select factors.
   Y <- .projection_query(query, side, S)
   if (nrow(Y) < 2L) stop("Projection needs at least two query samples; native flashier drops a single-sample dimension")
   if (!is.null(gene_mapping)) {
@@ -376,12 +385,14 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   if (coverage < min_coverage || nrow(shared) < ncol(shared) || qr(shared)$rank < ncol(shared)) stop("Insufficient or rank-deficient shared gene support; select fewer independent factors or increase gene coverage")
   if (!is.null(S) && feature_match == "intersection") stop("Explicit S with intersection requires pre-subset query and S axes and exact matching")
   .projection_budget(8 * (nrow(Y) * ncol(B) * 4 + length(shared) * 3 + 4 * ncol(Y)), dense_budget_bytes)
+  # Subtract reference offsets; check the dense-copy memory budget.
   Y <- Y[, genes, drop = FALSE]
   inference <- Y
   if (any(source$offset[genes] != 0)) {
     .projection_budget(8 * (length(Y) * 4 + nrow(Y) * ncol(B) * 4 + length(shared) * 3), dense_budget_bytes)
     inference <- sweep(as.matrix(Y), 2, source$offset[genes], "-")
   } else if (!inherits(Y, "sparseMatrix")) .projection_budget(8 * (length(Y) * 4 + nrow(Y) * ncol(B) * 4 + length(shared) * 3), dense_budget_bytes)
+  # Project query activities with reference effects fixed.
   S <- .projection_S(S, Y, side)
   priors <- .projection_priors(source, side, ebnm_fn)
   if (prior_policy == "fixed_reference" && !is.null(ebnm_fn)) {
@@ -392,6 +403,7 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   g <- if (prior_policy == "fixed_reference") .reference_activity_g(fit, .projection_source_subset(source, colnames(B)))
   native <- .projection_native(.native_projection(inference, list(effects = shared), side, priors, maxiter, S = S, var_type = var_type, return_fit = TRUE, g = g))
   A <- native$value$activity
+  # Record projected priors and assemble the output.
   source <- .projection_source_subset(source, colnames(B))
   source$manifest$prior_identifiers <- .projection_prior_ids(priors)
   source$manifest$constraints["activity"] <- .prior_support(priors[[if (side == "rows") 1 else 2]])

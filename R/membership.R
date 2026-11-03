@@ -25,19 +25,22 @@
 #' @references \url{https://aguerozz.github.io/immgenT-GP-analysis/Methods_FlashierFit.html#5_Cell_filtering_by_total_GP_membership}
 #' @export
 #' @examples
-#' L <- rbind(broad = c(10, 10, 0), next_cell = c(4, 4, .2),
-#'            a = c(5, 0, 0), b = c(0, 5, 0), c = c(0, 0, 1))
-#' F <- diag(3)
-#' dimnames(F) <- list(paste0("g", 1:3), paste0("F", 1:3))
-#' colnames(L) <- colnames(F)
+#' L <- rbind(
+#'   broad = c(10, 10, 0), next_cell = c(4, 4, .2),
+#'   a = c(5, 0, 0), b = c(0, 5, 0), c = c(0, 0, 1)
+#' )
+#' Fmat <- diag(3)
+#' dimnames(Fmat) <- list(paste0("g", 1:3), paste0("F", 1:3))
+#' colnames(L) <- colnames(Fmat)
 #' native <- flashier::flash_factors_init(
-#'   flashier::flash_init(tcrossprod(L, F)), list(L, F),
-#'   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal))
+#'   flashier::flash_init(tcrossprod(L, Fmat)), list(L, Fmat),
+#'   ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal)
+#' )
 #' filtered <- filter_cells_by_total_membership(native, "rows", max_val = 1.5)
 #' filtered$kept_samples
 #' filtered$history
 filter_cells_by_total_membership <- function(fit, sample_side = NULL,
-                                            max_val = 10, numiter = 12L) {
+                                             max_val = 10, numiter = 12L) {
   .program_number(max_val, "max_val")
   .program_number(numiter, "numiter", integer = TRUE, minimum = 1)
   if (!is.null(sample_side)) sample_side <- match.arg(sample_side, c("rows", "columns"))
@@ -59,8 +62,10 @@ filter_cells_by_total_membership <- function(fit, sample_side = NULL,
     if (any(!is.finite(scaled))) stop("Membership rescaling produced nonfinite coordinates")
     retain <- rowSums(scaled) <= max_val
     if (!any(retain)) stop("Membership filtering would remove all samples")
-    history[[iteration]] <- data.frame(iteration = iteration, before = length(kept),
-      removed = sum(!retain), remaining = sum(retain))
+    history[[iteration]] <- data.frame(
+      iteration = iteration, before = length(kept),
+      removed = sum(!retain), remaining = sum(retain)
+    )
     kept <- kept[retain]
     scaled <- scaled[retain, , drop = FALSE]
   }
@@ -75,15 +80,21 @@ filter_cells_by_total_membership <- function(fit, sample_side = NULL,
   }
   converged <- all(rowSums(activity) <= max_val)
   if (!converged) warning("Membership filter reached numiter with memberships above max_val")
-  out <- structure(list(activity = activity, effects = effects, offset = view$offset,
+  out <- structure(list(
+    activity = activity, effects = effects, offset = view$offset,
     kept_samples = rownames(A)[kept], removed_samples = rownames(A)[-kept],
-    history = do.call(rbind, history), converged = converged), class = "membership_filter_result")
-  attr(out, "analysis_metadata") <- list(source_coordinates = view$manifest,
+    history = do.call(rbind, history), converged = converged
+  ), class = "membership_filter_result")
+  attr(out, "analysis_metadata") <- list(
+    source_coordinates = view$manifest,
     source_basis_id = view$manifest$basis_id, sample_side = view$manifest$sample_side,
     max_val = max_val, numiter = numiter, threshold_operator = ">",
     normalization = "per_factor_maximum", factor_scales = maxima,
     zero_max_factors = zero_max, native_fit_refitted = FALSE,
-    posterior_uncertainty = "not_recomputed_for_selected_population")
-  .attach_provenance(out, "filter_cells_by_total_membership", match.call(),
-    .resolved_parameters("filter_cells_by_total_membership", environment()))
+    posterior_uncertainty = "not_recomputed_for_selected_population"
+  )
+  .attach_provenance(
+    out, "filter_cells_by_total_membership", match.call(),
+    .resolved_parameters("filter_cells_by_total_membership", environment())
+  )
 }

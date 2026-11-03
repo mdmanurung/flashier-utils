@@ -30,21 +30,25 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' plot_factor_features(view, factors = "F1",n=3)
+#' plot_factor_features(view, factors = "F1", n = 3)
 #' @param select Per-factor `largest`/`distinctive`/`both` (see
 #'   [factor_features()]) or `global` for cross-factor selection by
 #'   `max_k(abs(effect))` over the given factors (see
 #'   [factor_features_global()]).
-plot_factor_features <- function(fit, factors, representation = NULL, select = "largest", n = 20L,
-    style = "heatmap", compare_factors = NULL, features = NULL, direction = "absolute",
-    display_normalization = "none", transpose = FALSE, annotation = NULL, ...) {
+plot_factor_features <- function(
+  fit, factors, representation = NULL, select = "largest", n = 20L,
+  style = "heatmap", compare_factors = NULL, features = NULL, direction = "absolute",
+  display_normalization = "none", transpose = FALSE, annotation = NULL, ...
+) {
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
   .require_biological_factors(view$manifest$factor_ids)
@@ -67,13 +71,18 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
     annotation <- .factor_annotation(annotation, factors)
     table$annotation <- annotation[match(table$factor, factors)]
   }
-  options <- list(...)
-  if (any(!names(options) %in% c("palette", "limits"))) stop("Unknown display option")
-  palette <- if (is.null(options$palette)) c("#2166ac", "white", "#b2182b") else options$palette
+  options <- .display_options(list(...))
+  palette <- if (is.null(options$palette)) .diverging_palette else options$palette
   if (length(palette) != 3L) stop("palette requires negative, zero and positive colors")
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$feature, fill = .data$estimate))
-  if (style == "heatmap") p <- p + ggplot2::geom_tile() else p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$feature, y = .data$estimate, fill = .data$estimate)) + ggplot2::geom_col() + ggplot2::facet_wrap(~factor)
-  p <- p + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits) + ggplot2::labs(fill = if(display_normalization == "none") "Feature effect" else "Effect / max absolute effect", subtitle = paste("Feature scale:", view$manifest$feature_scale))
+  if (style == "heatmap") {
+    p <- p + ggplot2::geom_tile()
+  } else {
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$feature, y = .data$estimate, fill = .data$estimate)) +
+      ggplot2::geom_col() +
+      ggplot2::facet_wrap(~factor)
+  }
+  p <- p + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits, oob = scales::squish) + ggplot2::labs(fill = if (display_normalization == "none") "Feature effect" else "Effect / max absolute effect", subtitle = paste("Feature scale:", view$manifest$feature_scale))
   if (transpose) p <- p + ggplot2::coord_flip()
   if (!is.null(annotation)) p <- p + ggplot2::facet_grid(~annotation, scales = "free_x", space = "free_x")
   attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization, selected_features = features, annotation = annotation, competition_factors = colnames(view$effects)[.select_ids(compare_factors, colnames(view$effects), "comparison factor")], direction = direction, transpose = transpose))
@@ -100,7 +109,7 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #' @param display_normalization `"none"` (default) or `"row_sum"` (structure
 #'   style only).
 #' @param max_samples Maximum samples drawn for display (default 2000).
-#' @param seed Optional integer for the sample draw.
+#' @param seed Integer seed for the sample draw (default 1), recorded in the metadata.
 #' @param order_within_group `"input"` (default, current order) or `"mds1"`. mds1
 #'   requires style = "structure" and a group column; groups keep their first
 #'   displayed appearance, singleton and zero-distance groups keep input order,
@@ -121,19 +130,25 @@ plot_factor_features <- function(fit, factors, representation = NULL, select = "
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' plot_factor_activity(view, metadata = metadata,group="group",max_samples=12,seed=4)
-plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = NULL,
-    style = "heatmap", display_normalization = "none", max_samples = 2000L,
-    seed = NULL, order_within_group = c("input", "mds1"), group_order = NULL, ...) {
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' plot_factor_activity(view, metadata = metadata, group = "group", max_samples = 12, seed = 4)
+plot_factor_activity <- function(
+  fit, metadata = NULL, group = NULL, factors = NULL,
+  style = "heatmap", display_normalization = "none", max_samples = 2000L,
+  seed = 1L, order_within_group = c("input", "mds1"), group_order = NULL, ...
+) {
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))
   order_within_group <- match.arg(order_within_group)
@@ -210,34 +225,48 @@ plot_factor_activity <- function(fit, metadata = NULL, group = NULL, factors = N
   }
   table <- .long_matrix(A[included, , drop = FALSE], "sample")
   table$group <- rep(groups[included], times = ncol(A))
-  options <- list(...)
-  if (any(!names(options) %in% c("palette", "limits"))) stop("Unknown display option")
-  palette <- if (is.null(options$palette)) c("#2166ac", "white", "#b2182b") else options$palette
+  options <- .display_options(list(...))
+  palette <- if (is.null(options$palette)) .diverging_palette else options$palette
   if (style == "heatmap") {
     if (length(palette) != 3L) stop("Heatmap palette requires three colors")
-    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) + ggplot2::geom_tile() + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits) + ggplot2::labs(fill = "Activity")
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) +
+      ggplot2::geom_tile() +
+      ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits, oob = scales::squish) +
+      ggplot2::labs(fill = "Activity")
     if (!is.null(group)) p <- p + ggplot2::facet_wrap(~group, scales = "free_y")
   } else if (style == "structure") {
     table$sample <- factor(table$sample, levels = displayed)
-    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$estimate, fill = .data$factor)) + ggplot2::geom_col() + ggplot2::labs(y = "Display proportion")
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$estimate, fill = .data$factor)) +
+      ggplot2::geom_col() +
+      ggplot2::labs(y = "Display proportion")
     p <- p + if (!is.null(options$palette)) ggplot2::scale_fill_manual(values = options$palette) else .discrete_scale(table$factor, "fill")
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   } else {
-    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$group, y = .data$estimate)) + ggplot2::facet_wrap(~factor) + ggplot2::labs(y = "Activity")
+    p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$group, y = .data$estimate)) +
+      ggplot2::facet_wrap(~factor) +
+      ggplot2::labs(y = "Activity")
     p <- if (style == "point") p + ggplot2::geom_point() else p + ggplot2::geom_boxplot()
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   }
   p <- p + ggplot2::labs(subtitle = paste("Scaling:", view$manifest$scaling))
   ordering <- list(order_within_group = order_within_group)
   if (!is.null(group_order)) {
-    ordering <- c(ordering, list(displayed_sample_order = displayed, group_order = group_order,
-      group_order_source = if (is.null(declared_order)) "first_appearance" else "declared"))
-    if (order_within_group == "mds1") ordering <- c(ordering, list(ordering_distance = "euclidean",
-      ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive"))
+    ordering <- c(ordering, list(
+      displayed_sample_order = displayed, group_order = group_order,
+      group_order_source = if (is.null(declared_order)) "first_appearance" else "declared"
+    ))
+    if (order_within_group == "mds1") {
+      ordering <- c(ordering, list(
+        ordering_distance = "euclidean",
+        ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive"
+      ))
+    }
   }
-  attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization,
+  attr(p, "analysis_metadata") <- c(view$manifest, list(
+    display_only = TRUE, display_normalization = display_normalization,
     exclusions = match$exclusions, included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
-    sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed), ordering)
+    sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed
+  ), ordering)
   .attach_provenance(p, "plot_factor_activity", match.call(), .resolved_parameters("plot_factor_activity", environment()))
 }
 

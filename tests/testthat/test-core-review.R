@@ -3,27 +3,37 @@ test_that("bare native fits declare units without private metadata", {
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") X else t(X)
     set.seed(12)
-    fit <- flashier::flash(Y, greedy_Kmax = 2, nullcheck = FALSE,
-      ebnm_fn = ebnm::ebnm_normal, backfit = TRUE, verbose = 0)
+    fit <- flashier::flash(Y,
+      greedy_Kmax = 2, nullcheck = FALSE,
+      ebnm_fn = ebnm::ebnm_normal, backfit = TRUE, verbose = 0
+    )
     expect_null(attr(fit, "flashbridge_metadata"))
     declaration <- list(scope = "identity", transformation = "none")
-    v <- standardize_factors(fit, sample_side = side, scaling = "raw",
+    v <- standardize_factors(fit,
+      sample_side = side, scaling = "raw",
       feature_scale = "intensity", preprocessing = declaration,
-      independent_unit = "sample", prior_support = c(activity = "signed", effects = "signed"))
+      independent_unit = "sample", prior_support = c(activity = "signed", effects = "signed")
+    )
     expect_identical(v$manifest$feature_scale, "intensity")
     expect_identical(v$manifest$preprocessing, declaration)
     expected <- stats::fitted(fit)
     if (side == "columns") expected <- t(expected)
     expect_equal(unname(tcrossprod(v$activity, v$effects)), unname(expected), tolerance = 1e-10)
     expect_equal(sum(factor_replicability(v, v, min_congruence = .99)$matches$matched), 2)
-    expect_true(all(is.finite(factor_uncertainty(fit, sample_side = side,
-      representation = v)$posterior.sd)))
-    projected <- project_factor_activity(v, X, sample_side = "rows", feature_scale = "intensity",
-      preprocessing = declaration, ebnm_fn = ebnm::ebnm_normal, maxiter = 1000)
+    expect_true(all(is.finite(factor_uncertainty(fit,
+      sample_side = side,
+      representation = v
+    )$posterior.sd)))
+    projected <- project_factor_activity(v, X,
+      sample_side = "rows", feature_scale = "intensity",
+      preprocessing = declaration, ebnm_fn = ebnm::ebnm_normal, maxiter = 1000
+    )
     expect_equal(projected$representation$effects, v$effects)
     reloaded <- unserialize(serialize(fit, NULL))
-    expect_equal(standardize_factors(reloaded, sample_side = side)$activity,
-      standardize_factors(fit, sample_side = side)$activity)
+    expect_equal(
+      standardize_factors(reloaded, sample_side = side)$activity,
+      standardize_factors(fit, sample_side = side)$activity
+    )
     for (axis in c("activity", "effects")) {
       which_dim <- if ((axis == "activity") == (side == "rows")) "loadings" else "factors"
       native <- flashier::flash_factors_fix(fit, 1L, which_dim = which_dim)
@@ -43,8 +53,10 @@ test_that("bare native fits declare units without private metadata", {
 
 test_that("zero-factor references and targets compare without fabricated matches", {
   v <- fixture_view()
-  z <- .make_representation(v$activity[, FALSE, drop = FALSE], v$effects[, FALSE, drop = FALSE],
-    modifyList(v$manifest, list(native_indices = integer())))
+  z <- .make_representation(
+    v$activity[, FALSE, drop = FALSE], v$effects[, FALSE, drop = FALSE],
+    modifyList(v$manifest, list(native_indices = integer()))
+  )
   expect_equal(factor_replicability(z, v)$unmatched_target, c("F1", "F2"))
   expect_equal(nrow(factor_replicability(z, z)$matches), 0L)
   expect_error(factor_features_global(v, character()), "at least one")
@@ -78,8 +90,9 @@ test_that("group labels cannot overwrite reserved summary columns", {
 test_that("non-lm engines refuse unsupported formula offsets", {
   f <- association_fixture()
   f$metadata$z <- 5 * (f$metadata$group == "B")
-  expect_error(test_factors(f$view, f$metadata, ~group + offset(z), "limma",
-    unit_col = "donor", independence = "independent"), "offsets.*only")
+  expect_error(test_factors(f$view, f$metadata, ~ group + offset(z), "limma",
+    unit_col = "donor", independence = "independent"
+  ), "offsets.*only")
 })
 
 test_that("holdout validates scoring axes as well as inference axes", {
@@ -92,14 +105,20 @@ test_that("holdout validates scoring axes as well as inference axes", {
     list(X = if (anyNA(X)) X else X[, rev(seq_len(ncol(X))), drop = FALSE], metadata = metadata)
   })
   callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
-    flashier::flash(X, greedy_Kmax = 2, ebnm_fn = ebnm::ebnm_normal,
-      nullcheck = FALSE, backfit = TRUE, verbose = 0)
+    flashier::flash(X,
+      greedy_Kmax = 2, ebnm_fn = ebnm::ebnm_normal,
+      nullcheck = FALSE, backfit = TRUE, verbose = 0
+    )
   }
-  out <- factor_holdout(X, md, "donor", folds, callback, preprocess_fn = prep,
+  out <- factor_holdout(X, md, "donor", folds, callback,
+    preprocess_fn = prep,
     evaluation = "masked", activity_features = colnames(X)[1:6],
     scoring_features = colnames(X)[7:8], seed = 4,
-    control = list(sample_side = "rows", evaluated_folds = "test",
-      projection_ebnm_fn = ebnm::ebnm_normal))
+    control = list(
+      sample_side = "rows", evaluated_folds = "test",
+      projection_ebnm_fn = ebnm::ebnm_normal
+    )
+  )
   expect_match(out$failures$reason, "Scoring transform changed")
   expect_null(out$metrics)
 })
@@ -118,16 +137,22 @@ test_that("stability accepts declared views from native-only refit callbacks", {
   md <- data.frame(sample = rownames(X), donor = rep(paste0("d", 1:6), each = 2))
   callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
     set.seed(seed)
-    native <- flashier::flash(X, greedy_Kmax = 2, ebnm_fn = ebnm::ebnm_normal,
-      nullcheck = FALSE, backfit = TRUE, verbose = 0)
-    standardize_factors(native, sample_side = sample_side, feature_scale = "intensity",
-      prior_support = c(activity = "signed", effects = "signed"))
+    native <- flashier::flash(X,
+      greedy_Kmax = 2, ebnm_fn = ebnm::ebnm_normal,
+      nullcheck = FALSE, backfit = TRUE, verbose = 0
+    )
+    standardize_factors(native,
+      sample_side = sample_side, feature_scale = "intensity",
+      prior_support = c(activity = "signed", effects = "signed")
+    )
   }
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") X else t(X)
     reference <- callback(Y, md, side, 12, NULL)
-    out <- factor_stability(Y, reference, md, unit_col = "donor", B = 2,
-      fit_fn = callback, seed = 5, min_congruence = .2)
+    out <- factor_stability(Y, reference, md,
+      unit_col = "donor", B = 2,
+      fit_fn = callback, seed = 5, min_congruence = .2
+    )
     expect_equal(nrow(out$failures), 0L)
     expect_true(all(out$replicates$status == "supported"))
     expect_equal(nrow(out$replicates), 2L)

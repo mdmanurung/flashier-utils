@@ -11,32 +11,34 @@
   indices <- metadata$native_indices
   if (is.null(indices)) indices <- seq_along(.factor_ids(fit))
   if (!is.numeric(indices) || length(indices) != length(.factor_ids(fit)) || anyNA(indices) ||
-      any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) || anyDuplicated(indices)) {
+    any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) || anyDuplicated(indices)) {
     stop("Invalid native factor mapping")
   }
   if (!is.null(metadata$native_factor_ids)) {
     .validate_ids(metadata$native_factor_ids, "Native factor")
     if (!is.null(metadata$intercept_index) &&
-        (!identical(metadata$intercept_index, 1L) ||
-         !identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
-         !identical(unname(metadata$factor_roles[metadata$intercept_index]), "offset"))) {
+      (!identical(metadata$intercept_index, 1L) ||
+        !identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
+        !identical(unname(metadata$factor_roles[metadata$intercept_index]), "offset"))) {
       stop("Invalid protected intercept role")
     }
     if (length(metadata$native_factor_ids) != fit$n_factors ||
-        !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
-        !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
-        anyNA(metadata$factor_roles) ||
-        any(!metadata$factor_roles %in% c("offset", "factor", "initialized")) ||
-        any(metadata$factor_roles[indices] == "offset") ||
-        !setequal(indices, setdiff(seq_len(fit$n_factors), metadata$intercept_index)) ||
-        !setequal(which(metadata$factor_roles == "offset"), metadata$intercept_index)) {
+      !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
+      !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
+      anyNA(metadata$factor_roles) ||
+      any(!metadata$factor_roles %in% c("offset", "factor", "initialized")) ||
+      any(metadata$factor_roles[indices] == "offset") ||
+      !setequal(indices, setdiff(seq_len(fit$n_factors), metadata$intercept_index)) ||
+      !setequal(which(metadata$factor_roles == "offset"), metadata$intercept_index)) {
       stop("Invalid native factor identity/role mapping")
     }
   }
   if (!is.null(metadata$factor_support) || !is.null(metadata$support_version)) {
-    .factor_support(list(factor_ids = .factor_ids(fit), native_indices = indices,
+    .factor_support(list(
+      factor_ids = .factor_ids(fit), native_indices = indices,
       factor_roles = metadata$factor_roles, constraints = metadata$prior_support,
-      support_version = metadata$support_version, factor_support = metadata$factor_support))
+      support_version = metadata$support_version, factor_support = metadata$factor_support
+    ))
   }
   indices
 }
@@ -87,22 +89,26 @@
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' nonnegative <- fit_nonnegative_ebmf(abs(X),"rows",max_factors=2,seed=4,verbose=0)
+#' nonnegative <- fit_nonnegative_ebmf(abs(X), "rows", max_factors = 2, seed = 4, verbose = 0)
 #' factor_activity(nonnegative)
 fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initialization = "native_greedy",
-                                seed = NULL, control = list(), ...) {
+                                 seed = NULL, control = list(), ...) {
   if (initialization != "native_greedy") stop("Only bounded native_greedy initialization is supported; NNLM/cycling is unavailable")
   args <- list(...)
   if ("ebnm_fn" %in% names(args)) stop("Nonnegative fitting sets native point-exponential priors")
-  .attach_provenance(do.call(fit_ebmf, c(list(X = X, sample_side = sample_side, max_factors = max_factors,
-    ebnm_fn = ebnm::ebnm_point_exponential, seed = seed, control = control), args)), "fit_nonnegative_ebmf", match.call(), .resolved_parameters("fit_nonnegative_ebmf", environment()))
+  .attach_provenance(do.call(fit_ebmf, c(list(
+    X = X, sample_side = sample_side, max_factors = max_factors,
+    ebnm_fn = ebnm::ebnm_point_exponential, seed = seed, control = control
+  ), args)), "fit_nonnegative_ebmf", match.call(), .resolved_parameters("fit_nonnegative_ebmf", environment()))
 }
 
 #' Fit nonnegative activities with signed feature effects
@@ -128,13 +134,15 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
 #' B <- matrix(rnorm(16), 8, 2)
 #' X <- tcrossprod(A, B) + matrix(rnorm(96, sd = .2), 12, 8)
 #' dimnames(X) <- list(paste0("s", 1:12), paste0("g", 1:8))
-#' fit <- fit_seminonnegative_ebmf(X, "rows", max_factors = 2,
-#'   backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity")
+#' fit <- fit_seminonnegative_ebmf(X, "rows",
+#'   max_factors = 2,
+#'   backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity"
+#' )
 #' factor_activity(fit)
 fit_seminonnegative_ebmf <- function(X, sample_side,
-                                   activity_prior = ebnm::ebnm_point_exponential,
-                                   effect_prior = ebnm::ebnm_point_laplace,
-                                   initialization = "native_greedy", ...) {
+                                     activity_prior = ebnm::ebnm_point_exponential,
+                                     effect_prior = ebnm::ebnm_point_laplace,
+                                     initialization = "native_greedy", ...) {
   sample_side <- match.arg(sample_side, c("rows", "columns"))
   if (!identical(initialization, "native_greedy")) stop("Only native_greedy initialization is supported")
   if (!is.function(activity_prior) || .prior_support(activity_prior) != "nonnegative") {
@@ -149,8 +157,10 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
   if (sample_side == "columns") priors <- rev(priors)
   fit <- do.call(fit_ebmf, c(list(X = X, sample_side = sample_side, ebnm_fn = priors), args))
   if (effect_support == "unknown") attr(fit, "flashbridge_metadata")$refit_policy <- "callback_required"
-  .attach_provenance(fit, "fit_seminonnegative_ebmf", match.call(),
-    .resolved_parameters("fit_seminonnegative_ebmf", environment()))
+  .attach_provenance(
+    fit, "fit_seminonnegative_ebmf", match.call(),
+    .resolved_parameters("fit_seminonnegative_ebmf", environment())
+  )
 }
 
 #' Backfit named existing factors
@@ -170,14 +180,16 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' refitted <- refit_factors(fit,control=list(maxiter=10,verbose=0),seed=4)
+#' refitted <- refit_factors(fit, control = list(maxiter = 10, verbose = 0), seed = 4)
 #' factor_pve(refitted)
 refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
   ids <- .factor_ids(fit)
@@ -185,7 +197,7 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
   kset <- .native_factor_indices(fit)[.select_ids(factors, ids, "factor")]
   if (is.null(factors)) kset <- c(attr(fit, "flashbridge_metadata")$intercept_index, kset)
   if (!length(kset)) stop("No factors to refit")
-  if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control)))) || any(!names(control) %in% setdiff(names(formals(flashier::flash_backfit)), c("flash", "kset")))) stop("Unknown or protected backfit control")
+  if (!.is_named_list(control) || any(!names(control) %in% setdiff(names(formals(flashier::flash_backfit)), c("flash", "kset")))) stop("Unknown or protected backfit control")
   result <- .with_seed(seed, do.call(flashier::flash_backfit, c(list(flash = fit, kset = kset), control)))
   .attach_provenance(.native_changed(fit, result, ids, "backfit"), "refit_factors", match.call(), .resolved_parameters("refit_factors", environment()))
 }
@@ -208,15 +220,17 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' fixed <- fix_factors(fit,"F1","effects")
-#' factor_effects(fixed,factors="F1",features="g1")
+#' fixed <- fix_factors(fit, "F1", "effects")
+#' factor_effects(fixed, factors = "F1", features = "g1")
 fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL, action = "fix", sample_side = NULL) {
   if (is.null(factors)) stop("factors is required; supply the factor IDs to ", action)
   action <- match.arg(action, c("fix", "unfix"))
@@ -255,14 +269,16 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' remaining <- remove_factors(fit,"F1")
+#' remaining <- remove_factors(fit, "F1")
 #' colnames(factor_activity(remaining))
 remove_factors <- function(fit, factors) {
   if (is.null(factors)) stop("factors is required; supply the factor IDs to remove")
@@ -286,14 +302,16 @@ remove_factors <- function(fit, factors) {
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' reordered <- reorder_factors(fit,rev(view$manifest$factor_ids))
+#' reordered <- reorder_factors(fit, rev(view$manifest$factor_ids))
 #' colnames(factor_activity(reordered))
 reorder_factors <- function(fit, order) {
   ids <- .factor_ids(fit)

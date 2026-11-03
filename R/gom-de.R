@@ -69,34 +69,47 @@ test_gom_de <- function(counts, memberships, sample_side, seed, shrink_method = 
   memberships <- memberships[rownames(X), , drop = FALSE]
   if (any(abs(rowSums(memberships) - 1) > 1e-8)) stop("Every membership row must sum to one; EBMF activities are not normalized here")
   if (length(pseudocount) != 1L || !is.finite(pseudocount) || pseudocount <= 0) stop("pseudocount must be positive")
-  if (!is.logical(keep_native) || length(keep_native) != 1L || is.na(keep_native)) stop("keep_native must be TRUE or FALSE")
+  if (!.is_flag(keep_native)) stop("keep_native must be TRUE or FALSE")
   .check_engine("fastTopics", c("de_analysis", "de_analysis_control_default"))
   if (utils::packageVersion("fastTopics") < "0.7.46") stop("test_gom_de needs fastTopics >= 0.7-46 (stephenslab/fastTopics@", .fasttopics_pin, ")")
   defaults <- fastTopics::de_analysis_control_default()
   if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control)) ||
-      any(!names(control) %in% names(defaults))))) stop("Unknown fastTopics de_analysis control setting")
+    any(!names(control) %in% names(defaults))))) {
+    stop("Unknown fastTopics de_analysis control setting")
+  }
   control$nc <- 1
   if (!is.matrix(X)) X <- methods::as(X, "CsparseMatrix")
   warnings <- character()
-  native <- .with_seed(seed, tryCatch(withCallingHandlers(
-    fastTopics::de_analysis(memberships, X, pseudocount = pseudocount, fit.method = fit_method,
-      shrink.method = shrink_method, lfc.stat = lfc_stat, control = control, verbose = FALSE),
-    warning = function(w) warnings <<- c(warnings, conditionMessage(w))),
-    error = function(e) stop("fastTopics de_analysis failed: ", conditionMessage(e), call. = FALSE)))
+  native <- .with_seed(seed, tryCatch(
+    withCallingHandlers(
+      fastTopics::de_analysis(memberships, X,
+        pseudocount = pseudocount, fit.method = fit_method,
+        shrink.method = shrink_method, lfc.stat = lfc_stat, control = control, verbose = FALSE
+      ),
+      warning = function(w) warnings <<- c(warnings, conditionMessage(w))
+    ),
+    error = function(e) stop("fastTopics de_analysis failed: ", conditionMessage(e), call. = FALSE)
+  ))
   column <- function(x) if (is.matrix(x)) as.vector(x) else rep(NA_real_, length(native$postmean))
-  stats <- data.frame(feature = rep(rownames(native$postmean), ncol(native$postmean)),
+  stats <- data.frame(
+    feature = rep(rownames(native$postmean), ncol(native$postmean)),
     factor = rep(colnames(native$postmean), each = nrow(native$postmean)),
     log2_fc = as.vector(native$postmean), lower = column(native$lower), upper = column(native$upper),
     z = column(native$z), neg_log10_p = column(native$lpval), lfsr = column(native$lfsr),
-    svalue = column(native$svalue))
+    svalue = column(native$svalue)
+  )
   info <- utils::packageDescription("fastTopics")
-  out <- list(statistics = stats, native = if (keep_native) native else NULL,
-    analysis_metadata = list(engine = "fastTopics", inference = "conditional_on_fixed_memberships", lfc_scale = "log2",
+  out <- list(
+    statistics = stats, native = if (keep_native) native else NULL,
+    analysis_metadata = list(
+      engine = "fastTopics", inference = "conditional_on_fixed_memberships", lfc_scale = "log2",
       lfc_stat = lfc_stat, shrink_method = shrink_method, pseudocount = pseudocount, fit_method = fit_method,
       control = utils::modifyList(defaults, control), interval = "hpd", seed = seed,
       unavailable = if (shrink_method == "ash") "neg_log10_p (ash shrinkage)" else "lfsr and svalue (no shrinkage)",
       acceptance_rates = native$ar, warnings = warnings, sample_ids = rownames(X),
       engine_versions = list(fastTopics = info$Version),
-      source_commit_if_known = list(fastTopics = if (is.null(info$RemoteSha)) "unknown" else info$RemoteSha)))
+      source_commit_if_known = list(fastTopics = if (is.null(info$RemoteSha)) "unknown" else info$RemoteSha)
+    )
+  )
   .attach_provenance(out, "test_gom_de", match.call(), .resolved_parameters("test_gom_de", environment()))
 }

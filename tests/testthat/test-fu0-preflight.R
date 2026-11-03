@@ -21,7 +21,7 @@ test_that("preflight produces a targeted diagnostic for missing native capabilit
   )
   expect_error(
     flashier.utils:::.flashier_preflight(need_nullcheck_moments = TRUE),
-    "fd44811"  # message names the pinned upstream revision
+    "fd44811" # message names the pinned upstream revision
   )
 })
 
@@ -37,11 +37,13 @@ test_that("fit_ebmf fails fast (before fitting) when a late capability is absent
     "lacks native capabilities"
   )
   elapsed <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  expect_lt(elapsed, 5)  # failed at entry, not after an expensive fit
+  expect_lt(elapsed, 5) # failed at entry, not after an expensive fit
   ## disabling nullcheck avoids the late-path requirement and still fits
   expect_silent(
-    fit_ebmf(X, sample_side = "rows", max_factors = 2, nullcheck = FALSE,
-             backfit = FALSE, verbose = 0, seed = 1)
+    fit_ebmf(X,
+      sample_side = "rows", max_factors = 2, nullcheck = FALSE,
+      backfit = FALSE, verbose = 0, seed = 1
+    )
   )
 })
 
@@ -49,11 +51,15 @@ test_that("pinned runtime fits fresh-native zero/affine/fixed constraints (FU-0 
   skip_if_not_installed("flashier")
   X <- matrix(rpois(60, 3), 10, 6, dimnames = list(paste0("s", 1:10), paste0("g", 1:6)))
   ## zero-factor request is a typed empty result, not an error
-  f0 <- fit_ebmf(X, sample_side = "rows", max_factors = 0, nullcheck = FALSE,
-                 backfit = FALSE, verbose = 0, seed = 1)
+  f0 <- fit_ebmf(X,
+    sample_side = "rows", max_factors = 0, nullcheck = FALSE,
+    backfit = FALSE, verbose = 0, seed = 1
+  )
   expect_true(inherits(f0, "flash") || inherits(f0, "list"))
   ## affine intercept path runs on the pinned engine
-  f1 <- fit_ebmf(X, sample_side = "rows", max_factors = 2, intercept = "feature",
-                 nullcheck = FALSE, backfit = FALSE, verbose = 0, seed = 1)
+  f1 <- fit_ebmf(X,
+    sample_side = "rows", max_factors = 2, intercept = "feature",
+    nullcheck = FALSE, backfit = FALSE, verbose = 0, seed = 1
+  )
   expect_true(!is.null(f1))
 })

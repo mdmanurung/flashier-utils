@@ -30,8 +30,10 @@
 #' rownames(A) <- paste0("s", 1:12)
 #' rownames(B) <- paste0("g", 1:8)
 #' X <- tcrossprod(A, B)
-#' fit <- fit_initialized_ebmf(X, "rows", A, B, fixed_side = "effects",
-#'   seed = 4, verbose = 0, feature_scale = "simulated_intensity")
+#' fit <- fit_initialized_ebmf(X, "rows", A, B,
+#'   fixed_side = "effects",
+#'   seed = 4, verbose = 0, feature_scale = "simulated_intensity"
+#' )
 #' factor_effects(fit, representation = list(scaling = "raw"))
 #' @keywords internal
 fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
@@ -47,7 +49,7 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
   generated <- c(rows = is.null(rownames(X)), columns = is.null(colnames(X)))
   X <- .validate_matrix(X, id_policy)
   .program_number(add_factors, "add_factors", integer = TRUE)
-  if (!is.logical(nullcheck_new) || length(nullcheck_new) != 1L || is.na(nullcheck_new)) stop("nullcheck_new must be TRUE or FALSE")
+  if (!.is_flag(nullcheck_new)) stop("nullcheck_new must be TRUE or FALSE")
   if (!is.function(activity_prior) || !is.function(effect_prior)) stop("Initial priors must be native EBNM functions")
   if (!is.matrix(activity_init) || !is.matrix(effect_init)) stop("Initial factors must be named numeric matrices")
   activity_init <- .validate_matrix(activity_init, allow_missing = FALSE)
@@ -79,9 +81,11 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
   metadata <- NULL
   roles <- stats::setNames(rep("initialized", length(ids)), ids)
   fit <- .with_seed(seed, {
-    object <- fit_ebmf(X, sample_side, ebnm_fn = priors, S = S, var_type = var_type,
+    object <- fit_ebmf(X, sample_side,
+      ebnm_fn = priors, S = S, var_type = var_type,
       max_factors = 0, nullcheck = FALSE, id_policy = id_policy, feature_scale = feature_scale,
-      independent_unit = independent_unit, verbose = verbose, control = control)
+      independent_unit = independent_unit, verbose = verbose, control = control
+    )
     metadata <- attr(object, "flashbridge_metadata")
     object <- flashier::flash_set_verbose(object, verbose = verbose)
     object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)
@@ -103,8 +107,10 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
       }
       object <- do.call(flashier::flash_backfit, c(list(flash = object, verbose = verbose), control$backfit))
       if (nullcheck_new && n_new > 0) {
-        checked <- .nullcheck_adaptive(object, seq_len(object$n_factors)[-initial],
-          if (is.null(control$nullcheck)) list() else control$nullcheck, verbose)
+        checked <- .nullcheck_adaptive(
+          object, seq_len(object$n_factors)[-initial],
+          if (is.null(control$nullcheck)) list() else control$nullcheck, verbose
+        )
         object <- checked$fit
         ids <- ids[checked$retained]
         roles <- roles[ids]
@@ -117,17 +123,25 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
   metadata$native_indices <- seq_along(ids)
   metadata$factor_roles <- roles
   metadata$support_version <- "1.0.0"
-  metadata$factor_support <- .support_records(ids, metadata$native_indices,
-    metadata$prior_support, roles)
+  metadata$factor_support <- .support_records(
+    ids, metadata$native_indices,
+    metadata$prior_support, roles
+  )
   metadata$generated_ids <- generated & id_policy == "generate"
   metadata$refit_policy <- "callback_required"
   metadata$seed <- seed
-  metadata$initialization <- list(activity_sha256 = digest::digest(activity_init, algo = "sha256"),
-    effect_sha256 = digest::digest(effect_init, algo = "sha256"), factor_ids = colnames(activity_init))
-  metadata$configuration <- list(S = S, var_type = var_type, fixed_side = fixed_side,
+  metadata$initialization <- list(
+    activity_sha256 = digest::digest(activity_init, algo = "sha256"),
+    effect_sha256 = digest::digest(effect_init, algo = "sha256"), factor_ids = colnames(activity_init)
+  )
+  metadata$configuration <- list(
+    S = S, var_type = var_type, fixed_side = fixed_side,
     add_factors = add_factors, nullcheck_new = nullcheck_new, id_policy = id_policy,
-    verbose = verbose, control = control)
+    verbose = verbose, control = control
+  )
   attr(fit, "flashbridge_metadata") <- metadata
-  .attach_provenance(fit, "fit_initialized_ebmf", match.call(),
-    .resolved_parameters("fit_initialized_ebmf", environment()))
+  .attach_provenance(
+    fit, "fit_initialized_ebmf", match.call(),
+    .resolved_parameters("fit_initialized_ebmf", environment())
+  )
 }

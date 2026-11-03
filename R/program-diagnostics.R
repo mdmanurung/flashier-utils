@@ -3,8 +3,9 @@
 #' Describe program activity and signature sizes
 #' @param fit Native fit or representation.
 #' @param factors Optional factor IDs.
-#' @param activity_threshold Activity threshold, strictly exceeded.
-#' @param feature_threshold Absolute effect threshold, strictly exceeded.
+#' @param activity_threshold Activity threshold, strictly exceeded. Required:
+#'   the cut is the caller's choice (on the `display_normalization` scale).
+#' @param feature_threshold Absolute effect threshold, strictly exceeded. Required.
 #' @param activity_direction positive, negative or absolute.
 #' @param display_normalization max_abs (per column) or none.
 #' @param membership_burden Opt-in: add a continuous membership-burden column
@@ -18,7 +19,13 @@
 #' @return Per-factor and per-sample tables, thresholds and source metadata.
 #' @author Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
 #' @keywords internal
-factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, feature_threshold = 0.25, activity_direction = "positive", display_normalization = "max_abs", membership_burden = FALSE) {
+factor_diagnostics <- function(fit, factors = NULL, activity_threshold, feature_threshold, activity_direction = "positive", display_normalization = "max_abs", membership_burden = FALSE) {
+  if (missing(activity_threshold) || missing(feature_threshold)) {
+    stop(
+      "Name activity_threshold and feature_threshold; the cuts are the caller's choice. ",
+      "membership_burden = TRUE adds a cut-free per-sample column."
+    )
+  }
   view <- .resolve_view(fit)
   A <- .display_scale(factor_activity(view, factors = factors), display_normalization)
   B <- .display_scale(factor_effects(view, factors = factors), display_normalization)
@@ -75,7 +82,8 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold = 0.1, fe
 #' @param factor Factor for external-marker scatter.
 #' @param max_samples Maximum scatter rendering population; statistics use all samples.
 #' @param seed Scoped rendering seed.
-#' @param ... Arguments passed to factor_diagnostics.
+#' @param ... `activity_threshold` and `feature_threshold` (both required) and other
+#'   settings passed to `factor_diagnostics()`.
 #' @return Named plots: prevalence, features, programs_per_cell, groups and marker.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 2 workflow.
 #' @keywords internal
@@ -148,7 +156,7 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
   table$label[labels] <- table$feature[labels]
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$weight, y = .data$expression)) +
     ggplot2::geom_point() +
-    .program_labels() +
+    .label_layer() +
     ggplot2::labs(x = "Signed weight / maximum absolute weight", y = paste("Mean expression:", expression_scale))
   .program_result(p, view, "plot_factor_signature", match.call(), list(expression_scale = expression_scale, threshold = threshold, n_label = n_label, display_normalization = "max_abs"))
 }
@@ -234,7 +242,8 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
 #' @param n Defining features per sign.
 #' @param annotations Optional named user-authored factor labels.
 #' @param compare_factors Optional comparison pool.
-#' @param ... Threshold settings passed to factor_diagnostics.
+#' @param ... `activity_threshold` and `feature_threshold` (both required) and other
+#'   settings passed to `factor_diagnostics()`.
 #' @return Summary table with list columns of positive and negative features.
 #' @author Mikhael Manurung; feature ranking credits Peter Carbonetto and Matthew Stephens.
 #' @keywords internal

@@ -49,19 +49,23 @@ display/conditional results do not establish biological replication.
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
 # Small-row illustration; does not establish covariance/lfsr calibration.
 ids <- view$manifest$factor_ids
-coefficients <- data.frame(factor=rep(ids,2),condition=rep(c("A","B"),each=length(ids)),
-  term="treatment",estimate=seq_len(2*length(ids))/5,std.error=0.5,basis_id=view$manifest$basis_id)
-attr(coefficients,"analysis_metadata") <- view$manifest
-shrink_factor_effects(coefficients,"condition",term="treatment",independent_conditions=TRUE)$table
+coefficients <- data.frame(
+  factor = rep(ids, 2), condition = rep(c("A", "B"), each = length(ids)),
+  term = "treatment", estimate = seq_len(2 * length(ids)) / 5, std.error = 0.5, basis_id = view$manifest$basis_id
+)
+attr(coefficients, "analysis_metadata") <- view$manifest
+shrink_factor_effects(coefficients, "condition", term = "treatment", independent_conditions = TRUE)$table
 \dontshow{\}) # examplesIf}
 }
 \author{

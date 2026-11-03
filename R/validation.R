@@ -31,21 +31,25 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' beta <- setNames(rep(1,ncol(view$activity)),colnames(view$activity))
-#' result <- backproject_contrast(view,beta,"coefficients",factor_basis=view$manifest)
+#' beta <- setNames(rep(1, ncol(view$activity)), colnames(view$activity))
+#' result <- backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest)
 #' # Illustrative same-scale feature vector; not a calibrated statistical truth.
-#' observed <- result$effects[,c("feature","estimate")]
-#' validate_backprojection(result, observed = observed,feature_scale="simulated_centered_intensity",plot=FALSE)$metrics
-validate_backprojection <- function(reconstructed, observed, feature_scale, contrast = NULL,
-    id_col = "feature", estimate_col = "estimate", top_n = c(20L, 50L, 100L), zero_tolerance = 0,
-    plot = TRUE) {
+#' observed <- result$effects[, c("feature", "estimate")]
+#' validate_backprojection(result, observed = observed, feature_scale = "simulated_centered_intensity", plot = FALSE)$metrics
+validate_backprojection <- function(
+  reconstructed, observed, feature_scale, contrast = NULL,
+  id_col = "feature", estimate_col = "estimate", top_n = c(20L, 50L, 100L), zero_tolerance = 0,
+  plot = TRUE
+) {
   if (missing(feature_scale)) stop("Supply matching declared feature_scale")
   .measurement_scale(feature_scale)
   if (inherits(reconstructed, "backprojection_result")) reconstructed <- reconstructed$effects
@@ -62,7 +66,8 @@ validate_backprojection <- function(reconstructed, observed, feature_scale, cont
     if (!nrow(table) || !is.numeric(table[[estimate_col]]) || any(!is.finite(table[[estimate_col]]))) stop("Feature estimates must be finite and nonempty")
     table
   }
-  r <- prepare(reconstructed); o <- prepare(observed)
+  r <- prepare(reconstructed)
+  o <- prepare(observed)
   if ("contrast" %in% names(r) && "contrast" %in% names(o) && !identical(unique(as.character(r$contrast)), unique(as.character(o$contrast)))) stop("Contrast directions/labels differ")
   ids <- intersect(as.character(r[[id_col]]), as.character(o[[id_col]]))
   if (!length(ids)) stop("No common feature IDs")
@@ -76,7 +81,8 @@ validate_backprojection <- function(reconstructed, observed, feature_scale, cont
   slope <- intercept <- NA_real_
   if (nrow(matched) > 1L && stats::sd(matched$observed) > 0) {
     model <- stats::lm(reconstructed ~ observed, data = matched)
-    intercept <- unname(stats::coef(model)[1]); slope <- unname(stats::coef(model)[2])
+    intercept <- unname(stats::coef(model)[["(Intercept)"]])
+    slope <- unname(stats::coef(model)[["observed"]])
   }
   if (length(zero_tolerance) != 1L || !is.finite(zero_tolerance) || zero_tolerance < 0) stop("zero_tolerance must be nonnegative")
   eligible <- abs(matched$observed) > zero_tolerance & abs(matched$reconstructed) > zero_tolerance
@@ -90,8 +96,16 @@ validate_backprojection <- function(reconstructed, observed, feature_scale, cont
     b <- utils::head(matched$feature[order(-abs(matched$reconstructed), matched$feature)], size)
     data.frame(requested_n = n, effective_n = size, overlap_n = length(intersect(a, b)), overlap_fraction = length(intersect(a, b)) / size)
   }))
-  p <- if (plot) ggplot2::ggplot(matched, ggplot2::aes(x = .data$observed, y = .data$reconstructed)) + ggplot2::geom_point() + ggplot2::geom_abline(slope = 1, intercept = 0) else NULL
-  .attach_provenance(list(metrics = metrics, top_n_overlap = overlap, matched_features = matched,
-       residuals = matched[, c("feature", "residual")], plot = p, exclusions = exclusions,
-       analysis_metadata = list(feature_scale = feature_scale, contrast = contrast, estimand_compatibility = "user_declared_same_design_units_and_weighting", tie_rule = "absolute_effect_then_feature_ID", zero_tolerance = zero_tolerance)), "validate_backprojection", match.call(), .resolved_parameters("validate_backprojection", environment()))
+  p <- if (plot) {
+    ggplot2::ggplot(matched, ggplot2::aes(x = .data$observed, y = .data$reconstructed)) +
+      ggplot2::geom_point() +
+      ggplot2::geom_abline(slope = 1, intercept = 0)
+  } else {
+    NULL
+  }
+  .attach_provenance(list(
+    metrics = metrics, top_n_overlap = overlap, matched_features = matched,
+    residuals = matched[, c("feature", "residual")], plot = p, exclusions = exclusions,
+    analysis_metadata = list(feature_scale = feature_scale, contrast = contrast, estimand_compatibility = "user_declared_same_design_units_and_weighting", tie_rule = "absolute_effect_then_feature_ID", zero_tolerance = zero_tolerance)
+  ), "validate_backprojection", match.call(), .resolved_parameters("validate_backprojection", environment()))
 }

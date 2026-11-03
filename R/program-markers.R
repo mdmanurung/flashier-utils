@@ -59,7 +59,7 @@ plot_factor_contrasts <- function(x, y, n_label = 15L) {
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$x, y = .data$y)) +
     ggplot2::geom_point() +
     ggplot2::geom_abline(slope = 1, intercept = 0) +
-    .program_labels() +
+    .label_layer() +
     ggplot2::labs(x = unique(a$contrast), y = unique(b$contrast))
   attr(p, "analysis_metadata") <- utils::modifyList(x$analysis_metadata, list(engine = "ggplot2", engine_version = as.character(utils::packageVersion("ggplot2"))))
   .attach_provenance(p, "plot_factor_contrasts", match.call(), list(n_label = n_label, contrasts = c(unique(a$contrast), unique(b$contrast))))

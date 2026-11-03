@@ -30,7 +30,8 @@ plot_factor_diagnostics(
 
 \item{seed}{Scoped rendering seed.}
 
-\item{...}{Arguments passed to factor_diagnostics.}
+\item{...}{\code{activity_threshold} and \code{feature_threshold} (both required) and other
+settings passed to \code{factor_diagnostics()}.}
 }
 \value{
 Named plots: prevalence, features, programs_per_cell, groups and marker.

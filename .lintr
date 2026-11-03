@@ -1,0 +1,5 @@
+linters: linters_with_defaults(
+    line_length_linter(120),
+    object_name_linter = NULL
+  )
+exclusions: list("tests/testthat/_snaps", "vignettes", "validation", "development", "benchmarks", "experiments", "flashbridge_plan", "flashier-gbcd", "flashier-starcat", "scripts")

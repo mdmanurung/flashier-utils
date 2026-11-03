@@ -42,14 +42,17 @@ A warning reports a pass limit that leaves memberships above max_val.
 This implements a declared selection rule, not a general cell-quality test.
 }
 \examples{
-L <- rbind(broad = c(10, 10, 0), next_cell = c(4, 4, .2),
-           a = c(5, 0, 0), b = c(0, 5, 0), c = c(0, 0, 1))
-F <- diag(3)
-dimnames(F) <- list(paste0("g", 1:3), paste0("F", 1:3))
-colnames(L) <- colnames(F)
+L <- rbind(
+  broad = c(10, 10, 0), next_cell = c(4, 4, .2),
+  a = c(5, 0, 0), b = c(0, 5, 0), c = c(0, 0, 1)
+)
+Fmat <- diag(3)
+dimnames(Fmat) <- list(paste0("g", 1:3), paste0("F", 1:3))
+colnames(L) <- colnames(Fmat)
 native <- flashier::flash_factors_init(
-  flashier::flash_init(tcrossprod(L, F)), list(L, F),
-  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal))
+  flashier::flash_init(tcrossprod(L, Fmat)), list(L, Fmat),
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal)
+)
 filtered <- filter_cells_by_total_membership(native, "rows", max_val = 1.5)
 filtered$kept_samples
 filtered$history

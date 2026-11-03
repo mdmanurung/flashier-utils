@@ -67,9 +67,11 @@ A different or unknown installed source pin is refused before fitting.
 }
 \examples{
 \dontrun{
-programs <- fit_gbcd_programs(X, "rows", kmax = 5,
+programs <- fit_gbcd_programs(X, "rows",
+  kmax = 5,
   feature_scale = "natural_log",
-  preprocessing = list(scope = "within_dataset", description = "log1p normalized counts", log_base = "e"))
+  preprocessing = list(scope = "within_dataset", description = "log1p normalized counts", log_base = "e")
+)
 factor_features(programs$representation, "GEP1")
 programs$signatures
 }

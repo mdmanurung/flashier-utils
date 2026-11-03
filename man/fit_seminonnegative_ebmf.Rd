@@ -46,8 +46,10 @@ A <- matrix(rexp(24), 12, 2)
 B <- matrix(rnorm(16), 8, 2)
 X <- tcrossprod(A, B) + matrix(rnorm(96, sd = .2), 12, 8)
 dimnames(X) <- list(paste0("s", 1:12), paste0("g", 1:8))
-fit <- fit_seminonnegative_ebmf(X, "rows", max_factors = 2,
-  backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity")
+fit <- fit_seminonnegative_ebmf(X, "rows",
+  max_factors = 2,
+  backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity"
+)
 factor_activity(fit)
 \dontshow{\}) # examplesIf}
 }

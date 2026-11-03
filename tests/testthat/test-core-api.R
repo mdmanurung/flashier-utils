@@ -16,8 +16,10 @@ test_that("the public API contains exactly the approved core", {
   expect_true(all(vapply(internal, function(name) {
     is.function(get(name, asNamespace("flashier.utils"), inherits = FALSE))
   }, logical(1))))
-  expect_error(getExportedValue("flashier.utils", "fit_multistart_ebmf"),
-    "not an exported object")
+  expect_error(
+    getExportedValue("flashier.utils", "fit_multistart_ebmf"),
+    "not an exported object"
+  )
 })
 
 test_that("approved positional calls bind their declared scientific arguments", {
@@ -33,8 +35,10 @@ test_that("approved positional calls bind their declared scientific arguments", 
     validate_backprojection = quote(validate_backprojection(reconstructed, observed, scale, contrast))
   )
   expected <- list(
-    factor_features = list(representation = quote(representation), compare_factors = quote(pool),
-      select = quote(selection), direction = quote(direction), n = quote(n)),
+    factor_features = list(
+      representation = quote(representation), compare_factors = quote(pool),
+      select = quote(selection), direction = quote(direction), n = quote(n)
+    ),
     factor_holdout = list(seed = quote(seed)),
     factor_intervals = list(sample_side = quote(orientation), representation = quote(representation)),
     factor_stability = list(seed = quote(seed)),
@@ -53,17 +57,21 @@ test_that("approved positional calls bind their declared scientific arguments", 
 test_that("feature selection uses the new positional order with unchanged values", {
   view <- fixture_view()
   positional <- factor_features(view, "F1", NULL, c("F1", "F2"), "largest", "absolute", 2L)
-  named <- factor_features(view, factor = "F1", representation = NULL,
-    compare_factors = c("F1", "F2"), select = "largest", direction = "absolute", n = 2L)
+  named <- factor_features(view,
+    factor = "F1", representation = NULL,
+    compare_factors = c("F1", "F2"), select = "largest", direction = "absolute", n = 2L
+  )
   expect_identical(lapply(positional, identity), lapply(named, identity))
   expect_identical(positional$feature, c("g1", "g2"))
 })
 
 test_that("single-value and reserved arguments stay removed", {
-  removed <- list(factor_replicability = c("alignment", "bootstrap", "refit_inputs", "control"),
+  removed <- list(
+    factor_replicability = c("alignment", "bootstrap", "refit_inputs", "control"),
     factor_stability = c("resample", "alignment"), factor_holdout = c("freeze_noise", "workers"),
     test_factors = "factor_uncertainty", backproject_contrast = "uncertainty",
-    plot_factor_activity = "engine", plot_factor_features = "engine")
+    plot_factor_activity = "engine", plot_factor_features = "engine"
+  )
   for (name in names(removed)) {
     expect_false(any(removed[[name]] %in% names(formals(getExportedValue("flashier.utils", name)))), info = name)
   }

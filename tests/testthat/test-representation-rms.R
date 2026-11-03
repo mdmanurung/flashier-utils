@@ -20,10 +20,13 @@ test_that("rms matches the cellprograms canonicalization convention", {
   fit <- fixture_fit()
   rms <- standardize_factors(fit, scaling = "rms", orientation = "anchor_feature")
   # reference: cellprograms canonicalize_programs() applied to the native fit
-  Z <- as.matrix(fit$L_pm); W <- as.matrix(fit$F_pm)
-  s_k <- sqrt(colMeans(Z^2)); s_k[s_k == 0] <- 1
+  Z <- as.matrix(fit$L_pm)
+  W <- as.matrix(fit$F_pm)
+  s_k <- sqrt(colMeans(Z^2))
+  s_k[s_k == 0] <- 1
   sign_k <- apply(W, 2, function(w) {
-    am <- which(abs(w) == max(abs(w))); am <- am[order(rownames(W)[am], w[am])]
+    am <- which(abs(w) == max(abs(w)))
+    am <- am[order(rownames(W)[am], w[am])]
     sign(w[am[1]])
   })
   sign_k[sign_k == 0] <- 1
@@ -44,7 +47,8 @@ test_that("rms records the per-factor scale in the manifest", {
 test_that("rms zero-activity column keeps scale 1 (degenerate guard)", {
   # build a representation with a zero-activity factor and standardize via rms
   v <- fixture_view_zero_activity()
-  s_k <- sqrt(colMeans(v$activity^2)); s_k[s_k == 0] <- 1
+  s_k <- sqrt(colMeans(v$activity^2))
+  s_k[s_k == 0] <- 1
   expect_equal(unname(s_k["F2"]), 1)
 })
 
@@ -66,7 +70,9 @@ test_that("raw and ldf scalings are unchanged by the rms addition", {
   expect_null(ldf$manifest$rms_scale)
   # raw and ldf reconstruct the same model
   expect_equal(tcrossprod(raw$activity, raw$effects),
-               tcrossprod(ldf$activity, ldf$effects), tolerance = 1e-8)
+    tcrossprod(ldf$activity, ldf$effects),
+    tolerance = 1e-8
+  )
 })
 
 test_that("rms works for sample_side = columns", {

@@ -18,8 +18,10 @@
 }
 
 .long_matrix <- function(mat, id_col, value_col = "estimate") {
-  out <- data.frame(id = rep(rownames(mat), times = ncol(mat)),
-                    factor = rep(if (ncol(mat)) colnames(mat) else character(), each = nrow(mat)), value = as.vector(mat))
+  out <- data.frame(
+    id = rep(rownames(mat), times = ncol(mat)),
+    factor = rep(if (ncol(mat)) colnames(mat) else character(), each = nrow(mat)), value = as.vector(mat)
+  )
   names(out) <- c(id_col, "factor", value_col)
   out
 }
@@ -51,14 +53,16 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' factor_activity(view,factors="F1",samples=c("s2","s1"))
+#' factor_activity(view, factors = "F1", samples = c("s2", "s1"))
 factor_activity <- function(fit, sample_side = NULL, representation = NULL,
                             factors = NULL, samples = NULL, format = "matrix") {
   .attach_provenance(.extract(fit, "activity", sample_side, representation, factors, samples, format), "factor_activity", match.call(), .resolved_parameters("factor_activity", environment()))
@@ -82,14 +86,16 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' factor_effects(view,factors="F1",features=c("g2","g1"))
+#' factor_effects(view, factors = "F1", features = c("g2", "g1"))
 factor_effects <- function(fit, sample_side = NULL, representation = NULL,
                            factors = NULL, features = NULL, format = "matrix") {
   .attach_provenance(.extract(fit, "effects", sample_side, representation, factors, features, format), "factor_effects", match.call(), .resolved_parameters("factor_effects", environment()))
@@ -125,17 +131,21 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' factor_uncertainty(fit, side = "activity",factors="F1",ids=c("s1","s2"))
-factor_uncertainty <- function(fit, side = c("activity", "effects"), sample_side = NULL,
-    representation = NULL, factors = NULL, ids = NULL, include_lfsr = TRUE,
-    require_uncertainty = FALSE) {
+#' factor_uncertainty(fit, side = "activity", factors = "F1", ids = c("s1", "s2"))
+factor_uncertainty <- function(
+  fit, side = c("activity", "effects"), sample_side = NULL,
+  representation = NULL, factors = NULL, ids = NULL, include_lfsr = TRUE,
+  require_uncertainty = FALSE
+) {
   side <- match.arg(side)
   if (!inherits(fit, "flash")) stop("Posterior uncertainty requires the native fit")
   view <- .resolve_view(fit, representation, sample_side)
@@ -148,7 +158,9 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), sample_side
   columns <- match(selected$factor, view$manifest$factor_ids)
   index <- cbind(match(selected[[id_col]], rownames(native)), view$manifest$native_indices[columns])
   lookup <- function(mat, transform = FALSE) {
-    if (is.null(mat)) return(rep(NA_real_, nrow(selected)))
+    if (is.null(mat)) {
+      return(rep(NA_real_, nrow(selected)))
+    }
     if (!identical(dim(mat), dim(native))) stop("Native uncertainty dimensions do not match native means")
     values <- mat[index]
     if (transform) values <- values * abs(multiplier[columns])
@@ -183,12 +195,14 @@ factor_uncertainty <- function(fit, side = c("activity", "effects"), sample_side
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
 #' factor_pve(fit)
 factor_pve <- function(fit, factors = NULL) {

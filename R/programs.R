@@ -20,13 +20,6 @@
   if (!all(factors %in% names(annotation)) || anyNA(annotation)) stop("Missing factor annotations")
   unname(annotation[factors])
 }
-.program_labels <- function() {
-  if (requireNamespace("ggrepel", quietly = TRUE)) {
-    ggrepel::geom_text_repel(ggplot2::aes(label = .data$label), seed = 42, max.overlaps = Inf)
-  } else {
-    ggplot2::geom_text(ggplot2::aes(label = .data$label))
-  }
-}
 
 #' Build a signed bipartite program network
 #' @param fit Native fit or representation.
@@ -137,7 +130,7 @@ plot_feature_rankings <- function(fit, factor, n = 15L, direction = "positive", 
   table$label <- ifelse(table$feature %in% labels, table$feature, "")
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$effect_score, y = .data$difference_score)) +
     ggplot2::geom_point() +
-    .program_labels() +
+    .label_layer() +
     ggplot2::labs(x = paste(direction, "feature effect"), y = paste(direction, "raw competitor difference"))
   .program_result(p, view, "plot_feature_rankings", match.call(), list(competition_factors = pool, direction = direction, n = n, difference_definition = "untruncated_directional_extreme"))
 }

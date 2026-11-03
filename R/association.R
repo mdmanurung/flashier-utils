@@ -26,7 +26,9 @@
     bars <- reformulas::findbars(formula)
     if (!any(vapply(bars, function(bar) unit_col %in% all.vars(bar[[3]]), logical(1)))) stop("dream random effects must include the declared biological unit")
     fixed <- reformulas::nobars(formula)
-  } else fixed <- formula
+  } else {
+    fixed <- formula
+  }
   if (engine != "lm" && length(attr(stats::terms(fixed), "offset"))) {
     stop("Formula offsets are supported only by engine = 'lm'")
   }
@@ -34,8 +36,12 @@
   if (qr(X)$rank != ncol(X)) stop("Design is rank deficient; requested effects are not estimable")
   if (nrow(X) <= ncol(X)) stop("No residual degrees of freedom")
   rownames(data$metadata) <- rownames(data$A)
-  data$design <- X; data$formula <- formula; data$fixed_formula <- fixed
-  data$n_units <- length(unique(units)); data$independence <- independence; data$unit_col <- unit_col
+  data$design <- X
+  data$formula <- formula
+  data$fixed_formula <- fixed
+  data$n_units <- length(unique(units))
+  data$independence <- independence
+  data$unit_col <- unit_col
   data
 }
 
@@ -102,59 +108,77 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' test_factors(view, metadata = metadata, formula = ~group, engine = "lm",unit_col="donor",independence="independent")$table
-test_factors <- function(fit, metadata, formula, engine, unit_col, independence, id_col = "sample",
-    factors = NULL, contrasts = NULL, include_intercept = FALSE, na_action = "fail", adjust = "BH",
-    adjust_scope = "all_tests", control = list(),
-    keep_models = TRUE) {
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' test_factors(view, metadata = metadata, formula = ~group, engine = "lm", unit_col = "donor", independence = "independent")$table
+test_factors <- function(
+  fit, metadata, formula, engine, unit_col, independence, id_col = "sample",
+  factors = NULL, contrasts = NULL, include_intercept = FALSE, na_action = "fail", adjust = "BH",
+  adjust_scope = "all_tests", control = list(),
+  keep_models = TRUE
+) {
   if (missing(engine) || missing(unit_col) || missing(independence)) stop("Choose engine, unit_col and independence explicitly")
   engine <- match.arg(engine, c("lm", "limma", "dream"))
   adjust_scope <- match.arg(adjust_scope, c("all_tests", "by_term"))
   adjust <- match.arg(adjust, stats::p.adjust.methods)
-  if (!is.list(control) || (length(control) && (is.null(names(control)) || anyDuplicated(names(control))))) stop("control must be a uniquely named list")
+  if (!.is_named_list(control)) stop("control must be a uniquely named list")
   data <- .association_design(fit, metadata, formula, engine, id_col, unit_col, independence, factors, na_action)
   C <- .contrast_matrix(contrasts, data$design, include_intercept)
   if (!ncol(C)) stop("No non-intercept terms to test")
   ids <- colnames(data$A)
-  warnings <- character(); errors <- list(); covariance <- list()
+  warnings <- character()
+  errors <- list()
+  covariance <- list()
   capture <- function(code) withCallingHandlers(force(code), warning = function(w) warnings <<- c(warnings, conditionMessage(w)))
   table <- expand.grid(factor = ids, contrast = colnames(C), stringsAsFactors = FALSE)
   table$term <- table$contrast
   for (name in c("estimate", "std.error", "statistic", "df", "p.value")) table[[name]] <- NA_real_
-  table$status <- "failed"; table$reason <- NA_character_
+  table$status <- "failed"
+  table$reason <- NA_character_
   models <- NULL
   if (engine == "lm") {
     if (any(!names(control) %in% "joint_coefficient_covariance")) stop("Unsupported lm control")
-    models <- vector("list", length(ids)); names(models) <- ids
+    models <- vector("list", length(ids))
+    names(models) <- ids
     response_name <- ".flashbridge_response"
     while (response_name %in% names(data$metadata)) response_name <- paste0(response_name, "_")
     model_formula <- stats::as.formula(call("~", as.name(response_name), formula[[2L]]), env = environment(formula))
     for (k in seq_along(ids)) {
-      md <- data$metadata; md[[response_name]] <- data$A[, k]
+      md <- data$metadata
+      md[[response_name]] <- data$A[, k]
       model <- tryCatch(capture(stats::lm(model_formula, data = md)), error = function(e) e)
       rows <- which(table$factor == ids[k])
-      if (inherits(model, "error")) { table$reason[rows] <- conditionMessage(model); errors[[ids[k]]] <- conditionMessage(model); next }
+      if (inherits(model, "error")) {
+        table$reason[rows] <- conditionMessage(model)
+        errors[[ids[k]]] <- conditionMessage(model)
+        next
+      }
       models[[k]] <- model
-      beta <- stats::coef(model); V <- stats::vcov(model)
+      beta <- stats::coef(model)
+      V <- stats::vcov(model)
       estimates <- drop(crossprod(C, beta))
       variances <- colSums(C * (V %*% C))
-      se <- sqrt(pmax(variances, 0)); df <- stats::df.residual(model)
+      se <- sqrt(pmax(variances, 0))
+      df <- stats::df.residual(model)
       statistic <- estimates / se
       table[rows, c("estimate", "std.error", "statistic", "df", "p.value")] <- list(estimates, se, statistic, rep(df, length(rows)), 2 * stats::pt(-abs(statistic), df))
       table$status[rows] <- ifelse(is.finite(statistic), "supported", "non_estimable")
       table$reason[rows] <- ifelse(is.finite(statistic), NA_character_, "zero residual variation")
     }
     if (isTRUE(control$joint_coefficient_covariance)) {
-      md <- data$metadata; md[[response_name]] <- I(data$A)
+      md <- data$metadata
+      md[[response_name]] <- I(data$A)
       joint <- capture(stats::lm(model_formula, data = md))
       V <- stats::vcov(joint)
       expected <- unlist(lapply(ids, function(id) paste(id, rownames(C), sep = ":")), use.names = FALSE)
@@ -190,14 +214,20 @@ test_factors <- function(fit, metadata, formula, engine, unit_col, independence,
       if (all(trivial)) {
         native_contrast_names <- rownames(C)[apply(C, 2L, which.max)]
         native_L <- list()
-      } else native_L <- list(L = native_C)
+      } else {
+        native_L <- list(L = native_C)
+      }
       model <- capture(do.call(variancePartition::dream, c(list(exprObj = t(data$A), formula = formula, data = data$metadata), native_L, settings)))
       errors <- attr(model, "errors")
       model <- capture(do.call(variancePartition::eBayes, c(list(fit = model), ebayes)))
     }
     for (i in seq_len(nrow(table))) {
-      k <- match(table$factor[i], rownames(model$coefficients)); j <- match(native_contrast_names[match(table$contrast[i], colnames(C))], colnames(model$coefficients))
-      if (is.na(k) || is.na(j)) { table$reason[i] <- "native fit omitted failed factor/contrast"; next }
+      k <- match(table$factor[i], rownames(model$coefficients))
+      j <- match(native_contrast_names[match(table$contrast[i], colnames(C))], colnames(model$coefficients))
+      if (is.na(k) || is.na(j)) {
+        table$reason[i] <- "native fit omitted failed factor/contrast"
+        next
+      }
       se <- model$stdev.unscaled[k, j] * sqrt(model$s2.post[k])
       df <- if (is.matrix(model$df.total)) model$df.total[k, j] else model$df.total[k]
       table[i, c("estimate", "std.error", "statistic", "df", "p.value")] <- list(model$coefficients[k, j], se, model$t[k, j], df, model$p.value[k, j])
@@ -206,13 +236,20 @@ test_factors <- function(fit, metadata, formula, engine, unit_col, independence,
     models <- model
   }
   table$adj.p.value <- if (adjust_scope == "all_tests") stats::p.adjust(table$p.value, method = adjust) else stats::ave(table$p.value, table$term, FUN = function(p) stats::p.adjust(p, method = adjust))
-  table$engine <- engine; table$n_samples <- nrow(data$A); table$n_units <- data$n_units
-  table$basis_id <- data$view$manifest$basis_id; table$inference <- "conditional_on_factor_fit"
-  metadata <- c(data$view$manifest, list(engine = engine, engine_version = if (engine == "lm") as.character(getRversion()) else as.character(utils::packageVersion(if (engine == "dream") "variancePartition" else "limma")),
+  table$engine <- engine
+  table$n_samples <- nrow(data$A)
+  table$n_units <- data$n_units
+  table$basis_id <- data$view$manifest$basis_id
+  table$inference <- "conditional_on_factor_fit"
+  metadata <- c(data$view$manifest, list(
+    engine = engine, engine_version = if (engine == "lm") as.character(getRversion()) else as.character(utils::packageVersion(if (engine == "dream") "variancePartition" else "limma")),
     formula = formula, unit_col = unit_col, independence = independence, matching = data$matching, exclusions = data$exclusions,
     adjustment = adjust, adjust_scope = adjust_scope, tested_family = table[, c("factor", "contrast")],
-    moderation = control$ebayes, small_factor_moderation_caveat = engine != "lm", inference = "conditional_on_factor_fit"))
+    moderation = control$ebayes, small_factor_moderation_caveat = engine != "lm", inference = "conditional_on_factor_fit"
+  ))
   attr(table, "analysis_metadata") <- data$view$manifest
-  .attach_provenance(list(table = table, models = if (keep_models) models else NULL, design = data$design, contrasts = C,
-       coefficient_covariance = covariance, diagnostics = list(warnings = warnings, errors = errors, native_attributes = if (engine == "dream") attributes(models) else NULL), analysis_metadata = metadata), "test_factors", match.call(), .resolved_parameters("test_factors", environment()))
+  .attach_provenance(list(
+    table = table, models = if (keep_models) models else NULL, design = data$design, contrasts = C,
+    coefficient_covariance = covariance, diagnostics = list(warnings = warnings, errors = errors, native_attributes = if (engine == "dream") attributes(models) else NULL), analysis_metadata = metadata
+  ), "test_factors", match.call(), .resolved_parameters("test_factors", environment()))
 }

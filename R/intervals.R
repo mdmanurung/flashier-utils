@@ -2,9 +2,11 @@
 .draw_summary <- function(values, level) {
   alpha <- (1 - level) / 2
   intervals <- t(apply(values, 2L, stats::quantile, probs = c(alpha, 1 - alpha), names = FALSE))
-  data.frame(mean = colMeans(values), posterior.sd = apply(values, 2L, stats::sd),
-             lower = intervals[, 1L], upper = intervals[, 2L],
-             prob_positive = colMeans(values > 0), prob_zero = colMeans(values == 0))
+  data.frame(
+    mean = colMeans(values), posterior.sd = apply(values, 2L, stats::sd),
+    lower = intervals[, 1L], upper = intervals[, 2L],
+    prob_positive = colMeans(values > 0), prob_zero = colMeans(values == 0)
+  )
 }
 
 #' Conditional equal-tail intervals from the native sampler
@@ -34,16 +36,20 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' factor_intervals(fit, side = "activity",factors="F1",ids=c("s1","s2"),nsamp=20,seed=9)
-factor_intervals <- function(fit, side = c("activity", "effects"), sample_side = NULL, representation = NULL, factors = NULL,
-    ids = NULL, level = 0.95, nsamp = 2000L, seed = NULL) {
+#' factor_intervals(fit, side = "activity", factors = "F1", ids = c("s1", "s2"), nsamp = 20, seed = 9)
+factor_intervals <- function(
+  fit, side = c("activity", "effects"), sample_side = NULL, representation = NULL, factors = NULL,
+  ids = NULL, level = 0.95, nsamp = 2000L, seed = NULL
+) {
   if (!inherits(fit, "flash")) stop("Native sampler requires a native fit")
   if (!is.function(fit$sampler) && is.null(attr(fit, "flashbridge_metadata")$factor_ids)) stop("Native sampler is unavailable for this fit/prior")
   side <- match.arg(side, c("activity", "effects"))
@@ -58,7 +64,7 @@ factor_intervals <- function(fit, side = c("activity", "effects"), sample_side =
     return(.attach_provenance(out, "factor_intervals", match.call(), .resolved_parameters("factor_intervals", environment())))
   }
   if (!is.function(fit$sampler)) stop("Native sampler is unavailable for this fit/prior")
-  # ponytail: 256 MiB exact-quantile storage plus one transient 64-draw sampler batch
+  # 256 MiB exact-quantile storage plus one transient 64-draw sampler batch
   # of full L and F; select fewer entries or add a file backend.
   batch_bytes <- 8 * min(nsamp, 64L) * (nrow(fit$L_pm) + nrow(fit$F_pm)) * ncol(fit$L_pm)
   if (8 * nsamp * nrow(out) + batch_bytes > 256 * 1024^2) stop("Retained interval draws plus one native sampler batch exceed 256 MiB; reduce nsamp or select fewer factors/IDs")

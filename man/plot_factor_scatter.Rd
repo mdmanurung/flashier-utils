@@ -12,7 +12,7 @@ plot_factor_scatter(
   shape = NULL,
   representation = NULL,
   max_samples = 2000L,
-  seed = NULL
+  seed = 1L
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ point shape. Shape needs a discrete column.}
 
 \item{max_samples}{Maximum samples drawn for display (default 2000).}
 
-\item{seed}{Optional integer for the sample draw.}
+\item{seed}{Integer seed for the sample draw (default 1), recorded in the metadata.}
 }
 \value{
 A ggplot object; \verb{$data} has one row per displayed sample with
@@ -48,14 +48,16 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-metadata <- data.frame(sample=rownames(X),group=rep(c("A","B"),each=12))
+metadata <- data.frame(sample = rownames(X), group = rep(c("A", "B"), each = 12))
 plot_factor_scatter(view, c("F1", "F2"), metadata = metadata, color = "group")
 }
 \seealso{

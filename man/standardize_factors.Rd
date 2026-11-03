@@ -80,15 +80,17 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
-raw <- standardize_factors(fit,scaling="raw")
-max(abs(tcrossprod(raw$activity,raw$effects)-tcrossprod(view$activity,view$effects)))
+raw <- standardize_factors(fit, scaling = "raw")
+max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(view$activity, view$effects)))
 }
 \seealso{
 \code{\link[=factor_activity]{factor_activity()}}, \code{\link[=factor_effects]{factor_effects()}}, \code{\link[=factor_features]{factor_features()}}

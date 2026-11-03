@@ -17,7 +17,7 @@ plot_factor_data(
   direction = "absolute",
   scale = "feature_z",
   max_samples = 2000L,
-  seed = NULL
+  seed = 1L
 )
 }
 \arguments{
@@ -51,7 +51,7 @@ heatmap, display only) or \code{"none"} (supplied units). Ignored for scatter.}
 
 \item{max_samples}{Maximum samples drawn for display (default 2000).}
 
-\item{seed}{Optional integer for the sample draw.}
+\item{seed}{Integer seed for the sample draw (default 1), recorded in the metadata.}
 }
 \value{
 A ggplot object; \verb{$data} has \code{sample}, \code{feature}, \code{value} (and
@@ -72,12 +72,14 @@ display/conditional results do not establish biological replication.
 }
 \examples{
 set.seed(3)
-X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-  matrix(rnorm(384,sd=0.2),24,16)
-dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-  ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-  nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+  matrix(rnorm(384, sd = 0.2), 24, 16)
+dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+fit <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+  nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+)
 view <- standardize_factors(fit)
 plot_factor_data(view, X, factor = "F1", n = 6)
 plot_factor_data(view, X, factor = "F1", n = 4, style = "scatter")

@@ -1,13 +1,17 @@
 # Independent descriptive summaries; ImmGenT and jamboree group-ranking workflow credit.
 .metadata_activity <- function(fit, metadata, required, id_col, na_action) {
   view <- .resolve_view(fit)
-  match <- .match_ids(rownames(view$activity), metadata, id_col, extra = "drop", na_action = na_action,
-                      required_columns = unique(c(id_col, required)))
+  match <- .match_ids(rownames(view$activity), metadata, id_col,
+    extra = "drop", na_action = na_action,
+    required_columns = unique(c(id_col, required))
+  )
   list(view = view, metadata = match$metadata, A = view$activity[match$matching$matrix_row, , drop = FALSE], matching = match$matching, exclusions = match$exclusions)
 }
 
 .weights <- function(weights, ids) {
-  if (is.null(weights)) return(rep(1, length(ids)))
+  if (is.null(weights)) {
+    return(rep(1, length(ids)))
+  }
   if (!is.numeric(weights)) stop("weights must be numeric and named by sample")
   .validate_ids(names(weights), "Weight sample")
   if (any(!is.finite(weights)) || any(weights < 0)) stop("weights must be finite and nonnegative")
@@ -57,27 +61,37 @@
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' summarize_factor_activity(view,metadata,"group",unit_col="donor")
-#' summarize_factor_activity(view,metadata,"group",activity_threshold=0.5)
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' summarize_factor_activity(view, metadata, "group", unit_col = "donor")
+#' summarize_factor_activity(view, metadata, "group", activity_threshold = 0.5)
 summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail", activity_threshold = NULL, activity_direction = c("positive", "negative", "absolute")) {
   .validate_ids(by, "Grouping column")
-  reserved <- c("factor", "n", "n_units", "mean", "sd", "median", "q25", "q75",
-    "basis_id", "active_n", "active_proportion", "active_weighted_proportion", "baseline", "centered")
-  if (any(by %in% reserved)) stop("Grouping columns conflict with reserved output names; rename: ",
-    paste(intersect(by, reserved), collapse = ", "))
+  reserved <- c(
+    "factor", "n", "n_units", "mean", "sd", "median", "q25", "q75",
+    "basis_id", "active_n", "active_proportion", "active_weighted_proportion", "baseline", "centered"
+  )
+  if (any(by %in% reserved)) {
+    stop(
+      "Grouping columns conflict with reserved output names; rename: ",
+      paste(intersect(by, reserved), collapse = ", ")
+    )
+  }
   activity_direction <- match.arg(activity_direction)
   prevalence <- !is.null(activity_threshold)
   if (prevalence && (!is.numeric(activity_threshold) || length(activity_threshold) != 1L ||
-      !is.finite(activity_threshold) || activity_threshold < 0)) {
+    !is.finite(activity_threshold) || activity_threshold < 0)) {
     stop("activity_threshold must be a single nonnegative finite number")
   }
   data <- .metadata_activity(fit, metadata, c(by, unit_col), id_col, na_action)
@@ -90,22 +104,31 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
     stats <- lapply(seq_len(ncol(data$A)), function(k) {
       values <- data$A[rows, k]
       quantiles <- if (is.null(weights)) stats::quantile(values, c(0.25, 0.5, 0.75), names = FALSE) else rep(NA_real_, 3)
-      row <- data.frame(factor = colnames(data$A)[k], n = length(rows),
+      row <- data.frame(
+        factor = colnames(data$A)[k], n = length(rows),
         n_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][rows])),
         mean = stats::weighted.mean(values, w[rows]), sd = if (is.null(weights)) stats::sd(values) else NA_real_,
-        median = quantiles[2], q25 = quantiles[1], q75 = quantiles[3])
+        median = quantiles[2], q25 = quantiles[1], q75 = quantiles[3]
+      )
       if (prevalence) {
-        active <- switch(activity_direction, positive = values, negative = -values,
-          absolute = abs(values)) > activity_threshold
+        active <- switch(activity_direction,
+          positive = values,
+          negative = -values,
+          absolute = abs(values)
+        ) > activity_threshold
         row$active_n <- sum(active)
         row$active_proportion <- mean(active)
         if (!is.null(weights)) row$active_weighted_proportion <- sum(w[rows] * active) / sum(w[rows])
       }
       row
     })
-    table <- if (length(stats)) do.call(rbind, stats) else {
-      empty <- data.frame(factor = character(), n = integer(), n_units = integer(), mean = numeric(),
-        sd = numeric(), median = numeric(), q25 = numeric(), q75 = numeric())
+    table <- if (length(stats)) {
+      do.call(rbind, stats)
+    } else {
+      empty <- data.frame(
+        factor = character(), n = integer(), n_units = integer(), mean = numeric(),
+        sd = numeric(), median = numeric(), q25 = numeric(), q75 = numeric()
+      )
       if (prevalence) {
         empty$active_n <- integer()
         empty$active_proportion <- numeric()
@@ -150,8 +173,10 @@ summarize_factor_activity <- function(fit, metadata, by, id_col = "sample", unit
 center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group", "observation_weighted"),
                                    id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
   baseline <- match.arg(baseline)
-  tab <- summarize_factor_activity(fit, metadata, by, id_col = id_col, unit_col = unit_col,
-                                   weights = weights, na_action = na_action)
+  tab <- summarize_factor_activity(fit, metadata, by,
+    id_col = id_col, unit_col = unit_col,
+    weights = weights, na_action = na_action
+  )
   if (nrow(tab)) {
     spl <- split(seq_len(nrow(tab)), tab$factor)
     base <- vapply(spl, function(idx) {
@@ -164,9 +189,11 @@ center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group"
     tab$centered <- numeric(0)
   }
   md <- attr(tab, "analysis_metadata")
-  md$centering <- list(baseline = baseline, definition = "centered = mean - baseline[factor]",
-                       baseline_weighting = if (baseline == "observation_weighted") "group size n" else "none (each group once)",
-                       inferential = FALSE)
+  md$centering <- list(
+    baseline = baseline, definition = "centered = mean - baseline[factor]",
+    baseline_weighting = if (baseline == "observation_weighted") "group size n" else "none (each group once)",
+    inferential = FALSE
+  )
   attr(tab, "analysis_metadata") <- md
   .attach_provenance(tab, "center_factor_activity", match.call(), .resolved_parameters("center_factor_activity", environment()))
 }
@@ -193,16 +220,20 @@ center_factor_activity <- function(fit, metadata, by, baseline = c("equal_group"
 #'   display/conditional results do not establish biological replication.
 #' @examplesIf FALSE
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' rank_factors_by_metadata(view,metadata,"group")
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' rank_factors_by_metadata(view, metadata, "group")
 rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", adjust = NULL, id_col = "sample", na_action = "fail") {
   if (statistic != "r2" || length(variable) != 1L) stop("One variable and descriptive r2 are supported")
   data <- .metadata_activity(fit, metadata, c(variable, adjust), id_col, na_action)
@@ -213,14 +244,22 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
   if (qr(X)$rank != ncol(X)) stop("Descriptive design is rank deficient")
   out <- lapply(seq_len(ncol(data$A)), function(k) {
     y <- data$A[, k]
-    value <- if (sum((y - mean(y))^2) == 0) NA_real_ else {
+    value <- if (sum((y - mean(y))^2) == 0) {
+      NA_real_
+    } else {
       model <- stats::lm(y ~ X - 1)
       1 - sum(stats::residuals(model)^2) / sum((y - mean(y))^2)
     }
     data.frame(factor = colnames(data$A)[k], statistic = "r2", value = value, n_samples = length(y), basis_id = data$view$manifest$basis_id)
   })
-  out <- if (length(out)) do.call(rbind, out) else data.frame(factor = character(),
-    statistic = character(), value = numeric(), n_samples = integer(), basis_id = character())
+  out <- if (length(out)) {
+    do.call(rbind, out)
+  } else {
+    data.frame(
+      factor = character(),
+      statistic = character(), value = numeric(), n_samples = integer(), basis_id = character()
+    )
+  }
   out$rank <- rank(-out$value, ties.method = "average", na.last = "keep")
   attr(out, "analysis_metadata") <- c(data$view$manifest, list(formula = formula, matching = data$matching, exclusions = data$exclusions, inference = "descriptive_in_sample"))
   .attach_provenance(out, "rank_factors_by_metadata", match.call(), .resolved_parameters("rank_factors_by_metadata", environment()))
@@ -252,16 +291,20 @@ rank_factors_by_metadata <- function(fit, metadata, variable, statistic = "r2", 
 #'   display/conditional results do not establish biological replication.
 #' @examples
 #' set.seed(3)
-#' X <- tcrossprod(matrix(rnorm(48),24,2), matrix(rnorm(32),16,2)) +
-#'   matrix(rnorm(384,sd=0.2),24,16)
-#' dimnames(X) <- list(paste0("s",1:24),paste0("g",1:16))
-#' fit <- fit_ebmf(X,"rows",max_factors=2,seed=4,verbose=0,
-#'   ebnm_fn=list(ebnm::ebnm_normal,ebnm::ebnm_point_laplace),
-#'   nullcheck=FALSE,backfit=TRUE,feature_scale="simulated_centered_intensity")
+#' X <- tcrossprod(matrix(rnorm(48), 24, 2), matrix(rnorm(32), 16, 2)) +
+#'   matrix(rnorm(384, sd = 0.2), 24, 16)
+#' dimnames(X) <- list(paste0("s", 1:24), paste0("g", 1:16))
+#' fit <- fit_ebmf(X, "rows",
+#'   max_factors = 2, seed = 4, verbose = 0,
+#'   ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+#'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
+#' )
 #' view <- standardize_factors(fit)
-#' metadata <- data.frame(sample=rownames(X),donor=rownames(X),
-#'   group=rep(c("A","B"),each=12))
-#' compare_factor_groups(view,metadata,"group",c("B","A"),unit_col="donor")$factor_contrast
+#' metadata <- data.frame(
+#'   sample = rownames(X), donor = rownames(X),
+#'   group = rep(c("A", "B"), each = 12)
+#' )
+#' compare_factor_groups(view, metadata, "group", c("B", "A"), unit_col = "donor")$factor_contrast
 compare_factor_groups <- function(fit, metadata, group, contrast, id_col = "sample", unit_col = NULL, weights = NULL, na_action = "fail") {
   .validate_ids(contrast, "Contrast group")
   if (length(contrast) != 2L) stop("contrast requires exactly two different groups: first minus second")
@@ -283,6 +326,8 @@ compare_factor_groups <- function(fit, metadata, group, contrast, id_col = "samp
     rows <- which(as.character(md[[group]]) == label)
     data.frame(group = label, n_samples = length(rows), n_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][rows])), total_weight = sum(w[rows]))
   }))
-  .attach_provenance(list(factor_contrast = factor_table, feature_contrast = projected$effects, counts = counts,
-    analysis_metadata = c(data$view$manifest, list(contrast_direction = label, weighting = if (is.null(weights)) "per_observation" else "named_weights", matching = data$matching, exclusions = data$exclusions, unit_col = unit_col, inference = "descriptive"))), "compare_factor_groups", match.call(), .resolved_parameters("compare_factor_groups", environment()))
+  .attach_provenance(list(
+    factor_contrast = factor_table, feature_contrast = projected$effects, counts = counts,
+    analysis_metadata = c(data$view$manifest, list(contrast_direction = label, weighting = if (is.null(weights)) "per_observation" else "named_weights", matching = data$matching, exclusions = data$exclusions, unit_col = unit_col, inference = "descriptive"))
+  ), "compare_factor_groups", match.call(), .resolved_parameters("compare_factor_groups", environment()))
 }
