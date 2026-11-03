@@ -36,6 +36,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-11-03 docs push: lucid-writer review fixes in ebmf-cnmf-comparison (inline CSV numbers, conditional congruence, split counts, cNMF cap, held-out replicate count) and robustness-checks; vignette code checks. All 7 vignettes render locally. Autotest aborts inside autotest on ggplot2 S7 objects (`cannot coerce type 'object'`): next step is excluding plot_* and reporting upstream.
 - 2026-11-03 renames: factor_provenance(), test_factor_association(); old names exported as .Deprecated() aliases in R/deprecated.R (CRAN clashes: provenance x4, test_factors x1).
 - 2026-11-03 P4: README.Rmd + badges, CODE_OF_CONDUCT.md, inst/CITATION, test-coverage workflow, roxygen-drift CI job; credits review reports/credits-review-20261103/ (scales, irlba, softImpute credited; CorShrink pin named; patchwork dropped).
 - 2026-11-03 P6 + GBCD: test-shrinkage.R, test-backprojection-guards.R, 11 tracker tests, allow_maxiter(), preflight mock; fixes: MDS float-noise ties, holdout fold seeds keyed by label + n_units_<metric>, one prior-identifier registry.
