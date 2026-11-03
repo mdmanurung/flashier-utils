@@ -1,9 +1,10 @@
 # autotest pass, 2026-11-03
 
 autotest 0.2.0.3 cannot complete on this package as shipped, for reasons inside
-autotest. With the seven `plot_*` exports excluded it completes. Every error it
-then reports traces to autotest's own call reconstruction, not to package code,
-and it found one real input-validation defect, now fixed.
+autotest. With the seven `plot_*` exports excluded it completes. The errors it then
+reports are autotest call-reconstruction artefacts for three functions and not
+root-caused for `fit_ebmf`, where every replayed call succeeds. The pass found one
+real input-validation defect, now fixed.
 
 Run: R 4.5.1, autotest 0.2.0.3, ggplot2 4.0.3, flashier 1.0.60. Source copied
 from the working tree into a private library first on the path (the stale-library
@@ -32,7 +33,7 @@ Run on dfd2190 (before the example additions): 42 diagnostics, 69 warnings,
 
 | Function | Errors | Cause | Evidence |
 |---|---|---|---|
-| `fit_ebmf` | 5, "Invalid var.type." | autotest state from another example | `autotest_package(functions = "fit_ebmf")` alone reports 0 errors; a trace on flashier's validator saw only `0L` and `2L`. The errors return only when `validate_backprojection` is in the same run. |
+| `fit_ebmf` | 5, "Invalid var.type." | not root-caused; depends on which other functions share the run | `autotest_package(functions = "fit_ebmf")` alone reports 0 errors; a trace on flashier's validator saw only `0L` and `2L`. The errors return only when `validate_backprojection` is in the same run. |
 | `validate_backprojection` | 1, "top_n must contain positive integers" | autotest passes a quoted call as an argument | the error content shows `quote(structure(list(...`; the example runs cleanly in R CMD check. |
 | `rank_features` | 2, "could not find function" | internal page whose example is wrapped in `if (FALSE)` | autotest runs the guarded example without the package namespace. |
 

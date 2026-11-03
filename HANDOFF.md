@@ -32,6 +32,8 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
   gives 219 blocks, 0 failures, 0 skips, 0 warnings (allow_maxiter() muffles only the
   iteration-cap warning), ~5 min. Line coverage 90.7% (backprojection 91.9, shrinkage 100).
+  Under R CMD check the no-`:::` test skips (R/ is absent in pkg.Rcheck): full-engines
+  reports SKIP 1; hard-dependency jobs also skip 5-26 optional-engine tests.
 - Last green CI: 22c8877 (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
 - Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; 8.1.1 regenerates identical man/ (checked 2026-11-03).
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
