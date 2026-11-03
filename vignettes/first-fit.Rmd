@@ -12,6 +12,11 @@ tutorial fits three factors to a bundled dataset, turns the fit into a view,
 ranks the features behind one factor and plots activity across samples. Start
 with a model fitted directly by flashier; no special fitting wrapper is required.
 
+Terms used across the tutorials: a *factor* is one fitted column of the model;
+its *activity* is its value in each sample and its *effects* are its values in
+each feature. A *program* is a planted or biological gene set that a factor may
+or may not recover. GBCD output calls its factors *GEPs*.
+
 ## Fit and extract
 
 GTEx association z-scores are bundled with flashier. Rows are SNP–gene pairs;

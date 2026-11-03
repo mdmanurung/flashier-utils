@@ -45,7 +45,7 @@ activity_long <- rbind(cbind(scaling = "raw", as.data.frame(as.table(raw$activit
                        cbind(scaling = "rms", as.data.frame(as.table(view$activity))))
 names(activity_long)[2:4] <- c("sample", "factor", "activity")
 ggplot(activity_long, aes(factor, activity)) + geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.15, height = 0, size = 1, alpha = 0.6) +
+  geom_point(position = position_jitter(width = 0.15, height = 0, seed = 1), size = 1, alpha = 0.6) +
   facet_wrap(~scaling) + theme_minimal()
 ```
 

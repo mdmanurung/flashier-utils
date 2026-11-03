@@ -58,6 +58,7 @@ coordinate scaling. Biological labels need evidence beyond a ranking.
 
 ```{r group-activity, fig.width=7, fig.height=5}
 metadata <- cache$metadata[match(rownames(view$activity), cache$metadata$id), ]
+stopifnot("metadata rows match activity rows" = identical(as.character(metadata$id), rownames(view$activity)))
 metadata$sample <- as.character(metadata$id)
 head(summarize_factor_activity(view, metadata, by = "celltype"))
 plot_factor_activity(view, metadata = metadata, group = "celltype")
@@ -82,6 +83,8 @@ stopifnot(identical(projected$representation$effects, view$effects))
 ```{r transfer-figure, fig.width=7, fig.height=5, fig.alt="Heatmap of projected program activity in query cells grouped by published cell type.", fig.cap="Projected activity of the fixed programs in the Smart-seq2 query cells, grouped by cell type."}
 query_metadata <- cache$metadata[match(rownames(projected$representation$activity),
                                        cache$metadata$id), ]
+stopifnot("metadata rows match query rows" =
+  identical(as.character(query_metadata$id), rownames(projected$representation$activity)))
 query_metadata$sample <- as.character(query_metadata$id)
 plot_factor_activity(projected$representation, metadata = query_metadata,
                      group = "celltype")

@@ -22,7 +22,7 @@ versions produced each result.
 ## Overlap with other software
 
 - **flashier** fits the factorization. flashier.utils calls only flashier's
-  exported functions (a test enforces no `:::` in `R/`) and adds named,
+  exported functions (a development test checks `R/` for `:::`) and adds named,
   orientation-aware views, basis checks and provenance on top of the native
   object. It does not reimplement or change the fit.
 - **MOFA2** (Bioconductor) fits a different multi-view factor model. The display

@@ -183,15 +183,20 @@ projector_distance <- function(left, right) {
   U <- span(left); V <- span(right)
   sqrt(sum((tcrossprod(U) - tcrossprod(V))^2))
 }
+# subspace distance of each prior's effects from the true effects
 c(normal_vs_truth = projector_distance(views$normal$effects, B),
   sparse_vs_truth = projector_distance(views$sparse$effects, B))
+# a 45-degree rotation of the true factors
 theta <- pi / 4
 R <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), 2)
 rotated_A <- A %*% R
 rotated_B <- B %*% t(solve(R))
+# the rotated pair reconstructs the same signal
 stopifnot(max(abs(tcrossprod(rotated_A, rotated_B) - signal)) < 1e-10)
+# reconstruction difference and subspace distance after rotation, both near zero
 c(reconstruction_difference = max(abs(tcrossprod(rotated_A, rotated_B) - signal)),
   subspace_distance = projector_distance(B, rotated_B))
+# per-factor congruence between true and rotated effects
 abs(crossprod(B, rotated_B) / sqrt(outer(colSums(B^2), colSums(rotated_B^2))))
 ```
 

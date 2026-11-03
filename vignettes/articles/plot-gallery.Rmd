@@ -30,7 +30,7 @@ knitr::opts_chunk$set(fig.width = 4, fig.height = 3, dpi = 144,
                       out.width = "100%", collapse = TRUE, comment = "#>")
 ```
 
-```{r shared-example, include=FALSE}
+```{r shared-example, echo=FALSE, results="hide", message=FALSE}
 library(flashier.utils)
 set.seed(17)
 activity_truth <- cbind(

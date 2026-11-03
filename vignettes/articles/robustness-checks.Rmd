@@ -11,6 +11,9 @@ checks do not replace replication across donors or datasets.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4)
+# Optional engines; a check that needs a missing one prints a skip line instead of vanishing.
+have_alignment <- requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE)
+have_dream <- requireNamespace("variancePartition", quietly = TRUE)
 ```
 
 ```{r simulate}
@@ -84,15 +87,16 @@ round(rbind(effective_n, top5_share), 2)
 labels <- data.frame(factor = names(effective_n), estimate = max(A) * 1.1,
                      label = sprintf("n_eff = %.1f", effective_n))
 ggplot(factor_activity(view, format = "long"), aes(factor, estimate)) +
-  geom_jitter(width = 0.15, height = 0) +
+  geom_point(position = position_jitter(width = 0.15, height = 0, seed = 1)) +
   geom_text(data = labels, aes(label = label)) + theme_minimal()
 ```
 
 Effective sample count is `(sum a)^2 / sum a^2` for nonnegative activity.
 Bad signs: an effective count near 1 to 3, or most activity mass in five
 samples. Such a factor can match well across seeds and still vanish when
-those samples are left out, which is what the EBMF versus cNMF case study
-found for its rare HLA/CD74 factors.
+those samples are left out. In the EBMF versus cNMF case study, high
+concentration co-occurred with poor subsample matches for the rare HLA/CD74
+factors.
 
 ## 4. How wide is the conditional uncertainty?
 
@@ -114,7 +118,11 @@ regression standard errors or biological replication.
 
 ## 5. Do the programs survive leaving donors out?
 
-```{r stability, eval=requireNamespace("psych", quietly = TRUE) && requireNamespace("clue", quietly = TRUE), fig.width=5, fig.height=3, fig.alt="Two panels per factor: the recovery rate over eight refits, and the median congruence with its 2.5 to 97.5 percent range and a dashed line at 0.9.", fig.cap="Recovery across eight donor-subsample refits (nine of twelve donors each). Left: fraction of refits in which the factor was recovered. Right: congruence of the recovered factor, median and empirical 2.5 to 97.5% range over refits. Refits share data and are not independent replicates."}
+```{r stability-skip, echo=FALSE, results="asis", eval=!have_alignment}
+cat("*Check 5 skipped in this build: the psych and clue packages are not installed.*")
+```
+
+```{r stability, eval=have_alignment, fig.width=5, fig.height=3, fig.alt="Two panels per factor: the recovery rate over eight refits, and the median congruence with its 2.5 to 97.5 percent range and a dashed line at 0.9.", fig.cap="Recovery across eight donor-subsample refits (nine of twelve donors each). Left: fraction of refits in which the factor was recovered. Right: congruence of the recovered factor, median and empirical 2.5 to 97.5% range over refits. Refits share data and are not independent replicates."}
 stability <- factor_stability(X, fit, metadata, unit_col = "donor", seed = 4, B = 8,
   scheme = "subsample", fraction = 0.75, min_congruence = 0.9)
 stability$summary[, c("factor", "n_successful", "recovery_rate", "median_congruence",
@@ -177,10 +185,12 @@ no accepted counterpart. Report which setting you used.
 ## 8. Does metadata explain it, and on the right unit?
 
 ```{r metadata, fig.width=7, fig.height=3, fig.alt="Dot plot of activity by group A and B for each factor: small grey dots are the 24 samples, larger black diamonds are the twelve donor means, two samples per donor.", fig.cap="Activity by group. Small dots are samples (24); diamonds are donor means (12 donors, two samples each). The donor is the independent unit, so the diamonds are what a test may compare."}
-activity_meta <- merge(factor_activity(view, format = "long"), metadata, by = "sample")
+activity_long <- factor_activity(view, format = "long")
+activity_meta <- merge(activity_long, metadata, by = "sample")
+stopifnot("one metadata row per sample" = nrow(activity_meta) == nrow(activity_long))
 donor_means <- aggregate(estimate ~ donor + group + factor, activity_meta, mean)
 ggplot(activity_meta, aes(group, estimate)) +
-  geom_jitter(width = 0.1, height = 0, colour = "grey60", size = 1) +
+  geom_point(position = position_jitter(width = 0.1, height = 0, seed = 1), colour = "grey60", size = 1) +
   geom_point(data = donor_means, shape = 18, size = 3) +
   facet_wrap(~factor) + theme_minimal() + labs(y = "activity")
 summarize_factor_activity(view, metadata, by = "group", unit_col = "donor")[,
@@ -196,7 +206,11 @@ independent-unit test on 24 samples is refused rather than run. Bad signs:
 repeated samples. Use the `dream` engine with the donor as a random effect,
 or aggregate to one row per unit first.
 
-```{r dream, eval=requireNamespace("variancePartition", quietly = TRUE)}
+```{r dream-skip, echo=FALSE, results="asis", eval=!have_dream}
+cat("*The dream example is skipped in this build: variancePartition is not installed.*")
+```
+
+```{r dream, eval=have_dream}
 test_factor_association(view, metadata, formula = ~ group + (1 | donor), engine = "dream",
              unit_col = "donor", independence = "repeated")$table[,
   c("factor", "term", "estimate", "p.value")]
@@ -207,11 +221,13 @@ Held-out prediction on donors is in [Compare priors](compare-priors.html).
 ## Checklist
 
 1. Converged, rank below the ceiling, warnings recorded.
-2. Same programs across seeds, priors and noise models.
+2. Same programs across seeds.
 3. Effective sample count well above a handful.
 4. Intervals exclude zero for effects you name, with the underdispersion caveat.
 5. Recovery rate across unit resamples close to one.
-6. Metadata association on the independent unit, not on repeated samples.
+6. The same programs under a different prior.
+7. The same programs under a different noise model.
+8. Metadata association on the independent unit, not on repeated samples.
 
 ## Credits
 

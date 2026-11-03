@@ -74,10 +74,9 @@
   structure style of `plot_factor_activity()` default to the Okabe-Ito
   palette for up to eight categories; activity displays label the scaling.
 
-- Every tutorial and website article now leads with figures: PVE, ranked
-  weights, activity by group, congruence heatmaps, conditional intervals,
-  held-out prediction and stability recovery are plotted before the numbers
-  are printed. Reference pages render markdown (roxygen markdown mode).
+- Tutorials and website articles now plot PVE, ranked weights, activity by
+  group, congruence heatmaps, conditional intervals, held-out prediction and
+  stability recovery before printing the numbers. Reference pages render markdown (roxygen markdown mode).
 
 - Add a display suite modelled on MOFA2's downstream plots, independently
   written on ggplot2: `plot_factor_weights()` (all effects ranked, top
