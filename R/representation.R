@@ -229,6 +229,13 @@
 #' view <- standardize_factors(fit)
 #' raw <- standardize_factors(fit, scaling = "raw")
 #' max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(view$activity, view$effects)))
+#' # Raw scale, D on the activities, each factor oriented by its largest effect.
+#' anchored <- standardize_factors(fit,
+#'   sample_side = "rows", scaling = "raw", d_location = "activity",
+#'   orientation = "anchor_feature", independent_unit = "sample",
+#'   preprocessing = list(transform = "none")
+#' )
+#' anchored$manifest$anchor_features
 standardize_factors <- function(fit, sample_side = NULL, scaling = "ldf", type = "f",
                                 d_location = "effects", orientation = "as_fit", prior_support = NULL,
                                 feature_scale = NULL, preprocessing = NULL, independent_unit = NULL) {

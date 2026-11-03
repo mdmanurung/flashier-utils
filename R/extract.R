@@ -41,8 +41,9 @@
 #'   order wanted. Default all.
 #' @param samples Optional character sample IDs in the order wanted. Default all.
 #' @param format `"matrix"` (default) or `"long"` (sample/factor/estimate rows).
-#' @return Samples by factors matrix, or a long table with columns `sample`,
-#'   `factor`, `estimate`; both carry basis metadata attributes.
+#' @return A numeric `matrix` (samples by factors), or with `format = "long"` a
+#'   `data.frame` with columns `sample`, `factor`, `estimate`; both carry basis
+#'   metadata attributes.
 #' @seealso [factor_effects()], [plot_factor_activity()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
@@ -63,6 +64,8 @@
 #' )
 #' view <- standardize_factors(fit)
 #' factor_activity(view, factors = "F1", samples = c("s2", "s1"))
+#' # Two samples in long format.
+#' factor_activity(view, samples = c("s1", "s2"), format = "long")
 factor_activity <- function(fit, sample_side = NULL, representation = NULL,
                             factors = NULL, samples = NULL, format = "matrix") {
   .attach_provenance(.extract(fit, "activity", sample_side, representation, factors, samples, format), "factor_activity", match.call(), .resolved_parameters("factor_activity", environment()))
@@ -74,8 +77,9 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #' factors or features and as a long table.
 #' @inheritParams factor_activity
 #' @param features Optional character feature IDs in the order wanted. Default all.
-#' @return Features by factors matrix, or a long table with columns `feature`,
-#'   `factor`, `estimate`; both carry basis metadata attributes.
+#' @return A numeric `matrix` (features by factors), or with `format = "long"` a
+#'   `data.frame` with columns `feature`, `factor`, `estimate`; both carry basis
+#'   metadata attributes.
 #' @seealso [factor_activity()], [factor_features()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
@@ -96,6 +100,8 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #' )
 #' view <- standardize_factors(fit)
 #' factor_effects(view, factors = "F1", features = c("g2", "g1"))
+#' # From the native fit, with the view and sample side named.
+#' head(factor_effects(fit, sample_side = "rows", representation = view, format = "long"))
 factor_effects <- function(fit, sample_side = NULL, representation = NULL,
                            factors = NULL, features = NULL, format = "matrix") {
   .attach_provenance(.extract(fit, "effects", sample_side, representation, factors, features, format), "factor_effects", match.call(), .resolved_parameters("factor_effects", environment()))

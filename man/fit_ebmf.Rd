@@ -96,6 +96,14 @@ fit <- fit_ebmf(X, "rows",
 )
 view <- standardize_factors(fit)
 fit
+# A feature intercept, per-column residual variance and a native backfit control.
+with_offset <- fit_ebmf(X, "rows",
+  max_factors = 2, seed = 4, verbose = 0, backfit = TRUE, intercept = "feature",
+  var_type = 2L, control = list(backfit = list(maxiter = 500)),
+  id_policy = "require", independent_unit = "sample"
+)
+# Known noise standard deviations instead of an estimated variance.
+known_noise <- fit_ebmf(X, "rows", max_factors = 1, seed = 4, verbose = 0, S = 0.2, var_type = NULL)
 }
 \seealso{
 \code{\link[=standardize_factors]{standardize_factors()}}, \code{\link[=factor_pve]{factor_pve()}}

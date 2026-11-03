@@ -55,6 +55,19 @@
 #' view <- standardize_factors(fit)
 #' beta <- setNames(rep(1, ncol(view$activity)), colnames(view$activity))
 #' backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest)$effects
+#' # Normal intervals from a full coefficient covariance.
+#' Sigma <- diag(0.1, length(beta))
+#' dimnames(Sigma) <- list(names(beta), names(beta))
+#' backproject_contrast(view, beta, "coefficients",
+#'   factor_basis = view$manifest, coefficient_covariance = Sigma, level = 0.9
+#' )$effects
+#' # One factor's contribution only.
+#' backproject_contrast(view, beta[1], "coefficients", factor_basis = view$manifest, allow_partial = TRUE)
+#' # Coefficient draws, summarised in feature blocks.
+#' draws <- matrix(rnorm(20 * length(beta), rep(beta, each = 20), 0.1), 20, dimnames = list(NULL, names(beta)))
+#' backproject_contrast(view, draws, "draws",
+#'   factor_basis = view$manifest, keep_draws = TRUE, feature_block_size = 8L
+#' )$effects
 backproject_contrast <- function(fit, factor_effects, input, representation = NULL,
                                  factor_basis = NULL, term = NULL, contrasts = NULL,
                                  conditions = NULL, allow_partial = FALSE,

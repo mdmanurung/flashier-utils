@@ -91,6 +91,13 @@ fit <- fit_ebmf(X, "rows",
 view <- standardize_factors(fit)
 raw <- standardize_factors(fit, scaling = "raw")
 max(abs(tcrossprod(raw$activity, raw$effects) - tcrossprod(view$activity, view$effects)))
+# Raw scale, D on the activities, each factor oriented by its largest effect.
+anchored <- standardize_factors(fit,
+  sample_side = "rows", scaling = "raw", d_location = "activity",
+  orientation = "anchor_feature", independent_unit = "sample",
+  preprocessing = list(transform = "none")
+)
+anchored$manifest$anchor_features
 }
 \seealso{
 \code{\link[=factor_activity]{factor_activity()}}, \code{\link[=factor_effects]{factor_effects()}}, \code{\link[=factor_features]{factor_features()}}

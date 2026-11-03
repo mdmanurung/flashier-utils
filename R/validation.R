@@ -45,6 +45,11 @@
 #' # Illustrative same-scale feature vector; not a calibrated statistical truth.
 #' observed <- result$effects[, c("feature", "estimate")]
 #' validate_backprojection(result, observed = observed, feature_scale = "simulated_centered_intensity", plot = FALSE)$metrics
+#' # Smaller top-n overlaps and a nonzero tolerance for near-zero effects.
+#' validate_backprojection(result,
+#'   observed = observed, feature_scale = "simulated_centered_intensity",
+#'   id_col = "feature", estimate_col = "estimate", top_n = c(5L, 10L), zero_tolerance = 1e-8, plot = FALSE
+#' )$top_n_overlap
 validate_backprojection <- function(
   reconstructed, observed, feature_scale, contrast = NULL,
   id_col = "feature", estimate_col = "estimate", top_n = c(20L, 50L, 100L), zero_tolerance = 0,

@@ -32,8 +32,9 @@ order wanted. Default all.}
 \item{format}{\code{"matrix"} (default) or \code{"long"} (sample/factor/estimate rows).}
 }
 \value{
-Features by factors matrix, or a long table with columns \code{feature},
-\code{factor}, \code{estimate}; both carry basis metadata attributes.
+A numeric \code{matrix} (features by factors), or with \code{format = "long"} a
+\code{data.frame} with columns \code{feature}, \code{factor}, \code{estimate}; both carry basis
+metadata attributes.
 }
 \description{
 Get the features by factors effects matrix, optionally for a subset of
@@ -57,6 +58,8 @@ fit <- fit_ebmf(X, "rows",
 )
 view <- standardize_factors(fit)
 factor_effects(view, factors = "F1", features = c("g2", "g1"))
+# From the native fit, with the view and sample side named.
+head(factor_effects(fit, sample_side = "rows", representation = view, format = "long"))
 }
 \seealso{
 \code{\link[=factor_activity]{factor_activity()}}, \code{\link[=factor_features]{factor_features()}}

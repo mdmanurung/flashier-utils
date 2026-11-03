@@ -349,6 +349,12 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' )
 #' projected$representation$activity
 #' projected$reconstruction
+#' # One factor, priors fixed to the reference, shared genes only, a stricter memory budget.
+#' fixed <- project_factor_activity(fit, X[1:6, ], "rows", "simulated_centered_intensity",
+#'   preprocessing = list(scope = "identity"), factors = "F1", prior_policy = "fixed_reference",
+#'   feature_match = "intersection", min_coverage = 0.9, dense_budget_bytes = 1e7, maxiter = 50
+#' )
+#' fixed$representation$activity
 #' @export
 project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, prior_policy = c("query", "fixed_reference"), feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2) {
   # Validate arguments and resolve the reference view and prior policy.

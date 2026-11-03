@@ -183,8 +183,8 @@ factor_features_global <- function(fit, factors, n = 20L, direction = c("absolut
 #' @param compare_factors Optional character factor IDs that compete for
 #'   `"distinctive"`; `NULL` (default) uses all other factors.
 #' @param n Maximum number of features per selection (default 20).
-#' @return Long table with `feature`, `factor`, `estimate`, `rank`, `direction`,
-#'   `selection` and `basis_id`, plus tie-rule metadata attributes.
+#' @return A `data.frame` with columns `feature`, `factor`, `estimate`, `rank`,
+#'   `direction`, `selection` and `basis_id`, plus tie-rule metadata attributes.
 #' @seealso [plot_factor_features()], [factor_effects()]
 #' @export
 #' @author Peter Carbonetto; Matthew Stephens.

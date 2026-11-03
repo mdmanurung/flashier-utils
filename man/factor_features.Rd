@@ -33,8 +33,8 @@ effects are eligible.}
 \item{n}{Maximum number of features per selection (default 20).}
 }
 \value{
-Long table with \code{feature}, \code{factor}, \code{estimate}, \code{rank}, \code{direction},
-\code{selection} and \code{basis_id}, plus tie-rule metadata attributes.
+A \code{data.frame} with columns \code{feature}, \code{factor}, \code{estimate}, \code{rank},
+\code{direction}, \code{selection} and \code{basis_id}, plus tie-rule metadata attributes.
 }
 \description{
 Rank the features that drive one factor. \code{"largest"} orders by effect size

@@ -111,6 +111,12 @@ projected <- project_factor_activity(view, query, "rows", "simulated_centered_in
 )
 projected$representation$activity
 projected$reconstruction
+# One factor, priors fixed to the reference, shared genes only, a stricter memory budget.
+fixed <- project_factor_activity(fit, X[1:6, ], "rows", "simulated_centered_intensity",
+  preprocessing = list(scope = "identity"), factors = "F1", prior_policy = "fixed_reference",
+  feature_match = "intersection", min_coverage = 0.9, dense_budget_bytes = 1e7, maxiter = 50
+)
+fixed$representation$activity
 }
 \seealso{
 \code{\link[=factor_holdout]{factor_holdout()}} for held-out evaluation, \code{\link[=project_factor_features]{project_factor_features()}}

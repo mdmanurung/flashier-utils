@@ -32,8 +32,9 @@ order wanted. Default all.}
 \item{format}{\code{"matrix"} (default) or \code{"long"} (sample/factor/estimate rows).}
 }
 \value{
-Samples by factors matrix, or a long table with columns \code{sample},
-\code{factor}, \code{estimate}; both carry basis metadata attributes.
+A numeric \code{matrix} (samples by factors), or with \code{format = "long"} a
+\code{data.frame} with columns \code{sample}, \code{factor}, \code{estimate}; both carry basis
+metadata attributes.
 }
 \description{
 Get the samples by factors activity matrix, optionally for a subset of
@@ -57,6 +58,8 @@ fit <- fit_ebmf(X, "rows",
 )
 view <- standardize_factors(fit)
 factor_activity(view, factors = "F1", samples = c("s2", "s1"))
+# Two samples in long format.
+factor_activity(view, samples = c("s1", "s2"), format = "long")
 }
 \seealso{
 \code{\link[=factor_effects]{factor_effects()}}, \code{\link[=plot_factor_activity]{plot_factor_activity()}}
