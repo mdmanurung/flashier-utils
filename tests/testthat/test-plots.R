@@ -27,7 +27,7 @@ test_that("structure plots order displayed samples within groups by 1D MDS", {
     byrow = TRUE, dimnames = list(paste0("s", 1:7), c("F1", "F2"))
   )
   view <- .make_representation(
-    A, matrix(rnorm(8), 4, 2, dimnames = list(paste0("g", 1:4), c("F1", "F2"))),
+    A, matrix(.with_seed(1, rnorm(8)), 4, 2, dimnames = list(paste0("g", 1:4), c("F1", "F2"))),
     list(
       fit_id = "ord", schema_version = "1.0.0",
       sample_side = "rows", native_indices = 1:2, scaling = "raw", orientation = "as_fit",
@@ -197,4 +197,46 @@ test_that("embedding display accepts a plain coordinate matrix", {
   expect_error(plot_factor_embedding(view, emb[, 1, drop = FALSE], "F1"), "two embedding")
   expect_error(plot_factor_embedding(view, emb, "F1", activity_reduction = "x"), "Seurat")
   expect_error(plot_factor_embedding(view, "umap", "F1"), "named numeric")
+})
+
+test_that("samples tied on the MDS axis keep their input order", {
+  tied_view <- function(ids) {
+    A <- matrix(c(0.9, 0.1, 0.5, 0.5, 0.5, 0.5), 3, 2, byrow = TRUE, dimnames = list(ids, c("F1", "F2")))
+    .make_representation(A, matrix(1, 4, 2, dimnames = list(paste0("g", 1:4), c("F1", "F2"))), list(
+      fit_id = "ties", schema_version = "1.0.0", sample_side = "rows", native_indices = 1:2,
+      scaling = "raw", orientation = "as_fit", constraints = c(activity = "nonnegative", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    ))
+  }
+  displayed <- function(ids) {
+    metadata <- data.frame(sample = ids, cohort = "a")
+    p <- plot_factor_activity(tied_view(ids), metadata,
+      group = "cohort", style = "structure", display_normalization = "row_sum", order_within_group = "mds1"
+    )
+    attr(p, "analysis_metadata")$displayed_sample_order
+  }
+  # s2 and s3 are identical rows; the one given first is displayed first.
+  forward <- displayed(c("s1", "s2", "s3"))
+  expect_lt(match("s2", forward), match("s3", forward))
+  backward <- displayed(c("s1", "s3", "s2"))
+  expect_lt(match("s3", backward), match("s2", backward))
+})
+
+test_that("rendered PVE, weight and scatter layers draw the computed values", {
+  fit <- fixture_fit()
+  view <- fixture_view()
+  # PVE bars start at zero and end at the native PVE.
+  bars <- ggplot2::layer_data(plot_factor_pve(fit), 1L)
+  expect_equal(bars$ymin, rep(0, nrow(bars)))
+  expect_equal(bars$ymax, factor_pve(fit)$pve)
+  # Weight points sit at (rank, effect); the label layer draws one label per labelled feature.
+  weights <- plot_factor_weights(view, "F1", n_label = 2L)
+  points <- ggplot2::layer_data(weights, 2L)
+  expect_equal(points$x, weights$data$rank)
+  expect_equal(points$y, weights$data$estimate)
+  expect_equal(nrow(ggplot2::layer_data(weights, 3L)), sum(!is.na(weights$data$label)))
+  # Scatter points are the two activity columns, in sample order.
+  scatter <- ggplot2::layer_data(plot_factor_scatter(view, c("F1", "F2")), 1L)
+  expect_equal(scatter$x, unname(view$activity[, "F1"]))
+  expect_equal(scatter$y, unname(view$activity[, "F2"]))
 })

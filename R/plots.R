@@ -219,7 +219,10 @@ plot_factor_activity <- function(
       }
       mds <- stats::cmdscale(stats::as.dist(distances), k = 1)[, 1]
       mds <- mds * .first_nonzero_sign(mds)
-      ordered <- c(ordered, ids_g[order(mds, rows)])
+      # cmdscale() leaves ~1e-17 noise between identical rows; compare coordinates
+      # to 10 digits relative to the largest so exact ties fall back to input order.
+      mds_key <- round(mds / max(abs(mds)), 10)
+      ordered <- c(ordered, ids_g[order(mds_key, rows)])
     }
     displayed <- ordered
   }
@@ -258,7 +261,8 @@ plot_factor_activity <- function(
     if (order_within_group == "mds1") {
       ordering <- c(ordering, list(
         ordering_distance = "euclidean",
-        ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive"
+        ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive",
+        ordering_tie_rule = "input_order_within_1e-10_of_max_abs_coordinate"
       ))
     }
   }
