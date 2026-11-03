@@ -8,20 +8,24 @@
   if (is.null(priors)) {
     ids <- view$manifest$prior_identifiers
     if (is.null(ids) || length(ids) != 2 || any(ids == "custom_callback_required")) stop("Supply explicit ebnm_fn prior functions; recorded native priors are unavailable")
-    priors <- lapply(ids, function(id) getExportedValue("ebnm", strsplit(id, ";", fixed = TRUE)[[1]][1]))
+    priors <- lapply(ids, .prior_from_identifier)
     if (!identical(view$manifest$prior_sample_side, side)) priors <- rev(priors)
   }
   if (is.function(priors)) priors <- rep(list(priors), 2)
   if (!is.list(priors) || length(priors) != 2 || !all(vapply(priors, is.function, logical(1)))) stop("ebnm_fn requires two native row/column prior functions")
   priors
 }
-.projection_prior_ids <- function(priors) {
+# Sorted ebnm export names of each prior function; "custom_callback_required" for any other function.
+.prior_identifiers <- function(priors) {
   exports <- getNamespaceExports("ebnm")
   vapply(priors, function(fn) {
     matches <- exports[vapply(exports, function(name) identical(fn, getExportedValue("ebnm", name)), logical(1))]
     if (length(matches)) paste(sort(matches), collapse = ";") else "custom_callback_required"
   }, character(1))
 }
+
+# The ebnm prior function a recorded identifier names (the first of its sorted aliases).
+.prior_from_identifier <- function(id) getExportedValue("ebnm", strsplit(id, ";", fixed = TRUE)[[1L]][1L])
 .projection_budget <- function(bytes, budget) {
   .program_number(budget, "dense_budget_bytes", minimum = 1)
   if (bytes > budget) stop("Required dense allocations exceed dense_budget_bytes; reduce query size or increase the declared budget")
@@ -274,7 +278,7 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
   })
   B <- native$value$effects
   source <- .projection_source_subset(source, colnames(A))
-  source$manifest$prior_identifiers <- .projection_prior_ids(priors)
+  source$manifest$prior_identifiers <- .prior_identifiers(priors)
   source$manifest$constraints["effects"] <- .prior_support(priors[[if (side == "rows") 2 else 1]])
   .projection_output(native, source, A, B, native$value$offset, Y, side, feature_scale, list(scope = "new_measurements_user_declared", reference_preprocessing = source$manifest$preprocessing), list(fixed = "activity", maxiter = maxiter, dense_budget_bytes = dense_budget_bytes, var_type = if (side == "rows") 2L else 1L), "project_factor_features", match.call(), dense_budget_bytes)
 }
@@ -405,7 +409,7 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   A <- native$value$activity
   # Record projected priors and assemble the output.
   source <- .projection_source_subset(source, colnames(B))
-  source$manifest$prior_identifiers <- .projection_prior_ids(priors)
+  source$manifest$prior_identifiers <- .prior_identifiers(priors)
   source$manifest$constraints["activity"] <- .prior_support(priors[[if (side == "rows") 1 else 2]])
   settings <- list(fixed = "effects_and_offsets", maxiter = maxiter, feature_match = feature_match, shared_genes = genes, coverage = coverage, missing_reference_genes = setdiff(rownames(B), genes), excluded_query_genes = setdiff(query_genes, genes), gene_mapping = gene_mapping, source_preprocessing = source$manifest$preprocessing, dense_budget_bytes = dense_budget_bytes, var_type = var_type, prior_policy = prior_policy)
   .projection_output(native, source, A, B, source$offset, Y, side, feature_scale, preprocessing, settings, "project_factor_activity", match.call(), dense_budget_bytes)

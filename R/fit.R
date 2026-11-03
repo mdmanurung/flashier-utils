@@ -213,11 +213,7 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
     independent_unit = independent_unit, preprocessing = list(), prior_support = support,
     # A caller greedy initializer is code the recorded configuration cannot audit.
     recipe_version = "1.0.0", refit_policy = if (is.null(control$greedy$init_fn)) "ordinary" else "callback_required",
-    prior_identifiers = vapply(priors, function(fn) {
-      exports <- getNamespaceExports("ebnm")
-      matches <- exports[vapply(exports, function(n) identical(fn, getExportedValue("ebnm", n)), logical(1))]
-      if (length(matches)) paste(matches, collapse = ";") else "custom_callback_required"
-    }, character(1)),
+    prior_identifiers = .prior_identifiers(priors),
     seed = seed, rng_kind = RNGkind(),
     configuration = list(
       S = S, var_type = var_type, max_factors = max_factors,

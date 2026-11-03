@@ -210,7 +210,7 @@ factor_stability <- function(
     }
     prior_names <- native_metadata$prior_identifiers
     if (is.null(prior_names) || any(prior_names == "custom_callback_required")) stop("Reference custom/unknown priors require an explicit fit_fn")
-    priors <- lapply(prior_names, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))
+    priors <- lapply(prior_names, .prior_from_identifier)
     if (is.null(settings)) settings <- list(configuration = native_metadata$configuration, priors = priors, feature_scale = native_metadata$feature_scale, unit_col = unit_col)
     if (!is.null(settings$configuration$S) && length(settings$configuration$S) > 1L && is.null(control$observation_aux$S)) stop("Non-scalar S requires named observation_aux$S for donor resampling")
     fit_fn <- .default_fit_callback

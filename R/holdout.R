@@ -259,7 +259,7 @@ factor_holdout <- function(
           if (is.null(priors) && ncol(view$effects)) {
             prior_ids <- attr(train_fit, "flashbridge_metadata")$prior_identifiers
             if (is.null(prior_ids) || any(prior_ids == "custom_callback_required")) stop("Projection requires explicit native prior functions for a custom/bare callback")
-            priors <- lapply(prior_ids, function(name) getExportedValue("ebnm", strsplit(name, ";", fixed = TRUE)[[1L]][1L]))
+            priors <- lapply(prior_ids, .prior_from_identifier)
           }
           A <- .native_projection(Y, view, side, priors, if (is.null(control$maxiter)) 100L else control$maxiter,
             S = test_aux$S, var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) 0L else attr(train_fit, "flashbridge_metadata")$configuration$var_type,
