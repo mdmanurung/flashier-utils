@@ -21,4 +21,8 @@ The renamed function's result.
 and \code{\link[=test_factor_association]{test_factor_association()}}, because other CRAN packages export the
 same names. The old names still work for one release and warn.
 }
+\author{
+Mikhael Manurung.
+Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
+}
 \keyword{internal}

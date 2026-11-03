@@ -7,6 +7,8 @@
 #' @param ... Arguments passed to the renamed function.
 #' @return The renamed function's result.
 #' @name flashier.utils-deprecated
+#' @author Mikhael Manurung.
+#'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 #' @keywords internal
 NULL
 
