@@ -103,8 +103,10 @@
 #'   `keep_predictions`, `keep_fits`, `prior_policy` (`"query"` or
 #'   `"fixed_reference"`; see [project_factor_activity()]).
 #' @return A `holdout_result` with `$metrics` (per fold, model and weighting:
-#'   rmse, mae, prediction_r2 for the fit and the baseline), `$folds`,
-#'   `$failures`, `$activities` and information boundaries.
+#'   rmse, mae, prediction_r2 for the fit and the baseline; macro rows add
+#'   `n_units_<metric>`, the units each average used), `$folds`,
+#'   `$failures`, `$activities` and information boundaries. Each fold's seed is
+#'   drawn per fold label and recorded in `$analysis_metadata$fold_seeds`.
 #' @seealso [project_factor_activity()], [factor_stability()]
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
@@ -202,9 +204,12 @@ factor_holdout <- function(
     X, md, folds, control, preprocessing, seed, evaluation, mask, activity_features, scoring_features,
     body(fit_fn), formals(fit_fn), lapply(preprocess_fn, function(fn) list(body(fn), formals(fn))), .engine_metadata()
   ), algo = "sha256")
-  fold_seeds <- .with_seed(seed, sample.int(.Machine$integer.max - 1L, length(evaluated)))
+  # One seed per fold label, so a subset or reorder of evaluated_folds keeps each fold's seed.
+  fold_labels <- unique(labels)
+  fold_seeds <- stats::setNames(.with_seed(seed, sample.int(.Machine$integer.max - 1L, length(fold_labels))), fold_labels)
   results <- lapply(seq_along(evaluated), function(i) {
     label <- evaluated[i]
+    fold_seed <- fold_seeds[[as.character(label)]]
     path <- if (is.null(checkpoint_dir)) NULL else file.path(checkpoint_dir, paste0("fold-", i, ".rds"))
     .checkpoint_replicate(path, config_hash, function() {
       tryCatch(
@@ -239,15 +244,15 @@ factor_holdout <- function(
           prepared <- if (is.null(preprocess_fn)) {
             list(X = trainX, metadata = md[train, , drop = FALSE], manifest = preprocessing, observation_aux = train_aux)
           } else {
-            preprocess_fn$fit(trainX, md[train, , drop = FALSE], training_ids = samples[train], seed = fold_seeds[i], settings = control$settings)
+            preprocess_fn$fit(trainX, md[train, , drop = FALSE], training_ids = samples[train], seed = fold_seed, settings = control$settings)
           }
           if (!is.list(prepared) || !all(c("X", "metadata", "manifest") %in% names(prepared))) stop("Training preprocessing must expose X, metadata and fitted manifest")
           transformed <- if (is.null(preprocess_fn)) {
             list(X = inferenceX, metadata = md[test, , drop = FALSE])
           } else {
-            preprocess_fn$transform(inferenceX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
+            preprocess_fn$transform(inferenceX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seed, settings = control$settings)
           }
-          train_fit <- fit_fn(prepared$X, prepared$metadata, side, fold_seeds[i], control$settings, observation_aux = if (is.null(prepared$observation_aux)) train_aux else prepared$observation_aux)
+          train_fit <- fit_fn(prepared$X, prepared$metadata, side, fold_seed, control$settings, observation_aux = if (is.null(prepared$observation_aux)) train_aux else prepared$observation_aux)
           view <- standardize_factors(train_fit, sample_side = side, scaling = "raw")
           if (!identical(view$manifest$sample_ids, samples[train]) || !identical(view$manifest$feature_ids, features)) stop("Training callback changed required sample/feature IDs")
           # Project held-out activities with the training effects fixed.
@@ -268,7 +273,7 @@ factor_holdout <- function(
           prediction <- sweep(tcrossprod(A, view$effects), 2L, view$offset, "+")
           # Score transformation occurs after activity inference using the same frozen training state.
           if (!is.null(preprocess_fn)) {
-            scoring <- preprocess_fn$transform(testX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seeds[i], settings = control$settings)
+            scoring <- preprocess_fn$transform(testX, md[test, , drop = FALSE], state = prepared$state, seed = fold_seed, settings = control$settings)
             truth <- if (side == "rows") as.matrix(scoring$X) else t(as.matrix(scoring$X))
             if (!identical(dim(truth), dim(Y)) || !identical(dimnames(truth), dimnames(Y))) {
               stop("Scoring transform changed sample/feature axes")
@@ -295,12 +300,18 @@ factor_holdout <- function(
           for (unit in unique(units[test])) score_rows(which(units[test] == unit), "unit", unit = unit)
           if (!is.null(control$cohort_col)) for (cohort in unique(as.character(md[[control$cohort_col]][test]))) score_rows(which(as.character(md[[control$cohort_col]][test]) == cohort), "cohort", cohort = cohort)
           metrics <- do.call(rbind, metric_rows)
+          metric_names <- c("rmse", "mae", "prediction_r2", "correlation")
+          # Units averaged into each macro metric; NA metrics (a constant unit) drop out.
+          for (name in metric_names) metrics[[paste0("n_units_", name)]] <- NA_integer_
           # Macro rows: average the per-unit and per-cohort metrics.
           for (weighting in c("unit", if (!is.null(control$cohort_col)) "cohort")) {
             for (model in c("fixed_programs", "training_mean")) {
               rows <- metrics$weighting == weighting & metrics$model == model
               macro <- metrics[which(rows)[1], , drop = FALSE]
-              for (name in c("rmse", "mae", "prediction_r2", "correlation")) macro[[name]] <- if (all(is.na(metrics[[name]][rows]))) NA_real_ else mean(metrics[[name]][rows], na.rm = TRUE)
+              for (name in metric_names) {
+                macro[[name]] <- if (all(is.na(metrics[[name]][rows]))) NA_real_ else mean(metrics[[name]][rows], na.rm = TRUE)
+                macro[[paste0("n_units_", name)]] <- sum(!is.na(metrics[[name]][rows]))
+              }
               macro$weighting <- paste0("macro_", weighting)
               macro$unit <- macro$cohort <- NA_character_
               macro$n_samples <- length(test)
@@ -331,7 +342,7 @@ factor_holdout <- function(
     diagnostics = list(failures = failures, prior_noise_policy = prior_note, prior_policy = prior_policy, auxiliary_policy = "named_sample_feature_subset"),
     activities = lapply(results[successful], function(result) result$activity), fold_results = results,
     analysis_metadata = list(
-      evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed,
+      evaluation_type = evaluation, exclusions = matched$exclusions, preprocessing = preprocessing, sample_side = side, unit_col = unit_col, seed = seed, fold_seeds = fold_seeds,
       config_hash = config_hash, input_digest = digest::digest(list(X, md), algo = "sha256"),
       evaluation_digest = digest::digest(list(evaluation, labels, evaluated, mask, activity_features, scoring_features), algo = "sha256"),
       program_values_fixed = TRUE, hyperparameters = prior_note, prior_policy = prior_policy, freeze_noise = FALSE,

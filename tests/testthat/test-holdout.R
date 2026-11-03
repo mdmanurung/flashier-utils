@@ -111,3 +111,38 @@ test_that("named observation errors follow dense folds and sparse limits are exp
     expect_equal(nrow(supported$failures), 0L, info = paste(supported$failures$reason, collapse = ";"))
   }
 })
+
+test_that("a fold keeps its seed and metrics when evaluated alone", {
+  X <- fixture_matrix()
+  md <- data.frame(sample = rownames(X), donor = rep(paste0("d", 1:6), each = 2))
+  folds <- data.frame(donor = paste0("d", 1:6), fold = rep(c("a", "b", "c"), each = 2))
+  run <- function(evaluated) {
+    factor_holdout(X, md, "donor", folds, holdout_callback,
+      seed = 12,
+      control = list(sample_side = "rows", preprocessing_manifest = list(scope = "identity"), evaluated_folds = evaluated)
+    )
+  }
+  all_folds <- run(c("a", "b", "c"))
+  alone <- run("c")
+  expect_identical(alone$analysis_metadata$fold_seeds, all_folds$analysis_metadata$fold_seeds)
+  expect_equal(alone$metrics, all_folds$metrics[all_folds$metrics$fold == "c", ], ignore_attr = TRUE)
+})
+
+test_that("macro rows count the units each average used", {
+  X <- fixture_matrix()
+  # Donor d6's held-out values are constant, so its correlation is undefined.
+  X[c("s11", "s12"), ] <- 1
+  md <- data.frame(sample = rownames(X), donor = rep(paste0("d", 1:6), each = 2))
+  folds <- data.frame(sample = md$sample, fold = c(rep("train", 8), rep("test", 4)))
+  out <- factor_holdout(X, md, "donor", folds, holdout_callback,
+    seed = 12,
+    control = list(sample_side = "rows", preprocessing_manifest = list(scope = "identity"), evaluated_folds = "test")
+  )
+  units <- out$metrics[out$metrics$weighting == "unit" & out$metrics$model == "fixed_programs", ]
+  macro <- out$metrics[out$metrics$weighting == "macro_unit" & out$metrics$model == "fixed_programs", ]
+  expect_true(is.na(units$correlation[units$unit == "d6"]))
+  expect_identical(macro$n_units, 2L)
+  expect_identical(macro$n_units_rmse, 2L)
+  expect_identical(macro$n_units_correlation, 1L)
+  expect_equal(macro$correlation, units$correlation[units$unit == "d5"])
+})

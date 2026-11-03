@@ -1,5 +1,15 @@
 # flashier.utils 2.0.0.9000
 
+- `factor_holdout()` draws one seed per fold label and records them in
+  `analysis_metadata$fold_seeds`, so a fold evaluated alone (via
+  `evaluated_folds`) reproduces its result from the full run. With all folds
+  evaluated the seeds are unchanged. Macro rows gain `n_units_rmse`,
+  `n_units_mae`, `n_units_prediction_r2` and `n_units_correlation`: the units
+  each average used, since a unit with an undefined metric drops out.
+- `plot_factor_activity(order_within_group = "mds1")`: samples tied on the MDS
+  axis now keep their input order. `cmdscale()` left ~1e-17 noise between
+  identical rows, so the documented tie-break never applied.
+
 - Display subsamples rerun identically by default: `plot_factor_activity()`,
   `plot_factor_scatter()`, `plot_factor_data()` and `plot_factor_embedding()`
   now default to `seed = 1` (was unseeded) and record the seed. Heatmap and

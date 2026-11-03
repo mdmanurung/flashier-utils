@@ -60,8 +60,10 @@ and \code{preprocessing_manifest} (e.g. \code{list(scope = "identity")}) when no
 }
 \value{
 A \code{holdout_result} with \verb{$metrics} (per fold, model and weighting:
-rmse, mae, prediction_r2 for the fit and the baseline), \verb{$folds},
-\verb{$failures}, \verb{$activities} and information boundaries.
+rmse, mae, prediction_r2 for the fit and the baseline; macro rows add
+\verb{n_units_<metric>}, the units each average used), \verb{$folds},
+\verb{$failures}, \verb{$activities} and information boundaries. Each fold's seed is
+drawn per fold label and recorded in \verb{$analysis_metadata$fold_seeds}.
 }
 \description{
 Cross-validate by biological unit: fit on training units through your
