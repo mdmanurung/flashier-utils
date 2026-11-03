@@ -70,7 +70,10 @@ stopifnot(
   identical(names(covariate), rownames(X)),
   all(rowSums(view$activity) > 0)
 )
-coordinates_before <- serialize(list(fit = fit, view = view), NULL)
+# Snapshot the fitted values; the native sampler closure is left out because
+# calling it forces promises in its environment, which changes its serialization.
+fitted_values <- function() list(fit = unclass(fit)[setdiff(names(fit), "sampler")], view = view)
+coordinates_before <- serialize(fitted_values(), NULL)
 ```
 
 ## Native flashier {#native-flashier}
@@ -634,7 +637,7 @@ for (p in gallery_plots) {
   }
 }
 stopifnot(identical(
-  coordinates_before, serialize(list(fit = fit, view = view), NULL)
+  coordinates_before, serialize(fitted_values(), NULL)
 ))
 ```
 
