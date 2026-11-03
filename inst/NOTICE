@@ -44,7 +44,7 @@ never assigns cell types automatically.
   credit only; query-specific scaling and normalized usages are not adopted.
 - Native projection: flashier authors Jason Willwerscheid, Peter Carbonetto,
   Wei Wang and Matthew Stephens, with contributors credited above.
-- Optional plotting engines: igraph, ggraph, ggrepel and patchwork. Classification:
+- Optional plotting engines: igraph, ggraph and ggrepel. Classification:
   pROC. Mixture candidates: mclust. Use `citation(package)` for installed method
   references. Dependency author records below are taken from installed DESCRIPTION
   metadata; wrappers do not claim authorship of these engines.
@@ -106,3 +106,8 @@ fastTopics call-only adapter (test_gom_de): upstream fastTopics by Peter
 Carbonetto, Kevin Luo, Kushal Dey and Matthew Stephens, with contributors
 listed in its DESCRIPTION, BSD_2_clause + file LICENSE, commit
 5cf9a448b17a7eb8f139cc916e22cb3ad1766b70. No implementation source copied.
+
+CorShrink call-only engine (factor_cor engine = "corshrink"): upstream CorShrink
+by Kushal Dey and Matthew Stephens, with Peter Carbonetto as contributor,
+GPL (>= 2), commit a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3.
+No implementation source copied.

@@ -7,8 +7,8 @@
 > (marked `[-]` with the gap), 1 open (custom greedy initializer, fixed the same day). M0 evidence lives
 > in local, untracked validation/ receipts. Scientific calibration is not claimed.
 >
-> **2026-11-03:** 11 of the 13 partial rows closed by tests; the 2 left are release
-> receipts (CREDITS/NOTICE review, roxygen drift CI step).
+> **2026-11-03:** all 13 partial rows closed: 11 by tests, 2 by release receipts
+> (CREDITS/NOTICE review, roxygen drift CI step).
 
 Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocked
 
@@ -241,9 +241,9 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Full optional-engine job passes.
 - [x] pkgdown builds.
 - [x] provenance.csv complete.
-- [-] CREDITS/NOTICE reviewed. (partial: no review receipt)
+- [x] CREDITS/NOTICE reviewed. (2026-11-03: reports/credits-review-20261103/, rerunnable check-credits.R)
 - [x] NEWS records projection metadata fix.
-- [-] roxygen regenerates NAMESPACE/Rd. (partial: no CI drift check)
+- [x] roxygen regenerates NAMESPACE/Rd. (2026-11-03: roxygen-drift job in R-CMD-check.yaml, roxygen2 8.1.1)
 - [x] No legacy/private FLASH workflow API copied. (2026-11-03: test-provenance.R "package code calls no private flashier function")
 
 **Status:** [-]

@@ -1,5 +1,13 @@
 # flashier.utils 2.0.0.9000
 
+- Community files for rOpenSci review: README.Rmd with R CMD check, Codecov,
+  repostatus and lifecycle badges; CODE_OF_CONDUCT.md (Contributor Covenant);
+  `citation("flashier.utils")`; a test-coverage workflow; a CI job that fails
+  when regenerated NAMESPACE or Rd differ from the committed files.
+- Credits review (`reports/credits-review-20261103/`): `scales`, `irlba` and
+  `softImpute` credited; the CorShrink pin named in NOTICE; unused `patchwork`
+  dropped from Suggests.
+
 - `factor_holdout()` draws one seed per fold label and records them in
   `analysis_metadata$fold_seeds`, so a fold evaluated alone (via
   `evaluated_folds`) reproduces its result from the full run. With all folds

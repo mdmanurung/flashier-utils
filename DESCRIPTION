@@ -18,7 +18,7 @@ Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports: flashier (>= 1.0.60), ebnm, Matrix, digest, ggplot2, scales, stats, utils, methods, parallel
 Suggests: testthat (>= 3.0.0), knitr, rmarkdown, limma, variancePartition,
-    mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot, igraph, ggraph, ggrepel, patchwork, pROC, mclust, softImpute, irlba, gbcd, fastTopics
+    mashr, ashr, CorShrink, psych, clue, reformulas, BiocParallel, fgsea, decoupleR, SeuratObject, uwot, igraph, ggraph, ggrepel, pROC, mclust, softImpute, irlba, gbcd, fastTopics
 VignetteBuilder: knitr
 Remotes: willwerscheid/flashier@fd44811ab22d61ee905e1964175571c452fe7683,
     stephenslab/gbcd@670e3afb50236303ddf99db33a3394abd4a711bd,

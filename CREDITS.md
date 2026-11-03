@@ -109,6 +109,15 @@ Lionel Henry [aut, cre],   Hadley Wickham [aut],   mikefc [cph] (Hash implementa
 
 Henry L, Wickham H (2026). _rlang: Functions for Base Types and Core R and 'Tidyverse' Features_. doi:10.32614/CRAN.package.rlang <https://doi.org/10.32614/CRAN.package.rlang>, R package version 1.3.0, <https://CRAN.R-project.org/package=rlang>.
 
+### scales (1.4.0)
+
+Hadley Wickham [aut],   Thomas Lin Pedersen [cre, aut] (ORCID: <https://orcid.org/0000-0002-5147-4711>),   Dana Seidel [aut],   Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
+
+Wickham H, Pedersen T, Seidel D (2025). _scales: Scale Functions for
+Visualization_. doi:10.32614/CRAN.package.scales
+<https://doi.org/10.32614/CRAN.package.scales>, R package version
+1.4.0, <https://CRAN.R-project.org/package=scales>.
+
 ### stats (4.5.1)
 
 R Core Team and contributors worldwide
@@ -158,6 +167,9 @@ Matthew Stephens [aut],   Peter Carbonetto [aut, cre],   Chaoxing Dai [ctb],   D
 Stephens M, Carbonetto P, Gerard D, Lu M, Sun L, Willwerscheid J, Xiao N (2023). _ashr: Methods for Adaptive Shrinkage, using Empirical Bayes_. doi:10.32614/CRAN.package.ashr <https://doi.org/10.32614/CRAN.package.ashr>, R package version 2.2-63, <https://CRAN.R-project.org/package=ashr>.
 
 ### CorShrink (0.1-6)
+
+Call-only `factor_cor(engine = "corshrink")` engine; pinned GitHub install
+`kkdey/CorShrink@a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3`. No implementation source copied.
 
 c(person("Kushal","Dey",role=c("aut","cre"), email="kkdey@uchicago.edu"),           person("Matthew","Stephens",role="aut"), 	        person("Peter","Carbonetto",role="ctb"))
 
@@ -256,7 +268,7 @@ never assigns cell types automatically.
   credit only; query-specific scaling and normalized usages are not adopted.
 - Native projection: flashier authors Jason Willwerscheid, Peter Carbonetto,
   Wei Wang and Matthew Stephens, with contributors credited above.
-- Optional plotting engines: igraph, ggraph, ggrepel and patchwork. Classification:
+- Optional plotting engines: igraph, ggraph and ggrepel. Classification:
   pROC. Mixture candidates: mclust. Use `citation(package)` for installed method
   references. Dependency author records below are taken from installed DESCRIPTION
   metadata; wrappers do not claim authorship of these engines.
@@ -328,14 +340,32 @@ Text Labels with 'ggplot2'_. doi:10.32614/CRAN.package.ggrepel
 <https://doi.org/10.32614/CRAN.package.ggrepel>, R package version
 0.9.8, <https://CRAN.R-project.org/package=ggrepel>.
 
-### patchwork
+### irlba
 
- Thomas Lin Pedersen [cre, aut] (ORCID:     <https://orcid.org/0000-0002-5147-4711>)
+Optional `fit_multistart_ebmf(init_method = "irlba")` engine, reached through
+`flashier::flash_greedy_init_irlba()`.
 
- Pedersen T (2025). _patchwork: The Composer of Plots_.
-doi:10.32614/CRAN.package.patchwork
-<https://doi.org/10.32614/CRAN.package.patchwork>, R package version
-1.3.2, <https://CRAN.R-project.org/package=patchwork>.
+ Jim Baglama [aut, cph],   Lothar Reichel [aut, cph],   B. W. Lewis [aut, cre, cph]
+
+ Baglama J, Reichel L, Lewis B (2026). _irlba: Fast Truncated Singular
+Value Decomposition and Principal Components Analysis for Large Dense
+and Sparse Matrices_. doi:10.32614/CRAN.package.irlba
+<https://doi.org/10.32614/CRAN.package.irlba>, R package version 2.3.7,
+<https://CRAN.R-project.org/package=irlba>.
+
+### softImpute
+
+Optional `fit_multistart_ebmf(init_method = "softImpute")` engine, reached through
+`flashier::flash_greedy_init_softImpute()`.
+
+ Trevor Hastie [aut, cre],   Rahul Mazumder [aut],   Balasubramanian Narasimhan [ctb]
+
+ Mazumder R, Hastie T, Tibshirani R (2010). “Spectral Regularization
+Algorithms for Learning Large Incomplete Matrices.” _Journal of Machine
+Learning Research_, *11*, 2287-2322.
+Hastie T, Mazumder R, Lee J, Zadeh R (2015). “Matrix Completion and
+Low-rank SVD via Fast Alternating Least Squares.” _Journal of Machine
+Learning Research_, *16*, 3367-3402.
 
 ### pROC
 
