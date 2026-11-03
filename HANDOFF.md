@@ -1,12 +1,19 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-10-27 · **Branch:** main · **Status:** 22c8877 (D1 validation) green on R CMD check and pkgdown; rOpenSci-style review reports committed under reports/ropensci-review-20261027
+**Date:** 2026-11-03 · **Branch:** main · **Status:** rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done (227d637..9475da3); P3, P2, P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
+`gh run list --limit 6`: 9475da3 (renames) must pass R CMD check (5 jobs + roxygen-drift +
+full-engines), pkgdown and test-coverage. Then P3: fresh clone to scratch and
+`~/.claude/skills/r-package-review/scripts/autotest.sh <clone> <ev>`; the old autotest errors
+were stale-library artefacts. Codecov needs the `CODECOV_TOKEN` secret (user); ORCID for
+Authors@R still needed from the user (pkgcheck has_orcid).
+
+## Previous next action
 `gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
 
 ## Previous next action
@@ -22,12 +29,18 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
   starcat-status-20261025.md and api-review-20261026/. Probe harness and check log stay
   local in validation/api-review-20261026/.
 - Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 185 blocks, 0 failures, 0 skips, 11 known projection maxiter warnings, ~4 min.
+  gives 219 blocks, 0 failures, 0 skips, 0 warnings (allow_maxiter() muffles only the
+  iteration-cap warning), ~5 min. Line coverage 90.7% (backprojection 91.9, shrinkage 100).
 - Last green CI: 22c8877 (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
-- Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; document() still works.
+- Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; 8.1.1 regenerates identical man/ (checked 2026-11-03).
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-11-03 renames: factor_provenance(), test_factor_association(); old names exported as .Deprecated() aliases in R/deprecated.R (CRAN clashes: provenance x4, test_factors x1).
+- 2026-11-03 P4: README.Rmd + badges, CODE_OF_CONDUCT.md, inst/CITATION, test-coverage workflow, roxygen-drift CI job; credits review reports/credits-review-20261103/ (scales, irlba, softImpute credited; CorShrink pin named; patchwork dropped).
+- 2026-11-03 P6 + GBCD: test-shrinkage.R, test-backprojection-guards.R, 11 tracker tests, allow_maxiter(), preflight mock; fixes: MDS float-noise ties, holdout fold seeds keyed by label + n_units_<metric>, one prior-identifier registry.
+- 2026-11-03 P5: .lintr (120), styler over R/ and tests/, .is_flag/.is_named_list, palette/label helpers, display seed = 1 default, oob squish (scales Import), factor_diagnostics thresholds required, step comments. Gallery check compares coordinates (fixes pkgdown).
+- 2026-11-03 P1: CRAN flashier 1.0.7 fails masked holdout (all-missing slices) and lacks flash_plot_scree; pin kept, Imports flashier (>= 1.0.60).
 - 2026-10-27 rOpenSci gate fixes: examples for the two projection exports, R/flashier.utils-package.R, CONTRIBUTING.md (Rbuildignored), ubuntu oldrel-1 CI job, 'flashier' quoted in DESCRIPTION.
 - 2026-10-27 rOpenSci-style review (read-only): pkgcheck/goodpractice/autotest/coverage/complexity/dependency/performance passes with evidence CSVs under reports/ropensci-review-20261027; 5 standards gates fail (examples for 2 projection exports, CONTRIBUTING, package doc, oldrel CI, quoted 'flashier'); no R code defects beyond style. Skill saved at ~/.claude/skills/r-package-review.
 - 2026-10-27 D1 technical part: validation/planted-validation-20261027 (PREREG frozen; paired masked prediction 25 folds x 3 arms, all beat training mean; compare_prior_fits evidence bound in 15/15 pairs; subsample stability 300/300 refits; refit check reproduces 20261026 fits to 1e-14). Finding: signed-arm shared-block factors unstable under subsampling (0.05-1.0), nonnegative arms 1.0. Article section added; projection paths store verbosity 0.
@@ -76,20 +89,20 @@ Order is by what unblocks the next step. Estimates are hands-on effort.
   return classes in `@return` for the 6 flagged pages. Acceptance:
   `autotest_package(test = TRUE)` returns no `error` rows; remaining diagnostics
   listed in the srr report.
-- [ ] P4 Community files and README (1 day). README.Rmd that renders README.md;
+- [x] P4 done 2026-11-03 except ORCID (needs user) and Codecov token (needs user). Original: Community files and README (1 day). README.Rmd that renders README.md;
   badges (R CMD check, Codecov, repostatus, lifecycle); Codecov upload step in
   R-CMD-check.yaml; CODE_OF_CONDUCT.md; inst/CITATION; ORCID for the maintainer in
   Authors@R. Acceptance: pkgcheck `has_citation`, `has_orcid` pass; README shows
   live badges.
-- [ ] P5 Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
+- [x] P5 done 2026-11-03 (lint count not re-measured; lint run timed out). Original: Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
   rename `T` in R/alignment.R; delete or use `.display_options`; `@inheritParams` for the
   duplicated `fit` parameter; `add = TRUE` on the two `on.exit` calls. Acceptance:
   goodpractice lintr count under 50 excluding tests.
-- [ ] P6 Test depth (1 day). test-shrinkage.R; `backproject_contrast` guard tests;
+- [x] P6 done 2026-11-03: backprojection 91.9%, shrinkage 100%. Original: Test depth (1 day). test-shrinkage.R; `backproject_contrast` guard tests;
   replace the wall-clock assertion in test-fu0-preflight.R:40; plot-data assertions for
   plot_factor_pve/weights/scatter. Acceptance: backprojection.R and shrinkage.R above
   85 percent line coverage.
-- [ ] P7 Scope and overlap statement (half a day). One paragraph for the submission
+- [x] P7 done 2026-11-03: reports/ropensci-submission/scope-statement.md; both clashing names renamed. Original: Scope and overlap statement (half a day). One paragraph for the submission
   issue: category (statistical, unsupervised learning), overlap with flashier itself,
   MOFA2 and cNMF tooling, what this package adds (named views, provenance, bound
   evidence). Check `pkgcheck::fn_names_on_cran()` for `provenance` and
