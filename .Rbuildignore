@@ -19,3 +19,5 @@
 ^vignettes/articles$
 ^CONTRIBUTING\.md$
 ^\.lintr$
+^README\.Rmd$
+^CODE_OF_CONDUCT\.md$

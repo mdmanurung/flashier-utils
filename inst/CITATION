@@ -1,0 +1,13 @@
+bibentry(
+  bibtype = "Manual",
+  title = "flashier.utils: Transparent Interpretation of Empirical Bayes Matrix Factorizations",
+  author = person("Mikhael", "Manurung"),
+  year = "2026",
+  note = paste("R package version", meta$Version),
+  url = "https://github.com/mdmanurung/flashier-utils",
+  textVersion = paste0(
+    "Manurung M (2026). flashier.utils: Transparent Interpretation of ",
+    "Empirical Bayes Matrix Factorizations. R package version ", meta$Version, ". ",
+    "https://github.com/mdmanurung/flashier-utils"
+  )
+)

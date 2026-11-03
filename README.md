@@ -1,4 +1,16 @@
+
+<!-- README.md is generated from README.Rmd. Edit README.Rmd, then run
+rmarkdown::render("README.Rmd"). -->
+
 # flashier utils
+
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/mdmanurung/flashier-utils/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mdmanurung/flashier-utils/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/mdmanurung/flashier-utils/graph/badge.svg)](https://app.codecov.io/gh/mdmanurung/flashier-utils)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
 
 Interpret a [flashier](https://willwerscheid.github.io/flashier/) matrix
 factorization. After one call you get a *view*: a named samples × factors
@@ -16,7 +28,7 @@ is not enough: it rejects data with an all-missing row or column, which masked
 `factor_holdout()` creates, and it lacks `flash_plot_scree()`. The committed
 article tables and every recorded `basis_id` come from flashier 1.0.60.
 
-```r
+``` r
 install.packages("remotes")
 remotes::install_github("mdmanurung/flashier-utils")
 ```
@@ -32,7 +44,7 @@ it needs.
 Use the GTEx association z-scores bundled with flashier. Tissues occupy columns;
 SNP–gene pairs occupy rows.
 
-```r
+``` r
 library(flashier.utils)
 data("gtex", package = "flashier")
 set.seed(1)
@@ -51,7 +63,7 @@ the `view`: uncertainty functions need the fit, everything else takes the view.
 ## Workflow
 
 | Step | Functions |
-| --- | --- |
+|----|----|
 | Fit, or standardize an existing fit | `fit_ebmf()`, `standardize_factors()`, `factor_activity()`, `factor_effects()`, `factor_pve()` |
 | Interpret factors | `factor_features()`, `plot_factor_features()`, `plot_factor_weights()`, `plot_factor_activity()`, `plot_factor_scatter()`, `plot_factor_data()`, `plot_factor_embedding()`, `plot_factor_pve()` |
 | Relate factors to metadata | `summarize_factor_activity()`, `compare_factor_groups()`, `test_factors()`, `backproject_contrast()` |
@@ -61,7 +73,7 @@ the `view`: uncertainty functions need the fit, everything else takes the view.
 ## Four focused tutorials
 
 | Task | Tutorial |
-| --- | --- |
+|----|----|
 | Beginner: native fit, extraction, features, one plot | [Get started](https://mdmanurung.github.io/flashier-utils/articles/first-fit.html) |
 | Coordinates, uncertainty, group contrasts, nonnegative programs | [Advanced use](https://mdmanurung.github.io/flashier-utils/articles/advanced-use.html) |
 | Different priors: prediction, program agreement and known truth | [Compare priors](https://mdmanurung.github.io/flashier-utils/articles/compare-priors.html) |
@@ -71,7 +83,7 @@ The first uses bundled GTEx data; the middle two use explicit simulations.
 The pancreas example uses attributed published Jamboree data, prepared once
 outside package builds (about 86 MB downloaded):
 
-```sh
+``` sh
 FLASHIER_UTILS_PANCREAS_DIR=~/pancreas-example scripts/run-r.sh .github/scripts/prepare-pancreas.R
 ```
 
@@ -114,3 +126,7 @@ Cite the methods used in your analysis with `citation("flashier")`,
 `citation("ebnm")` and the relevant optional packages.
 [Original authors and sources](CREDITS.md) lists the full credits and licenses.
 Mikhael Manurung maintains flashier.utils.
+
+## Code of Conduct
+
+Please note that the flashier.utils project is released with a [Contributor Code of Conduct](https://mdmanurung.github.io/flashier-utils/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
