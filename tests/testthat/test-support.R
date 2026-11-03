@@ -109,7 +109,7 @@ test_that("projection keeps fixed-side support and records the estimated prior",
   manifest$support_version <- "1.0.0"
   source <- .make_representation(view$activity, view$effects, manifest)
   query <- tcrossprod(source$activity, source$effects)
-  projected <- suppressWarnings(project_factor_activity(source, query, "rows",
+  projected <- allow_maxiter(project_factor_activity(source, query, "rows",
     "arcsinh_intensity", list(scope = "identity"),
     factors = "F2",
     ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
@@ -121,7 +121,7 @@ test_that("projection keeps fixed-side support and records the estimated prior",
   expect_identical(out$effect_support, "unknown")
   expect_identical(standardize_factors(projected$fit)$manifest$factor_support, out)
   expect_error(standardize_factors(projected$fit, orientation = "anchor_feature"), "signed prior")
-  transposed <- suppressWarnings(project_factor_features(source, t(query), "columns",
+  transposed <- allow_maxiter(project_factor_features(source, t(query), "columns",
     "arcsinh_intensity",
     factors = "F1",
     ebnm_fn = list(ebnm::ebnm_point_laplace, ebnm::ebnm_normal)

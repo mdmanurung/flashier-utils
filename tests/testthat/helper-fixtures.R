@@ -75,3 +75,12 @@ fixture_fit_zero_factors <- function() {
     max_factors = 0L, nullcheck = FALSE, backfit = FALSE, verbose = 0L, seed = 12
   )
 }
+
+# Muffle only flashier's iteration-cap warning; any other warning still reaches the test.
+allow_maxiter <- function(code) {
+  withCallingHandlers(code, warning = function(w) {
+    if (grepl("Maximum number of iterations reached", conditionMessage(w), fixed = TRUE)) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}

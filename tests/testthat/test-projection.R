@@ -5,11 +5,11 @@ test_that("native activity transfer preserves programs in both orientations", {
   for (side in c("rows", "columns")) {
     p <- if (side == "rows") priors else rev(priors)
     query <- if (side == "rows") Y[3:1, 4:1] else t(Y[3:1, 4:1])
-    r <- project_factor_activity(v, query, side, "arcsinh_intensity", list(scope = "identity"), ebnm_fn = p, maxiter = 5)
+    r <- allow_maxiter(project_factor_activity(v, query, side, "arcsinh_intensity", list(scope = "identity"), ebnm_fn = p, maxiter = 5))
     expect_identical(r$representation$effects, v$effects)
     expect_identical(r$representation$offset, v$offset)
     expect_equal(rownames(r$representation$activity), c("s3", "s2", "s1"))
-    expected <- .native_projection(Y[3:1, , drop = FALSE], v, side, p, maxiter = 5)
+    expected <- allow_maxiter(.native_projection(Y[3:1, , drop = FALSE], v, side, p, maxiter = 5))
     expect_equal(r$representation$activity, expected)
     expect_equal(r$analysis_metadata$source_basis_id, v$manifest$basis_id)
     reference <- .prediction_metrics(Y[3:1, ], tcrossprod(expected, v$effects))
@@ -17,7 +17,7 @@ test_that("native activity transfer preserves programs in both orientations", {
     expect_equal(r$reconstruction, reference)
   }
   sparse <- Matrix::Matrix(Y, sparse = TRUE)
-  r <- project_factor_activity(v, sparse, "rows", "arcsinh_intensity", list(scope = "identity"), ebnm_fn = priors, maxiter = 5)
+  r <- allow_maxiter(project_factor_activity(v, sparse, "rows", "arcsinh_intensity", list(scope = "identity"), ebnm_fn = priors, maxiter = 5))
   expect_identical(r$representation$effects, v$effects)
 })
 test_that("new feature projection agrees with explicit native calls", {
@@ -29,13 +29,13 @@ test_that("new feature projection agrees with explicit native calls", {
     p <- if (side == "rows") priors else rev(priors)
     Y <- M[3:1, , drop = FALSE]
     a <- A[3:1, ]
-    r <- project_factor_features(v, if (side == "rows") Y else t(Y), side, "protein", ebnm_fn = p, maxiter = 5)
+    r <- allow_maxiter(project_factor_features(v, if (side == "rows") Y else t(Y), side, "protein", ebnm_fn = p, maxiter = 5))
     expect_identical(r$representation$activity, a)
     b <- t(qr.coef(qr(a), Y))
     native <- flashier::flash_init(if (side == "rows") Y else t(Y), var_type = if (side == "rows") 2 else 1)
     native <- flashier::flash_factors_init(native, if (side == "rows") list(a, b) else list(b, a), ebnm_fn = p)
     native <- flashier::flash_factors_fix(native, 1:2, which_dim = if (side == "rows") "loadings" else "factors")
-    native <- flashier::flash_backfit(native, maxiter = 5, extrapolate = FALSE, verbose = 0)
+    native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 5, extrapolate = FALSE, verbose = 0))
     expect_equal(unname(r$representation$effects), unname(if (side == "rows") native$F_pm else native$L_pm))
   }
 })
@@ -43,7 +43,7 @@ test_that("transfer rejects integrity, units, rank and budget failures", {
   v <- fixture_view()
   Y <- tcrossprod(v$activity, v$effects)
   priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-  run <- function(q = Y, ...) project_factor_activity(v, q, "rows", "arcsinh_intensity", list(scope = "identity"), ebnm_fn = priors, ...)
+  run <- function(q = Y, ...) allow_maxiter(project_factor_activity(v, q, "rows", "arcsinh_intensity", list(scope = "identity"), ebnm_fn = priors, ...))
   expect_error(run(Y[, 1:2]), "Exact")
   expect_error(run(Y[, 1, drop = FALSE], feature_match = "intersection"), "Insufficient")
   r <- run(Y[, 1:3], feature_match = "intersection", maxiter = 5)
@@ -75,25 +75,25 @@ test_that("inferred priors, subsets, nonzero offsets and S retain declared coord
   # fixture_fit deliberately leaves units unknown: declarations fail closed.
   expect_error(project_factor_activity(v, Y, "rows", "unknown", list(scope = "identity")), "non-unknown")
   v <- .make_representation(v$activity, v$effects, utils::modifyList(v$manifest, list(feature_scale = "simulated")))
-  inferred <- suppressWarnings(project_factor_activity(v, t(Y), "columns", "simulated", list(scope = "identity"), maxiter = 3))
+  inferred <- allow_maxiter(project_factor_activity(v, t(Y), "columns", "simulated", list(scope = "identity"), maxiter = 3))
   expect_identical(inferred$representation$effects, v$effects)
-  new <- suppressWarnings(project_factor_features(v, Y[12:1, 1:3], "rows", "protein", maxiter = 3))
+  new <- allow_maxiter(project_factor_features(v, Y[12:1, 1:3], "rows", "protein", maxiter = 3))
   expect_identical(new$representation$activity, v$activity[12:1, , drop = FALSE])
   offset <- setNames(rep(1, nrow(v$effects)), rownames(v$effects))
   shifted <- .make_representation(v$activity, v$effects, v$manifest, offset = offset)
   query <- sweep(Y, 2, offset, "+")
   sparse <- Matrix::Matrix(query, sparse = TRUE)
-  r <- suppressWarnings(project_factor_activity(shifted, sparse, "rows", "simulated", list(scope = "identity"), maxiter = 3))
+  r <- allow_maxiter(project_factor_activity(shifted, sparse, "rows", "simulated", list(scope = "identity"), maxiter = 3))
   expect_identical(r$representation$offset, offset)
   expect_identical(r$representation$effects, v$effects)
   expect_true(is.logical(r$native_iteration_diagnostics$iteration_limit_reached))
   expect_equal(r$native_iteration_diagnostics$iteration_limit, 3)
   expect_error(project_factor_activity(shifted, sparse, "rows", "simulated", list(scope = "identity"), dense_budget_bytes = 400), "allocations")
-  selected <- suppressWarnings(project_factor_activity(v, Y, "rows", "simulated", list(scope = "identity"), factors = rev(colnames(v$effects)), maxiter = 3))
+  selected <- allow_maxiter(project_factor_activity(v, Y, "rows", "simulated", list(scope = "identity"), factors = rev(colnames(v$effects)), maxiter = 3))
   expect_equal(colnames(selected$representation$effects), colnames(v$effects))
   S <- matrix(1, nrow(Y), ncol(Y), dimnames = dimnames(Y))
-  a <- suppressWarnings(project_factor_activity(v, Y[12:1, 8:1], "rows", "simulated", list(scope = "identity"), S = S, maxiter = 3))
-  b <- suppressWarnings(project_factor_activity(v, Y[12:1, 8:1], "rows", "simulated", list(scope = "identity"), S = S[12:1, 8:1], maxiter = 3))
+  a <- allow_maxiter(project_factor_activity(v, Y[12:1, 8:1], "rows", "simulated", list(scope = "identity"), S = S, maxiter = 3))
+  b <- allow_maxiter(project_factor_activity(v, Y[12:1, 8:1], "rows", "simulated", list(scope = "identity"), S = S[12:1, 8:1], maxiter = 3))
   expect_equal(a$representation$activity, b$representation$activity)
   bad <- v$effects
   bad[, 2] <- 0
@@ -112,7 +112,7 @@ test_that("projected F2 uses new native coordinates, moments, PVE and draws", {
       )
       Y <- fixture_matrix()
       query <- if (orientation == "rows") Y else t(Y)
-      result <- suppressWarnings(project_factor_activity(view, query, orientation,
+      result <- allow_maxiter(project_factor_activity(view, query, orientation,
         "simulated", list(scope = "identity"),
         factors = "F2", maxiter = 200
       ))
@@ -149,7 +149,7 @@ test_that("intersection moments match native IDs and absent features are unavail
   Y <- tcrossprod(view$activity, view$effects)[, c("g3", "g1", "g2")]
   priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
   for (orientation in c("rows", "columns")) {
-    result <- suppressWarnings(project_factor_activity(view,
+    result <- allow_maxiter(project_factor_activity(view,
       if (orientation == "rows") Y else t(Y), orientation, "arcsinh_intensity",
       list(scope = "identity"),
       ebnm_fn = if (orientation == "rows") priors else rev(priors),
@@ -180,7 +180,7 @@ test_that("projected native fits retain declared external offsets after serializ
   shifted <- .make_representation(view$activity, view$effects, view$manifest, offset)
   query <- sweep(tcrossprod(view$activity, view$effects), 2, offset, "+")
   priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-  result <- suppressWarnings(project_factor_activity(shifted, query, "rows", "arcsinh_intensity",
+  result <- allow_maxiter(project_factor_activity(shifted, query, "rows", "arcsinh_intensity",
     list(scope = "identity"),
     ebnm_fn = priors, maxiter = 200
   ))
@@ -189,6 +189,7 @@ test_that("projected native fits retain declared external offsets after serializ
   saveRDS(result$fit, path)
   restored <- standardize_factors(readRDS(path), scaling = "raw")
   expect_identical(restored$offset, offset)
+  expect_identical(restored$manifest$offset_definition, "external_projection_offset")
   expect_equal(
     sweep(tcrossprod(restored$activity, restored$effects), 2, restored$offset, "+"),
     sweep(tcrossprod(result$representation$activity, result$representation$effects), 2, offset, "+")
@@ -202,7 +203,7 @@ test_that("activity projection inherits reference var_type and checks matrix S",
     feature_scale = "intensity"
   )
   run <- function(...) {
-    suppressWarnings(project_factor_activity(fit, X, "rows", "intensity",
+    allow_maxiter(project_factor_activity(fit, X, "rows", "intensity",
       list(scope = "identity"),
       maxiter = 20L, ...
     ))
@@ -211,7 +212,7 @@ test_that("activity projection inherits reference var_type and checks matrix S",
   expect_identical(inherited$analysis_metadata$var_type, 1L)
   expect_equal(inherited$representation$activity, run(var_type = 1L)$representation$activity)
   view <- standardize_factors(fit, scaling = "raw")
-  expect_identical(suppressWarnings(project_factor_activity(view, X, "rows", "intensity",
+  expect_identical(allow_maxiter(project_factor_activity(view, X, "rows", "intensity",
     list(scope = "identity"),
     maxiter = 5L
   ))$analysis_metadata$var_type, 0L)
@@ -230,7 +231,7 @@ test_that("fixed_reference projection reuses reference activity priors in both o
       nullcheck = FALSE, seed = 12, verbose = 0, feature_scale = "intensity"
     )
     run <- function(pol, ...) {
-      suppressWarnings(project_factor_activity(fit, data, side, "intensity",
+      allow_maxiter(project_factor_activity(fit, data, side, "intensity",
         list(scope = "identity"),
         maxiter = 50L, prior_policy = pol, ...
       ))
@@ -245,7 +246,7 @@ test_that("fixed_reference projection reuses reference activity priors in both o
     expect_identical(fixed$representation$manifest$factor_support$activity_support, rep("signed", 2))
   }
   expect_error(run("fixed_reference", ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_normal)), "ebnm family")
-  expect_error(suppressWarnings(project_factor_activity(standardize_factors(fit), data, side, "intensity",
+  expect_error(allow_maxiter(project_factor_activity(standardize_factors(fit), data, side, "intensity",
     list(scope = "identity"),
     prior_policy = "fixed_reference"
   )), "native reference fit")
@@ -259,7 +260,7 @@ test_that("fixed priors with sample-wise noise make activity independent of the 
     max_factors = 2, backfit = TRUE, nullcheck = FALSE, seed = 2, verbose = 0, feature_scale = "intensity"
   )
   s1 <- function(rows) {
-    suppressWarnings(project_factor_activity(fit, X[rows, ], "rows", "intensity",
+    allow_maxiter(project_factor_activity(fit, X[rows, ], "rows", "intensity",
       list(scope = "identity"),
       maxiter = 2000L, var_type = 1L, prior_policy = "fixed_reference"
     ))$representation$activity["s1", ]
@@ -280,7 +281,7 @@ test_that("fixed_reference maps intercept fits and factor subsets to native refe
     expect_identical(meta$native_indices[1], 2L)
     ghat <- if (side == "rows") "L_ghat" else "F_ghat"
     run <- function(...) {
-      suppressWarnings(project_factor_activity(fit, data, side, "intensity",
+      allow_maxiter(project_factor_activity(fit, data, side, "intensity",
         list(scope = "identity"),
         maxiter = 50L, prior_policy = "fixed_reference", ...
       ))

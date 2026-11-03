@@ -15,3 +15,11 @@ test_that("runtime accessor preserves result origin separately from its own call
   expect_equal(attr(out, "analysis_metadata"), attr(result, "analysis_metadata"))
   expect_equal(attr(out, "accessor_metadata")[["function"]], "provenance")
 })
+
+test_that("package code calls no private flashier function", {
+  # Tests may inspect flashier internals; R/ must use exported functions only.
+  sources <- list.files(test_path("..", "..", "R"), pattern = "[.]R$", full.names = TRUE)
+  skip_if(!length(sources), "package sources are not available in this check")
+  private <- grep(":::", unlist(lapply(sources, readLines)), fixed = TRUE, value = TRUE)
+  expect_identical(private, character())
+})

@@ -12,7 +12,7 @@ test_that("new measurement offsets agree with public native affine fits", {
   for (side in c("rows", "columns")) {
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_exponential)
     if (side == "columns") priors <- rev(priors)
-    result <- suppressWarnings(project_factor_features(source,
+    result <- allow_maxiter(project_factor_features(source,
       if (side == "rows") Y else t(Y), side, "protein",
       ebnm_fn = priors
     ))
@@ -34,7 +34,7 @@ test_that("new measurement offsets agree with public native affine fits", {
     native <- flashier::flash_factors_fix(native, 1:3,
       which_dim = if (side == "rows") "loadings" else "factors"
     )
-    native <- suppressWarnings(flashier::flash_backfit(native,
+    native <- allow_maxiter(flashier::flash_backfit(native,
       maxiter = 200, extrapolate = FALSE, verbose = 0
     ))
     expected <- if (side == "rows") native$F_pm else native$L_pm
@@ -94,7 +94,7 @@ test_that("activity transfer retains external offsets without a native intercept
     backfit = TRUE, nullcheck = FALSE, seed = 12, verbose = 0, feature_scale = "intensity"
   )
   view <- standardize_factors(fit, scaling = "raw")
-  result <- suppressWarnings(project_factor_activity(
+  result <- allow_maxiter(project_factor_activity(
     view, X, "rows", "intensity",
     list(scope = "identity")
   ))

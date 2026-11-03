@@ -71,6 +71,11 @@ test_that("activity prevalence thresholds add raw and weighted active summaries"
   expect_equal(weighted$active_n[pick], 1L)
   expect_equal(weighted$active_proportion[pick], 0.5)
   expect_equal(weighted$active_weighted_proportion[pick], 3 / 4)
+  # The summary records the activity basis, its scaling and the weighting rule.
+  recorded <- attr(weighted, "analysis_metadata")
+  expect_identical(recorded$basis_id, view$manifest$basis_id)
+  expect_identical(recorded$scaling, view$manifest$scaling)
+  expect_identical(recorded$weighting, "named_weights_means_only")
   plain <- summarize_factor_activity(view, metadata, "group")
   expect_false(any(grepl("^active", names(plain))))
   expect_error(summarize_factor_activity(view, metadata, "group", activity_threshold = -1), "nonnegative")

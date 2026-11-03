@@ -212,10 +212,11 @@ test_that("initializer callbacks do not serialize the caller's data and candidat
   expect_equal(restored$F_pm, result$best_fit$F_pm)
 })
 
-test_that("signed spectral initializers use their public native helpers", {
-  X <- fixture_matrix()
-  for (method in c("softImpute", "irlba")) {
+# One test per engine, so a missing softImpute does not also skip irlba.
+for (method in c("softImpute", "irlba")) {
+  test_that(paste("the signed", method, "initializer uses its public native helper"), {
     skip_if_not_installed(method)
+    X <- fixture_matrix()
     result <- fit_multistart_ebmf(X, "rows",
       n_starts = 2, init_seeds = c(11, 12),
       init_method = method, max_factors = 1, nullcheck = FALSE,
@@ -231,8 +232,8 @@ test_that("signed spectral initializers use their public native helpers", {
     ))
     expect_equal(result$fits[[1]]$L_pm, native$L_pm, tolerance = 1e-10)
     expect_equal(result$fits[[1]]$F_pm, native$F_pm, tolerance = 1e-10)
-  }
-})
+  })
+}
 
 test_that("multistart refuses ambiguous seeds and incompatible initialization", {
   X <- fixture_matrix()
@@ -263,4 +264,26 @@ test_that("multistart refuses ambiguous seeds and incompatible initialization", 
     "rows",
     seed = 3, init_method = "irlba"
   ), "dense complete")
+})
+
+test_that("multistart forwards caller controls to every candidate", {
+  X <- fixture_matrix()
+  priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+  # maxiter = 3 caps the backfit on purpose; its iteration warning is expected.
+  result <- allow_maxiter(fit_multistart_ebmf(X, "rows",
+    ebnm_fn = priors, n_starts = 2, init_seeds = c(31, 72), max_factors = 2,
+    backfit = TRUE, nullcheck = FALSE, verbose = 0, feature_scale = "intensity",
+    control = list(backfit = list(maxiter = 3L))
+  ))
+  for (i in 1:2) {
+    recorded <- attr(result$fits[[i]], "flashbridge_metadata")$configuration$control
+    expect_identical(recorded$backfit$maxiter, 3L)
+    seed <- result$candidates$init_seed[i]
+    native <- allow_maxiter(.with_seed(seed, {
+      init <- function(f) flashier::flash_greedy_init_default(f, sign_constraints = c(0, 0), seed = seed)
+      fit <- flashier::flash_greedy(flashier::flash_init(X), Kmax = 2, ebnm_fn = priors, init_fn = init, verbose = 0)
+      flashier::flash_backfit(fit, maxiter = 3L, verbose = 0)
+    }))
+    expect_equal(result$fits[[i]]$L_pm, native$L_pm, tolerance = 1e-10)
+  }
 })

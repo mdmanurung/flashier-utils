@@ -16,7 +16,7 @@ test_that("GoM DE matches native fastTopics under the same seed", {
   for (shrink in c("ash", "none")) {
     out <- test_gom_de(d$X, d$L, "rows", seed = 3, shrink_method = shrink, control = list(ns = 100))
     set.seed(3)
-    native <- suppressWarnings(fastTopics::de_analysis(d$L, d$X,
+    native <- allow_maxiter(fastTopics::de_analysis(d$L, d$X,
       shrink.method = shrink,
       control = list(ns = 100, nc = 1), verbose = FALSE
     ))

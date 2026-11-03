@@ -20,7 +20,7 @@ test_that("FND-001 oracle: activity projection equals a fresh native pipeline", 
     Y <- 2 * fixture_matrix()
     query <- if (orientation == "rows") Y else t(Y)
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-    result <- suppressWarnings(project_factor_activity(view, query, orientation,
+    result <- allow_maxiter(project_factor_activity(view, query, orientation,
       "simulated", list(scope = "identity"),
       ebnm_fn = priors, maxiter = 200, var_type = 0L
     ))
@@ -80,7 +80,7 @@ test_that("FND-001 oracle: feature projection moments and draws equal a fresh na
     fit <- fixture_fit(orientation)
     view <- standardize_factors(fit, scaling = "raw")
     p <- if (orientation == "rows") priors else rev(priors)
-    result <- suppressWarnings(project_factor_features(view,
+    result <- allow_maxiter(project_factor_features(view,
       if (orientation == "rows") M else t(M), orientation, "protein",
       ebnm_fn = p, maxiter = 200
     ))

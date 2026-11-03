@@ -31,8 +31,8 @@ test_that("zero-factor REFERENCE is refused with a typed message (FU-1)", {
   )
   expect_error(
     factor_stability(X, f0, .stab_md, unit_col = "donor", B = 2, seed = 7),
-    "factor|biological|zero|no ",
-    ignore.case = TRUE
+    "no biological factors available",
+    fixed = TRUE
   )
 })
 

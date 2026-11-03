@@ -6,6 +6,9 @@
 > local receipts: 142 done, 8 superseded by a differently named design, 13 partial
 > (marked `[-]` with the gap), 1 open (custom greedy initializer, fixed the same day). M0 evidence lives
 > in local, untracked validation/ receipts. Scientific calibration is not claimed.
+>
+> **2026-11-03:** 11 of the 13 partial rows closed by tests; the 2 left are release
+> receipts (CREDITS/NOTICE review, roxygen drift CI step).
 
 Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocked
 
@@ -39,9 +42,9 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Add `refit_requires_callback`. (superseded: refit_policy = "callback_required")
 - [x] Mark custom greedy initializer callback-required. (fixed 2026-10-26: R/fit.R refit_policy; test-resampling.R "custom greedy initializers...")
 - [x] Add stability guard before prior/config reconstruction.
-- [-] Mark `refit_factors()` results callback-required. (partial: no stability-refusal test for refit results)
+- [x] Mark `refit_factors()` results callback-required. (2026-11-03: test-resampling.R "refit and unfix results require an explicit fit_fn for resampling")
 - [x] Mark `remove_factors()` results callback-required.
-- [-] Mark fix/unfix results callback-required. (partial: unfix not tested)
+- [x] Mark fix/unfix results callback-required. (2026-11-03: test-resampling.R "refit and unfix results require an explicit fit_fn for resampling")
 - [x] Preserve policy for pure reorder.
 - [x] Mark projection fits callback-required.
 
@@ -90,13 +93,13 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 ### Representation
 
 - [x] Extract offset from RAW native intercept.
-- [-] Validate fixed activity equals one. (partial: no test perturbs the ones)
+- [x] Validate fixed activity equals one. (2026-11-03: test-intercept.R "a feature intercept must keep its fixed sample-side ones")
 - [x] Remove intercept from semantic factors.
 - [x] Subset LDF to adaptive native indices.
 - [x] Keep raw offset unchanged under LDF scaling.
 - [x] Set adaptive `native_indices`.
 - [x] Set adaptive native PVE.
-- [-] Set offset definition. (partial: no test asserts offset_definition)
+- [x] Set offset definition. (2026-11-03: test-intercept.R "the offset definition names where the offset came from"; test-projection.R external offsets)
 - [x] Test intercept-only representation.
 
 ### Native posterior mapping
@@ -105,7 +108,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Update `factor_intervals()`.
 - [x] Update semantic `factor_pve()`.
 - [x] Update stability semantic rank.
-- [-] Update stability semantic PVE. (partial: no stability-level PVE assertion)
+- [x] Update stability semantic PVE. (2026-11-03: test-resampling.R "stability PVE summarises the matched factor's native PVE per replicate")
 
 ### Edit operations
 
@@ -143,7 +146,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Generate collision-free added IDs.
 - [x] Nullcheck new factors descending.
 - [x] Preserve initialized names after removals.
-- [-] Store initialization digests. (partial: digest values not asserted)
+- [x] Store initialization digests. (2026-11-03: test-initialized.R digest assertions on the reordered initial matrices)
 - [x] Mark callback-required.
 - [x] Add both-orientation tests.
 
@@ -169,7 +172,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Set global activity support unknown.
 - [x] Add per-factor support/role metadata.
 - [x] Build signature-statistics table.
-- [-] Record conditional LM+ash uncertainty definition. (partial: not asserted in a test)
+- [x] Record conditional LM+ash uncertainty definition. (2026-11-03: test-gbcd.R lfsr_source and uncertainty_conditioning assertions)
 - [x] Set native PVE unavailable.
 - [x] Update provenance dependency reporting.
 - [x] Test package without GBCD installed.
@@ -185,7 +188,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Add raw active count.
 - [x] Add raw active proportion.
 - [x] Add weighted active proportion when weights exist.
-- [-] Record basis/scaling. (partial: no scaling field recorded)
+- [x] Record basis/scaling. (2026-11-03: test-metadata.R basis_id, scaling and weighting recorded on weighted summaries)
 - [x] Add manual-calculation tests.
 
 **Status:** [-]
@@ -202,7 +205,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Restrict IRLBA to signed-support priors.
 - [x] Enforce upstream missing/dense restrictions.
 - [x] Reject caller greedy init callback.
-- [-] Preserve remaining controls. (partial: no test passes other controls)
+- [x] Preserve remaining controls. (2026-11-03: test-multistart.R "multistart forwards caller controls to every candidate")
 - [x] Capture candidate errors.
 - [x] Record candidate status/reason.
 - [x] Extract ELBO publicly.
@@ -222,7 +225,7 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [x] Preserve first-appearance group order.
 - [x] Handle singleton groups.
 - [x] Handle zero-distance groups.
-- [-] Tie-break by original displayed order. (partial: fixture has no MDS ties)
+- [x] Tie-break by original displayed order. (2026-11-03: test-plots.R "samples tied on the MDS axis keep their input order"; fixed float-noise ties in R/plots.R)
 - [x] Store displayed order metadata.
 - [x] Add deterministic plot tests.
 
@@ -241,6 +244,6 @@ Legend: `[ ]` not started · `[-]` in progress · `[x]` complete · `[!]` blocke
 - [-] CREDITS/NOTICE reviewed. (partial: no review receipt)
 - [x] NEWS records projection metadata fix.
 - [-] roxygen regenerates NAMESPACE/Rd. (partial: no CI drift check)
-- [-] No legacy/private FLASH workflow API copied. (partial: no test or receipt)
+- [x] No legacy/private FLASH workflow API copied. (2026-11-03: test-provenance.R "package code calls no private flashier function")
 
 **Status:** [-]

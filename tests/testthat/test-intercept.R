@@ -155,3 +155,25 @@ test_that("zero biological rank refuses factor consumers before native calls", {
     }
   }
 })
+
+test_that("the offset definition names where the offset came from", {
+  expect_identical(standardize_factors(fixture_fit())$manifest$offset_definition, "zero")
+  X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
+  fit <- fit_ebmf(X, "rows",
+    intercept = "feature", max_factors = 1, nullcheck = FALSE,
+    verbose = 0, seed = 12, feature_scale = "intensity"
+  )
+  expect_identical(standardize_factors(fit)$manifest$offset_definition, "native_feature_intercept")
+})
+
+test_that("a feature intercept must keep its fixed sample-side ones", {
+  X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
+  fit <- fit_ebmf(X, "rows",
+    intercept = "feature", max_factors = 1, nullcheck = FALSE,
+    verbose = 0, seed = 12, feature_scale = "intensity"
+  )
+  expect_no_error(standardize_factors(fit))
+  broken <- fit
+  broken$L_pm[1, 1] <- 1.5
+  expect_error(standardize_factors(broken), "deterministic sample-side ones")
+})

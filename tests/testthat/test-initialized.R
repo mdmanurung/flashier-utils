@@ -16,7 +16,7 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
       Y <- if (side == "rows") x$X else t(x$X)
       set.seed(31)
       previous <- .Random.seed
-      fit <- suppressWarnings(fit_initialized_ebmf(Y, side, x$A[12:1, ], x$B[8:1, ],
+      fit <- allow_maxiter(fit_initialized_ebmf(Y, side, x$A[12:1, ], x$B[8:1, ],
         activity_prior = ebnm::ebnm_normal, fixed_side = fixed, seed = 17,
         control = controls, verbose = 0
       ))
@@ -36,7 +36,7 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
           which_dim = if ((fixed == "activity") == (side == "rows")) "loadings" else "factors"
         )
       }
-      native <- suppressWarnings(flashier::flash_backfit(native,
+      native <- allow_maxiter(flashier::flash_backfit(native,
         maxiter = 50,
         extrapolate = FALSE, verbose = 0
       ))
@@ -55,6 +55,9 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
       metadata <- attr(fit, "flashbridge_metadata")
       expect_identical(metadata$refit_policy, "callback_required")
       expect_identical(metadata$initialization$factor_ids, c("F1", "anchor"))
+      # Digests cover the initial matrices after reordering to X's sample and feature IDs.
+      expect_identical(metadata$initialization$activity_sha256, digest::digest(x$A, algo = "sha256"))
+      expect_identical(metadata$initialization$effect_sha256, digest::digest(x$B, algo = "sha256"))
       expect_false(any(c("activity_init", "effect_init") %in% names(attr(fit, "analysis_metadata")$parameters)))
       md <- data.frame(sample = rownames(x$X), donor = rep(1:4, each = 3))
       expect_error(factor_stability(Y, fit, md, "donor", B = 1, seed = 9), "explicit fit_fn")
@@ -64,7 +67,7 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
 
 test_that("new factors preserve initialized IDs through selected-only nullchecking", {
   x <- initialized_fixture()
-  fit <- suppressWarnings(fit_initialized_ebmf(x$X, "rows", x$A, x$B,
+  fit <- allow_maxiter(fit_initialized_ebmf(x$X, "rows", x$A, x$B,
     activity_prior = ebnm::ebnm_normal, fixed_side = "activity", add_factors = 2,
     nullcheck_new = FALSE, seed = 17, verbose = 0,
     control = list(backfit = list(maxiter = 50), greedy = list(maxiter = 50))
@@ -127,7 +130,7 @@ test_that("added-factor pipeline matches independent selected-only native remova
   control <- list(backfit = list(maxiter = 50), greedy = list(maxiter = 50))
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") x$X else t(x$X)
-    fit <- suppressWarnings(fit_initialized_ebmf(Y, side, x$A, x$B,
+    fit <- allow_maxiter(fit_initialized_ebmf(Y, side, x$A, x$B,
       activity_prior = ebnm::ebnm_normal, fixed_side = "activity", add_factors = 2,
       seed = 17, control = control, verbose = 0
     ))
@@ -143,12 +146,12 @@ test_that("added-factor pipeline matches independent selected-only native remova
     native <- flashier::flash_factors_fix(native, 1:2,
       which_dim = if (side == "rows") "loadings" else "factors"
     )
-    native <- suppressWarnings(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
-    native <- suppressWarnings(flashier::flash_greedy(native,
+    native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
+    native <- allow_maxiter(flashier::flash_greedy(native,
       Kmax = 2, ebnm_fn = priors,
       maxiter = 50, verbose = 0
     ))
-    native <- suppressWarnings(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
+    native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
     new_indices <- setdiff(seq_len(native$n_factors), 1:2)
     expected_ids <- c("F1", "anchor", paste0("F", seq_along(new_indices) + 1L))
     native <- flashier::flash_nullcheck(native, kset = new_indices, remove = FALSE, verbose = 0)

@@ -65,7 +65,7 @@ test_that("automatic resampling preserves ordinary recipes and guards edited fit
   expect_error(run(fixed), "explicit fit_fn")
   reordered_edit <- reorder_factors(fixed, c("F2", "F1"))
   expect_error(run(reordered_edit), "explicit fit_fn")
-  projected <- suppressWarnings(project_factor_activity(fit, fixture_matrix(), "rows", "intensity",
+  projected <- allow_maxiter(project_factor_activity(fit, fixture_matrix(), "rows", "intensity",
     list(scope = "identity"),
     maxiter = 200
   ))
@@ -154,4 +154,40 @@ test_that("custom greedy initializers require an explicit stability callback", {
   expect_error(factor_stability(X, fit, md, "donor", B = 1L, seed = 1), "explicit fit_fn")
   plain <- fit_ebmf(X, "rows", max_factors = 1L, backfit = TRUE, seed = 4, verbose = 0L, feature_scale = "intensity")
   expect_identical(attr(plain, "flashbridge_metadata")$refit_policy, "ordinary")
+})
+
+test_that("refit and unfix results require an explicit fit_fn for resampling", {
+  fit <- fixture_fit()
+  attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
+  metadata <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2))
+  run <- function(reference) factor_stability(fixture_matrix(), reference, metadata, "donor", B = 1L, seed = 7)
+  refit <- allow_maxiter(refit_factors(fit, control = list(maxiter = 5)))
+  expect_identical(attr(refit, "flashbridge_metadata")$refit_policy, "callback_required")
+  expect_error(run(refit), "explicit fit_fn")
+  unfixed <- fix_factors(fix_factors(fit, "F1", "effects"), "F1", "effects", action = "unfix")
+  expect_identical(attr(unfixed, "flashbridge_metadata")$refit_policy, "callback_required")
+  expect_error(run(unfixed), "explicit fit_fn")
+})
+
+test_that("stability PVE summarises the matched factor's native PVE per replicate", {
+  fit <- fixture_fit()
+  attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
+  metadata <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2))
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 2L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  }
+  out <- factor_stability(fixture_matrix(), fit, metadata, "donor",
+    B = 3L, fit_fn = callback, seed = 21, min_congruence = 0.5, keep_fits = TRUE
+  )
+  for (reference_factor in out$summary$factor) {
+    pve <- vapply(seq_along(out$fits), function(i) {
+      matched <- out$matches[out$matches$replicate == i & out$matches$reference_factor %in% reference_factor, ]
+      if (!nrow(matched) || is.na(matched$target_factor)) return(NA_real_)
+      native <- factor_pve(out$fits[[i]])
+      native$pve[match(matched$target_factor, native$factor)]
+    }, numeric(1))
+    row <- out$summary[out$summary$factor == reference_factor, ]
+    expect_equal(row$native_pve_mean, mean(pve, na.rm = TRUE))
+    expect_equal(row$native_pve_sd, stats::sd(pve, na.rm = TRUE))
+  }
 })

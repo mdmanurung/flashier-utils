@@ -45,6 +45,9 @@ test_that("GBCD conversion keeps effects, labels and conditional statistics sepa
   expect_true(all(view$offset == 0))
   expect_true(all(is.na(view$manifest$native_indices)))
   expect_identical(view$manifest$mapping_scope, "gbcd_components")
+  # The lfsr comes from a regression conditional on the estimated memberships.
+  expect_identical(view$manifest$lfsr_source, "conditional_linear_regression_then_ashr")
+  expect_identical(view$manifest$uncertainty_conditioning, "conditional_on_estimated_memberships")
   expect_identical(view$manifest$constraints, c(activity = "unknown", effects = "signed"))
   expect_true(all(.factor_support(view$manifest)$activity_support == "unknown"))
   expect_true(is.na(out$signatures$z_score[1]))
@@ -112,10 +115,10 @@ test_that("installed pinned GBCD agrees exactly with direct calls in both orient
   )
   before <- serialize(Y, NULL)
   # Bounded parity checks compare identical iteration limits; convergence is separate.
-  direct <- suppressWarnings(.with_seed(12, do.call(gbcd::fit_gbcd, c(list(Y = Y, Kmax = 3), settings))))
+  direct <- allow_maxiter(.with_seed(12, do.call(gbcd::fit_gbcd, c(list(Y = Y, Kmax = 3), settings))))
   for (side in c("rows", "columns")) {
     X <- if (side == "rows") Y else t(Y)
-    wrapped <- suppressWarnings(.with_seed(12, do.call(fit_gbcd_programs, c(list(
+    wrapped <- allow_maxiter(.with_seed(12, do.call(fit_gbcd_programs, c(list(
       X = X, sample_side = side,
       kmax = 3, feature_scale = "natural_log", preprocessing = gbcd_preprocessing(), keep_native = TRUE
     ), settings))))
@@ -168,11 +171,11 @@ test_that("installed GBCD sparse low-rank branch agrees with direct engine outpu
     maxiter1 = 20L, maxiter2 = 20L, maxiter3 = 20L,
     control = list(corr_thres = 0), verbose = 0L
   )
-  direct <- suppressWarnings(.with_seed(14, do.call(
+  direct <- allow_maxiter(.with_seed(14, do.call(
     gbcd::fit_gbcd,
     c(list(Y = Y, Kmax = 3), settings)
   )))
-  wrapped <- suppressWarnings(.with_seed(14, do.call(
+  wrapped <- allow_maxiter(.with_seed(14, do.call(
     fit_gbcd_programs,
     c(list(
       X = Y, sample_side = "rows", kmax = 3, feature_scale = "natural_log",
