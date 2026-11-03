@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- DESCRIPTION now requires flashier (>= 1.0.60). Against CRAN flashier 1.0.7
+  the suite fails 10 masked-holdout expectations (`test-holdout.R`,
+  `test-core-review.R:103`): 1.0.7 rejects data with an all-missing row or
+  column, which masked `factor_holdout()` creates. The pancreas vignette fails
+  on the same check, and the plot gallery needs `flash_plot_scree()`, absent
+  from 1.0.7. The `Remotes:` pin to `willwerscheid/flashier@fd44811` stays.
+
 - rOpenSci gates: `project_factor_activity()` and `project_factor_features()`
   gained runnable examples, a package-level help page (`?flashier.utils`) and
   `CONTRIBUTING.md` were added, CI now also checks R oldrel, and DESCRIPTION

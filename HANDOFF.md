@@ -52,7 +52,11 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 Source: reports/ropensci-review-20261027 (state at 22c8877; gates fixed in 00ac52d).
 Order is by what unblocks the next step. Estimates are hands-on effort.
 
-- [ ] P1 Decide the dependency story (half a day). Run the full suite and the four
+- [x] P1 done 2026-11-03: pin kept, `flashier (>= 1.0.60)` in Imports. CRAN 1.0.7 fails 10
+  masked-holdout expectations (all-missing slices rejected), pancreas vignette, and lacks
+  flash_plot_scree. Receipts: validation/p1-cran-flashier-20261103/. Plan for the rest:
+  ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md.
+  Original item: Decide the dependency story (half a day). Run the full suite and the four
   vignettes against CRAN flashier 1.0.x in a scratch library. If green: drop the
   `Remotes:` pin for flashier, keep the three Suggests remotes (CorShrink, gbcd,
   fastTopics) and document them as optional GitHub installs. If not green: record

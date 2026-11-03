@@ -10,7 +10,11 @@ check posterior uncertainty, stability and held-out prediction.
 
 ## Installation
 
-Requires R 4.3 or later. The install pulls the pinned flashier commit.
+Requires R 4.3 or later and flashier 1.0.60 or later. The install pulls the
+pinned flashier commit (`willwerscheid/flashier@fd44811`). CRAN flashier 1.0.7
+is not enough: it rejects data with an all-missing row or column, which masked
+`factor_holdout()` creates, and it lacks `flash_plot_scree()`. The committed
+article tables and every recorded `basis_id` come from flashier 1.0.60.
 
 ```r
 install.packages("remotes")
