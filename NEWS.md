@@ -1,5 +1,11 @@
 # flashier.utils 2.0.0.9000
 
+- `fit_ebmf()`, `fit_initialized_ebmf()` and `project_factor_activity()` now
+  check `var_type` against the documented contract before calling flashier:
+  one of 0, 1, 2 or `c(1, 2)`, and `NULL` only with `S`. Combinations such as
+  `c(0, 1)` failed inside flashier with "Invalid var.type."; `c(2, 1)` failed
+  with a matrix error; `NULL` without `S` failed late in ebnm. Found by autotest.
+
 - Renamed `provenance()` to `factor_provenance()` and `test_factors()` to
   `test_factor_association()`: CRAN packages AgriFusionR, dataset, metasurvey
   and provenance export `provenance()`, and plspm exports `test_factors()`. The

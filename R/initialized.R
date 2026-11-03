@@ -48,6 +48,8 @@ fit_initialized_ebmf <- function(X, sample_side, activity_init, effect_init,
   fixed_side <- match.arg(fixed_side)
   generated <- c(rows = is.null(rownames(X)), columns = is.null(colnames(X)))
   X <- .validate_matrix(X, id_policy)
+  .check_S(S)
+  .check_var_type(var_type, S)
   .program_number(add_factors, "add_factors", integer = TRUE)
   if (!.is_flag(nullcheck_new)) stop("nullcheck_new must be TRUE or FALSE")
   if (!is.function(activity_prior) || !is.function(effect_prior)) stop("Initial priors must be native EBNM functions")

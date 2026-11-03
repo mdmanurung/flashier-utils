@@ -98,6 +98,15 @@
   force(code)
 }
 
+# flashier accepts one of 0, 1, 2, or c(1, 2) in that order (c(2, 1) fails inside flashier);
+# NULL estimates no residual variance, so it needs a supplied S.
+.check_var_type <- function(var_type, S) {
+  valid <- is.null(var_type) || (is.numeric(var_type) && length(var_type) == 1L && var_type %in% 0:2) ||
+    (is.numeric(var_type) && identical(as.numeric(var_type), c(1, 2)))
+  if (!valid) stop("var_type must be NULL, 0, 1, 2 or c(1, 2)", call. = FALSE)
+  if (is.null(var_type) && is.null(S)) stop("var_type = NULL estimates no residual variance; supply S", call. = FALSE)
+}
+
 .check_S <- function(S) {
   if (!is.null(S) && (!is.numeric(S) || any(!is.finite(S)) || any(S <= 0))) stop("S must be finite and positive")
   invisible(S)

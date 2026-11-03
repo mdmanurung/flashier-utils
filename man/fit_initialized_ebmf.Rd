@@ -48,8 +48,8 @@ factor names and order. Rows of both matrices are matched to X by ID.}
 matrix). \code{NULL} (default) estimates noise from the data.}
 
 \item{var_type}{Residual variance structure passed to flashier: \code{0L}
-(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both,
-\code{NULL} none when \code{S} is supplied.}
+(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both
+(in that order), \code{NULL} none, which requires \code{S}.}
 
 \item{id_policy}{\code{"require"} (default) stops on missing dimnames;
 \code{"generate"} creates them.}

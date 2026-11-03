@@ -169,3 +169,12 @@ test_that("added-factor pipeline matches independent selected-only native remova
     expect_equal(standardize_factors(fit, scaling = "raw")$activity[, 1:2], x$A)
   }
 })
+
+test_that("initialized fits and projections share the var_type contract", {
+  x <- initialized_fixture()
+  expect_error(fit_initialized_ebmf(x$X, "rows", x$A, x$B, var_type = c(0L, 2L), verbose = 0), "var_type must be")
+  expect_error(fit_initialized_ebmf(x$X, "rows", x$A, x$B, var_type = NULL, verbose = 0), "supply S")
+  fit <- fixture_fit()
+  attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
+  expect_error(project_factor_activity(fit, fixture_matrix(), "rows", "intensity", list(scope = "identity"), var_type = c(2L, 1L)), "var_type must be")
+})

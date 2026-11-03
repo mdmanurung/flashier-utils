@@ -91,8 +91,8 @@
 #' @param S Optional known observation standard errors (scalar, vector or
 #'   matrix). `NULL` (default) estimates noise from the data.
 #' @param var_type Residual variance structure passed to flashier: `0L`
-#'   (default) one constant, `1L` per row, `2L` per column, `c(1L, 2L)` both,
-#'   `NULL` none when `S` is supplied.
+#'   (default) one constant, `1L` per row, `2L` per column, `c(1L, 2L)` both
+#'   (in that order), `NULL` none, which requires `S`.
 #' @param max_factors Upper bound on the number of greedily added factors
 #'   (default 50). The fit can stop earlier.
 #' @param backfit Run the native backfit after greedy addition (default `FALSE`).
@@ -145,7 +145,7 @@ fit_ebmf <- function(X, sample_side = c("rows", "columns"), ebnm_fn = ebnm::ebnm
   generated <- c(rows = is.null(rownames(X)), columns = is.null(colnames(X)))
   X <- .validate_matrix(X, id_policy)
   .check_S(S)
-  if (!is.null(var_type) && (!is.numeric(var_type) || !length(var_type) || !all(var_type %in% 0:2) || anyDuplicated(var_type))) stop("var_type must be NULL, 0, 1, 2 or c(1, 2)")
+  .check_var_type(var_type, S)
   if (inherits(X, "sparseMatrix") && !is.null(S)) stop("Sparse observations with explicit S are unsupported by native flashier (S4 subscript); supply explicitly dense input within your memory budget")
   if (length(max_factors) != 1L || !is.numeric(max_factors) || !is.finite(max_factors) || max_factors < 0 || max_factors != as.integer(max_factors)) stop("max_factors must be a nonnegative integer")
   if (!.is_named_list(control)) stop("control must be a uniquely named list")

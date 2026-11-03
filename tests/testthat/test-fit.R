@@ -47,4 +47,10 @@ test_that("fit_ebmf refuses non-positive S and unknown var_type", {
   expect_error(fit_ebmf(X, "rows", S = -1, max_factors = 1L, verbose = 0L), "finite and positive")
   expect_error(fit_ebmf(X, "rows", S = X * 0, max_factors = 1L, verbose = 0L), "finite and positive")
   expect_error(fit_ebmf(X, "rows", var_type = 3, max_factors = 1L, verbose = 0L), "var_type must be")
+  # 0 never combines with 1 or 2, and no residual variance needs a supplied S.
+  expect_error(fit_ebmf(X, "rows", var_type = c(0L, 1L), max_factors = 1L, verbose = 0L), "var_type must be")
+  expect_error(fit_ebmf(X, "rows", var_type = NULL, max_factors = 1L, verbose = 0L), "supply S")
+  expect_s3_class(fit_ebmf(X, "rows", var_type = c(1L, 2L), max_factors = 1L, verbose = 0L, seed = 1), "flash")
+  # Native flashier fails on the reversed order, so it is refused up front.
+  expect_error(fit_ebmf(X, "rows", var_type = c(2L, 1L), max_factors = 1L, verbose = 0L), "var_type must be")
 })

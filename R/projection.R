@@ -358,6 +358,7 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   if (prior_policy == "fixed_reference" && !inherits(fit, "flash")) stop("fixed_reference requires the native reference fit")
   if (is.null(var_type)) var_type <- attr(fit, "flashbridge_metadata")$configuration$var_type
   if (is.null(var_type)) var_type <- 0L
+  .check_var_type(var_type, S)
   source <- .resolve_view(fit, sample_side = if (inherits(fit, "flash")) .resolve_sample_side(fit, if (is.null(attr(fit, "flashbridge_metadata")$sample_side)) side else NULL) else NULL)
   if (prior_policy == "fixed_reference") source <- standardize_factors(fit, sample_side = source$manifest$sample_side, scaling = "raw")
   if (!identical(feature_scale, source$manifest$feature_scale)) stop("Query and reference feature units are incompatible")

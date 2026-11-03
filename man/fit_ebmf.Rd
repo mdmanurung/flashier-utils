@@ -35,8 +35,8 @@ list of two in native row/column order (not sample/feature order). Default
 matrix). \code{NULL} (default) estimates noise from the data.}
 
 \item{var_type}{Residual variance structure passed to flashier: \code{0L}
-(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both,
-\code{NULL} none when \code{S} is supplied.}
+(default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both
+(in that order), \code{NULL} none, which requires \code{S}.}
 
 \item{max_factors}{Upper bound on the number of greedily added factors
 (default 50). The fit can stop earlier.}
