@@ -28,6 +28,12 @@ test_that("the old names warn and return the renamed functions' results", {
   expect_warning(old <- provenance("fit_ebmf", include_dependencies = FALSE), "factor_provenance")
   expect_equal(old, factor_provenance("fit_ebmf", include_dependencies = FALSE), ignore_attr = TRUE)
   d <- association_fixture()
-  expect_warning(old <- test_factors(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent"), "test_factor_association")
-  expect_equal(old$table, test_factor_association(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent")$table)
+  expect_warning(
+    old <- test_factors(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent"),
+    "test_factor_association"
+  )
+  expect_equal(
+    old$table,
+    test_factor_association(d$view, d$metadata, ~group, "lm", unit_col = "donor", independence = "independent")$table
+  )
 })

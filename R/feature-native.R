@@ -7,7 +7,10 @@
   if (!(is.matrix(effects_matrix) & is.numeric(effects_matrix))) {
     stop("Input \"effects_matrix\" should be a numeric matrix")
   }
-  return(matrix(apply(-effects_matrix, 2, rank), nrow(effects_matrix), ncol(effects_matrix),
+  return(matrix(
+    apply(-effects_matrix, 2, rank),
+    nrow(effects_matrix),
+    ncol(effects_matrix),
     dimnames = dimnames(effects_matrix)
   ))
 }

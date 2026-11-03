@@ -16,7 +16,10 @@ test_that("shrink_factor_effects refuses inputs it cannot shrink", {
   expect_error(shrink_factor_effects(coefficients, "cohort", method = "ash", term = "groupB"), "Choose mash")
   expect_error(shrink_factor_effects(coefficients, "cohort"), "Choose mash")
   expect_error(run(unclass(coefficients)), "coefficient table")
-  expect_error(shrink_factor_effects(coefficients, "cohort", term = "other", independent_conditions = TRUE), "one comparable term")
+  expect_error(
+    shrink_factor_effects(coefficients, "cohort", term = "other", independent_conditions = TRUE),
+    "one comparable term"
+  )
   expect_error(run(shrinkage_coefficients("A")), "at least two conditions")
   bad <- coefficients
   bad$estimate[1] <- NA_real_

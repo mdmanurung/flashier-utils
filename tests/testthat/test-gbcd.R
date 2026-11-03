@@ -1,4 +1,6 @@
-gbcd_preprocessing <- function() list(scope = "synthetic", description = "natural-log simulated expression", log_base = "e")
+gbcd_preprocessing <- function() {
+  list(scope = "synthetic", description = "natural-log simulated expression", log_base = "e")
+}
 gbcd_fixture <- function() {
   .with_seed(713, {
     n <- 48L
@@ -13,9 +15,7 @@ gbcd_fixture <- function() {
 gbcd_fake <- function(Y) {
   A <- cbind(Baseline = seq(.1, 1, length.out = nrow(Y)), GEP1 = rep(c(0, 1), length.out = nrow(Y)))
   rownames(A) <- rownames(Y)
-  B <- matrix(seq_len(ncol(Y) * 2) / 10, ncol(Y), 2,
-    dimnames = list(colnames(Y), colnames(A))
-  )
+  B <- matrix(seq_len(ncol(Y) * 2) / 10, ncol(Y), 2, dimnames = list(colnames(Y), colnames(A)))
   list(L = A, F = list(lfc = B, z_score = B, lfsr = B * 0 + .1))
 }
 
@@ -110,18 +110,34 @@ test_that("installed pinned GBCD agrees exactly with direct calls in both orient
   expect_identical(utils::packageDescription("gbcd")$RemoteSha, .gbcd_pin)
   Y <- gbcd_fixture()
   settings <- list(
-    maxiter1 = 20L, maxiter2 = 20L, maxiter3 = 20L,
-    control = list(corr_thres = 0), verbose = 0L
+    maxiter1 = 20L,
+    maxiter2 = 20L,
+    maxiter3 = 20L,
+    control = list(corr_thres = 0),
+    verbose = 0L
   )
   before <- serialize(Y, NULL)
   # Bounded parity checks compare identical iteration limits; convergence is separate.
   direct <- allow_maxiter(.with_seed(12, do.call(gbcd::fit_gbcd, c(list(Y = Y, Kmax = 3), settings))))
   for (side in c("rows", "columns")) {
     X <- if (side == "rows") Y else t(Y)
-    wrapped <- allow_maxiter(.with_seed(12, do.call(fit_gbcd_programs, c(list(
-      X = X, sample_side = side,
-      kmax = 3, feature_scale = "natural_log", preprocessing = gbcd_preprocessing(), keep_native = TRUE
-    ), settings))))
+    wrapped <- allow_maxiter(.with_seed(
+      12,
+      do.call(
+        fit_gbcd_programs,
+        c(
+          list(
+            X = X,
+            sample_side = side,
+            kmax = 3,
+            feature_scale = "natural_log",
+            preprocessing = gbcd_preprocessing(),
+            keep_native = TRUE
+          ),
+          settings
+        )
+      )
+    ))
     expect_identical(wrapped$native, direct)
     expect_equal(wrapped$representation$activity, direct$L)
     expect_equal(wrapped$representation$effects, log(2) * direct$F$lfc)
@@ -136,52 +152,82 @@ test_that("installed pinned GBCD agrees exactly with direct calls in both orient
 
 test_that("GBCD refuses an unqualified installed engine before fitting", {
   original <- utils::packageDescription
-  testthat::local_mocked_bindings(packageDescription = function(pkg, ...) {
-    if (identical(pkg, "gbcd")) {
-      return(list(Version = "0.2-10", RemoteSha = "wrong"))
-    }
-    original(pkg, ...)
-  }, .package = "utils")
+  testthat::local_mocked_bindings(
+    packageDescription = function(pkg, ...) {
+      if (identical(pkg, "gbcd")) {
+        return(list(Version = "0.2-10", RemoteSha = "wrong"))
+      }
+      original(pkg, ...)
+    },
+    .package = "utils"
+  )
   expected <- if (requireNamespace("gbcd", quietly = TRUE)) "audited source pin" else "Install optional"
   expect_error(fit_gbcd_programs(gbcd_fixture(), "rows", 3, "natural_log", gbcd_preprocessing()), expected)
 })
 
 test_that("missing GBCD fails before engine execution", {
   original <- base::requireNamespace
-  testthat::local_mocked_bindings(requireNamespace = function(package, ...) {
-    if (identical(package, "gbcd")) {
-      return(FALSE)
-    }
-    original(package, ...)
-  }, .package = "base")
-  expect_error(fit_gbcd_programs(
-    gbcd_fixture(), "rows", 3, "natural_log",
-    gbcd_preprocessing()
-  ), "Install optional gbcd")
+  testthat::local_mocked_bindings(
+    requireNamespace = function(package, ...) {
+      if (identical(package, "gbcd")) {
+        return(FALSE)
+      }
+      original(package, ...)
+    },
+    .package = "base"
+  )
+  expect_error(
+    fit_gbcd_programs(
+      gbcd_fixture(),
+      "rows",
+      3,
+      "natural_log",
+      gbcd_preprocessing()
+    ),
+    "Install optional gbcd"
+  )
 })
 
 test_that("installed GBCD sparse low-rank branch agrees with direct engine output", {
   skip_if_not_installed("gbcd")
   Y <- .with_seed(714, {
     X <- matrix(0, 60, 30, dimnames = list(paste0("s", 1:60), paste0("g", 1:30)))
-    for (k in 1:3) X[((k - 1) * 20 + 1):(k * 20), ((k - 1) * 10 + 1):(k * 10)] <- matrix(rexp(200, .5), 20)
+    for (k in 1:3) {
+      X[((k - 1) * 20 + 1):(k * 20), ((k - 1) * 10 + 1):(k * 10)] <- matrix(rexp(200, .5), 20)
+    }
     Matrix::Matrix(X, sparse = TRUE)
   })
   settings <- list(
-    maxiter1 = 20L, maxiter2 = 20L, maxiter3 = 20L,
-    control = list(corr_thres = 0), verbose = 0L
+    maxiter1 = 20L,
+    maxiter2 = 20L,
+    maxiter3 = 20L,
+    control = list(corr_thres = 0),
+    verbose = 0L
   )
-  direct <- allow_maxiter(.with_seed(14, do.call(
-    gbcd::fit_gbcd,
-    c(list(Y = Y, Kmax = 3), settings)
-  )))
-  wrapped <- allow_maxiter(.with_seed(14, do.call(
-    fit_gbcd_programs,
-    c(list(
-      X = Y, sample_side = "rows", kmax = 3, feature_scale = "natural_log",
-      preprocessing = gbcd_preprocessing(), keep_native = TRUE
-    ), settings)
-  )))
+  direct <- allow_maxiter(.with_seed(
+    14,
+    do.call(
+      gbcd::fit_gbcd,
+      c(list(Y = Y, Kmax = 3), settings)
+    )
+  ))
+  wrapped <- allow_maxiter(.with_seed(
+    14,
+    do.call(
+      fit_gbcd_programs,
+      c(
+        list(
+          X = Y,
+          sample_side = "rows",
+          kmax = 3,
+          feature_scale = "natural_log",
+          preprocessing = gbcd_preprocessing(),
+          keep_native = TRUE
+        ),
+        settings
+      )
+    )
+  ))
   expect_identical(wrapped$diagnostics$strategy, "lowrank_plus_sparse")
   expect_identical(wrapped$native, direct)
 })

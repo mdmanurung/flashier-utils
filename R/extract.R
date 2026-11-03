@@ -1,6 +1,13 @@
 # Newly written selections in the shared matched basis.
-.extract <- function(fit, side, sample_side = NULL, representation = NULL,
-                     factors = NULL, ids = NULL, format = "matrix") {
+.extract <- function(
+  fit,
+  side,
+  sample_side = NULL,
+  representation = NULL,
+  factors = NULL,
+  ids = NULL,
+  format = "matrix"
+) {
   view <- .resolve_view(fit, representation, sample_side)
   format <- match.arg(format, c("matrix", "long"))
   mat <- view[[side]]
@@ -20,7 +27,8 @@
 .long_matrix <- function(mat, id_col, value_col = "estimate") {
   out <- data.frame(
     id = rep(rownames(mat), times = ncol(mat)),
-    factor = rep(if (ncol(mat)) colnames(mat) else character(), each = nrow(mat)), value = as.vector(mat)
+    factor = rep(if (ncol(mat)) colnames(mat) else character(), each = nrow(mat)),
+    value = as.vector(mat)
   )
   names(out) <- c(id_col, "factor", value_col)
   out
@@ -66,9 +74,20 @@
 #' factor_activity(view, factors = "F1", samples = c("s2", "s1"))
 #' # Two samples in long format.
 #' factor_activity(view, samples = c("s1", "s2"), format = "long")
-factor_activity <- function(fit, sample_side = NULL, representation = NULL,
-                            factors = NULL, samples = NULL, format = "matrix") {
-  .attach_provenance(.extract(fit, "activity", sample_side, representation, factors, samples, format), "factor_activity", match.call(), .resolved_parameters("factor_activity", environment()))
+factor_activity <- function(
+  fit,
+  sample_side = NULL,
+  representation = NULL,
+  factors = NULL,
+  samples = NULL,
+  format = "matrix"
+) {
+  .attach_provenance(
+    .extract(fit, "activity", sample_side, representation, factors, samples, format),
+    "factor_activity",
+    match.call(),
+    .resolved_parameters("factor_activity", environment())
+  )
 }
 
 #' Extract feature by factor effects
@@ -101,10 +120,21 @@ factor_activity <- function(fit, sample_side = NULL, representation = NULL,
 #' view <- standardize_factors(fit)
 #' factor_effects(view, factors = "F1", features = c("g2", "g1"))
 #' # From the native fit, with the view and sample side named.
-#' head(factor_effects(fit, sample_side = "rows", representation = view, format = "long"))
-factor_effects <- function(fit, sample_side = NULL, representation = NULL,
-                           factors = NULL, features = NULL, format = "matrix") {
-  .attach_provenance(.extract(fit, "effects", sample_side, representation, factors, features, format), "factor_effects", match.call(), .resolved_parameters("factor_effects", environment()))
+#' factor_effects(fit, sample_side = "rows", representation = view, features = c("g1", "g2"), format = "long")
+factor_effects <- function(
+  fit,
+  sample_side = NULL,
+  representation = NULL,
+  factors = NULL,
+  features = NULL,
+  format = "matrix"
+) {
+  .attach_provenance(
+    .extract(fit, "effects", sample_side, representation, factors, features, format),
+    "factor_effects",
+    match.call(),
+    .resolved_parameters("factor_effects", environment())
+  )
 }
 
 #' Extract native posterior standard deviations in a matched basis
@@ -148,12 +178,19 @@ factor_effects <- function(fit, sample_side = NULL, representation = NULL,
 #' view <- standardize_factors(fit)
 #' factor_uncertainty(fit, side = "activity", factors = "F1", ids = c("s1", "s2"))
 factor_uncertainty <- function(
-  fit, side = c("activity", "effects"), sample_side = NULL,
-  representation = NULL, factors = NULL, ids = NULL, include_lfsr = TRUE,
+  fit,
+  side = c("activity", "effects"),
+  sample_side = NULL,
+  representation = NULL,
+  factors = NULL,
+  ids = NULL,
+  include_lfsr = TRUE,
   require_uncertainty = FALSE
 ) {
   side <- match.arg(side)
-  if (!inherits(fit, "flash")) stop("Posterior uncertainty requires the native fit")
+  if (!inherits(fit, "flash")) {
+    stop("Posterior uncertainty requires the native fit")
+  }
   view <- .resolve_view(fit, representation, sample_side)
   selected <- .extract(view, side, factors = factors, ids = ids, format = "long")
   prefix <- if ((side == "activity") == (view$manifest$sample_side == "rows")) "L" else "F"
@@ -167,21 +204,34 @@ factor_uncertainty <- function(
     if (is.null(mat)) {
       return(rep(NA_real_, nrow(selected)))
     }
-    if (!identical(dim(mat), dim(native))) stop("Native uncertainty dimensions do not match native means")
+    if (!identical(dim(mat), dim(native))) {
+      stop("Native uncertainty dimensions do not match native means")
+    }
     values <- mat[index]
-    if (transform) values <- values * abs(multiplier[columns])
+    if (transform) {
+      values <- values * abs(multiplier[columns])
+    }
     values
   }
   selected$posterior.sd <- lookup(psd, TRUE)
-  if (require_uncertainty && anyNA(selected$posterior.sd)) stop("Native posterior uncertainty is unavailable")
-  if (include_lfsr && !is.null(fit[[paste0(prefix, "_lfsr")]])) selected$lfsr <- lookup(fit[[paste0(prefix, "_lfsr")]])
+  if (require_uncertainty && anyNA(selected$posterior.sd)) {
+    stop("Native posterior uncertainty is unavailable")
+  }
+  if (include_lfsr && !is.null(fit[[paste0(prefix, "_lfsr")]])) {
+    selected$lfsr <- lookup(fit[[paste0(prefix, "_lfsr")]])
+  }
   selected$uncertainty_type <- rep("conditional_variational_ebmf", nrow(selected))
   selected$status <- rep("supported", nrow(selected))
   missing <- is.na(selected$posterior.sd)
   selected$status[missing] <- "unavailable"
   selected$reason <- rep(NA_character_, nrow(selected))
   selected$reason[missing] <- ifelse(is.na(index[missing, 1L]), "not_in_native_fit", "native moments unavailable")
-  .attach_provenance(selected, "factor_uncertainty", match.call(), .resolved_parameters("factor_uncertainty", environment()))
+  .attach_provenance(
+    selected,
+    "factor_uncertainty",
+    match.call(),
+    .resolved_parameters("factor_uncertainty", environment())
+  )
 }
 
 #' Extract native factor proportions of variance explained
@@ -217,12 +267,23 @@ factor_pve <- function(fit, factors = NULL) {
     ids <- view$manifest$factor_ids
     pve <- view$manifest$native_pve
   } else {
-    if (!inherits(fit, "flash")) stop("Expected a native flash fit")
+    if (!inherits(fit, "flash")) {
+      stop("Expected a native flash fit")
+    }
     ids <- attr(fit, "flashbridge_metadata")$factor_ids
-    if (is.null(ids)) ids <- if (fit$n_factors == 0L) character() else paste0("F", seq_len(fit$n_factors))
+    if (is.null(ids)) {
+      ids <- if (fit$n_factors == 0L) character() else paste0("F", seq_len(fit$n_factors))
+    }
     pve <- fit$pve[.native_factor_indices(fit)]
   }
-  if (length(ids) && (is.null(pve) || length(pve) != length(ids))) stop("Native PVE is unavailable")
+  if (length(ids) && (is.null(pve) || length(pve) != length(ids))) {
+    stop("Native PVE is unavailable")
+  }
   index <- .select_ids(factors, ids, "factor")
-  .attach_provenance(data.frame(factor = ids[index], pve = as.numeric(pve[index]), definition = rep("flashier_native", length(index))), "factor_pve", match.call(), .resolved_parameters("factor_pve", environment()))
+  .attach_provenance(
+    data.frame(factor = ids[index], pve = as.numeric(pve[index]), definition = rep("flashier_native", length(index))),
+    "factor_pve",
+    match.call(),
+    .resolved_parameters("factor_pve", environment())
+  )
 }

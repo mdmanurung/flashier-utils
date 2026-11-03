@@ -1,5 +1,10 @@
 test_that("donor occurrences preserve visits, auxiliary maps and serial/parallel identities", {
-  md <- data.frame(sample = paste0("s", 1:8), donor = rep(c("d1", "d2", "d3"), c(2, 3, 3)), visit = c(1, 2, 1, 2, 3, 1, 2, 3), cohort = c(rep("A", 5), rep("B", 3)))
+  md <- data.frame(
+    sample = paste0("s", 1:8),
+    donor = rep(c("d1", "d2", "d3"), c(2, 3, 3)),
+    visit = c(1, 2, 1, 2, 3, 1, 2, 3),
+    cohort = c(rep("A", 5), rep("B", 3))
+  )
   out <- .bootstrap_units(md, "donor", "cohort", seed = 7)
   expect_false(anyDuplicated(out$metadata$sample) > 0)
   for (unit in unique(out$mapping$unit_occurrence)) {
@@ -12,26 +17,96 @@ test_that("donor occurrences preserve visits, auxiliary maps and serial/parallel
   expect_equal(names(aux$S), out$mapping$sample)
   fit <- fixture_fit()
   md <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2))
-  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "unknown")
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "unknown")
+  }
   # Stability cannot compare unknown feature units: use the same declared units.
-  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  }
   attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
   dir <- tempfile()
   on.exit(unlink(dir, recursive = TRUE))
-  first <- factor_stability(fixture_matrix(), fit, md, "donor", B = 2L, fit_fn = callback, seed = 33, min_congruence = 0.5, checkpoint_dir = dir, control = list(callback_configuration = list(prior = "point_normal", K = 1L)))
-  second <- factor_stability(fixture_matrix(), fit, md, "donor", B = 2L, fit_fn = callback, seed = 33, min_congruence = 0.5, checkpoint_dir = dir, control = list(callback_configuration = list(prior = "point_normal", K = 1L)))
+  first <- factor_stability(
+    fixture_matrix(),
+    fit,
+    md,
+    "donor",
+    B = 2L,
+    fit_fn = callback,
+    seed = 33,
+    min_congruence = 0.5,
+    checkpoint_dir = dir,
+    control = list(callback_configuration = list(prior = "point_normal", K = 1L))
+  )
+  second <- factor_stability(
+    fixture_matrix(),
+    fit,
+    md,
+    "donor",
+    B = 2L,
+    fit_fn = callback,
+    seed = 33,
+    min_congruence = 0.5,
+    checkpoint_dir = dir,
+    control = list(callback_configuration = list(prior = "point_normal", K = 1L))
+  )
   expect_equal(first$resamples, second$resamples)
   expect_equal(first$summary, second$summary)
   expect_equal(first$replicates, second$replicates)
   if (.Platform$OS.type == "unix") {
-    parallel <- factor_stability(fixture_matrix(), fit, md, "donor", B = 2L, fit_fn = callback, seed = 33, min_congruence = 0.5, workers = 2L, control = list(callback_configuration = list(prior = "point_normal", K = 1L)))
+    parallel <- factor_stability(
+      fixture_matrix(),
+      fit,
+      md,
+      "donor",
+      B = 2L,
+      fit_fn = callback,
+      seed = 33,
+      min_congruence = 0.5,
+      workers = 2L,
+      control = list(callback_configuration = list(prior = "point_normal", K = 1L))
+    )
     expect_equal(first$resamples, parallel$resamples)
     expect_equal(first$matches, parallel$matches)
   }
-  expect_error(factor_stability(fixture_matrix(), fit, md, "donor", B = 2L, fit_fn = callback, seed = 34, checkpoint_dir = dir, control = list(callback_configuration = list(prior = "point_normal", K = 1L))), "mismatch")
-  failed <- factor_stability(fixture_matrix(), fit, md, "donor", B = 2L, fit_fn = function(...) stop("deliberate fitting failure"), seed = 3, min_congruence = 0.5)
-  zero_callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) fit_ebmf(X, sample_side, max_factors = 0L, seed = seed, verbose = 0L, feature_scale = "intensity")
-  zero <- factor_stability(fixture_matrix(), fit, md, "donor", B = 1L, fit_fn = zero_callback, seed = 3, min_congruence = 0.5)
+  expect_error(
+    factor_stability(
+      fixture_matrix(),
+      fit,
+      md,
+      "donor",
+      B = 2L,
+      fit_fn = callback,
+      seed = 34,
+      checkpoint_dir = dir,
+      control = list(callback_configuration = list(prior = "point_normal", K = 1L))
+    ),
+    "mismatch"
+  )
+  failed <- factor_stability(
+    fixture_matrix(),
+    fit,
+    md,
+    "donor",
+    B = 2L,
+    fit_fn = function(...) stop("deliberate fitting failure"),
+    seed = 3,
+    min_congruence = 0.5
+  )
+  zero_callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 0L, seed = seed, verbose = 0L, feature_scale = "intensity")
+  }
+  zero <- factor_stability(
+    fixture_matrix(),
+    fit,
+    md,
+    "donor",
+    B = 1L,
+    fit_fn = zero_callback,
+    seed = 3,
+    min_congruence = 0.5
+  )
   expect_equal(zero$replicates$rank, 0)
   expect_true(all(zero$summary$recovery_rate_all_requested == 0))
   expect_equal(nrow(failed$failures), 2)
@@ -40,8 +115,10 @@ test_that("donor occurrences preserve visits, auxiliary maps and serial/parallel
 
 test_that("donor strata cannot hide different metadata tuples", {
   metadata <- data.frame(
-    sample = c("s1", "s2"), donor = "d1",
-    first = c("x.y", "x"), second = c("z", "y.z")
+    sample = c("s1", "s2"),
+    donor = "d1",
+    first = c("x.y", "x"),
+    second = c("z", "y.z")
   )
   expect_error(.bootstrap_units(metadata, "donor", c("first", "second"), seed = 7), "crosses strata")
 })
@@ -51,10 +128,7 @@ test_that("automatic resampling preserves ordinary recipes and guards edited fit
   attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
   metadata <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2))
   run <- function(reference, ...) {
-    factor_stability(fixture_matrix(), reference, metadata,
-      "donor",
-      B = 1L, seed = 7, ...
-    )
+    factor_stability(fixture_matrix(), reference, metadata, "donor", B = 1L, seed = 7, ...)
   }
   reordered <- reorder_factors(fit, c("F2", "F1"))
   expect_identical(attr(reordered, "flashbridge_metadata")$refit_policy, "ordinary")
@@ -65,7 +139,11 @@ test_that("automatic resampling preserves ordinary recipes and guards edited fit
   expect_error(run(fixed), "explicit fit_fn")
   reordered_edit <- reorder_factors(fixed, c("F2", "F1"))
   expect_error(run(reordered_edit), "explicit fit_fn")
-  projected <- allow_maxiter(project_factor_activity(fit, fixture_matrix(), "rows", "intensity",
+  projected <- allow_maxiter(project_factor_activity(
+    fit,
+    fixture_matrix(),
+    "rows",
+    "intensity",
     list(scope = "identity"),
     maxiter = 200
   ))
@@ -80,19 +158,26 @@ test_that("automatic intercept bootstrap replays the direct native recipe", {
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") X else t(X)
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-    if (side == "columns") priors <- rev(priors)
-    fit <- fit_ebmf(Y, side,
-      ebnm_fn = priors, intercept = "feature", max_factors = 2,
-      backfit = TRUE, nullcheck = FALSE, verbose = 0, seed = 12, feature_scale = "intensity"
+    if (side == "columns") {
+      priors <- rev(priors)
+    }
+    fit <- fit_ebmf(
+      Y,
+      side,
+      ebnm_fn = priors,
+      intercept = "feature",
+      max_factors = 2,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      verbose = 0,
+      seed = 12,
+      feature_scale = "intensity"
     )
     incomplete <- fit
     attr(incomplete, "flashbridge_metadata")$configuration$intercept <- NULL
     expect_error(factor_stability(Y, incomplete, metadata, "donor", B = 1L, seed = 7), "explicit fit_fn")
     for (reference in list(fit, reorder_factors(fit, c("F2", "F1")))) {
-      result <- factor_stability(Y, reference, metadata, "donor",
-        B = 1L,
-        seed = 7, keep_fits = TRUE
-      )
+      result <- factor_stability(Y, reference, metadata, "donor", B = 1L, seed = 7, keep_fits = TRUE)
       expect_equal(nrow(result$failures), 0L)
       expect_identical(result$replicates$rank, 2L)
       map <- result$resamples
@@ -116,15 +201,33 @@ test_that("automatic intercept bootstrap replays the direct native recipe", {
   }
 })
 test_that("subsampling draws distinct units and keys checkpoints by scheme", {
-  md <- data.frame(sample = paste0("s", 1:12), donor = rep(paste0("d", 1:6), each = 2), cohort = rep(c("A", "B"), each = 6))
+  md <- data.frame(
+    sample = paste0("s", 1:12),
+    donor = rep(paste0("d", 1:6), each = 2),
+    cohort = rep(c("A", "B"), each = 6)
+  )
   out <- .bootstrap_units(md, "donor", "cohort", seed = 7, fraction = 0.5)
   units <- unique(out$mapping[c("unit_occurrence", "original_unit")])
   expect_false(anyDuplicated(units$original_unit) > 0)
   expect_equal(as.vector(table(md$cohort[match(units$original_unit, md$donor)])), c(2L, 2L))
   fit <- fixture_fit()
   attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
-  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
-  run <- function(...) factor_stability(fixture_matrix(), fit, md[1:2], "donor", B = 1L, fit_fn = callback, seed = 33, control = list(callback_configuration = list(K = 1L)), ...)
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  }
+  run <- function(...) {
+    factor_stability(
+      fixture_matrix(),
+      fit,
+      md[1:2],
+      "donor",
+      B = 1L,
+      fit_fn = callback,
+      seed = 33,
+      control = list(callback_configuration = list(K = 1L)),
+      ...
+    )
+  }
   dir <- tempfile()
   on.exit(unlink(dir, recursive = TRUE))
   sub <- run(scheme = "subsample", fraction = 0.5, checkpoint_dir = dir)
@@ -138,7 +241,9 @@ test_that("stability records metadata rows absent from the data", {
   fit <- fixture_fit()
   attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
   md <- data.frame(sample = c(paste0("s", 1:12), "s99"), donor = c(rep(paste0("d", 1:6), each = 2), "d9"))
-  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(X, sample_side, max_factors = 1L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
+  }
   out <- factor_stability(fixture_matrix(), fit, md, "donor", B = 1L, fit_fn = callback, seed = 33)
   expect_equal(out$analysis_metadata$exclusions$sample, "s99")
   expect_false("s99" %in% out$resamples$original_sample)
@@ -146,8 +251,14 @@ test_that("stability records metadata rows absent from the data", {
 test_that("custom greedy initializers require an explicit stability callback", {
   X <- fixture_matrix()
   md <- data.frame(sample = rownames(X), donor = rep(paste0("d", 1:6), each = 2))
-  fit <- fit_ebmf(X, "rows",
-    max_factors = 1L, backfit = TRUE, seed = 4, verbose = 0L, feature_scale = "intensity",
+  fit <- fit_ebmf(
+    X,
+    "rows",
+    max_factors = 1L,
+    backfit = TRUE,
+    seed = 4,
+    verbose = 0L,
+    feature_scale = "intensity",
     control = list(greedy = list(init_fn = flashier::flash_greedy_init_default))
   )
   expect_identical(attr(fit, "flashbridge_metadata")$refit_policy, "callback_required")
@@ -176,16 +287,30 @@ test_that("stability PVE summarises the matched factor's native PVE per replicat
   callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
     fit_ebmf(X, sample_side, max_factors = 2L, backfit = TRUE, seed = seed, verbose = 0L, feature_scale = "intensity")
   }
-  out <- factor_stability(fixture_matrix(), fit, metadata, "donor",
-    B = 3L, fit_fn = callback, seed = 21, min_congruence = 0.5, keep_fits = TRUE
+  out <- factor_stability(
+    fixture_matrix(),
+    fit,
+    metadata,
+    "donor",
+    B = 3L,
+    fit_fn = callback,
+    seed = 21,
+    min_congruence = 0.5,
+    keep_fits = TRUE
   )
   for (reference_factor in out$summary$factor) {
-    pve <- vapply(seq_along(out$fits), function(i) {
-      matched <- out$matches[out$matches$replicate == i & out$matches$reference_factor %in% reference_factor, ]
-      if (!nrow(matched) || is.na(matched$target_factor)) return(NA_real_)
-      native <- factor_pve(out$fits[[i]])
-      native$pve[match(matched$target_factor, native$factor)]
-    }, numeric(1))
+    pve <- vapply(
+      seq_along(out$fits),
+      function(i) {
+        matched <- out$matches[out$matches$replicate == i & out$matches$reference_factor %in% reference_factor, ]
+        if (!nrow(matched) || is.na(matched$target_factor)) {
+          return(NA_real_)
+        }
+        native <- factor_pve(out$fits[[i]])
+        native$pve[match(matched$target_factor, native$factor)]
+      },
+      numeric(1)
+    )
     row <- out$summary[out$summary$factor == reference_factor, ]
     expect_equal(row$native_pve_mean, mean(pve, na.rm = TRUE))
     expect_equal(row$native_pve_sd, stats::sd(pve, na.rm = TRUE))

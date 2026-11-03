@@ -2,7 +2,13 @@ test_that("prediction R squared is negative even with perfect correlation", {
   observed <- data.frame(feature = c("g1", "g2", "g3"), estimate = c(1, 2, 3), contrast = "A - B")
   reconstructed <- observed
   reconstructed$estimate <- c(11, 12, 13)
-  out <- validate_backprojection(reconstructed, observed, feature_scale = "arcsinh_intensity", top_n = 20L, plot = FALSE)
+  out <- validate_backprojection(
+    reconstructed,
+    observed,
+    feature_scale = "arcsinh_intensity",
+    top_n = 20L,
+    plot = FALSE
+  )
   expect_equal(out$metrics$value[out$metrics$metric == "prediction_r2"], -149)
   expect_equal(out$metrics$value[out$metrics$metric == "correlation_squared"], 1)
   expect_equal(out$top_n_overlap$effective_n, 3)

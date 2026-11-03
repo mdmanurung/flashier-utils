@@ -2,11 +2,35 @@ test_that("native rectangular assignment recovers signed pairs and leaves unique
   A <- matrix(1, 3, 3, dimnames = list(paste0("s", 1:3), c("F1", "F2", "F3")))
   B <- diag(4)[, 1:3]
   dimnames(B) <- list(paste0("g", 1:4), colnames(A))
-  reference <- .make_representation(A, B, list(fit_id = "reference", sample_side = "rows", native_indices = 1:3, scaling = "raw", orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"), feature_scale = "intensity"))
+  reference <- .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "reference",
+      sample_side = "rows",
+      native_indices = 1:3,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "intensity"
+    )
+  )
   targetB <- cbind(-B[, 2], B[, 1], c(0, 0, 0, 1))
   dimnames(targetB) <- list(rownames(B), c("Tq", "Tx", "Tz"))
   colnames(A) <- colnames(targetB)
-  target <- .make_representation(A, targetB, list(fit_id = "target", sample_side = "rows", native_indices = 1:3, scaling = "raw", orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"), feature_scale = "intensity"))
+  target <- .make_representation(
+    A,
+    targetB,
+    list(
+      fit_id = "target",
+      sample_side = "rows",
+      native_indices = 1:3,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "intensity"
+    )
+  )
   colnames(A) <- colnames(targetB)
   target <- .make_representation(A, targetB, target$manifest)
   out <- factor_replicability(reference, target, min_congruence = 0.8)
@@ -19,8 +43,14 @@ test_that("native rectangular assignment recovers signed pairs and leaves unique
   expect_equal(candidates$analysis_metadata$reference_coverage, 1)
   target2 <- .make_representation(A[, 1:2], targetB[, 1:2], modifyList(target$manifest, list(native_indices = 1:2)))
   expect_equal(sum(factor_replicability(reference, target2, min_congruence = 0.8)$matches$matched), 2)
-  target0 <- .make_representation(A[, FALSE, drop = FALSE], targetB[, FALSE, drop = FALSE], modifyList(target$manifest, list(native_indices = integer())))
-  expect_true(all(factor_replicability(reference, target0, min_congruence = 0.8)$matches$status == "unmatched_reference"))
+  target0 <- .make_representation(
+    A[, FALSE, drop = FALSE],
+    targetB[, FALSE, drop = FALSE],
+    modifyList(target$manifest, list(native_indices = integer()))
+  )
+  expect_true(all(
+    factor_replicability(reference, target0, min_congruence = 0.8)$matches$status == "unmatched_reference"
+  ))
   constrained <- target
   constrained$manifest$constraints <- c(activity = "nonnegative", effects = "signed")
   constrained <- .make_representation(constrained$activity, constrained$effects, constrained$manifest)
@@ -30,7 +60,17 @@ test_that("native rectangular assignment recovers signed pairs and leaves unique
 test_that("public comparison has named schema and unmatched coverage records", {
   view <- fixture_view()
   out <- factor_replicability(view, view, min_congruence = 0.8)
-  expect_true(all(c("matches", "similarity_matrix", "unmatched_reference", "unmatched_target", "feature_coverage", "analysis_metadata") %in% names(out)))
+  expect_true(all(
+    c(
+      "matches",
+      "similarity_matrix",
+      "unmatched_reference",
+      "unmatched_target",
+      "feature_coverage",
+      "analysis_metadata"
+    ) %in%
+      names(out)
+  ))
   expect_equal(out$feature_coverage$fraction, c(1, 1))
   expect_equal(length(out$unmatched_reference), 0L)
 })

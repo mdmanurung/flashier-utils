@@ -39,19 +39,24 @@
 #' filtered <- filter_cells_by_total_membership(native, "rows", max_val = 1.5)
 #' filtered$kept_samples
 #' filtered$history
-filter_cells_by_total_membership <- function(fit, sample_side = NULL,
-                                             max_val = 10, numiter = 12L) {
+filter_cells_by_total_membership <- function(fit, sample_side = NULL, max_val = 10, numiter = 12L) {
   .program_number(max_val, "max_val")
   .program_number(numiter, "numiter", integer = TRUE, minimum = 1)
-  if (!is.null(sample_side)) sample_side <- match.arg(sample_side, c("rows", "columns"))
+  if (!is.null(sample_side)) {
+    sample_side <- match.arg(sample_side, c("rows", "columns"))
+  }
   view <- .resolve_view(fit, sample_side = sample_side)
   if (!is.null(sample_side) && sample_side != view$manifest$sample_side) {
     stop("sample_side conflicts with the representation")
   }
   A <- view$activity
   .require_biological_factors(colnames(A))
-  if (!nrow(A)) stop("Membership filtering requires at least one sample")
-  if (any(A < 0)) stop("Membership filtering requires nonnegative activities")
+  if (!nrow(A)) {
+    stop("Membership filtering requires at least one sample")
+  }
+  if (any(A < 0)) {
+    stop("Membership filtering requires nonnegative activities")
+  }
   kept <- seq_len(nrow(A))
   scaled <- A
   history <- vector("list", numiter)
@@ -59,12 +64,18 @@ filter_cells_by_total_membership <- function(fit, sample_side = NULL,
     maxima <- apply(scaled, 2L, max)
     maxima[maxima == 0] <- 1
     scaled <- sweep(scaled, 2L, 1 / maxima, "*")
-    if (any(!is.finite(scaled))) stop("Membership rescaling produced nonfinite coordinates")
+    if (any(!is.finite(scaled))) {
+      stop("Membership rescaling produced nonfinite coordinates")
+    }
     retain <- rowSums(scaled) <= max_val
-    if (!any(retain)) stop("Membership filtering would remove all samples")
+    if (!any(retain)) {
+      stop("Membership filtering would remove all samples")
+    }
     history[[iteration]] <- data.frame(
-      iteration = iteration, before = length(kept),
-      removed = sum(!retain), remaining = sum(retain)
+      iteration = iteration,
+      before = length(kept),
+      removed = sum(!retain),
+      remaining = sum(retain)
     )
     kept <- kept[retain]
     scaled <- scaled[retain, , drop = FALSE]
@@ -79,22 +90,38 @@ filter_cells_by_total_membership <- function(fit, sample_side = NULL,
     stop("Membership rescaling produced nonfinite coordinates")
   }
   converged <- all(rowSums(activity) <= max_val)
-  if (!converged) warning("Membership filter reached numiter with memberships above max_val")
-  out <- structure(list(
-    activity = activity, effects = effects, offset = view$offset,
-    kept_samples = rownames(A)[kept], removed_samples = rownames(A)[-kept],
-    history = do.call(rbind, history), converged = converged
-  ), class = "membership_filter_result")
+  if (!converged) {
+    warning("Membership filter reached numiter with memberships above max_val")
+  }
+  out <- structure(
+    list(
+      activity = activity,
+      effects = effects,
+      offset = view$offset,
+      kept_samples = rownames(A)[kept],
+      removed_samples = rownames(A)[-kept],
+      history = do.call(rbind, history),
+      converged = converged
+    ),
+    class = "membership_filter_result"
+  )
   attr(out, "analysis_metadata") <- list(
     source_coordinates = view$manifest,
-    source_basis_id = view$manifest$basis_id, sample_side = view$manifest$sample_side,
-    max_val = max_val, numiter = numiter, threshold_operator = ">",
-    normalization = "per_factor_maximum", factor_scales = maxima,
-    zero_max_factors = zero_max, native_fit_refitted = FALSE,
+    source_basis_id = view$manifest$basis_id,
+    sample_side = view$manifest$sample_side,
+    max_val = max_val,
+    numiter = numiter,
+    threshold_operator = ">",
+    normalization = "per_factor_maximum",
+    factor_scales = maxima,
+    zero_max_factors = zero_max,
+    native_fit_refitted = FALSE,
     posterior_uncertainty = "not_recomputed_for_selected_population"
   )
   .attach_provenance(
-    out, "filter_cells_by_total_membership", match.call(),
+    out,
+    "filter_cells_by_total_membership",
+    match.call(),
     .resolved_parameters("filter_cells_by_total_membership", environment())
   )
 }

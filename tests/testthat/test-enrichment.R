@@ -20,7 +20,15 @@ test_that("ranked fgsea results agree directly with the selected engine", {
   settings <- list(seed = 4, nPermSimple = 100L, eps = 1e-3, minSize = 2L, scoreType = "pos")
   out <- enrich_factors(d$view, pathways, "fgsea", factors = "F1", control = settings)
   set.seed(4)
-  native <- as.data.frame(fgsea::fgseaMultilevel(pathways, setNames(d$view$effects[, 1], rownames(d$view$effects)), BPPARAM = BiocParallel::SerialParam(), nPermSimple = 100L, eps = 1e-3, minSize = 2L, scoreType = "pos"))
+  native <- as.data.frame(fgsea::fgseaMultilevel(
+    pathways,
+    setNames(d$view$effects[, 1], rownames(d$view$effects)),
+    BPPARAM = BiocParallel::SerialParam(),
+    nPermSimple = 100L,
+    eps = 1e-3,
+    minSize = 2L,
+    scoreType = "pos"
+  ))
   expect_equal(out$table$NES, native$NES)
   expect_equal(out$table$pval, native$pval)
   expect_equal(out$analysis_metadata$universe, rownames(d$view$effects))
@@ -49,7 +57,8 @@ test_that("weighted network annotations preserve native scores and mapped univer
   d <- association_fixture(K = 8)
   d$view <- .make_representation(
     d$view$activity,
-    matrix(rnorm(64), 8, dimnames = dimnames(d$view$effects)), d$view$manifest
+    matrix(rnorm(64), 8, dimnames = dimnames(d$view$effects)),
+    d$view$manifest
   )
   network <- data.frame(
     source = rep(c("TF1", "pathway1"), each = 4),
@@ -62,12 +71,19 @@ test_that("weighted network annotations preserve native scores and mapped univer
   B <- d$view$effects[1:7, c("F2", "F1")]
   rownames(B) <- letters[1:7]
   for (method in c("ulm", "mlm")) {
-    out <- enrich_factors(d$view, network, "decoupleR",
+    out <- enrich_factors(
+      d$view,
+      network,
+      "decoupleR",
       factors = c("F2", "F1"),
-      feature_map = mapping, control = list(method = method, minsize = 2L)
+      feature_map = mapping,
+      control = list(method = method, minsize = 2L)
     )
     native <- as.data.frame(getExportedValue("decoupleR", paste0("run_", method))(
-      B, network[network$target != "absent", ], minsize = 2L))
+      B,
+      network[network$target != "absent", ],
+      minsize = 2L
+    ))
     native <- native[order(match(native$condition, colnames(B))), , drop = FALSE]
     rownames(native) <- NULL
     expect_equal(out$table[, names(native)], native, ignore_attr = TRUE)
@@ -79,9 +95,13 @@ test_that("weighted network annotations preserve native scores and mapped univer
     expect_equal(out$analysis_metadata$annotation_version, "test_v1")
     expect_true(all(out$table$basis_id == d$view$manifest$basis_id))
     expect_equal(unique(out$table$condition), c("F2", "F1"))
-    single <- enrich_factors(d$view, network, "decoupleR",
+    single <- enrich_factors(
+      d$view,
+      network,
+      "decoupleR",
       factors = "F2",
-      feature_map = mapping, control = list(method = method, minsize = 2L)
+      feature_map = mapping,
+      control = list(method = method, minsize = 2L)
     )
     expect_equal(single$table$score, out$table$score[out$table$condition == "F2"])
   }

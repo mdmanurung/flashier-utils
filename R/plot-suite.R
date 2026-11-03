@@ -16,7 +16,9 @@
 }
 
 .display_options <- function(options, allowed = c("palette", "limits")) {
-  if (length(options) && (is.null(names(options)) || any(!names(options) %in% allowed))) stop("Unknown display option")
+  if (length(options) && (is.null(names(options)) || any(!names(options) %in% allowed))) {
+    stop("Unknown display option")
+  }
   options
 }
 
@@ -65,8 +67,14 @@
 #' )
 #' view <- standardize_factors(fit)
 #' plot_factor_weights(view, factors = c("F1", "F2"), n_label = 4)
-plot_factor_weights <- function(fit, factors, representation = NULL, n_label = 10L,
-                                direction = "absolute", scale = "none") {
+plot_factor_weights <- function(
+  fit,
+  factors,
+  representation = NULL,
+  n_label = 10L,
+  direction = "absolute",
+  scale = "none"
+) {
   direction <- match.arg(direction, c("absolute", "positive", "negative"))
   scale <- match.arg(scale, c("none", "max_abs"))
   .program_number(n_label, "n_label", TRUE)
@@ -74,36 +82,50 @@ plot_factor_weights <- function(fit, factors, representation = NULL, n_label = 1
   B <- factor_effects(view, factors = factors)
   .require_biological_factors(colnames(B))
   B <- .display_scale(B, scale)
-  table <- do.call(rbind, lapply(colnames(B), function(k) {
-    b <- B[, k]
-    ord <- order(-b, rownames(B))
-    score <- switch(direction,
-      absolute = abs(b),
-      positive = b,
-      negative = -b
-    )
-    top <- rownames(B)[order(-score, rownames(B))][seq_len(min(n_label, length(b)))]
-    top <- top[score[top] > 0]
-    data.frame(
-      feature = rownames(B)[ord], factor = k, estimate = b[ord], rank = seq_along(ord),
-      label = ifelse(rownames(B)[ord] %in% top, rownames(B)[ord], NA_character_)
-    )
-  }))
+  table <- do.call(
+    rbind,
+    lapply(colnames(B), function(k) {
+      b <- B[, k]
+      ord <- order(-b, rownames(B))
+      score <- switch(direction, absolute = abs(b), positive = b, negative = -b)
+      top <- rownames(B)[order(-score, rownames(B))][seq_len(min(n_label, length(b)))]
+      top <- top[score[top] > 0]
+      data.frame(
+        feature = rownames(B)[ord],
+        factor = k,
+        estimate = b[ord],
+        rank = seq_along(ord),
+        label = ifelse(rownames(B)[ord] %in% top, rownames(B)[ord], NA_character_)
+      )
+    })
+  )
   rownames(table) <- NULL
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$rank, y = .data$estimate)) +
     ggplot2::geom_hline(yintercept = 0, colour = "grey60") +
     ggplot2::geom_point(ggplot2::aes(colour = !is.na(.data$label)), size = 1.2, show.legend = FALSE) +
     ggplot2::scale_colour_manual(values = c(`FALSE` = "grey50", `TRUE` = "#b2182b")) +
-    .label_layer(ggplot2::aes(label = .data$label), table[!is.na(table$label), , drop = FALSE], size = 3, vjust = -0.5) +
+    .label_layer(
+      ggplot2::aes(label = .data$label),
+      table[!is.na(table$label), , drop = FALSE],
+      size = 3,
+      vjust = -0.5
+    ) +
     ggplot2::facet_wrap(~factor, scales = "free_x") +
     ggplot2::labs(
-      x = "Feature rank", y = if (scale == "none") "Feature effect" else "Effect / max absolute effect",
+      x = "Feature rank",
+      y = if (scale == "none") "Feature effect" else "Effect / max absolute effect",
       subtitle = paste("Feature scale:", view$manifest$feature_scale)
     )
-  attr(p, "analysis_metadata") <- c(view$manifest, list(
-    display_only = TRUE, display_scale = scale,
-    direction = direction, n_label = n_label, labelled_features = table$feature[!is.na(table$label)]
-  ))
+  attr(p, "analysis_metadata") <- c(
+    view$manifest,
+    list(
+      display_only = TRUE,
+      display_scale = scale,
+      direction = direction,
+      n_label = n_label,
+      labelled_features = table$feature[!is.na(table$label)]
+    )
+  )
   .attach_provenance(p, "plot_factor_weights", match.call(), .resolved_parameters("plot_factor_weights", environment()))
 }
 
@@ -139,41 +161,71 @@ plot_factor_weights <- function(fit, factors, representation = NULL, n_label = 1
 #' view <- standardize_factors(fit)
 #' metadata <- data.frame(sample = rownames(X), group = rep(c("A", "B"), each = 12))
 #' plot_factor_scatter(view, c("F1", "F2"), metadata = metadata, color = "group")
-plot_factor_scatter <- function(fit, factors, metadata = NULL, color = NULL, shape = NULL,
-                                representation = NULL, max_samples = 2000L, seed = 1L) {
-  if (!is.character(factors) || length(factors) != 2L || anyDuplicated(factors)) stop("factors must be exactly two distinct factor IDs")
+plot_factor_scatter <- function(
+  fit,
+  factors,
+  metadata = NULL,
+  color = NULL,
+  shape = NULL,
+  representation = NULL,
+  max_samples = 2000L,
+  seed = 1L
+) {
+  if (!is.character(factors) || length(factors) != 2L || anyDuplicated(factors)) {
+    stop("factors must be exactly two distinct factor IDs")
+  }
   .program_number(max_samples, "max_samples", TRUE, 1)
   view <- .resolve_view(fit, representation)
   A <- factor_activity(view, factors = factors)
   .require_biological_factors(colnames(A))
   ids <- rownames(A)
   if (is.null(metadata)) {
-    if (!is.null(color) || !is.null(shape)) stop("color and shape require metadata")
+    if (!is.null(color) || !is.null(shape)) {
+      stop("color and shape require metadata")
+    }
     metadata <- data.frame(sample = ids)
   }
   match <- .match_ids(ids, metadata, required_columns = c("sample", color, shape))
   metadata <- match$metadata
   rows <- .with_seed(seed, if (nrow(A) > max_samples) sort(sample.int(nrow(A), max_samples)) else seq_len(nrow(A)))
   table <- data.frame(sample = ids[rows], x = A[rows, 1], y = A[rows, 2])
-  for (column in unique(c(color, shape))) table[[column]] <- metadata[[column]][rows]
-  if (!is.null(shape) && is.numeric(table[[shape]])) stop("shape requires a discrete metadata column")
+  for (column in unique(c(color, shape))) {
+    table[[column]] <- metadata[[column]][rows]
+  }
+  if (!is.null(shape) && is.numeric(table[[shape]])) {
+    stop("shape requires a discrete metadata column")
+  }
   mapping <- ggplot2::aes(x = .data$x, y = .data$y)
-  if (!is.null(color)) mapping$colour <- ggplot2::aes(colour = .data[[color]])$colour
-  if (!is.null(shape)) mapping$shape <- ggplot2::aes(shape = .data[[shape]])$shape
+  if (!is.null(color)) {
+    mapping$colour <- ggplot2::aes(colour = .data[[color]])$colour
+  }
+  if (!is.null(shape)) {
+    mapping$shape <- ggplot2::aes(shape = .data[[shape]])$shape
+  }
   p <- ggplot2::ggplot(table, mapping) +
     ggplot2::geom_point(alpha = 0.8) +
     ggplot2::geom_hline(yintercept = 0, colour = "grey70") +
     ggplot2::geom_vline(xintercept = 0, colour = "grey70") +
     ggplot2::labs(
-      x = paste(factors[1], "activity"), y = paste(factors[2], "activity"), colour = color, shape = shape,
+      x = paste(factors[1], "activity"),
+      y = paste(factors[2], "activity"),
+      colour = color,
+      shape = shape,
       subtitle = paste("Scaling:", view$manifest$scaling)
     ) +
     .discrete_scale(if (is.null(color)) NULL else table[[color]])
-  attr(p, "analysis_metadata") <- c(view$manifest, list(
-    display_only = TRUE, factors = factors,
-    included_samples = ids[rows], excluded_samples = ids[-rows], max_samples = max_samples, seed = seed,
-    exclusions = match$exclusions
-  ))
+  attr(p, "analysis_metadata") <- c(
+    view$manifest,
+    list(
+      display_only = TRUE,
+      factors = factors,
+      included_samples = ids[rows],
+      excluded_samples = ids[-rows],
+      max_samples = max_samples,
+      seed = seed,
+      exclusions = match$exclusions
+    )
+  )
   .attach_provenance(p, "plot_factor_scatter", match.call(), .resolved_parameters("plot_factor_scatter", environment()))
 }
 
@@ -262,35 +314,64 @@ plot_factor_pve <- function(fit, factors = NULL) {
 #' view <- standardize_factors(fit)
 #' plot_factor_data(view, X, factor = "F1", n = 6)
 #' plot_factor_data(view, X, factor = "F1", n = 4, style = "scatter")
-plot_factor_data <- function(fit, X, factor, n = 20L, style = "heatmap", sample_side = NULL,
-                             representation = NULL, metadata = NULL, group = NULL,
-                             direction = "absolute", scale = "feature_z", max_samples = 2000L, seed = 1L) {
+plot_factor_data <- function(
+  fit,
+  X,
+  factor,
+  n = 20L,
+  style = "heatmap",
+  sample_side = NULL,
+  representation = NULL,
+  metadata = NULL,
+  group = NULL,
+  direction = "absolute",
+  scale = "feature_z",
+  max_samples = 2000L,
+  seed = 1L
+) {
   style <- match.arg(style, c("heatmap", "scatter"))
   direction <- match.arg(direction, c("absolute", "positive", "negative"))
   scale <- match.arg(scale, c("feature_z", "none"))
   .program_number(n, "n", TRUE, 1)
   .program_number(max_samples, "max_samples", TRUE, 1)
   view <- .resolve_view(fit, representation)
-  if (!(is.matrix(X) || methods::is(X, "dMatrix")) || is.null(rownames(X)) || is.null(colnames(X))) stop("X must be a named numeric matrix or double sparse Matrix")
+  if (!(is.matrix(X) || methods::is(X, "dMatrix")) || is.null(rownames(X)) || is.null(colnames(X))) {
+    stop("X must be a named numeric matrix or double sparse Matrix")
+  }
   side <- if (is.null(sample_side)) view$manifest$sample_side else match.arg(sample_side, c("rows", "columns"))
-  if (side == "columns") X <- Matrix::t(X)
+  if (side == "columns") {
+    X <- Matrix::t(X)
+  }
   selected <- factor_features(view, factor = factor, select = "largest", direction = direction, n = n)
   features <- as.character(selected$feature)
-  if (!length(features)) stop("No eligible features for this factor and direction")
+  if (!length(features)) {
+    stop("No eligible features for this factor and direction")
+  }
   a <- factor_activity(view, factors = factor)[, 1]
   ids <- names(a)
-  if (any(!ids %in% rownames(X))) stop("X lacks samples present in the fit; check sample_side and IDs")
-  if (any(!features %in% colnames(X))) stop("X lacks selected features; check sample_side and IDs")
+  if (any(!ids %in% rownames(X))) {
+    stop("X lacks samples present in the fit; check sample_side and IDs")
+  }
+  if (any(!features %in% colnames(X))) {
+    stop("X lacks selected features; check sample_side and IDs")
+  }
   if (is.null(metadata)) {
-    if (!is.null(group)) stop("group requires metadata")
+    if (!is.null(group)) {
+      stop("group requires metadata")
+    }
     metadata <- data.frame(sample = ids)
   }
   match <- .match_ids(ids, metadata, required_columns = c("sample", group))
   groups <- if (is.null(group)) NULL else as.character(match$metadata[[group]])
-  rows <- .with_seed(seed, if (length(ids) > max_samples) sort(sample.int(length(ids), max_samples)) else seq_along(ids))
+  rows <- .with_seed(
+    seed,
+    if (length(ids) > max_samples) sort(sample.int(length(ids), max_samples)) else seq_along(ids)
+  )
   ordered <- rows[order(-a[rows])]
   values <- as.matrix(X[ids[ordered], features, drop = FALSE])
-  if (!all(is.finite(values))) stop("Selected X values must be finite")
+  if (!all(is.finite(values))) {
+    stop("Selected X values must be finite")
+  }
   if (style == "heatmap" && scale == "feature_z") {
     sds <- apply(values, 2, stats::sd)
     values <- sweep(sweep(values, 2, colMeans(values), "-"), 2, ifelse(sds == 0, 1, sds), "/")
@@ -299,13 +380,21 @@ plot_factor_data <- function(fit, X, factor, n = 20L, style = "heatmap", sample_
   names(table)[2] <- "feature"
   table$sample <- factor(table$sample, levels = ids[ordered])
   table$feature <- factor(table$feature, levels = rev(features))
-  if (!is.null(groups)) table$group <- rep(groups[ordered], times = ncol(values))
+  if (!is.null(groups)) {
+    table$group <- rep(groups[ordered], times = ncol(values))
+  }
   if (style == "heatmap") {
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$feature, fill = .data$value)) +
       ggplot2::geom_tile() +
-      ggplot2::scale_fill_gradient2(low = .diverging_palette[1], mid = .diverging_palette[2], high = .diverging_palette[3], midpoint = if (scale == "feature_z") 0 else mean(values)) +
+      ggplot2::scale_fill_gradient2(
+        low = .diverging_palette[1],
+        mid = .diverging_palette[2],
+        high = .diverging_palette[3],
+        midpoint = if (scale == "feature_z") 0 else mean(values)
+      ) +
       ggplot2::labs(
-        x = paste("Samples ordered by", factor, "activity"), y = NULL,
+        x = paste("Samples ordered by", factor, "activity"),
+        y = NULL,
         fill = if (scale == "feature_z") "Feature z-score" else "Value",
         subtitle = paste("Feature scale:", view$manifest$feature_scale)
       ) +
@@ -314,20 +403,35 @@ plot_factor_data <- function(fit, X, factor, n = 20L, style = "heatmap", sample_
   } else {
     table$activity <- rep(a[ordered], times = ncol(values))
     mapping <- ggplot2::aes(x = .data$activity, y = .data$value)
-    if (!is.null(groups)) mapping$colour <- ggplot2::aes(colour = .data$group)$colour
+    if (!is.null(groups)) {
+      mapping$colour <- ggplot2::aes(colour = .data$group)$colour
+    }
     p <- ggplot2::ggplot(table, mapping) +
       ggplot2::geom_point(alpha = 0.7, size = 1.2) +
       ggplot2::facet_wrap(~feature, scales = "free_y") +
       ggplot2::labs(
-        x = paste(factor, "activity"), y = "Observed value", colour = group,
+        x = paste(factor, "activity"),
+        y = "Observed value",
+        colour = group,
         subtitle = paste("Feature scale:", view$manifest$feature_scale)
       ) +
       .discrete_scale(if (is.null(groups)) NULL else table$group)
   }
-  attr(p, "analysis_metadata") <- c(view$manifest, list(
-    display_only = TRUE, style = style, display_scale = if (style == "heatmap") scale else "none",
-    factor = factor, selected_features = features, direction = direction, included_samples = ids[ordered],
-    excluded_samples = ids[-rows], max_samples = max_samples, seed = seed, exclusions = match$exclusions
-  ))
+  attr(p, "analysis_metadata") <- c(
+    view$manifest,
+    list(
+      display_only = TRUE,
+      style = style,
+      display_scale = if (style == "heatmap") scale else "none",
+      factor = factor,
+      selected_features = features,
+      direction = direction,
+      included_samples = ids[ordered],
+      excluded_samples = ids[-rows],
+      max_samples = max_samples,
+      seed = seed,
+      exclusions = match$exclusions
+    )
+  )
   .attach_provenance(p, "plot_factor_data", match.call(), .resolved_parameters("plot_factor_data", environment()))
 }

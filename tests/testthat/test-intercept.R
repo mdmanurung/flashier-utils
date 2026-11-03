@@ -3,10 +3,20 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") X else t(X)
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-    if (side == "columns") priors <- rev(priors)
-    fit <- fit_ebmf(Y, side,
-      ebnm_fn = priors, intercept = "feature", max_factors = 2,
-      backfit = TRUE, nullcheck = FALSE, verbose = 0, seed = 12, feature_scale = "intensity"
+    if (side == "columns") {
+      priors <- rev(priors)
+    }
+    fit <- fit_ebmf(
+      Y,
+      side,
+      ebnm_fn = priors,
+      intercept = "feature",
+      max_factors = 2,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      verbose = 0,
+      seed = 12,
+      feature_scale = "intensity"
     )
     set.seed(12)
     native <- flashier::flash_init(Y)
@@ -26,7 +36,8 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
         native_offset <- if (side == "rows") fit$F_pm[, 1] else fit$L_pm[, 1]
         expect_equal(view$offset, native_offset, tolerance = 1e-8)
         expected <- if (side == "rows") stats::fitted(fit) else t(stats::fitted(fit))
-        expect_equal(unname(sweep(tcrossprod(view$activity, view$effects), 2, view$offset, "+")),
+        expect_equal(
+          unname(sweep(tcrossprod(view$activity, view$effects), 2, view$offset, "+")),
           unname(expected),
           tolerance = 1e-8
         )
@@ -39,9 +50,14 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
         expect_identical(projection$factor_mapping$native_index, 2:3)
       }
     }
-    intervals <- factor_intervals(fit, "activity",
+    intervals <- factor_intervals(
+      fit,
+      "activity",
       representation = list(scaling = "raw"),
-      factors = "F2", ids = "s2", nsamp = 20, seed = 39
+      factors = "F2",
+      ids = "s2",
+      nsamp = 20,
+      seed = 39
     )
     set.seed(39)
     draws <- fit$sampler(20)
@@ -53,7 +69,8 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
     expect_equal(factor_effects(reordered)[, 1], factor_effects(fit)[, 2], ignore_attr = TRUE)
     fixed <- fix_factors(fit, "F1", "effects")
     fixed <- refit_factors(fixed, control = list(maxiter = 20, verbose = 0), seed = 12)
-    expect_equal(factor_effects(fixed, representation = list(scaling = "raw"))[, 1],
+    expect_equal(
+      factor_effects(fixed, representation = list(scaling = "raw"))[, 1],
       factor_effects(fit, representation = list(scaling = "raw"))[, 1],
       tolerance = 1e-8
     )
@@ -105,14 +122,17 @@ test_that("intercept-only fits have semantic rank zero, including a zero offset"
     intervals <- factor_intervals(fit, "activity", nsamp = 2, seed = 7)
     expect_equal(nrow(intervals), 0L)
     expect_type(intervals$mean, "double")
-    expect_equal(factor_diagnostics(fit, activity_threshold = 0.1, feature_threshold = 0.25)$samples$programs, rep(0, 12))
+    expect_equal(
+      factor_diagnostics(fit, activity_threshold = 0.1, feature_threshold = 0.25)$samples$programs,
+      rep(0, 12)
+    )
     refit <- refit_factors(fit, control = list(verbose = 0))
     expect_equal(refit$n_factors, 1L)
   }
-  expect_error(fit_ebmf(X, "rows",
-    intercept = "feature",
-    control = list(nullcheck = list(kset = 1))
-  ), "kset is protected")
+  expect_error(
+    fit_ebmf(X, "rows", intercept = "feature", control = list(nullcheck = list(kset = 1))),
+    "kset is protected"
+  )
 })
 
 test_that("adaptive nullchecking preserves a pre-zeroed protected factor", {
@@ -137,8 +157,14 @@ test_that("zero biological rank refuses factor consumers before native calls", {
       expect_error(factor_features(view, "F1"), "no biological factors")
       expect_error(rank_features(view, factors = "F1"), "no biological factors")
       expect_equal(nrow(rank_features(view)), 0L)
-      expect_error(backproject_contrast(view, numeric(), "coefficients", factor_basis = view$manifest), "no biological factors")
-      expect_error(test_factor_association(view, metadata, ~group, "lm", unit_col = "donor", independence = "independent"), "no biological factors")
+      expect_error(
+        backproject_contrast(view, numeric(), "coefficients", factor_basis = view$manifest),
+        "no biological factors"
+      )
+      expect_error(
+        test_factor_association(view, metadata, ~group, "lm", unit_col = "donor", independence = "independent"),
+        "no biological factors"
+      )
       expect_error(factor_network(view), "no biological factors")
       expect_error(plot_feature_rankings(view, "F1"), "no biological factors")
       expect_error(plot_factor_features(view, "F1"), "no biological factors")
@@ -159,18 +185,30 @@ test_that("zero biological rank refuses factor consumers before native calls", {
 test_that("the offset definition names where the offset came from", {
   expect_identical(standardize_factors(fixture_fit())$manifest$offset_definition, "zero")
   X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
-  fit <- fit_ebmf(X, "rows",
-    intercept = "feature", max_factors = 1, nullcheck = FALSE,
-    verbose = 0, seed = 12, feature_scale = "intensity"
+  fit <- fit_ebmf(
+    X,
+    "rows",
+    intercept = "feature",
+    max_factors = 1,
+    nullcheck = FALSE,
+    verbose = 0,
+    seed = 12,
+    feature_scale = "intensity"
   )
   expect_identical(standardize_factors(fit)$manifest$offset_definition, "native_feature_intercept")
 })
 
 test_that("a feature intercept must keep its fixed sample-side ones", {
   X <- sweep(fixture_matrix(), 2, seq_len(8), "+")
-  fit <- fit_ebmf(X, "rows",
-    intercept = "feature", max_factors = 1, nullcheck = FALSE,
-    verbose = 0, seed = 12, feature_scale = "intensity"
+  fit <- fit_ebmf(
+    X,
+    "rows",
+    intercept = "feature",
+    max_factors = 1,
+    nullcheck = FALSE,
+    verbose = 0,
+    seed = 12,
+    feature_scale = "intensity"
   )
   expect_no_error(standardize_factors(fit))
   broken <- fit

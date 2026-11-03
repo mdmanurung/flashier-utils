@@ -53,7 +53,10 @@ test_that("reorder gives a new identity so a stale view is refused", {
   reordered <- reorder_factors(fit, c("F2", "F1"))
   expect_false(identical(attr(reordered, "flashbridge_metadata")$fit_id, attr(fit, "flashbridge_metadata")$fit_id))
   expect_error(factor_uncertainty(reordered, "effects", representation = view), "different fit")
-  expect_s3_class(factor_uncertainty(reordered, "effects", representation = standardize_factors(reordered)), "data.frame")
+  expect_s3_class(
+    factor_uncertainty(reordered, "effects", representation = standardize_factors(reordered)),
+    "data.frame"
+  )
 })
 
 test_that("provenance engine fields are single strings", {

@@ -30,10 +30,14 @@ factor_provenance <- function(function_name = NULL, result = NULL, include_depen
   }
   requested <- function_name
   path <- system.file("provenance.csv", package = "flashier.utils")
-  if (!nzchar(path)) stop("Installed provenance registry is missing")
+  if (!nzchar(path)) {
+    stop("Installed provenance registry is missing")
+  }
   out <- utils::read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
   if (!is.null(requested)) {
-    if (any(!requested %in% out[["function"]])) stop("Unknown provenance function")
+    if (any(!requested %in% out[["function"]])) {
+      stop("Unknown provenance function")
+    }
     out <- out[match(requested, out[["function"]]), , drop = FALSE]
   }
   if (include_dependencies) {
@@ -44,18 +48,27 @@ factor_provenance <- function(function_name = NULL, result = NULL, include_depen
     if ("test_gom_de" %in% requested || identical(result_metadata$engine, "fastTopics")) {
       packages <- unique(c(packages, "fastTopics", "ashr"))
     }
-    attr(out, "dependencies") <- do.call(rbind, lapply(packages, function(p) {
-      installed <- requireNamespace(p, quietly = TRUE)
-      d <- if (installed) utils::packageDescription(p) else list()
-      data.frame(
-        package = p, version = if (installed) d$Version else NA_character_,
-        runtime_source_commit = if (is.null(d$RemoteSha)) "unknown" else d$RemoteSha
-      )
-    }))
+    attr(out, "dependencies") <- do.call(
+      rbind,
+      lapply(packages, function(p) {
+        installed <- requireNamespace(p, quietly = TRUE)
+        d <- if (installed) utils::packageDescription(p) else list()
+        data.frame(
+          package = p,
+          version = if (installed) d$Version else NA_character_,
+          runtime_source_commit = if (is.null(d$RemoteSha)) "unknown" else d$RemoteSha
+        )
+      })
+    )
   }
   attr(out, "analysis_metadata") <- result_metadata
   result_metadata <- attr(out, "analysis_metadata")
-  out <- .attach_provenance(out, "factor_provenance", match.call(), .resolved_parameters("factor_provenance", environment()))
+  out <- .attach_provenance(
+    out,
+    "factor_provenance",
+    match.call(),
+    .resolved_parameters("factor_provenance", environment())
+  )
   attr(out, "accessor_metadata") <- attr(out, "analysis_metadata")
   attr(out, "analysis_metadata") <- result_metadata
   out
@@ -63,10 +76,19 @@ factor_provenance <- function(function_name = NULL, result = NULL, include_depen
 
 .engine_metadata <- function() {
   packages <- c("flashier", "ebnm")
-  list(engine_versions = stats::setNames(lapply(packages, function(p) {
-    as.character(utils::packageVersion(p))
-  }), packages), source_commit_if_known = stats::setNames(lapply(packages, function(p) {
-    sha <- utils::packageDescription(p)$RemoteSha
-    if (is.null(sha)) "unknown" else sha
-  }), packages))
+  list(
+    engine_versions = stats::setNames(
+      lapply(packages, function(p) {
+        as.character(utils::packageVersion(p))
+      }),
+      packages
+    ),
+    source_commit_if_known = stats::setNames(
+      lapply(packages, function(p) {
+        sha <- utils::packageDescription(p)$RemoteSha
+        if (is.null(sha)) "unknown" else sha
+      }),
+      packages
+    )
+  )
 }

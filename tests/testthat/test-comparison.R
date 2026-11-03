@@ -1,13 +1,20 @@
 program_fixture <- function(B, A = NULL, activity = "signed", effects = "signed") {
-  if (is.null(A)) A <- matrix(seq_len(3 * ncol(B)), 3, ncol(B))
-  if (is.null(rownames(B))) rownames(B) <- paste0("g", seq_len(nrow(B)))
+  if (is.null(A)) {
+    A <- matrix(seq_len(3 * ncol(B)), 3, ncol(B))
+  }
+  if (is.null(rownames(B))) {
+    rownames(B) <- paste0("g", seq_len(nrow(B)))
+  }
   if (is.null(colnames(B)) || any(!nzchar(colnames(B))) || anyDuplicated(colnames(B))) {
     colnames(B) <- if (ncol(B)) paste0("F", seq_len(ncol(B))) else character()
   }
   dimnames(A) <- list(paste0("s", seq_len(nrow(A))), colnames(B))
   list(
-    activity = A, effects = B, support = list(activity = activity, effects = effects),
-    feature_scale = "simulated", preprocessing = list(scope = "fixture", transformation = "none", compatibility = "fixture")
+    activity = A,
+    effects = B,
+    support = list(activity = activity, effects = effects),
+    feature_scale = "simulated",
+    preprocessing = list(scope = "fixture", transformation = "none", compatibility = "fixture")
   )
 }
 
@@ -56,10 +63,17 @@ testthat::test_that("empty sources, roles and projection-only evidence fail safe
   bad$roles <- list(F1 = "factor", F2 = "factor")
   testthat::expect_error(compare_prior_fits(r, bad), "roles")
   s <- .program_source(r)
-  h <- structure(list(metrics = data.frame(), analysis_metadata = list(
-    input_digest = "input",
-    evaluation_digest = "same", evaluation_type = "projection"
-  )), class = "holdout_result")
+  h <- structure(
+    list(
+      metrics = data.frame(),
+      analysis_metadata = list(
+        input_digest = "input",
+        evaluation_digest = "same",
+        evaluation_type = "projection"
+      )
+    ),
+    class = "holdout_result"
+  )
   ev <- list(
     reference = list(holdout = h, source_basis_id = s$basis_id),
     target = list(holdout = h, source_basis_id = s$basis_id)
@@ -91,7 +105,7 @@ testthat::test_that("span and mixed-support cone have independent analytic answe
 testthat::test_that("inactive targets, zero loading and unknown supports remain explicit", {
   r <- program_fixture(matrix(c(1, 0), 2, 1))
   t <- r
-  t$activity[, ] <- 0
+  t$activity[,] <- 0
   x <- compare_prior_fits(r, t)
   testthat::expect_equal(x$coverage$span_residual, 1)
   testthat::expect_equal(x$coverage$target_active_factors, 0L)
@@ -102,7 +116,7 @@ testthat::test_that("inactive targets, zero loading and unknown supports remain 
   testthat::expect_true(is.na(x$coverage$feasible_residual[x$coverage$source == "reference"]))
   testthat::expect_identical(x$evidence$state, "not_assessed")
   t <- r
-  t$effects[, ] <- 0
+  t$effects[,] <- 0
   testthat::expect_true(nrow(compare_prior_fits(r, t)$exclusions) == 1L)
 })
 
@@ -116,7 +130,11 @@ testthat::test_that("mapping, units, scale and ordering contracts are checked", 
   testthat::expect_equal(actual$coverage$span_residual, expected$coverage$span_residual, tolerance = 1e-12)
   t$activity <- t$activity[, 2:1, drop = FALSE]
   t$effects <- t$effects[3:1, 2:1, drop = FALSE]
-  testthat::expect_equal(compare_prior_fits(r, t)$similarity_matrix[, 2:1], expected$similarity_matrix, tolerance = 1e-12)
+  testthat::expect_equal(
+    compare_prior_fits(r, t)$similarity_matrix[, 2:1],
+    expected$similarity_matrix,
+    tolerance = 1e-12
+  )
   bad <- t
   bad$feature_scale <- "other_units"
   testthat::expect_error(compare_prior_fits(r, bad), "units differ")
@@ -127,7 +145,10 @@ testthat::test_that("mapping, units, scale and ordering contracts are checked", 
   t <- r
   t$effects <- t$effects[1:2, , drop = FALSE]
   testthat::expect_equal(compare_prior_fits(r, t)$feature_coverage$fraction, c(2 / 3, 1))
-  testthat::expect_error(compare_prior_fits(r, r, evidence = list(reference = list(stability = list()))), "exact source basis")
+  testthat::expect_error(
+    compare_prior_fits(r, r, evidence = list(reference = list(stability = list()))),
+    "exact source basis"
+  )
 })
 
 testthat::test_that("a signed direction can split into two feasible nonnegative-score directions", {
@@ -152,14 +173,23 @@ testthat::test_that("supported poles and initialized roles do not invent observe
   testthat::expect_equal(d$pole_score_fraction, c(0, 1))
   testthat::expect_true(all(d$role == "initialized"))
   r$support$activity <- "unknown"
-  testthat::expect_true("unknown_source_support" %in% compare_prior_fits(r, t, activity_poles = "supported")$exclusions$reason)
+  testthat::expect_true(
+    "unknown_source_support" %in% compare_prior_fits(r, t, activity_poles = "supported")$exclusions$reason
+  )
 })
 
 testthat::test_that("native fits and views are comparison sources", {
   X <- fixture_matrix()
-  fit <- fit_ebmf(X, "rows",
+  fit <- fit_ebmf(
+    X,
+    "rows",
     ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
-    max_factors = 2L, backfit = TRUE, nullcheck = FALSE, seed = 2, verbose = 0, feature_scale = "intensity"
+    max_factors = 2L,
+    backfit = TRUE,
+    nullcheck = FALSE,
+    seed = 2,
+    verbose = 0,
+    feature_scale = "intensity"
   )
   view <- standardize_factors(fit)
   x <- compare_prior_fits(fit, view)
@@ -167,7 +197,9 @@ testthat::test_that("native fits and views are comparison sources", {
   testthat::expect_equal(x$coverage$span_residual, rep(0, nrow(x$coverage)), tolerance = 1e-10)
   testthat::expect_true(all(diag(abs(x$similarity_matrix)) > 0.999))
   testthat::expect_equal(x$evidence$state, "not_assessed")
-  for (type in c("similarity", "coverage")) testthat::expect_s3_class(ggplot2::ggplot_build(plot(x, type)), "ggplot_built")
+  for (type in c("similarity", "coverage")) {
+    testthat::expect_s3_class(ggplot2::ggplot_build(plot(x, type)), "ggplot_built")
+  }
   testthat::expect_s3_class(ggplot2::ggplot_build(plot(x, "residual", factor = "F1")), "ggplot_built")
   testthat::expect_output(print(x), "reference factors")
 })
@@ -179,17 +211,54 @@ testthat::test_that("holdout evidence binds only when inputs, folds and masks ar
   mask <- matrix(FALSE, 12, 8, dimnames = dimnames(X))
   mask[9:12, c(1, 3)] <- TRUE
   callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
-    fit_ebmf(X, sample_side,
-      ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace), max_factors = 2L,
-      backfit = TRUE, nullcheck = FALSE, seed = seed, verbose = 0, feature_scale = "intensity"
+    fit_ebmf(
+      X,
+      sample_side,
+      ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+      max_factors = 2L,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      seed = seed,
+      verbose = 0,
+      feature_scale = "intensity"
     )
   }
   settings <- list(sample_side = "rows", preprocessing_manifest = list(scope = "identity"), evaluated_folds = "test")
-  h1 <- factor_holdout(X, md, "donor", folds, callback, evaluation = "masked", mask = mask, seed = 4, control = settings)
-  h2 <- factor_holdout(X, md, "donor", folds, callback, evaluation = "masked", mask = mask, seed = 5, control = settings)
+  h1 <- factor_holdout(
+    X,
+    md,
+    "donor",
+    folds,
+    callback,
+    evaluation = "masked",
+    mask = mask,
+    seed = 4,
+    control = settings
+  )
+  h2 <- factor_holdout(
+    X,
+    md,
+    "donor",
+    folds,
+    callback,
+    evaluation = "masked",
+    mask = mask,
+    seed = 5,
+    control = settings
+  )
   other <- mask
   other[9:12, 2] <- TRUE
-  h3 <- factor_holdout(X, md, "donor", folds, callback, evaluation = "masked", mask = other, seed = 4, control = settings)
+  h3 <- factor_holdout(
+    X,
+    md,
+    "donor",
+    folds,
+    callback,
+    evaluation = "masked",
+    mask = other,
+    seed = 4,
+    control = settings
+  )
   v1 <- standardize_factors(callback(X, md, "rows", 4, settings))
   v2 <- standardize_factors(callback(X, md, "rows", 5, settings))
   evidence <- function(a, b) {

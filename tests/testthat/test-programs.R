@@ -10,7 +10,14 @@ test_that("signed network selection and comparison pools are hand calculable", {
   expect_equal(plot_feature_rankings(view, "F1")$data$difference, c(-1, 1, -4, 1))
   expect_equal(plot_feature_rankings(view, "F1", direction = "negative")$data$difference, c(-1, 1, -4, 1))
   expect_equal(factor_features(view, "F1", select = "distinctive", compare_factors = "F1")$feature, c("g1", "g2", "g4"))
-  p <- plot_factor_features(view, c("F1", "F2"), features = c("g1", "g3"), display_normalization = "max_abs", annotation = c(F1 = "a", F2 = "b"), transpose = TRUE)
+  p <- plot_factor_features(
+    view,
+    c("F1", "F2"),
+    features = c("g1", "g3"),
+    display_normalization = "max_abs",
+    annotation = c(F1 = "a", F2 = "b"),
+    transpose = TRUE
+  )
   expect_equal(p$data$estimate, c(1, 0, 0.75, 1))
   expect_error(factor_network(view, threshold = -1), "threshold")
   expect_error(plot_feature_rankings(view, "F1", compare_factors = "bad"), "Unknown")
@@ -22,8 +29,21 @@ test_that("diagnostic definitions, expression axis and annotation stay explicit"
   expect_equal(d$factors$active_proportion, c(1, 1 / 3))
   expect_equal(d$factors$active_features, c(3, 3))
   expect_equal(d$samples$programs, c(2, 1, 1))
-  expect_equal(factor_diagnostics(v, activity_threshold = 0.1, feature_threshold = 0.25, activity_direction = "absolute")$samples$programs, c(2, 1, 2))
-  s <- summarize_factors(v, activity_threshold = 0.1, feature_threshold = 0.25, annotations = c(F1 = "user label", F2 = "unknown"))
+  expect_equal(
+    factor_diagnostics(
+      v,
+      activity_threshold = 0.1,
+      feature_threshold = 0.25,
+      activity_direction = "absolute"
+    )$samples$programs,
+    c(2, 1, 2)
+  )
+  s <- summarize_factors(
+    v,
+    activity_threshold = 0.1,
+    feature_threshold = 0.25,
+    annotations = c(F1 = "user label", F2 = "unknown")
+  )
   expect_equal(s$annotation, c("user label", "unknown"))
   p <- plot_factor_signature(v, "F1", setNames(1:4, paste0("g", 1:4)), "log expression")
   expect_equal(p$data$expression, 1:4)
@@ -41,7 +61,11 @@ test_that("native pROC direction, constants and absent groups are explicit", {
   roc <- pROC::roc(c(FALSE, FALSE, TRUE), v$activity[, 1], levels = c(FALSE, TRUE), direction = "<", quiet = TRUE)
   best <- pROC::coords(roc, "best", best.method = "closest.topleft", transpose = FALSE)
   expect_equal(r$threshold[1], min(best$threshold[is.finite(best$threshold)]))
-  v2 <- .make_representation(cbind(F1 = c(s1 = 1, s2 = 1, s3 = 1)), v$effects[, "F1", drop = FALSE], utils::modifyList(v$manifest, list(native_indices = 1)))
+  v2 <- .make_representation(
+    cbind(F1 = c(s1 = 1, s2 = 1, s3 = 1)),
+    v$effects[, "F1", drop = FALSE],
+    utils::modifyList(v$manifest, list(native_indices = 1))
+  )
   c <- factor_specificity(v2, md, "group", groups = "high")
   expect_equal(c$auc, 0.5)
   expect_true(is.na(c$threshold))
@@ -60,7 +84,15 @@ test_that("marker gates use identical populations and deterministic activity tie
   expect_length(empty$activity_ids, 0)
   expect_error(factor_gate_alignment(v, M, "F1", positive = "missing", thresholds = c(CD1 = 1)), "Unknown")
   expect_error(factor_gate_alignment(v, M, "F1", positive = "CD1", thresholds = c(CD2 = 1)), "Missing")
-  low <- factor_gate_alignment(v, M, "F1", positive = "CD1", negative = "CD2", thresholds = c(CD1 = 1, CD2 = 0.5), direction = "low")
+  low <- factor_gate_alignment(
+    v,
+    M,
+    "F1",
+    positive = "CD1",
+    negative = "CD2",
+    thresholds = c(CD1 = 1, CD2 = 0.5),
+    direction = "low"
+  )
   expect_equal(low$gate_ids, r$gate_ids)
   expect_equal(low$activity_ids, c("s1", "s2"))
   expect_equal(low$summary$direction, "low")
@@ -115,11 +147,28 @@ test_that("plot rendering retains RNG, basis and full-population correlations", 
     expect_silent(ggplot2::ggplot_build(plot_factor_network(net, layout = "stress")))
   }
   md <- data.frame(sample = rownames(v$activity), group = c("a", "b", "b"))
-  plots <- plot_factor_diagnostics(v, md, "group", marker = c(s3 = 3, s1 = 1, s2 = 2), factor = "F1", max_samples = 2, activity_threshold = 0.1, feature_threshold = 0.25)
+  plots <- plot_factor_diagnostics(
+    v,
+    md,
+    "group",
+    marker = c(s3 = 3, s1 = 1, s2 = 2),
+    factor = "F1",
+    max_samples = 2,
+    activity_threshold = 0.1,
+    feature_threshold = 0.25
+  )
   expect_equal(attr(plots$marker, "full_population_correlation"), cor(v$activity[, 1], 1:3))
   expect_equal(nrow(plots$marker$data), 2)
-  for (p in plots) expect_silent(ggplot2::ggplot_build(p))
-  gate <- factor_gate_alignment(v, cbind(CD1 = c(s1 = 1, s2 = 2, s3 = 3)), "F1", positive = "CD1", thresholds = c(CD1 = 1))
+  for (p in plots) {
+    expect_silent(ggplot2::ggplot_build(p))
+  }
+  gate <- factor_gate_alignment(
+    v,
+    cbind(CD1 = c(s1 = 1, s2 = 2, s3 = 3)),
+    "F1",
+    positive = "CD1",
+    thresholds = c(CD1 = 1)
+  )
   E <- cbind(x = c(s1 = 1, s2 = 2, s3 = 3), y = c(2, 1, 3))
   expect_silent(ggplot2::ggplot_build(plot_factor_gates(gate, E)))
   expect_silent(ggplot2::ggplot_build(plot_factor_gates(gate, E, display = "density")))
@@ -130,20 +179,39 @@ test_that("plot rendering retains RNG, basis and full-population correlations", 
 })
 test_that("default clipped margins match the existing audited helper exactly", {
   v <- fixture_view()
-  expect_equal(unname(factor_distinctiveness(v, format = "matrix")), unname(.compute_le_effects(v$effects)), ignore_attr = TRUE)
+  expect_equal(
+    unname(factor_distinctiveness(v, format = "matrix")),
+    unname(.compute_le_effects(v$effects)),
+    ignore_attr = TRUE
+  )
   zero <- .make_representation(v$activity, v$effects * 0, v$manifest)
-  expect_equal(factor_diagnostics(zero, activity_threshold = 0.1, feature_threshold = 0.25)$factors$active_features, c(0, 0))
+  expect_equal(
+    factor_diagnostics(zero, activity_threshold = 0.1, feature_threshold = 0.25)$factors$active_features,
+    c(0, 0)
+  )
   net <- factor_network(zero)
   expect_equal(nrow(net$edges), 0)
   expect_equal(nrow(net$nodes), 2)
-  if (requireNamespace("igraph", quietly = TRUE) && requireNamespace("ggraph", quietly = TRUE)) expect_silent(ggplot2::ggplot_build(plot_factor_network(net)))
+  if (requireNamespace("igraph", quietly = TRUE) && requireNamespace("ggraph", quietly = TRUE)) {
+    expect_silent(ggplot2::ggplot_build(plot_factor_network(net)))
+  }
   collision <- v$effects
   rownames(collision)[1] <- "F1"
   collision <- .make_representation(v$activity, collision, v$manifest)
   net <- factor_network(collision)
   expect_true(all(c("factor:F1", "feature:F1") %in% net$nodes$id))
-  tie <- .make_representation(cbind(F1 = c(s3 = 1, s2 = 1, s1 = 1)), v$effects[, 1, drop = FALSE], utils::modifyList(v$manifest, list(native_indices = 1)))
-  gate <- factor_gate_alignment(tie, cbind(M = c(s1 = 0, s2 = 1, s3 = 0)), "F1", positive = "M", thresholds = c(M = 0.5))
+  tie <- .make_representation(
+    cbind(F1 = c(s3 = 1, s2 = 1, s1 = 1)),
+    v$effects[, 1, drop = FALSE],
+    utils::modifyList(v$manifest, list(native_indices = 1))
+  )
+  gate <- factor_gate_alignment(
+    tie,
+    cbind(M = c(s1 = 0, s2 = 1, s3 = 0)),
+    "F1",
+    positive = "M",
+    thresholds = c(M = 0.5)
+  )
   expect_equal(gate$activity_ids, "s1")
 })
 test_that("tied ROC optima choose smallest finite native threshold", {

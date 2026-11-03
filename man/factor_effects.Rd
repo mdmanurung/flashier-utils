@@ -59,7 +59,7 @@ fit <- fit_ebmf(X, "rows",
 view <- standardize_factors(fit)
 factor_effects(view, factors = "F1", features = c("g2", "g1"))
 # From the native fit, with the view and sample side named.
-head(factor_effects(fit, sample_side = "rows", representation = view, format = "long"))
+factor_effects(fit, sample_side = "rows", representation = view, features = c("g1", "g2"), format = "long")
 }
 \seealso{
 \code{\link[=factor_activity]{factor_activity()}}, \code{\link[=factor_features]{factor_features()}}

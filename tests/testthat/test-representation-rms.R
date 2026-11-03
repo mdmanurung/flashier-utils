@@ -69,10 +69,7 @@ test_that("raw and ldf scalings are unchanged by the rms addition", {
   expect_null(raw$manifest$rms_scale)
   expect_null(ldf$manifest$rms_scale)
   # raw and ldf reconstruct the same model
-  expect_equal(tcrossprod(raw$activity, raw$effects),
-    tcrossprod(ldf$activity, ldf$effects),
-    tolerance = 1e-8
-  )
+  expect_equal(tcrossprod(raw$activity, raw$effects), tcrossprod(ldf$activity, ldf$effects), tolerance = 1e-8)
 })
 
 test_that("rms works for sample_side = columns", {

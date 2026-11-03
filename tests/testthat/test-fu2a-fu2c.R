@@ -38,11 +38,20 @@ test_that("extreme sample rescales burdens via m_k and maxima are recorded", {
   v <- fixture_view()
   A <- factor_activity(v)
   A2 <- rbind(A, s4 = c(100, 0)) # extreme F1 sample
-  v2 <- .make_representation(A2, factor_effects(v), list(
-    fit_id = "perturbed", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1:2, scaling = "raw", orientation = "as_fit",
-    constraints = c(activity = "signed", effects = "signed"), feature_scale = "arcsinh_intensity"
-  ))
+  v2 <- .make_representation(
+    A2,
+    factor_effects(v),
+    list(
+      fit_id = "perturbed",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1:2,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
   d <- factor_diagnostics(v2, activity_threshold = 0.1, feature_threshold = 0.25, membership_burden = TRUE)
   md <- attr(d, "analysis_metadata")$membership_burden
   expect_equal(unname(md$maxima), c(100, 2))
@@ -53,7 +62,13 @@ test_that("extreme sample rescales burdens via m_k and maxima are recorded", {
 
 test_that("burden respects an explicit factor subset", {
   v <- fixture_view()
-  d <- factor_diagnostics(v, factors = "F2", activity_threshold = 0.1, feature_threshold = 0.25, membership_burden = TRUE)
+  d <- factor_diagnostics(
+    v,
+    factors = "F2",
+    activity_threshold = 0.1,
+    feature_threshold = 0.25,
+    membership_burden = TRUE
+  )
   expect_equal(d$samples$membership_burden, c(1, 0, 0), tolerance = 1e-12) # pmax(F2,0)/2
   expect_identical(attr(d, "analysis_metadata")$membership_burden$factors, "F2")
 })
@@ -130,11 +145,20 @@ test_that("global selection respects factor subset and direction", {
 test_that("global selection has stable ties and plot mode composes", {
   A <- matrix(c(1, 2, 4, 2, 0, -1), 3, dimnames = list(c("s1", "s2", "s3"), c("F1", "F2")))
   B <- matrix(c(2, 0, -2, 1, 0, 0, 0, 0.5), 4, dimnames = list(paste0("g", 1:4), c("F1", "F2")))
-  v <- .make_representation(A, B, list(
-    fit_id = "tie_fixture", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1:2, scaling = "raw", orientation = "as_fit",
-    constraints = c(activity = "signed", effects = "signed"), feature_scale = "arcsinh_intensity"
-  ))
+  v <- .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "tie_fixture",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1:2,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
   out <- factor_features_global(v, c("F1", "F2"), n = 2)
   # g1 and g3 tie at max|.| = 2 (g1: F1=2; g3: F1=-2); feature-ID tiebreak -> g1, g3
   expect_identical(out$feature, c("g1", "g3"))

@@ -3,7 +3,9 @@ test_that("both orientations and D placements reconstruct native fitted means", 
     fit <- fixture_fit(side)
     original <- serialize(fit, NULL)
     expected <- stats::fitted(fit)
-    if (side == "columns") expected <- t(expected)
+    if (side == "columns") {
+      expected <- t(expected)
+    }
     for (scaling in c("raw", "ldf")) {
       for (type in c("f", "o", "i")) {
         for (location in c("activity", "effects")) {
@@ -14,9 +16,18 @@ test_that("both orientations and D placements reconstruct native fitted means", 
       }
     }
     anchor <- standardize_factors(fit, orientation = "anchor_feature")
-    for (k in seq_len(ncol(anchor$effects))) expect_gte(anchor$effects[anchor$manifest$orientation_anchor[k], k], 0)
+    for (k in seq_len(ncol(anchor$effects))) {
+      expect_gte(anchor$effects[anchor$manifest$orientation_anchor[k], k], 0)
+    }
     expect_identical(serialize(fit, NULL), original)
-    expect_error(standardize_factors(fit, orientation = "anchor_feature", prior_support = c(activity = "nonnegative", effects = "signed")), "signed prior")
+    expect_error(
+      standardize_factors(
+        fit,
+        orientation = "anchor_feature",
+        prior_support = c(activity = "nonnegative", effects = "signed")
+      ),
+      "signed prior"
+    )
   }
   for (K in c(0L, 1L)) {
     view <- standardize_factors(fixture_fit(K = K))

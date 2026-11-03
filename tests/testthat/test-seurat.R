@@ -10,9 +10,15 @@ test_that("Seurat reductions align cells and loadings without overwriting", {
   expect_equal(SeuratObject::Misc(result[["ebmf"]], "flashier.utils")$basis_id, d$view$manifest$basis_id)
   expect_error(add_factors_to_seurat(result, d$view), "already exists")
   expect_error(add_factors_to_seurat(object, d$view, reduction = "bad_key"), "alphanumeric")
-  alien <- SeuratObject::CreateSeuratObject(Matrix::Matrix(matrix(1, 4, 3, dimnames = list(paste0("x", 1:4), paste0("c", 1:3))), sparse = TRUE))
+  alien <- SeuratObject::CreateSeuratObject(Matrix::Matrix(
+    matrix(1, 4, 3, dimnames = list(paste0("x", 1:4), paste0("c", 1:3))),
+    sparse = TRUE
+  ))
   expect_error(add_factors_to_seurat(alien, d$view), "Cell IDs")
-  incompatible <- SeuratObject::CreateSeuratObject(Matrix::Matrix(matrix(1, 3, 12, dimnames = list(paste0("x", 1:3), colnames(object))), sparse = TRUE))
+  incompatible <- SeuratObject::CreateSeuratObject(Matrix::Matrix(
+    matrix(1, 3, 12, dimnames = list(paste0("x", 1:3), colnames(object))),
+    sparse = TRUE
+  ))
   out <- add_factors_to_seurat(incompatible, d$view)
   expect_equal(nrow(SeuratObject::Loadings(out[["ebmf"]])), 0L)
   expect_equal(d$view$activity, association_fixture()$view$activity)

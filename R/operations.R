@@ -1,43 +1,61 @@
 # Thin wrappers around public flashier operations; no private slot edits.
 .factor_ids <- function(fit) {
-  if (!inherits(fit, "flash")) stop("Expected a native flash fit")
+  if (!inherits(fit, "flash")) {
+    stop("Expected a native flash fit")
+  }
   ids <- attr(fit, "flashbridge_metadata")$factor_ids
-  if (is.null(ids)) ids <- if (fit$n_factors == 0) character() else paste0("F", seq_len(fit$n_factors))
+  if (is.null(ids)) {
+    ids <- if (fit$n_factors == 0) character() else paste0("F", seq_len(fit$n_factors))
+  }
   ids
 }
 
 .native_factor_indices <- function(fit) {
   metadata <- attr(fit, "flashbridge_metadata")
   indices <- metadata$native_indices
-  if (is.null(indices)) indices <- seq_along(.factor_ids(fit))
-  if (!is.numeric(indices) || length(indices) != length(.factor_ids(fit)) || anyNA(indices) ||
-    any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) || anyDuplicated(indices)) {
+  if (is.null(indices)) {
+    indices <- seq_along(.factor_ids(fit))
+  }
+  if (
+    !is.numeric(indices) ||
+      length(indices) != length(.factor_ids(fit)) ||
+      anyNA(indices) ||
+      any(indices < 1 | indices > fit$n_factors | indices != floor(indices)) ||
+      anyDuplicated(indices)
+  ) {
     stop("Invalid native factor mapping")
   }
   if (!is.null(metadata$native_factor_ids)) {
     .validate_ids(metadata$native_factor_ids, "Native factor")
-    if (!is.null(metadata$intercept_index) &&
-      (!identical(metadata$intercept_index, 1L) ||
-        !identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
-        !identical(unname(metadata$factor_roles[metadata$intercept_index]), "offset"))) {
+    if (
+      !is.null(metadata$intercept_index) &&
+        (!identical(metadata$intercept_index, 1L) ||
+          !identical(metadata$native_factor_ids[metadata$intercept_index], "Intercept") ||
+          !identical(unname(metadata$factor_roles[metadata$intercept_index]), "offset"))
+    ) {
       stop("Invalid protected intercept role")
     }
-    if (length(metadata$native_factor_ids) != fit$n_factors ||
-      !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
-      !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
-      anyNA(metadata$factor_roles) ||
-      any(!metadata$factor_roles %in% c("offset", "factor", "initialized")) ||
-      any(metadata$factor_roles[indices] == "offset") ||
-      !setequal(indices, setdiff(seq_len(fit$n_factors), metadata$intercept_index)) ||
-      !setequal(which(metadata$factor_roles == "offset"), metadata$intercept_index)) {
+    if (
+      length(metadata$native_factor_ids) != fit$n_factors ||
+        !identical(metadata$native_factor_ids[indices], .factor_ids(fit)) ||
+        !identical(names(metadata$factor_roles), metadata$native_factor_ids) ||
+        anyNA(metadata$factor_roles) ||
+        any(!metadata$factor_roles %in% c("offset", "factor", "initialized")) ||
+        any(metadata$factor_roles[indices] == "offset") ||
+        !setequal(indices, setdiff(seq_len(fit$n_factors), metadata$intercept_index)) ||
+        !setequal(which(metadata$factor_roles == "offset"), metadata$intercept_index)
+    ) {
       stop("Invalid native factor identity/role mapping")
     }
   }
   if (!is.null(metadata$factor_support) || !is.null(metadata$support_version)) {
     .factor_support(list(
-      factor_ids = .factor_ids(fit), native_indices = indices,
-      factor_roles = metadata$factor_roles, constraints = metadata$prior_support,
-      support_version = metadata$support_version, factor_support = metadata$factor_support
+      factor_ids = .factor_ids(fit),
+      native_indices = indices,
+      factor_roles = metadata$factor_roles,
+      constraints = metadata$prior_support,
+      support_version = metadata$support_version,
+      factor_support = metadata$factor_support
     ))
   }
   indices
@@ -46,7 +64,9 @@
 .native_changed <- function(original, updated, ids, operation) {
   .native_factor_indices(original)
   metadata <- attr(original, "flashbridge_metadata")
-  if (is.null(metadata)) metadata <- list()
+  if (is.null(metadata)) {
+    metadata <- list()
+  }
   metadata$factor_ids <- ids
   if (!is.null(metadata$native_indices)) {
     metadata$native_indices <- setdiff(seq_len(updated$n_factors), metadata$intercept_index)
@@ -66,7 +86,9 @@
   metadata$fit_id <- digest::digest(list(.raw_pair(updated), Sys.time(), operation), algo = "sha256")
   metadata$parent_fit_id <- attr(original, "flashbridge_metadata")$fit_id
   metadata$operation <- operation
-  if (operation != "reorder") metadata$refit_policy <- "callback_required"
+  if (operation != "reorder") {
+    metadata$refit_policy <- "callback_required"
+  }
   attr(updated, "flashbridge_metadata") <- metadata
   updated
 }
@@ -100,15 +122,41 @@
 #' view <- standardize_factors(fit)
 #' nonnegative <- fit_nonnegative_ebmf(abs(X), "rows", max_factors = 2, seed = 4, verbose = 0)
 #' factor_activity(nonnegative)
-fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initialization = "native_greedy",
-                                 seed = NULL, control = list(), ...) {
-  if (initialization != "native_greedy") stop("Only bounded native_greedy initialization is supported; NNLM/cycling is unavailable")
+fit_nonnegative_ebmf <- function(
+  X,
+  sample_side,
+  max_factors = 50L,
+  initialization = "native_greedy",
+  seed = NULL,
+  control = list(),
+  ...
+) {
+  if (initialization != "native_greedy") {
+    stop("Only bounded native_greedy initialization is supported; NNLM/cycling is unavailable")
+  }
   args <- list(...)
-  if ("ebnm_fn" %in% names(args)) stop("Nonnegative fitting sets native point-exponential priors")
-  .attach_provenance(do.call(fit_ebmf, c(list(
-    X = X, sample_side = sample_side, max_factors = max_factors,
-    ebnm_fn = ebnm::ebnm_point_exponential, seed = seed, control = control
-  ), args)), "fit_nonnegative_ebmf", match.call(), .resolved_parameters("fit_nonnegative_ebmf", environment()))
+  if ("ebnm_fn" %in% names(args)) {
+    stop("Nonnegative fitting sets native point-exponential priors")
+  }
+  .attach_provenance(
+    do.call(
+      fit_ebmf,
+      c(
+        list(
+          X = X,
+          sample_side = sample_side,
+          max_factors = max_factors,
+          ebnm_fn = ebnm::ebnm_point_exponential,
+          seed = seed,
+          control = control
+        ),
+        args
+      )
+    ),
+    "fit_nonnegative_ebmf",
+    match.call(),
+    .resolved_parameters("fit_nonnegative_ebmf", environment())
+  )
 }
 
 #' Fit nonnegative activities with signed feature effects
@@ -139,26 +187,44 @@ fit_nonnegative_ebmf <- function(X, sample_side, max_factors = 50L, initializati
 #'   backfit = TRUE, seed = 4, verbose = 0, feature_scale = "simulated_intensity"
 #' )
 #' factor_activity(fit)
-fit_seminonnegative_ebmf <- function(X, sample_side,
-                                     activity_prior = ebnm::ebnm_point_exponential,
-                                     effect_prior = ebnm::ebnm_point_laplace,
-                                     initialization = "native_greedy", ...) {
+fit_seminonnegative_ebmf <- function(
+  X,
+  sample_side,
+  activity_prior = ebnm::ebnm_point_exponential,
+  effect_prior = ebnm::ebnm_point_laplace,
+  initialization = "native_greedy",
+  ...
+) {
   sample_side <- match.arg(sample_side, c("rows", "columns"))
-  if (!identical(initialization, "native_greedy")) stop("Only native_greedy initialization is supported")
+  if (!identical(initialization, "native_greedy")) {
+    stop("Only native_greedy initialization is supported")
+  }
   if (!is.function(activity_prior) || .prior_support(activity_prior) != "nonnegative") {
     stop("activity_prior must be a recognized nonnegative native EBNM function")
   }
-  if (!is.function(effect_prior)) stop("effect_prior must be an EBNM function")
+  if (!is.function(effect_prior)) {
+    stop("effect_prior must be an EBNM function")
+  }
   effect_support <- .prior_support(effect_prior)
-  if (effect_support == "nonnegative") stop("Use fit_nonnegative_ebmf for nonnegative effects")
+  if (effect_support == "nonnegative") {
+    stop("Use fit_nonnegative_ebmf for nonnegative effects")
+  }
   args <- list(...)
-  if ("ebnm_fn" %in% names(args)) stop("Use activity_prior and effect_prior instead of ebnm_fn")
+  if ("ebnm_fn" %in% names(args)) {
+    stop("Use activity_prior and effect_prior instead of ebnm_fn")
+  }
   priors <- list(activity_prior, effect_prior)
-  if (sample_side == "columns") priors <- rev(priors)
+  if (sample_side == "columns") {
+    priors <- rev(priors)
+  }
   fit <- do.call(fit_ebmf, c(list(X = X, sample_side = sample_side, ebnm_fn = priors), args))
-  if (effect_support == "unknown") attr(fit, "flashbridge_metadata")$refit_policy <- "callback_required"
+  if (effect_support == "unknown") {
+    attr(fit, "flashbridge_metadata")$refit_policy <- "callback_required"
+  }
   .attach_provenance(
-    fit, "fit_seminonnegative_ebmf", match.call(),
+    fit,
+    "fit_seminonnegative_ebmf",
+    match.call(),
     .resolved_parameters("fit_seminonnegative_ebmf", environment())
   )
 }
@@ -193,13 +259,29 @@ fit_seminonnegative_ebmf <- function(X, sample_side,
 #' factor_pve(refitted)
 refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
   ids <- .factor_ids(fit)
-  if (!is.null(factors) || is.null(attr(fit, "flashbridge_metadata")$intercept_index)) .require_biological_factors(ids)
+  if (!is.null(factors) || is.null(attr(fit, "flashbridge_metadata")$intercept_index)) {
+    .require_biological_factors(ids)
+  }
   kset <- .native_factor_indices(fit)[.select_ids(factors, ids, "factor")]
-  if (is.null(factors)) kset <- c(attr(fit, "flashbridge_metadata")$intercept_index, kset)
-  if (!length(kset)) stop("No factors to refit")
-  if (!.is_named_list(control) || any(!names(control) %in% setdiff(names(formals(flashier::flash_backfit)), c("flash", "kset")))) stop("Unknown or protected backfit control")
+  if (is.null(factors)) {
+    kset <- c(attr(fit, "flashbridge_metadata")$intercept_index, kset)
+  }
+  if (!length(kset)) {
+    stop("No factors to refit")
+  }
+  if (
+    !.is_named_list(control) ||
+      any(!names(control) %in% setdiff(names(formals(flashier::flash_backfit)), c("flash", "kset")))
+  ) {
+    stop("Unknown or protected backfit control")
+  }
   result <- .with_seed(seed, do.call(flashier::flash_backfit, c(list(flash = fit, kset = kset), control)))
-  .attach_provenance(.native_changed(fit, result, ids, "backfit"), "refit_factors", match.call(), .resolved_parameters("refit_factors", environment()))
+  .attach_provenance(
+    .native_changed(fit, result, ids, "backfit"),
+    "refit_factors",
+    match.call(),
+    .resolved_parameters("refit_factors", environment())
+  )
 }
 
 #' Fix or unfix a named native factor side
@@ -232,24 +314,38 @@ refit_factors <- function(fit, factors = NULL, control = list(), seed = NULL) {
 #' fixed <- fix_factors(fit, "F1", "effects")
 #' factor_effects(fixed, factors = "F1", features = "g1")
 fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL, action = "fix", sample_side = NULL) {
-  if (is.null(factors)) stop("factors is required; supply the factor IDs to ", action)
+  if (is.null(factors)) {
+    stop("factors is required; supply the factor IDs to ", action)
+  }
   action <- match.arg(action, c("fix", "unfix"))
   side <- match.arg(side, c("activity", "effects"))
   all_ids <- .factor_ids(fit)
   kset <- .native_factor_indices(fit)[.select_ids(factors, all_ids, "factor")]
-  if (!length(kset)) stop("No factors selected")
+  if (!length(kset)) {
+    stop("No factors selected")
+  }
   sample_side <- .resolve_sample_side(fit, sample_side)
   mode <- if ((side == "activity") == (sample_side == "rows")) "loadings" else "factors"
   if (action == "unfix") {
-    if (!is.null(ids) || !is.null(use_fixed_in_ebnm)) stop("Native unfix applies to the entire selected factor pair; partial IDs unsupported")
+    if (!is.null(ids) || !is.null(use_fixed_in_ebnm)) {
+      stop("Native unfix applies to the entire selected factor pair; partial IDs unsupported")
+    }
     result <- flashier::flash_factors_unfix(fit, kset = kset)
   } else {
     view <- standardize_factors(fit, sample_side = sample_side, scaling = "raw")
     axis_ids <- rownames(view[[side]])
-    if (!is.null(ids) && !length(ids)) stop("ids must name at least one ", side, " ID; use NULL to fix every entry")
+    if (!is.null(ids) && !length(ids)) {
+      stop("ids must name at least one ", side, " ID; use NULL to fix every entry")
+    }
     # native fixed_idx is a full-axis logical mask, not integer positions
     fixed_idx <- if (is.null(ids)) NULL else seq_along(axis_ids) %in% .select_ids(ids, axis_ids, side)
-    result <- flashier::flash_factors_fix(fit, kset = kset, which_dim = mode, fixed_idx = fixed_idx, use_fixed_in_ebnm = use_fixed_in_ebnm)
+    result <- flashier::flash_factors_fix(
+      fit,
+      kset = kset,
+      which_dim = mode,
+      fixed_idx = fixed_idx,
+      use_fixed_in_ebnm = use_fixed_in_ebnm
+    )
   }
   result <- .native_changed(fit, result, all_ids, action)
   attr(result, "flashbridge_metadata")$sample_side <- sample_side
@@ -281,12 +377,21 @@ fix_factors <- function(fit, factors, side, ids = NULL, use_fixed_in_ebnm = NULL
 #' remaining <- remove_factors(fit, "F1")
 #' colnames(factor_activity(remaining))
 remove_factors <- function(fit, factors) {
-  if (is.null(factors)) stop("factors is required; supply the factor IDs to remove")
+  if (is.null(factors)) {
+    stop("factors is required; supply the factor IDs to remove")
+  }
   ids <- .factor_ids(fit)
   selected <- .select_ids(factors, ids, "factor")
   kset <- .native_factor_indices(fit)[selected]
-  if (!length(kset)) stop("No factors selected")
-  .attach_provenance(.native_changed(fit, flashier::flash_factors_remove(fit, kset), ids[-selected], "remove"), "remove_factors", match.call(), .resolved_parameters("remove_factors", environment()))
+  if (!length(kset)) {
+    stop("No factors selected")
+  }
+  .attach_provenance(
+    .native_changed(fit, flashier::flash_factors_remove(fit, kset), ids[-selected], "remove"),
+    "remove_factors",
+    match.call(),
+    .resolved_parameters("remove_factors", environment())
+  )
 }
 
 #' Reorder native factors by exact named permutation
@@ -316,8 +421,15 @@ remove_factors <- function(fit, factors) {
 reorder_factors <- function(fit, order) {
   ids <- .factor_ids(fit)
   kset <- .select_ids(order, ids, "factor")
-  if (length(kset) != length(ids)) stop("order must be an exact permutation of all factors")
+  if (length(kset) != length(ids)) {
+    stop("order must be an exact permutation of all factors")
+  }
   native <- .native_factor_indices(fit)
   kset <- c(setdiff(seq_len(fit$n_factors), native), native[kset])
-  .attach_provenance(.native_changed(fit, flashier::flash_factors_reorder(fit, kset), order, "reorder"), "reorder_factors", match.call(), .resolved_parameters("reorder_factors", environment()))
+  .attach_provenance(
+    .native_changed(fit, flashier::flash_factors_reorder(fit, kset), order, "reorder"),
+    "reorder_factors",
+    match.call(),
+    .resolved_parameters("reorder_factors", environment())
+  )
 }

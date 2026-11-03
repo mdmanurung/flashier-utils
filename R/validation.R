@@ -51,33 +51,70 @@
 #'   id_col = "feature", estimate_col = "estimate", top_n = c(5L, 10L), zero_tolerance = 1e-8, plot = FALSE
 #' )$top_n_overlap
 validate_backprojection <- function(
-  reconstructed, observed, feature_scale, contrast = NULL,
-  id_col = "feature", estimate_col = "estimate", top_n = c(20L, 50L, 100L), zero_tolerance = 0,
+  reconstructed,
+  observed,
+  feature_scale,
+  contrast = NULL,
+  id_col = "feature",
+  estimate_col = "estimate",
+  top_n = c(20L, 50L, 100L),
+  zero_tolerance = 0,
   plot = TRUE
 ) {
-  if (missing(feature_scale)) stop("Supply matching declared feature_scale")
+  if (missing(feature_scale)) {
+    stop("Supply matching declared feature_scale")
+  }
   .measurement_scale(feature_scale)
-  if (inherits(reconstructed, "backprojection_result")) reconstructed <- reconstructed$effects
+  if (inherits(reconstructed, "backprojection_result")) {
+    reconstructed <- reconstructed$effects
+  }
   prepare <- function(table) {
-    if (!is.data.frame(table) || !all(c(id_col, estimate_col) %in% names(table))) stop("Input requires feature IDs and estimates")
+    if (!is.data.frame(table) || !all(c(id_col, estimate_col) %in% names(table))) {
+      stop("Input requires feature IDs and estimates")
+    }
     scale <- attr(table, "analysis_metadata")$feature_scale
-    if (!is.null(scale) && !identical(scale, feature_scale)) stop("Feature scales differ")
+    if (!is.null(scale) && !identical(scale, feature_scale)) {
+      stop("Feature scales differ")
+    }
     if ("contrast" %in% names(table)) {
       labels <- unique(table$contrast)
-      if (is.null(contrast) && length(labels) != 1L) stop("Choose one contrast explicitly")
+      if (is.null(contrast) && length(labels) != 1L) {
+        stop("Choose one contrast explicitly")
+      }
       if (!is.null(contrast)) table <- table[table$contrast == contrast, , drop = FALSE]
     }
     .validate_ids(as.character(table[[id_col]]), "Feature")
-    if (!nrow(table) || !is.numeric(table[[estimate_col]]) || any(!is.finite(table[[estimate_col]]))) stop("Feature estimates must be finite and nonempty")
+    if (!nrow(table) || !is.numeric(table[[estimate_col]]) || any(!is.finite(table[[estimate_col]]))) {
+      stop("Feature estimates must be finite and nonempty")
+    }
     table
   }
   r <- prepare(reconstructed)
   o <- prepare(observed)
-  if ("contrast" %in% names(r) && "contrast" %in% names(o) && !identical(unique(as.character(r$contrast)), unique(as.character(o$contrast)))) stop("Contrast directions/labels differ")
+  if (
+    "contrast" %in%
+      names(r) &&
+      "contrast" %in% names(o) &&
+      !identical(unique(as.character(r$contrast)), unique(as.character(o$contrast)))
+  ) {
+    stop("Contrast directions/labels differ")
+  }
   ids <- intersect(as.character(r[[id_col]]), as.character(o[[id_col]]))
-  if (!length(ids)) stop("No common feature IDs")
-  matched <- data.frame(feature = ids, reconstructed = r[[estimate_col]][match(ids, r[[id_col]])], observed = o[[estimate_col]][match(ids, o[[id_col]])])
-  exclusions <- data.frame(feature = c(setdiff(r[[id_col]], ids), setdiff(o[[id_col]], ids)), reason = c(rep("missing_observed", length(setdiff(r[[id_col]], ids))), rep("missing_reconstructed", length(setdiff(o[[id_col]], ids)))))
+  if (!length(ids)) {
+    stop("No common feature IDs")
+  }
+  matched <- data.frame(
+    feature = ids,
+    reconstructed = r[[estimate_col]][match(ids, r[[id_col]])],
+    observed = o[[estimate_col]][match(ids, o[[id_col]])]
+  )
+  exclusions <- data.frame(
+    feature = c(setdiff(r[[id_col]], ids), setdiff(o[[id_col]], ids)),
+    reason = c(
+      rep("missing_observed", length(setdiff(r[[id_col]], ids))),
+      rep("missing_reconstructed", length(setdiff(o[[id_col]], ids)))
+    )
+  )
   matched$residual <- matched$observed - matched$reconstructed
   variable <- nrow(matched) > 1L && stats::sd(matched$observed) > 0 && stats::sd(matched$reconstructed) > 0
   correlation <- if (variable) stats::cor(matched$observed, matched$reconstructed) else NA_real_
@@ -89,18 +126,38 @@ validate_backprojection <- function(
     intercept <- unname(stats::coef(model)[["(Intercept)"]])
     slope <- unname(stats::coef(model)[["observed"]])
   }
-  if (length(zero_tolerance) != 1L || !is.finite(zero_tolerance) || zero_tolerance < 0) stop("zero_tolerance must be nonnegative")
+  if (length(zero_tolerance) != 1L || !is.finite(zero_tolerance) || zero_tolerance < 0) {
+    stop("zero_tolerance must be nonnegative")
+  }
   eligible <- abs(matched$observed) > zero_tolerance & abs(matched$reconstructed) > zero_tolerance
-  sign <- if (any(eligible)) mean(sign(matched$observed[eligible]) == sign(matched$reconstructed[eligible])) else NA_real_
-  metrics <- data.frame(metric = c("pearson_correlation", "prediction_r2", "correlation_squared", "slope", "intercept", "sign_concordance"), value = c(correlation, r2, correlation^2, slope, intercept, sign), denominator = c(rep(nrow(matched), 5L), sum(eligible)))
+  sign <- if (any(eligible)) {
+    mean(sign(matched$observed[eligible]) == sign(matched$reconstructed[eligible]))
+  } else {
+    NA_real_
+  }
+  metrics <- data.frame(
+    metric = c("pearson_correlation", "prediction_r2", "correlation_squared", "slope", "intercept", "sign_concordance"),
+    value = c(correlation, r2, correlation^2, slope, intercept, sign),
+    denominator = c(rep(nrow(matched), 5L), sum(eligible))
+  )
   metrics$reason <- ifelse(is.na(metrics$value), "constant estimates or no eligible features", NA_character_)
-  if (!is.numeric(top_n) || any(!is.finite(top_n)) || any(top_n < 1) || any(top_n != as.integer(top_n))) stop("top_n must contain positive integers")
-  overlap <- do.call(rbind, lapply(unique(top_n), function(n) {
-    size <- min(n, nrow(matched))
-    a <- utils::head(matched$feature[order(-abs(matched$observed), matched$feature)], size)
-    b <- utils::head(matched$feature[order(-abs(matched$reconstructed), matched$feature)], size)
-    data.frame(requested_n = n, effective_n = size, overlap_n = length(intersect(a, b)), overlap_fraction = length(intersect(a, b)) / size)
-  }))
+  if (!is.numeric(top_n) || any(!is.finite(top_n)) || any(top_n < 1) || any(top_n != as.integer(top_n))) {
+    stop("top_n must contain positive integers")
+  }
+  overlap <- do.call(
+    rbind,
+    lapply(unique(top_n), function(n) {
+      size <- min(n, nrow(matched))
+      a <- utils::head(matched$feature[order(-abs(matched$observed), matched$feature)], size)
+      b <- utils::head(matched$feature[order(-abs(matched$reconstructed), matched$feature)], size)
+      data.frame(
+        requested_n = n,
+        effective_n = size,
+        overlap_n = length(intersect(a, b)),
+        overlap_fraction = length(intersect(a, b)) / size
+      )
+    })
+  )
   p <- if (plot) {
     ggplot2::ggplot(matched, ggplot2::aes(x = .data$observed, y = .data$reconstructed)) +
       ggplot2::geom_point() +
@@ -108,9 +165,24 @@ validate_backprojection <- function(
   } else {
     NULL
   }
-  .attach_provenance(list(
-    metrics = metrics, top_n_overlap = overlap, matched_features = matched,
-    residuals = matched[, c("feature", "residual")], plot = p, exclusions = exclusions,
-    analysis_metadata = list(feature_scale = feature_scale, contrast = contrast, estimand_compatibility = "user_declared_same_design_units_and_weighting", tie_rule = "absolute_effect_then_feature_ID", zero_tolerance = zero_tolerance)
-  ), "validate_backprojection", match.call(), .resolved_parameters("validate_backprojection", environment()))
+  .attach_provenance(
+    list(
+      metrics = metrics,
+      top_n_overlap = overlap,
+      matched_features = matched,
+      residuals = matched[, c("feature", "residual")],
+      plot = p,
+      exclusions = exclusions,
+      analysis_metadata = list(
+        feature_scale = feature_scale,
+        contrast = contrast,
+        estimand_compatibility = "user_declared_same_design_units_and_weighting",
+        tie_rule = "absolute_effect_then_feature_ID",
+        zero_tolerance = zero_tolerance
+      )
+    ),
+    "validate_backprojection",
+    match.call(),
+    .resolved_parameters("validate_backprojection", environment())
+  )
 }

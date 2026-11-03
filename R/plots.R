@@ -45,9 +45,19 @@
 #'   `max_k(abs(effect))` over the given factors (see
 #'   [factor_features_global()]).
 plot_factor_features <- function(
-  fit, factors, representation = NULL, select = "largest", n = 20L,
-  style = "heatmap", compare_factors = NULL, features = NULL, direction = "absolute",
-  display_normalization = "none", transpose = FALSE, annotation = NULL, ...
+  fit,
+  factors,
+  representation = NULL,
+  select = "largest",
+  n = 20L,
+  style = "heatmap",
+  compare_factors = NULL,
+  features = NULL,
+  direction = "absolute",
+  display_normalization = "none",
+  transpose = FALSE,
+  annotation = NULL,
+  ...
 ) {
   style <- match.arg(style, c("heatmap", "bar"))
   view <- .resolve_view(fit, representation)
@@ -56,11 +66,17 @@ plot_factor_features <- function(
   if (identical(select, "global")) {
     selected <- factor_features_global(view, factors, n = n, direction = direction)
   } else {
-    selected <- lapply(factors, function(factor) factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors))
+    selected <- lapply(factors, function(factor) {
+      factor_features(view, factor, select = select, n = n, direction = direction, compare_factors = compare_factors)
+    })
     selected <- do.call(rbind, selected)
   }
-  if (is.null(features) && (is.null(selected) || !nrow(selected))) stop("No nonzero selected feature effects to plot")
-  if (is.null(features)) features <- unique(selected$feature)
+  if (is.null(features) && (is.null(selected) || !nrow(selected))) {
+    stop("No nonzero selected feature effects to plot")
+  }
+  if (is.null(features)) {
+    features <- unique(selected$feature)
+  }
   table <- factor_effects(view, factors = factors, features = features, format = "long")
   display_normalization <- match.arg(display_normalization, c("none", "max_abs"))
   if (display_normalization == "max_abs") {
@@ -73,7 +89,9 @@ plot_factor_features <- function(
   }
   options <- .display_options(list(...))
   palette <- if (is.null(options$palette)) .diverging_palette else options$palette
-  if (length(palette) != 3L) stop("palette requires negative, zero and positive colors")
+  if (length(palette) != 3L) {
+    stop("palette requires negative, zero and positive colors")
+  }
   p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$feature, fill = .data$estimate))
   if (style == "heatmap") {
     p <- p + ggplot2::geom_tile()
@@ -82,11 +100,47 @@ plot_factor_features <- function(
       ggplot2::geom_col() +
       ggplot2::facet_wrap(~factor)
   }
-  p <- p + ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits, oob = scales::squish) + ggplot2::labs(fill = if (display_normalization == "none") "Feature effect" else "Effect / max absolute effect", subtitle = paste("Feature scale:", view$manifest$feature_scale))
-  if (transpose) p <- p + ggplot2::coord_flip()
-  if (!is.null(annotation)) p <- p + ggplot2::facet_grid(~annotation, scales = "free_x", space = "free_x")
-  attr(p, "analysis_metadata") <- c(view$manifest, list(display_only = TRUE, display_normalization = display_normalization, selected_features = features, annotation = annotation, competition_factors = colnames(view$effects)[.select_ids(compare_factors, colnames(view$effects), "comparison factor")], direction = direction, transpose = transpose))
-  .attach_provenance(p, "plot_factor_features", match.call(), .resolved_parameters("plot_factor_features", environment()))
+  p <- p +
+    ggplot2::scale_fill_gradient2(
+      low = palette[1],
+      mid = palette[2],
+      high = palette[3],
+      midpoint = 0,
+      limits = options$limits,
+      oob = scales::squish
+    ) +
+    ggplot2::labs(
+      fill = if (display_normalization == "none") "Feature effect" else "Effect / max absolute effect",
+      subtitle = paste("Feature scale:", view$manifest$feature_scale)
+    )
+  if (transpose) {
+    p <- p + ggplot2::coord_flip()
+  }
+  if (!is.null(annotation)) {
+    p <- p + ggplot2::facet_grid(~annotation, scales = "free_x", space = "free_x")
+  }
+  attr(p, "analysis_metadata") <- c(
+    view$manifest,
+    list(
+      display_only = TRUE,
+      display_normalization = display_normalization,
+      selected_features = features,
+      annotation = annotation,
+      competition_factors = colnames(view$effects)[.select_ids(
+        compare_factors,
+        colnames(view$effects),
+        "comparison factor"
+      )],
+      direction = direction,
+      transpose = transpose
+    )
+  )
+  .attach_provenance(
+    p,
+    "plot_factor_features",
+    match.call(),
+    .resolved_parameters("plot_factor_features", environment())
+  )
 }
 
 #' Plot bounded sample activity with signed defaults
@@ -145,9 +199,17 @@ plot_factor_features <- function(
 #' )
 #' plot_factor_activity(view, metadata = metadata, group = "group", max_samples = 12, seed = 4)
 plot_factor_activity <- function(
-  fit, metadata = NULL, group = NULL, factors = NULL,
-  style = "heatmap", display_normalization = "none", max_samples = 2000L,
-  seed = 1L, order_within_group = c("input", "mds1"), group_order = NULL, ...
+  fit,
+  metadata = NULL,
+  group = NULL,
+  factors = NULL,
+  style = "heatmap",
+  display_normalization = "none",
+  max_samples = 2000L,
+  seed = 1L,
+  order_within_group = c("input", "mds1"),
+  group_order = NULL,
+  ...
 ) {
   style <- match.arg(style, c("heatmap", "point", "distribution", "structure"))
   display_normalization <- match.arg(display_normalization, c("none", "row_sum"))
@@ -158,13 +220,19 @@ plot_factor_activity <- function(
   if (!is.null(group_order) && (style != "structure" || is.null(group))) {
     stop("group_order requires style='structure' and an explicit group column")
   }
-  if (length(max_samples) != 1L || !is.finite(max_samples) || max_samples < 1 || max_samples != as.integer(max_samples)) stop("max_samples must be a positive integer")
+  if (
+    length(max_samples) != 1L || !is.finite(max_samples) || max_samples < 1 || max_samples != as.integer(max_samples)
+  ) {
+    stop("max_samples must be a positive integer")
+  }
   view <- .resolve_view(fit)
   A <- factor_activity(view, factors = factors)
   .require_biological_factors(colnames(A))
   ids <- rownames(A)
   if (is.null(metadata)) {
-    if (!is.null(group)) stop("group requires metadata")
+    if (!is.null(group)) {
+      stop("group requires metadata")
+    }
     metadata <- data.frame(sample = ids)
   }
   match <- .match_ids(ids, metadata, required_columns = c("sample", group))
@@ -172,18 +240,28 @@ plot_factor_activity <- function(
   groups <- if (is.null(group)) rep("all", nrow(metadata)) else as.character(metadata[[group]])
   zero <- rep(FALSE, nrow(A))
   if (style == "structure") {
-    if (display_normalization != "row_sum") stop("Structure display requires explicit display_normalization='row_sum'")
-    if (any(A < 0)) stop("Structure proportions require non-negative activity")
+    if (display_normalization != "row_sum") {
+      stop("Structure display requires explicit display_normalization='row_sum'")
+    }
+    if (any(A < 0)) {
+      stop("Structure proportions require non-negative activity")
+    }
     zero <- rowSums(A) == 0
     A <- A[!zero, , drop = FALSE]
     groups <- groups[!zero]
-    if (!nrow(A)) stop("All samples have zero activity")
+    if (!nrow(A)) {
+      stop("All samples have zero activity")
+    }
     A <- A / rowSums(A)
-  } else if (display_normalization != "none") stop("row_sum is only supported as an explicit structure display")
+  } else if (display_normalization != "none") {
+    stop("row_sum is only supported as an explicit structure display")
+  }
   included <- seq_len(nrow(A))
   if (nrow(A) > max_samples) {
     strata <- split(included, groups)
-    if (length(strata) > max_samples) stop("max_samples is smaller than number of groups")
+    if (length(strata) > max_samples) {
+      stop("max_samples is smaller than number of groups")
+    }
     included <- .with_seed(seed, {
       first <- vapply(strata, function(rows) rows[sample.int(length(rows), 1L)], integer(1))
       remaining <- setdiff(seq_len(nrow(A)), first)
@@ -211,7 +289,9 @@ plot_factor_activity <- function(
         ordered <- c(ordered, ids_g)
         next
       }
-      if (8 * length(rows)^2 > 256 * 1024^2) stop("Dense within-group distances exceed 256 MB; lower max_samples")
+      if (8 * length(rows)^2 > 256 * 1024^2) {
+        stop("Dense within-group distances exceed 256 MB; lower max_samples")
+      }
       distances <- as.matrix(stats::dist(A[included[rows], , drop = FALSE], method = "euclidean"))
       if (max(distances) == 0) {
         ordered <- c(ordered, ids_g)
@@ -231,10 +311,19 @@ plot_factor_activity <- function(
   options <- .display_options(list(...))
   palette <- if (is.null(options$palette)) .diverging_palette else options$palette
   if (style == "heatmap") {
-    if (length(palette) != 3L) stop("Heatmap palette requires three colors")
+    if (length(palette) != 3L) {
+      stop("Heatmap palette requires three colors")
+    }
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$factor, y = .data$sample, fill = .data$estimate)) +
       ggplot2::geom_tile() +
-      ggplot2::scale_fill_gradient2(low = palette[1], mid = palette[2], high = palette[3], midpoint = 0, limits = options$limits, oob = scales::squish) +
+      ggplot2::scale_fill_gradient2(
+        low = palette[1],
+        mid = palette[2],
+        high = palette[3],
+        midpoint = 0,
+        limits = options$limits,
+        oob = scales::squish
+      ) +
       ggplot2::labs(fill = "Activity")
     if (!is.null(group)) p <- p + ggplot2::facet_wrap(~group, scales = "free_y")
   } else if (style == "structure") {
@@ -242,7 +331,12 @@ plot_factor_activity <- function(
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$sample, y = .data$estimate, fill = .data$factor)) +
       ggplot2::geom_col() +
       ggplot2::labs(y = "Display proportion")
-    p <- p + if (!is.null(options$palette)) ggplot2::scale_fill_manual(values = options$palette) else .discrete_scale(table$factor, "fill")
+    p <- p +
+      if (!is.null(options$palette)) {
+        ggplot2::scale_fill_manual(values = options$palette)
+      } else {
+        .discrete_scale(table$factor, "fill")
+      }
     if (!is.null(options$limits)) p <- p + ggplot2::coord_cartesian(ylim = options$limits)
   } else {
     p <- ggplot2::ggplot(table, ggplot2::aes(x = .data$group, y = .data$estimate)) +
@@ -254,24 +348,47 @@ plot_factor_activity <- function(
   p <- p + ggplot2::labs(subtitle = paste("Scaling:", view$manifest$scaling))
   ordering <- list(order_within_group = order_within_group)
   if (!is.null(group_order)) {
-    ordering <- c(ordering, list(
-      displayed_sample_order = displayed, group_order = group_order,
-      group_order_source = if (is.null(declared_order)) "first_appearance" else "declared"
-    ))
+    ordering <- c(
+      ordering,
+      list(
+        displayed_sample_order = displayed,
+        group_order = group_order,
+        group_order_source = if (is.null(declared_order)) "first_appearance" else "declared"
+      )
+    )
     if (order_within_group == "mds1") {
-      ordering <- c(ordering, list(
-        ordering_distance = "euclidean",
-        ordering_embedding = "cmdscale_k1", ordering_sign = "first_nonzero_positive",
-        ordering_tie_rule = "input_order_within_1e-10_of_max_abs_coordinate"
-      ))
+      ordering <- c(
+        ordering,
+        list(
+          ordering_distance = "euclidean",
+          ordering_embedding = "cmdscale_k1",
+          ordering_sign = "first_nonzero_positive",
+          ordering_tie_rule = "input_order_within_1e-10_of_max_abs_coordinate"
+        )
+      )
     }
   }
-  attr(p, "analysis_metadata") <- c(view$manifest, list(
-    display_only = TRUE, display_normalization = display_normalization,
-    exclusions = match$exclusions, included_samples = rownames(A)[included], excluded_samples = setdiff(ids, rownames(A)[included]), zero_activity_samples = ids[zero],
-    sampling = "one_per_group_then_uniform_remaining", max_samples = max_samples, seed = seed
-  ), ordering)
-  .attach_provenance(p, "plot_factor_activity", match.call(), .resolved_parameters("plot_factor_activity", environment()))
+  attr(p, "analysis_metadata") <- c(
+    view$manifest,
+    list(
+      display_only = TRUE,
+      display_normalization = display_normalization,
+      exclusions = match$exclusions,
+      included_samples = rownames(A)[included],
+      excluded_samples = setdiff(ids, rownames(A)[included]),
+      zero_activity_samples = ids[zero],
+      sampling = "one_per_group_then_uniform_remaining",
+      max_samples = max_samples,
+      seed = seed
+    ),
+    ordering
+  )
+  .attach_provenance(
+    p,
+    "plot_factor_activity",
+    match.call(),
+    .resolved_parameters("plot_factor_activity", environment())
+  )
 }
 
 # Sign that makes the first nonzero entry positive (1 for an all-zero vector).

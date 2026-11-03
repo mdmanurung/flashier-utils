@@ -1,12 +1,34 @@
 test_that("the public API contains exactly the approved core", {
   core <- c(
-    "backproject_contrast", "compare_factor_groups", "compare_prior_fits", "factor_activity",
-    "factor_effects", "factor_features", "factor_holdout", "factor_intervals",
-    "factor_pve", "factor_replicability", "factor_stability", "factor_uncertainty",
-    "filter_cells_by_total_membership", "fit_ebmf", "fit_gbcd_programs", "plot_factor_activity", "plot_factor_features",
-    "plot_factor_weights", "plot_factor_scatter", "plot_factor_pve", "plot_factor_data", "plot_factor_embedding",
-    "project_factor_activity", "project_factor_features", "factor_provenance",
-    "standardize_factors", "summarize_factor_activity", "test_factor_association", "test_gom_de",
+    "backproject_contrast",
+    "compare_factor_groups",
+    "compare_prior_fits",
+    "factor_activity",
+    "factor_effects",
+    "factor_features",
+    "factor_holdout",
+    "factor_intervals",
+    "factor_pve",
+    "factor_replicability",
+    "factor_stability",
+    "factor_uncertainty",
+    "filter_cells_by_total_membership",
+    "fit_ebmf",
+    "fit_gbcd_programs",
+    "plot_factor_activity",
+    "plot_factor_features",
+    "plot_factor_weights",
+    "plot_factor_scatter",
+    "plot_factor_pve",
+    "plot_factor_data",
+    "plot_factor_embedding",
+    "project_factor_activity",
+    "project_factor_features",
+    "factor_provenance",
+    "standardize_factors",
+    "summarize_factor_activity",
+    "test_factor_association",
+    "test_gom_de",
     "validate_backprojection"
   )
   # Renamed in 2026-11; the old names stay exported for one release and warn.
@@ -15,9 +37,13 @@ test_that("the public API contains exactly the approved core", {
   records <- factor_provenance(include_dependencies = FALSE)$`function`
   internal <- setdiff(records, c(core, deprecated))
   expect_length(internal, 33L)
-  expect_true(all(vapply(internal, function(name) {
-    is.function(get(name, asNamespace("flashier.utils"), inherits = FALSE))
-  }, logical(1))))
+  expect_true(all(vapply(
+    internal,
+    function(name) {
+      is.function(get(name, asNamespace("flashier.utils"), inherits = FALSE))
+    },
+    logical(1)
+  )))
   expect_error(
     getExportedValue("flashier.utils", "fit_multistart_ebmf"),
     "not an exported object"
@@ -38,8 +64,11 @@ test_that("approved positional calls bind their declared scientific arguments", 
   )
   expected <- list(
     factor_features = list(
-      representation = quote(representation), compare_factors = quote(pool),
-      select = quote(selection), direction = quote(direction), n = quote(n)
+      representation = quote(representation),
+      compare_factors = quote(pool),
+      select = quote(selection),
+      direction = quote(direction),
+      n = quote(n)
     ),
     factor_holdout = list(seed = quote(seed)),
     factor_intervals = list(sample_side = quote(orientation), representation = quote(representation)),
@@ -59,9 +88,14 @@ test_that("approved positional calls bind their declared scientific arguments", 
 test_that("feature selection uses the new positional order with unchanged values", {
   view <- fixture_view()
   positional <- factor_features(view, "F1", NULL, c("F1", "F2"), "largest", "absolute", 2L)
-  named <- factor_features(view,
-    factor = "F1", representation = NULL,
-    compare_factors = c("F1", "F2"), select = "largest", direction = "absolute", n = 2L
+  named <- factor_features(
+    view,
+    factor = "F1",
+    representation = NULL,
+    compare_factors = c("F1", "F2"),
+    select = "largest",
+    direction = "absolute",
+    n = 2L
   )
   expect_identical(lapply(positional, identity), lapply(named, identity))
   expect_identical(positional$feature, c("g1", "g2"))
@@ -70,9 +104,12 @@ test_that("feature selection uses the new positional order with unchanged values
 test_that("single-value and reserved arguments stay removed", {
   removed <- list(
     factor_replicability = c("alignment", "bootstrap", "refit_inputs", "control"),
-    factor_stability = c("resample", "alignment"), factor_holdout = c("freeze_noise", "workers"),
-    test_factor_association = "factor_uncertainty", backproject_contrast = "uncertainty",
-    plot_factor_activity = "engine", plot_factor_features = "engine"
+    factor_stability = c("resample", "alignment"),
+    factor_holdout = c("freeze_noise", "workers"),
+    test_factor_association = "factor_uncertainty",
+    backproject_contrast = "uncertainty",
+    plot_factor_activity = "engine",
+    plot_factor_features = "engine"
   )
   for (name in names(removed)) {
     expect_false(any(removed[[name]] %in% names(formals(getExportedValue("flashier.utils", name)))), info = name)

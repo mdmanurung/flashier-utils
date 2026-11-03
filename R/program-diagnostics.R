@@ -19,7 +19,15 @@
 #' @return Per-factor and per-sample tables, thresholds and source metadata.
 #' @author Mikhael Manurung; conceptual ImmGen-T workflow (Ziang Zhang / AgueroZZ repository).
 #' @keywords internal
-factor_diagnostics <- function(fit, factors = NULL, activity_threshold, feature_threshold, activity_direction = "positive", display_normalization = "max_abs", membership_burden = FALSE) {
+factor_diagnostics <- function(
+  fit,
+  factors = NULL,
+  activity_threshold,
+  feature_threshold,
+  activity_direction = "positive",
+  display_normalization = "max_abs",
+  membership_burden = FALSE
+) {
   if (missing(activity_threshold) || missing(feature_threshold)) {
     stop(
       "Name activity_threshold and feature_threshold; the cuts are the caller's choice. ",
@@ -32,23 +40,39 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold, feature_
   activity_direction <- match.arg(activity_direction, c("positive", "negative", "absolute"))
   .program_number(activity_threshold, "activity_threshold")
   .program_number(feature_threshold, "feature_threshold")
-  score <- switch(activity_direction,
-    positive = A,
-    negative = -A,
-    absolute = abs(A)
-  )
+  score <- switch(activity_direction, positive = A, negative = -A, absolute = abs(A))
   active <- score > activity_threshold
-  per_factor <- data.frame(factor = if (ncol(A)) colnames(A) else character(), active_proportion = colMeans(active), active_cells = colSums(active), active_features = colSums(abs(B) > feature_threshold), n_samples = rep(nrow(A), ncol(A)), n_features = rep(nrow(B), ncol(A)))
+  per_factor <- data.frame(
+    factor = if (ncol(A)) colnames(A) else character(),
+    active_proportion = colMeans(active),
+    active_cells = colSums(active),
+    active_features = colSums(abs(B) > feature_threshold),
+    n_samples = rep(nrow(A), ncol(A)),
+    n_features = rep(nrow(B), ncol(A))
+  )
   per_sample <- data.frame(sample = rownames(A), programs = rowSums(active))
-  md <- list(activity_threshold = activity_threshold, feature_threshold = feature_threshold, activity_direction = activity_direction, display_normalization = display_normalization, threshold_operator = ">", population = rownames(A), selection_factors = colnames(A), inference = "descriptive")
+  md <- list(
+    activity_threshold = activity_threshold,
+    feature_threshold = feature_threshold,
+    activity_direction = activity_direction,
+    display_normalization = display_normalization,
+    threshold_operator = ">",
+    population = rownames(A),
+    selection_factors = colnames(A),
+    inference = "descriptive"
+  )
   if (isTRUE(membership_burden)) {
     mb <- .membership_burden(view, factors)
     per_sample$membership_burden <- mb$burden
     md$membership_burden <- list(
       definition = "sum_k max(A_ik, 0) / m_k over selected factors, m_k = max_i A_ik on raw resolved activities",
-      factors = names(mb$maxima), maxima = unname(mb$maxima), zero_max_factors = mb$zero_max_factors,
-      clip_policy = "negative activities contribute 0", zero_max_policy = "factors with max_i A_ik <= 0 contribute 0 and are recorded",
-      reference_population = rownames(A), display_normalization_agnostic = TRUE,
+      factors = names(mb$maxima),
+      maxima = unname(mb$maxima),
+      zero_max_factors = mb$zero_max_factors,
+      clip_policy = "negative activities contribute 0",
+      zero_max_policy = "factors with max_i A_ik <= 0 contribute 0 and are recorded",
+      reference_population = rownames(A),
+      display_normalization_agnostic = TRUE,
       sensitivity_note = "a single extreme sample raises m_k and rescales all burdens for that factor; inspect maxima"
     )
   }
@@ -64,13 +88,19 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold, feature_
 .membership_burden <- function(view, factors = NULL) {
   A <- factor_activity(view, factors = factors)
   if (ncol(A) == 0L) {
-    return(list(burden = rep(0, nrow(A)), maxima = stats::setNames(numeric(0), character(0)), zero_max_factors = character(0)))
+    return(list(
+      burden = rep(0, nrow(A)),
+      maxima = stats::setNames(numeric(0), character(0)),
+      zero_max_factors = character(0)
+    ))
   }
   m <- apply(A, 2L, max)
   names(m) <- colnames(A)
   zero_max <- colnames(A)[!is.finite(m) | m <= 0]
   contrib <- matrix(0, nrow(A), ncol(A), dimnames = dimnames(A))
-  for (k in setdiff(colnames(A), zero_max)) contrib[, k] <- pmax(A[, k], 0) / m[[k]]
+  for (k in setdiff(colnames(A), zero_max)) {
+    contrib[, k] <- pmax(A[, k], 0) / m[[k]]
+  }
   list(burden = rowSums(contrib), maxima = m, zero_max_factors = zero_max)
 }
 
@@ -87,7 +117,16 @@ factor_diagnostics <- function(fit, factors = NULL, activity_threshold, feature_
 #' @return Named plots: prevalence, features, programs_per_cell, groups and marker.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 2 workflow.
 #' @keywords internal
-plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker = NULL, factor = NULL, max_samples = 2000L, seed = 42L, ...) {
+plot_factor_diagnostics <- function(
+  fit,
+  metadata = NULL,
+  group = NULL,
+  marker = NULL,
+  factor = NULL,
+  max_samples = 2000L,
+  seed = 42L,
+  ...
+) {
   view <- .resolve_view(fit)
   diagnostics <- factor_diagnostics(view, ...)
   .program_number(max_samples, "max_samples", TRUE, 1)
@@ -114,19 +153,50 @@ plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker =
       ggplot2::geom_boxplot()
   }
   if (!is.null(marker)) {
-    if (is.null(factor) || length(factor) != 1) stop("Choose one factor for the marker scatter")
+    if (is.null(factor) || length(factor) != 1) {
+      stop("Choose one factor for the marker scatter")
+    }
     A <- factor_activity(view, factors = factor)
     .validate_ids(names(marker), "Marker sample")
-    if (!setequal(names(marker), rownames(A)) || !is.numeric(marker) || any(!is.finite(marker))) stop("Marker must be finite and match all sample IDs")
+    if (!setequal(names(marker), rownames(A)) || !is.numeric(marker) || any(!is.finite(marker))) {
+      stop("Marker must be finite and match all sample IDs")
+    }
     marker <- marker[rownames(A)]
     population <- data.frame(sample = rownames(A), activity = A[, 1], marker = unname(marker))
     index <- .with_seed(seed, sort(sample.int(nrow(A), min(nrow(A), max_samples))))
-    plots$marker <- ggplot2::ggplot(population[index, , drop = FALSE], ggplot2::aes(x = .data$activity, y = .data$marker)) +
+    plots$marker <- ggplot2::ggplot(
+      population[index, , drop = FALSE],
+      ggplot2::aes(x = .data$activity, y = .data$marker)
+    ) +
       ggplot2::geom_point()
-    attr(plots$marker, "full_population_correlation") <- if (stats::sd(A[, 1]) > 0 && stats::sd(marker) > 0) stats::cor(A[, 1], marker) else NA_real_
+    attr(plots$marker, "full_population_correlation") <- if (stats::sd(A[, 1]) > 0 && stats::sd(marker) > 0) {
+      stats::cor(A[, 1], marker)
+    } else {
+      NA_real_
+    }
   }
-  plots <- lapply(plots, function(p) .program_result(p, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata"), exclusions = exclusions, max_samples = max_samples, seed = seed, rendering_only = TRUE)))
-  .program_result(plots, view, "plot_factor_diagnostics", match.call(), list(diagnostics = attr(diagnostics, "analysis_metadata"), exclusions = exclusions))
+  plots <- lapply(plots, function(p) {
+    .program_result(
+      p,
+      view,
+      "plot_factor_diagnostics",
+      match.call(),
+      list(
+        diagnostics = attr(diagnostics, "analysis_metadata"),
+        exclusions = exclusions,
+        max_samples = max_samples,
+        seed = seed,
+        rendering_only = TRUE
+      )
+    )
+  })
+  .program_result(
+    plots,
+    view,
+    "plot_factor_diagnostics",
+    match.call(),
+    list(diagnostics = attr(diagnostics, "analysis_metadata"), exclusions = exclusions)
+  )
 }
 
 #' Plot signed signature weights against mean expression
@@ -142,14 +212,25 @@ plot_factor_diagnostics <- function(fit, metadata = NULL, group = NULL, marker =
 plot_factor_signature <- function(fit, factor, mean_expression, expression_scale, threshold = 0.1, n_label = 15L) {
   view <- .resolve_view(fit)
   B <- factor_effects(view, factors = factor)
-  if (ncol(B) != 1) stop("Choose one factor")
+  if (ncol(B) != 1) {
+    stop("Choose one factor")
+  }
   .program_number(threshold, "threshold")
   .program_number(n_label, "n_label", TRUE)
   .validate_ids(names(mean_expression), "Expression feature")
-  if (!is.numeric(mean_expression) || any(!is.finite(mean_expression)) || !all(rownames(B) %in% names(mean_expression))) stop("Supply finite expression for every feature")
+  if (
+    !is.numeric(mean_expression) || any(!is.finite(mean_expression)) || !all(rownames(B) %in% names(mean_expression))
+  ) {
+    stop("Supply finite expression for every feature")
+  }
   .measurement_scale(expression_scale)
   W <- .display_scale(B, "max_abs")
-  table <- data.frame(feature = rownames(B), weight = W[, 1], estimate = B[, 1], expression = mean_expression[rownames(B)])
+  table <- data.frame(
+    feature = rownames(B),
+    weight = W[, 1],
+    estimate = B[, 1],
+    expression = mean_expression[rownames(B)]
+  )
   eligible <- which(abs(table$weight) >= threshold & table$weight != 0)
   labels <- utils::head(eligible[order(-abs(table$weight[eligible]), table$feature[eligible])], n_label)
   table$label <- ""
@@ -158,7 +239,18 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
     ggplot2::geom_point() +
     .label_layer() +
     ggplot2::labs(x = "Signed weight / maximum absolute weight", y = paste("Mean expression:", expression_scale))
-  .program_result(p, view, "plot_factor_signature", match.call(), list(expression_scale = expression_scale, threshold = threshold, n_label = n_label, display_normalization = "max_abs"))
+  .program_result(
+    p,
+    view,
+    "plot_factor_signature",
+    match.call(),
+    list(
+      expression_scale = expression_scale,
+      threshold = threshold,
+      n_label = n_label,
+      display_normalization = "max_abs"
+    )
+  )
 }
 
 #' Measure descriptive one-versus-rest factor specificity
@@ -184,7 +276,16 @@ plot_factor_signature <- function(fit, factor, mean_expression, expression_scale
 #'   observation/unit counts and explicit status for every factor/group pair.
 #' @author Mikhael Manurung; pROC authors Xavier Robin and collaborators.
 #' @keywords internal
-factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NULL, direction = "positive", threshold_method = "closest.topleft", unit_col = NULL) {
+factor_specificity <- function(
+  fit,
+  metadata,
+  group,
+  groups = NULL,
+  factors = NULL,
+  direction = "positive",
+  threshold_method = "closest.topleft",
+  unit_col = NULL
+) {
   .check_engine("pROC")
   view <- .resolve_view(fit)
   A <- factor_activity(view, factors = factors)
@@ -193,27 +294,60 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
   direction <- match.arg(direction, c("positive", "negative"))
   threshold_method <- match.arg(threshold_method, c("closest.topleft", "youden"))
   labels <- as.character(md[[group]])
-  if (is.null(groups)) groups <- unique(labels)
+  if (is.null(groups)) {
+    groups <- unique(labels)
+  }
   .validate_ids(groups, "Group")
   out <- list()
   for (k in seq_len(ncol(A))) {
     for (g in groups) {
       target <- labels == g
       x <- A[, k]
-      row <- data.frame(factor = colnames(A)[k], group = g, auc = NA_real_, threshold = NA_real_, sensitivity = NA_real_, specificity = NA_real_, threshold_ties = 0L, n_samples = length(x), n_positive = sum(target), n_negative = sum(!target), n_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]])), n_positive_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][target])), n_negative_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][!target])), status = "unavailable_absent_class")
+      row <- data.frame(
+        factor = colnames(A)[k],
+        group = g,
+        auc = NA_real_,
+        threshold = NA_real_,
+        sensitivity = NA_real_,
+        specificity = NA_real_,
+        threshold_ties = 0L,
+        n_samples = length(x),
+        n_positive = sum(target),
+        n_negative = sum(!target),
+        n_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]])),
+        n_positive_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][target])),
+        n_negative_units = if (is.null(unit_col)) NA_integer_ else length(unique(md[[unit_col]][!target])),
+        status = "unavailable_absent_class"
+      )
       if (any(target) && any(!target)) {
         if (length(unique(x)) == 1) {
           row$auc <- 0.5
           row$status <- "constant_predictor"
         } else {
-          roc <- pROC::roc(target, x, levels = c(FALSE, TRUE), direction = if (direction == "positive") "<" else ">", quiet = TRUE)
-          best <- as.data.frame(pROC::coords(roc, "best", best.method = threshold_method, ret = c("threshold", "sensitivity", "specificity"), transpose = FALSE))
+          roc <- pROC::roc(
+            target,
+            x,
+            levels = c(FALSE, TRUE),
+            direction = if (direction == "positive") "<" else ">",
+            quiet = TRUE
+          )
+          best <- as.data.frame(pROC::coords(
+            roc,
+            "best",
+            best.method = threshold_method,
+            ret = c("threshold", "sensitivity", "specificity"),
+            transpose = FALSE
+          ))
           row$auc <- as.numeric(pROC::auc(roc))
           row$threshold_ties <- nrow(best)
           finite <- best[is.finite(best$threshold), , drop = FALSE]
           if (nrow(finite)) {
             chosen <- finite[which.min(finite$threshold), , drop = FALSE]
-            row[, c("threshold", "sensitivity", "specificity")] <- chosen[, c("threshold", "sensitivity", "specificity")]
+            row[, c("threshold", "sensitivity", "specificity")] <- chosen[, c(
+              "threshold",
+              "sensitivity",
+              "specificity"
+            )]
             row$status <- "available"
           } else {
             row$status <- "unavailable_no_finite_optimum"
@@ -227,13 +361,38 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
     do.call(rbind, out)
   } else {
     data.frame(
-      factor = character(), group = character(),
-      auc = numeric(), threshold = numeric(), sensitivity = numeric(), specificity = numeric(),
-      threshold_ties = integer(), n_samples = integer(), n_positive = integer(), n_negative = integer(),
-      n_units = integer(), n_positive_units = integer(), n_negative_units = integer(), status = character()
+      factor = character(),
+      group = character(),
+      auc = numeric(),
+      threshold = numeric(),
+      sensitivity = numeric(),
+      specificity = numeric(),
+      threshold_ties = integer(),
+      n_samples = integer(),
+      n_positive = integer(),
+      n_negative = integer(),
+      n_units = integer(),
+      n_positive_units = integer(),
+      n_negative_units = integer(),
+      status = character()
     )
   }
-  .program_result(table, view, "factor_specificity", match.call(), list(engine = "pROC", direction = direction, threshold_method = threshold_method, tie_rule = "smallest_finite_threshold", unit_col = unit_col, inference = "descriptive", groups = groups, exclusions = matched$exclusions))
+  .program_result(
+    table,
+    view,
+    "factor_specificity",
+    match.call(),
+    list(
+      engine = "pROC",
+      direction = direction,
+      threshold_method = threshold_method,
+      tie_rule = "smallest_finite_threshold",
+      unit_col = unit_col,
+      inference = "descriptive",
+      groups = groups,
+      exclusions = matched$exclusions
+    )
+  )
 }
 
 #' Summarize defining features and descriptive program diagnostics
@@ -250,7 +409,28 @@ factor_specificity <- function(fit, metadata, group, groups = NULL, factors = NU
 summarize_factors <- function(fit, factors = NULL, n = 5L, annotations = NULL, compare_factors = NULL, ...) {
   view <- .resolve_view(fit)
   out <- factor_diagnostics(view, factors = factors, ...)$factors
-  for (sign in c("positive", "negative")) out[[paste0(sign, "_features")]] <- lapply(out$factor, function(factor) factor_features(view, factor, n = n, direction = sign, compare_factors = compare_factors))
-  if (!is.null(annotations)) out$annotation <- .factor_annotation(annotations, out$factor)
-  .program_result(out, view, "summarize_factors", match.call(), list(n = n, annotations = annotations, competition_factors = colnames(view$effects)[.select_ids(compare_factors, colnames(view$effects), "comparison factor")], diagnostics = attr(factor_diagnostics(view, factors = factors, ...), "analysis_metadata")))
+  for (sign in c("positive", "negative")) {
+    out[[paste0(sign, "_features")]] <- lapply(out$factor, function(factor) {
+      factor_features(view, factor, n = n, direction = sign, compare_factors = compare_factors)
+    })
+  }
+  if (!is.null(annotations)) {
+    out$annotation <- .factor_annotation(annotations, out$factor)
+  }
+  .program_result(
+    out,
+    view,
+    "summarize_factors",
+    match.call(),
+    list(
+      n = n,
+      annotations = annotations,
+      competition_factors = colnames(view$effects)[.select_ids(
+        compare_factors,
+        colnames(view$effects),
+        "comparison factor"
+      )],
+      diagnostics = attr(factor_diagnostics(view, factors = factors, ...), "analysis_metadata")
+    )
+  )
 }

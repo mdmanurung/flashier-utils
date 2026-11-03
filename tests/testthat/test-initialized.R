@@ -1,9 +1,7 @@
 initialized_fixture <- function() {
   X <- fixture_matrix()
   A <- cbind(F1 = seq(-1, 1, length.out = 12), anchor = sin(1:12))
-  B <- matrix(c(2, -1, 0, 1, 3, -2, 4, 0, 1, 2, -3, 0, -2, 1, 0, 4), 8, 2,
-    dimnames = list(colnames(X), colnames(A))
-  )
+  B <- matrix(c(2, -1, 0, 1, 3, -2, 4, 0, 1, 2, -3, 0, -2, 1, 0, 4), 8, 2, dimnames = list(colnames(X), colnames(A)))
   rownames(A) <- rownames(X)
   list(X = X, A = A, B = B)
 }
@@ -16,9 +14,16 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
       Y <- if (side == "rows") x$X else t(x$X)
       set.seed(31)
       previous <- .Random.seed
-      fit <- allow_maxiter(fit_initialized_ebmf(Y, side, x$A[12:1, ], x$B[8:1, ],
-        activity_prior = ebnm::ebnm_normal, fixed_side = fixed, seed = 17,
-        control = controls, verbose = 0
+      fit <- allow_maxiter(fit_initialized_ebmf(
+        Y,
+        side,
+        x$A[12:1, ],
+        x$B[8:1, ],
+        activity_prior = ebnm::ebnm_normal,
+        fixed_side = fixed,
+        seed = 17,
+        control = controls,
+        verbose = 0
       ))
       expect_identical(.Random.seed, previous)
       priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
@@ -32,14 +37,13 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
       native <- flashier::flash_set_verbose(native, 0)
       native <- flashier::flash_factors_init(native, pair, ebnm_fn = priors)
       if (fixed != "none") {
-        native <- flashier::flash_factors_fix(native, 1:2,
+        native <- flashier::flash_factors_fix(
+          native,
+          1:2,
           which_dim = if ((fixed == "activity") == (side == "rows")) "loadings" else "factors"
         )
       }
-      native <- allow_maxiter(flashier::flash_backfit(native,
-        maxiter = 50,
-        extrapolate = FALSE, verbose = 0
-      ))
+      native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 50, extrapolate = FALSE, verbose = 0))
       expect_equal(fit$L_pm, native$L_pm, tolerance = 1e-10)
       expect_equal(fit$F_pm, native$F_pm, tolerance = 1e-10)
       expect_equal(fit$elbo, native$elbo, tolerance = 1e-10)
@@ -67,9 +71,17 @@ test_that("initialized fitting matches public calls with exact IDs in both orien
 
 test_that("new factors preserve initialized IDs through selected-only nullchecking", {
   x <- initialized_fixture()
-  fit <- allow_maxiter(fit_initialized_ebmf(x$X, "rows", x$A, x$B,
-    activity_prior = ebnm::ebnm_normal, fixed_side = "activity", add_factors = 2,
-    nullcheck_new = FALSE, seed = 17, verbose = 0,
+  fit <- allow_maxiter(fit_initialized_ebmf(
+    x$X,
+    "rows",
+    x$A,
+    x$B,
+    activity_prior = ebnm::ebnm_normal,
+    fixed_side = "activity",
+    add_factors = 2,
+    nullcheck_new = FALSE,
+    seed = 17,
+    verbose = 0,
     control = list(backfit = list(maxiter = 50), greedy = list(maxiter = 50))
   ))
   ids <- .factor_ids(fit)
@@ -114,7 +126,9 @@ test_that("initialized fitting validates axes, support and protected controls", 
   set.seed(42)
   previous <- .Random.seed
   failing_prior <- function(x, s, g_init = NULL, fix_g = FALSE, output = NULL) {
-    if (!identical(unname(x), c(-10, 0, 10))) stop("deliberate_native_failure")
+    if (!identical(unname(x), c(-10, 0, 10))) {
+      stop("deliberate_native_failure")
+    }
     ebnm::ebnm_normal(x, s, g_init = g_init, fix_g = fix_g, output = output)
   }
   failed <- tryCatch(run(seed = 17, activity_prior = failing_prior), error = identity)
@@ -130,9 +144,17 @@ test_that("added-factor pipeline matches independent selected-only native remova
   control <- list(backfit = list(maxiter = 50), greedy = list(maxiter = 50))
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") x$X else t(x$X)
-    fit <- allow_maxiter(fit_initialized_ebmf(Y, side, x$A, x$B,
-      activity_prior = ebnm::ebnm_normal, fixed_side = "activity", add_factors = 2,
-      seed = 17, control = control, verbose = 0
+    fit <- allow_maxiter(fit_initialized_ebmf(
+      Y,
+      side,
+      x$A,
+      x$B,
+      activity_prior = ebnm::ebnm_normal,
+      fixed_side = "activity",
+      add_factors = 2,
+      seed = 17,
+      control = control,
+      verbose = 0
     ))
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
     pair <- list(x$A, x$B)
@@ -143,14 +165,9 @@ test_that("added-factor pipeline matches independent selected-only native remova
     set.seed(17)
     native <- flashier::flash_set_verbose(flashier::flash_init(Y), 0)
     native <- flashier::flash_factors_init(native, pair, ebnm_fn = priors)
-    native <- flashier::flash_factors_fix(native, 1:2,
-      which_dim = if (side == "rows") "loadings" else "factors"
-    )
+    native <- flashier::flash_factors_fix(native, 1:2, which_dim = if (side == "rows") "loadings" else "factors")
     native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
-    native <- allow_maxiter(flashier::flash_greedy(native,
-      Kmax = 2, ebnm_fn = priors,
-      maxiter = 50, verbose = 0
-    ))
+    native <- allow_maxiter(flashier::flash_greedy(native, Kmax = 2, ebnm_fn = priors, maxiter = 50, verbose = 0))
     native <- allow_maxiter(flashier::flash_backfit(native, maxiter = 50, verbose = 0))
     new_indices <- setdiff(seq_len(native$n_factors), 1:2)
     expected_ids <- c("F1", "anchor", paste0("F", seq_along(new_indices) + 1L))
@@ -176,5 +193,8 @@ test_that("initialized fits and projections share the var_type contract", {
   expect_error(fit_initialized_ebmf(x$X, "rows", x$A, x$B, var_type = NULL, verbose = 0), "supply S")
   fit <- fixture_fit()
   attr(fit, "flashbridge_metadata")$feature_scale <- "intensity"
-  expect_error(project_factor_activity(fit, fixture_matrix(), "rows", "intensity", list(scope = "identity"), var_type = c(2L, 1L)), "var_type must be")
+  expect_error(
+    project_factor_activity(fit, fixture_matrix(), "rows", "intensity", list(scope = "identity"), var_type = c(2L, 1L)),
+    "var_type must be"
+  )
 })

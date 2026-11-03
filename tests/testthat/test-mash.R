@@ -15,7 +15,10 @@ test_that("mash uses every common-basis row and native summary generics", {
   expect_equal(out$table$estimate, as.vector(ashr::get_pm(native)))
   expect_equal(out$table$posterior.sd, as.vector(ashr::get_psd(native)))
   expect_equal(out$table$lfsr, as.vector(ashr::get_lfsr(native)))
-  expect_error(shrink_factor_effects(table[-1, ], "cohort", term = "groupB", independent_conditions = TRUE), "every eligible")
+  expect_error(
+    shrink_factor_effects(table[-1, ], "cohort", term = "groupB", independent_conditions = TRUE),
+    "every eligible"
+  )
   bad <- table
   bad$basis_id[1] <- "wrong"
   expect_error(shrink_factor_effects(bad, "cohort", term = "groupB", independent_conditions = TRUE), "incompatible")

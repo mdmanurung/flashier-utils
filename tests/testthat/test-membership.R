@@ -1,19 +1,28 @@
 membership_view <- function() {
   A <- rbind(
-    broad = c(10, 10, 0), next_cell = c(4, 4, .2),
-    a = c(5, 0, 0), b = c(0, 5, 0), c = c(0, 0, 1)
+    broad = c(10, 10, 0),
+    next_cell = c(4, 4, .2),
+    a = c(5, 0, 0),
+    b = c(0, 5, 0),
+    c = c(0, 0, 1)
   )
   colnames(A) <- paste0("F", 1:3)
-  B <- matrix(c(1, -2, 3, 4, -1, 2), 2,
-    dimnames = list(c("g1", "g2"), colnames(A))
+  B <- matrix(c(1, -2, 3, 4, -1, 2), 2, dimnames = list(c("g1", "g2"), colnames(A)))
+  .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "membership_fixture",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1:3,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "nonnegative", effects = "signed"),
+      feature_scale = "log_expression"
+    ),
+    c(g1 = 2, g2 = -3)
   )
-  .make_representation(A, B, list(
-    fit_id = "membership_fixture",
-    schema_version = "1.0.0", sample_side = "rows", native_indices = 1:3,
-    scaling = "raw", orientation = "as_fit",
-    constraints = c(activity = "nonnegative", effects = "signed"),
-    feature_scale = "log_expression"
-  ), c(g1 = 2, g2 = -3))
 }
 
 test_that("ImmGenT filtering repeats normalization and preserves paired reconstruction", {
@@ -33,9 +42,7 @@ test_that("ImmGenT filtering repeats normalization and preserves paired reconstr
   expect_identical(serialize(view, NULL), before)
   expect_false(attr(out, "analysis_metadata")$native_fit_refitted)
   expect_equal(factor_provenance("filter_cells_by_total_membership")$code_reuse, "none")
-  expect_warning(partial <- filter_cells_by_total_membership(view,
-    max_val = 1.5, numiter = 1
-  ), "reached numiter")
+  expect_warning(partial <- filter_cells_by_total_membership(view, max_val = 1.5, numiter = 1), "reached numiter")
   expect_false(partial$converged)
   expect_identical(partial$kept_samples, c("next_cell", "a", "b", "c"))
 })
@@ -51,8 +58,12 @@ test_that("filtering handles inclusive thresholds, zero factors and singleton ax
     matrix(2, 1, 1, dimnames = list("s", "F1")),
     matrix(-3, 1, 1, dimnames = list("g", "F1")),
     list(
-      fit_id = "single", schema_version = "1.0.0", sample_side = "rows",
-      native_indices = 1L, scaling = "raw", orientation = "as_fit",
+      fit_id = "single",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1L,
+      scaling = "raw",
+      orientation = "as_fit",
       constraints = c(activity = "nonnegative", effects = "signed")
     )
   )
@@ -85,11 +96,10 @@ test_that("native fits work in either sample orientation without mutation", {
   for (side in c("rows", "columns")) {
     pair <- if (side == "rows") list(A, B) else list(B, A)
     priors <- list(ebnm::ebnm_point_exponential, ebnm::ebnm_normal)
-    if (side == "columns") priors <- rev(priors)
-    fit <- flashier::flash_factors_init(flashier::flash_init(tcrossprod(pair[[1]], pair[[2]])),
-      pair,
-      ebnm_fn = priors
-    )
+    if (side == "columns") {
+      priors <- rev(priors)
+    }
+    fit <- flashier::flash_factors_init(flashier::flash_init(tcrossprod(pair[[1]], pair[[2]])), pair, ebnm_fn = priors)
     before <- serialize(fit, NULL)
     out <- filter_cells_by_total_membership(fit, side, max_val = 1.5)
     view <- standardize_factors(fit, sample_side = side, scaling = "raw", orientation = "as_fit")

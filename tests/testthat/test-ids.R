@@ -24,7 +24,11 @@ test_that("IDs and missingness are validated without changing sparse zeros", {
 
 test_that("selections take character or factor IDs, never positions", {
   v <- fixture_view()
-  expect_equal(factor_activity(v, samples = factor(c("s2", "s1"))), factor_activity(v, samples = c("s2", "s1")), ignore_attr = TRUE)
+  expect_equal(
+    factor_activity(v, samples = factor(c("s2", "s1"))),
+    factor_activity(v, samples = c("s2", "s1")),
+    ignore_attr = TRUE
+  )
   expect_error(factor_activity(v, factors = 2), "character IDs, not positions")
   expect_error(factor_activity(v, factors = c(TRUE, FALSE)), "character IDs, not positions")
 })

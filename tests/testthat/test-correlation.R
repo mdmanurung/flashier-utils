@@ -13,7 +13,9 @@ test_that("base correlations match native output and retain constants without p-
 })
 
 test_that("CorShrink delegates only the audited public method", {
-  if (!nzchar(system.file(package = "CorShrink"))) skip("CorShrink unavailable")
+  if (!nzchar(system.file(package = "CorShrink"))) {
+    skip("CorShrink unavailable")
+  }
   # The pinned package's CVXR/stats sd import warning is recorded in the audit.
   # Only this known namespace notice is muffled; fitting warnings stay visible.
   withCallingHandlers(requireNamespace("CorShrink"), warning = function(w) {

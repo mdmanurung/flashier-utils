@@ -12,7 +12,8 @@ test_that("FND-001 oracle: activity projection equals a fresh native pipeline", 
     view <- standardize_factors(fit, scaling = "ldf", d_location = "activity")
     # fixture_fit deliberately leaves units unknown; declare them explicitly.
     view <- .make_representation(
-      view$activity, view$effects,
+      view$activity,
+      view$effects,
       utils::modifyList(view$manifest, list(feature_scale = "simulated"))
     )
     # A query that is NOT the source data, so a copied source PVE could never
@@ -20,9 +21,15 @@ test_that("FND-001 oracle: activity projection equals a fresh native pipeline", 
     Y <- 2 * fixture_matrix()
     query <- if (orientation == "rows") Y else t(Y)
     priors <- list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
-    result <- allow_maxiter(project_factor_activity(view, query, orientation,
-      "simulated", list(scope = "identity"),
-      ebnm_fn = priors, maxiter = 200, var_type = 0L
+    result <- allow_maxiter(project_factor_activity(
+      view,
+      query,
+      orientation,
+      "simulated",
+      list(scope = "identity"),
+      ebnm_fn = priors,
+      maxiter = 200,
+      var_type = 0L
     ))
     # Fresh pipeline: public flashier calls only, source effects fixed exactly.
     genes <- rownames(view$effects)
@@ -33,7 +40,9 @@ test_that("FND-001 oracle: activity projection equals a fresh native pipeline", 
     object <- flashier::flash_init(native_data, S = NULL, var_type = 0L)
     pair <- if (orientation == "rows") list(A0, B) else list(B, A0)
     object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)
-    object <- flashier::flash_factors_fix(object, seq_len(ncol(B)),
+    object <- flashier::flash_factors_fix(
+      object,
+      seq_len(ncol(B)),
       which_dim = if (orientation == "rows") "factors" else "loadings"
     )
     object <- flashier::flash_backfit(object, maxiter = 200, extrapolate = FALSE, verbose = 0L)
@@ -60,12 +69,8 @@ test_that("FND-001 oracle: activity projection equals a fresh native pipeline", 
     expect_equal(projected$manifest$activity_multiplier, rep(1, ncol(B)))
     expect_equal(projected$manifest$effects_multiplier, rep(1, ncol(B)))
     expect_identical(projected$manifest$orientation, "as_fit")
-    expect_equal(projected$manifest$native_pve, object$pve[projected$manifest$native_indices],
-      tolerance = 1e-12
-    )
-    expect_equal(projected$manifest$source_coordinates$native_pve, view$manifest$native_pve,
-      tolerance = 1e-12
-    )
+    expect_equal(projected$manifest$native_pve, object$pve[projected$manifest$native_indices], tolerance = 1e-12)
+    expect_equal(projected$manifest$source_coordinates$native_pve, view$manifest$native_pve, tolerance = 1e-12)
     expect_identical(projected$manifest$source_coordinates$scaling, "ldf")
     expect_equal(projected$manifest$source_basis_id, view$manifest$basis_id)
     # Semantic reconstruction identity on the shared genes.
@@ -80,20 +85,24 @@ test_that("FND-001 oracle: feature projection moments and draws equal a fresh na
     fit <- fixture_fit(orientation)
     view <- standardize_factors(fit, scaling = "raw")
     p <- if (orientation == "rows") priors else rev(priors)
-    result <- allow_maxiter(project_factor_features(view,
-      if (orientation == "rows") M else t(M), orientation, "protein",
-      ebnm_fn = p, maxiter = 200
+    result <- allow_maxiter(project_factor_features(
+      view,
+      if (orientation == "rows") M else t(M),
+      orientation,
+      "protein",
+      ebnm_fn = p,
+      maxiter = 200
     ))
     a <- view$activity[rownames(M), ]
     b <- t(qr.coef(qr(a), as.matrix(M)))
-    object <- flashier::flash_init(if (orientation == "rows") M else t(M),
+    object <- flashier::flash_init(
+      if (orientation == "rows") M else t(M),
       var_type = if (orientation == "rows") 2L else 1L
     )
-    object <- flashier::flash_factors_init(object,
-      if (orientation == "rows") list(a, b) else list(b, a),
-      ebnm_fn = p
-    )
-    object <- flashier::flash_factors_fix(object, seq_len(ncol(a)),
+    object <- flashier::flash_factors_init(object, if (orientation == "rows") list(a, b) else list(b, a), ebnm_fn = p)
+    object <- flashier::flash_factors_fix(
+      object,
+      seq_len(ncol(a)),
       which_dim = if (orientation == "rows") "loadings" else "factors"
     )
     object <- flashier::flash_backfit(object, maxiter = 200, extrapolate = FALSE, verbose = 0L)
@@ -122,23 +131,20 @@ test_that("FND-002 oracle: partial fixing pins named entries through backfit in 
       refit <- refit_factors(fixed, control = list(maxiter = 30L, verbose = 0L))
       mode <- if ((axis == "activity") == (side == "rows")) "L" else "F"
       # The named entries keep their exact pinned values through the refit.
-      expect_equal(refit[[paste0(mode, "_pm")]][match(ids, axis_ids), 1],
+      expect_equal(
+        refit[[paste0(mode, "_pm")]][match(ids, axis_ids), 1],
         f[[paste0(mode, "_pm")]][match(ids, axis_ids), 1],
         tolerance = 1e-12
       )
       # The refit equals a fresh native mask-fix plus backfit of every factor.
-      native <- flashier::flash_factors_fix(f, 1,
+      native <- flashier::flash_factors_fix(
+        f,
+        1,
         which_dim = if ((axis == "activity") == (side == "rows")) "loadings" else "factors",
         fixed_idx = rownames(view[[axis]]) %in% ids
       )
-      native <- flashier::flash_backfit(native,
-        kset = seq_len(f$n_factors),
-        maxiter = 30L, verbose = 0L
-      )
-      expect_equal(unname(refit[[paste0(mode, "_pm")]]),
-        unname(native[[paste0(mode, "_pm")]]),
-        tolerance = 1e-12
-      )
+      native <- flashier::flash_backfit(native, kset = seq_len(f$n_factors), maxiter = 30L, verbose = 0L)
+      expect_equal(unname(refit[[paste0(mode, "_pm")]]), unname(native[[paste0(mode, "_pm")]]), tolerance = 1e-12)
     }
   }
 })
@@ -154,9 +160,15 @@ test_that("multistart selection is invariant to init_seeds input order", {
   X <- fixture_matrix()
   seeds <- c(101, 202, 303)
   args <- list(
-    X = X, sample_side = "rows", ebnm_fn = ebnm::ebnm_point_laplace,
-    n_starts = 3L, max_factors = 2L, backfit = TRUE, nullcheck = FALSE,
-    verbose = 0L, feature_scale = "simulated_centered_intensity"
+    X = X,
+    sample_side = "rows",
+    ebnm_fn = ebnm::ebnm_point_laplace,
+    n_starts = 3L,
+    max_factors = 2L,
+    backfit = TRUE,
+    nullcheck = FALSE,
+    verbose = 0L,
+    feature_scale = "simulated_centered_intensity"
   )
   r1 <- do.call(fit_multistart_ebmf, c(args, list(init_seeds = seeds)))
   r2 <- do.call(fit_multistart_ebmf, c(args, list(init_seeds = rev(seeds))))

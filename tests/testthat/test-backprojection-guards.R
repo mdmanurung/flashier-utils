@@ -6,7 +6,10 @@ test_that("backproject_contrast refuses undeclared or malformed coefficient inpu
   expect_error(backproject_contrast(view, beta, factor_basis = basis), "input must explicitly declare")
   expect_error(run(beta, feature_block_size = 0), "feature_block_size")
   expect_error(run(beta, level = 1), "level must be between")
-  expect_error(backproject_contrast(view, beta, "coefficients", factor_basis = list(fit_id = "x")), "Supply factor_basis")
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", factor_basis = list(fit_id = "x")),
+    "Supply factor_basis"
+  )
   inconsistent <- basis
   inconsistent$feature_scale <- "other_units"
   expect_error(backproject_contrast(view, beta, "coefficients", factor_basis = inconsistent), "inconsistent")
@@ -17,7 +20,11 @@ test_that("backproject_contrast refuses undeclared or malformed coefficient inpu
 test_that("backproject_contrast selects rows of a coefficient coefficients explicitly", {
   view <- fixture_view()
   basis <- view$manifest
-  coefficients <- data.frame(factor = rep(c("F1", "F2"), 2), contrast = rep(c("up", "down"), each = 2), estimate = c(2, -1, -2, 1))
+  coefficients <- data.frame(
+    factor = rep(c("F1", "F2"), 2),
+    contrast = rep(c("up", "down"), each = 2),
+    estimate = c(2, -1, -2, 1)
+  )
   run <- function(x, ...) backproject_contrast(view, x, "coefficients", factor_basis = basis, ...)
   expect_error(run(coefficients[, c("factor", "contrast")]), "requires factor and estimate")
   expect_error(run(coefficients), "Explicit contrast selection")
@@ -34,7 +41,9 @@ test_that("backproject_contrast checks the full coefficient covariance", {
   view <- fixture_view()
   basis <- view$manifest
   beta <- c(F1 = 2, F2 = -1)
-  run <- function(Sigma) backproject_contrast(view, beta, "coefficients", factor_basis = basis, coefficient_covariance = Sigma)
+  run <- function(Sigma) {
+    backproject_contrast(view, beta, "coefficients", factor_basis = basis, coefficient_covariance = Sigma)
+  }
   expect_error(run(list(diag(2), diag(2))), "one full covariance per contrast")
   expect_error(run(diag(3)), "finite K by K")
   negative <- matrix(c(1, 2, 2, 1), 2, dimnames = list(c("F1", "F2"), c("F1", "F2")))
@@ -42,7 +51,11 @@ test_that("backproject_contrast checks the full coefficient covariance", {
   Sigma <- matrix(c(1, 0.5, 0.5, 2), 2, dimnames = list(c("F2", "F1"), c("F2", "F1")))
   out <- run(Sigma)
   B <- view$effects[, c("F1", "F2")]
-  expect_equal(out$effects$std.error, sqrt(rowSums((B %*% Sigma[c("F1", "F2"), c("F1", "F2")]) * B)), ignore_attr = TRUE)
+  expect_equal(
+    out$effects$std.error,
+    sqrt(rowSums((B %*% Sigma[c("F1", "F2"), c("F1", "F2")]) * B)),
+    ignore_attr = TRUE
+  )
 })
 
 test_that("backproject_contrast draw mode refuses ambiguous or partial draws", {
@@ -52,7 +65,12 @@ test_that("backproject_contrast draw mode refuses ambiguous or partial draws", {
   run <- function(x, ...) backproject_contrast(view, x, "draws", factor_basis = basis, ...)
   expect_error(run(draws, contrasts = c("a", "b")), "one selected contrast")
   expect_error(run(data.frame(draw = 1, factor = "F1")), "requires draw, factor and estimate")
-  long <- data.frame(draw = rep(1:2, each = 2), factor = rep(c("F1", "F2"), 2), estimate = c(2, -1, 2.5, -0.5), term = rep(c("a", "b"), 2))
+  long <- data.frame(
+    draw = rep(1:2, each = 2),
+    factor = rep(c("F1", "F2"), 2),
+    estimate = c(2, -1, 2.5, -0.5),
+    term = rep(c("a", "b"), 2)
+  )
   expect_error(run(long), "Explicit term selection")
   expect_error(run(rbind(long[long$term == "a", ], long[1, ]), term = "a"), "unique complete")
   expect_error(run(draws[1, , drop = FALSE]), "at least two draws")

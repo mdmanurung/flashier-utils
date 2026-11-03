@@ -19,9 +19,19 @@ test_that("conditional covariance and draws use full signed feature algebra", {
   out <- backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest, coefficient_covariance = Sigma)
   expected_variance <- c(11, 4, 16, 2)
   expect_equal(out$effects$std.error, sqrt(expected_variance), tolerance = 1e-10)
-  expect_error(backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest, coefficient_covariance = c(1, 1)), "covariance")
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest, coefficient_covariance = c(1, 1)),
+    "covariance"
+  )
   D <- rbind(c(F1 = 1, F2 = -1), c(F1 = 2, F2 = 0), c(F1 = 0, F2 = 2))
-  out <- backproject_contrast(view, D, "draws", factor_basis = view$manifest, keep_draws = TRUE, feature_block_size = 1L)
+  out <- backproject_contrast(
+    view,
+    D,
+    "draws",
+    factor_basis = view$manifest,
+    keep_draws = TRUE,
+    feature_block_size = 1L
+  )
   expected <- rbind(c(-1, 1, -4, 1), c(4, -2, 0, 2), c(6, -4, 8, 0))
   expect_equal(unname(out$draws), expected)
   expect_equal(out$effects$estimate, colMeans(expected))
@@ -31,5 +41,9 @@ test_that("conditional covariance and draws use full signed feature algebra", {
 
 test_that("factor_intervals defaults to activity like factor_uncertainty", {
   fit <- fixture_fit()
-  expect_equal(factor_intervals(fit, nsamp = 4L, seed = 1), factor_intervals(fit, "activity", nsamp = 4L, seed = 1), ignore_attr = TRUE)
+  expect_equal(
+    factor_intervals(fit, nsamp = 4L, seed = 1),
+    factor_intervals(fit, "activity", nsamp = 4L, seed = 1),
+    ignore_attr = TRUE
+  )
 })

@@ -2,37 +2,53 @@
 # transfer credit: STARCAT (Dylan Kotliar, Michelle Curtis). No STARCAT code,
 # query-specific scaling or usage normalization is used.
 .measurement_scale <- function(scale) {
-  if (length(scale) != 1 || !is.character(scale) || is.na(scale) || !nzchar(trimws(scale)) || scale == "unknown") stop("Declare non-unknown measurement units explicitly")
+  if (length(scale) != 1 || !is.character(scale) || is.na(scale) || !nzchar(trimws(scale)) || scale == "unknown") {
+    stop("Declare non-unknown measurement units explicitly")
+  }
 }
 .projection_priors <- function(view, side, priors) {
   if (is.null(priors)) {
     ids <- view$manifest$prior_identifiers
-    if (is.null(ids) || length(ids) != 2 || any(ids == "custom_callback_required")) stop("Supply explicit ebnm_fn prior functions; recorded native priors are unavailable")
+    if (is.null(ids) || length(ids) != 2 || any(ids == "custom_callback_required")) {
+      stop("Supply explicit ebnm_fn prior functions; recorded native priors are unavailable")
+    }
     priors <- lapply(ids, .prior_from_identifier)
     if (!identical(view$manifest$prior_sample_side, side)) priors <- rev(priors)
   }
-  if (is.function(priors)) priors <- rep(list(priors), 2)
-  if (!is.list(priors) || length(priors) != 2 || !all(vapply(priors, is.function, logical(1)))) stop("ebnm_fn requires two native row/column prior functions")
+  if (is.function(priors)) {
+    priors <- rep(list(priors), 2)
+  }
+  if (!is.list(priors) || length(priors) != 2 || !all(vapply(priors, is.function, logical(1)))) {
+    stop("ebnm_fn requires two native row/column prior functions")
+  }
   priors
 }
 # Sorted ebnm export names of each prior function; "custom_callback_required" for any other function.
 .prior_identifiers <- function(priors) {
   exports <- getNamespaceExports("ebnm")
-  vapply(priors, function(fn) {
-    matches <- exports[vapply(exports, function(name) identical(fn, getExportedValue("ebnm", name)), logical(1))]
-    if (length(matches)) paste(sort(matches), collapse = ";") else "custom_callback_required"
-  }, character(1))
+  vapply(
+    priors,
+    function(fn) {
+      matches <- exports[vapply(exports, function(name) identical(fn, getExportedValue("ebnm", name)), logical(1))]
+      if (length(matches)) paste(sort(matches), collapse = ";") else "custom_callback_required"
+    },
+    character(1)
+  )
 }
 
 # The ebnm prior function a recorded identifier names (the first of its sorted aliases).
 .prior_from_identifier <- function(id) getExportedValue("ebnm", strsplit(id, ";", fixed = TRUE)[[1L]][1L])
 .projection_budget <- function(bytes, budget) {
   .program_number(budget, "dense_budget_bytes", minimum = 1)
-  if (bytes > budget) stop("Required dense allocations exceed dense_budget_bytes; reduce query size or increase the declared budget")
+  if (bytes > budget) {
+    stop("Required dense allocations exceed dense_budget_bytes; reduce query size or increase the declared budget")
+  }
 }
 .projection_query <- function(query, side, S) {
   query <- .validate_matrix(query, allow_missing = FALSE)
-  if (inherits(query, "sparseMatrix") && !is.null(S)) stop("Sparse observations with explicit S are unsupported by native flashier")
+  if (inherits(query, "sparseMatrix") && !is.null(S)) {
+    stop("Sparse observations with explicit S are unsupported by native flashier")
+  }
   if (side == "rows") query else Matrix::t(query)
 }
 .projection_native <- function(code) {
@@ -63,14 +79,29 @@
   }
   sst <- max(0, soo - so^2 / n)
   pst <- max(0, spp - sp^2 / n)
-  c(rmse = sqrt(sse / n), mae = sae / n, fit_r2 = if (sst > 0) 1 - sse / sst else NA_real_, correlation = if (sst > 0 && pst > 0) (sop - so * sp / n) / sqrt(sst * pst) else NA_real_, n_scored_entries = n)
+  c(
+    rmse = sqrt(sse / n),
+    mae = sae / n,
+    fit_r2 = if (sst > 0) 1 - sse / sst else NA_real_,
+    correlation = if (sst > 0 && pst > 0) (sop - so * sp / n) / sqrt(sst * pst) else NA_real_,
+    n_scored_entries = n
+  )
 }
 .projection_source_subset <- function(source, factors) {
   index <- match(factors, source$manifest$factor_ids)
   source$manifest$factor_support <- .factor_support(source$manifest)[index, , drop = FALSE]
   rownames(source$manifest$factor_support) <- NULL
   source$manifest$support_version <- "1.0.0"
-  for (key in c("native_indices", "activity_multiplier", "effects_multiplier", "orientation_sign", "orientation_anchor", "activity_center", "activity_scale", "native_pve")) {
+  for (key in c(
+    "native_indices",
+    "activity_multiplier",
+    "effects_multiplier",
+    "orientation_sign",
+    "orientation_anchor",
+    "activity_center",
+    "activity_scale",
+    "native_pve"
+  )) {
     if (!is.null(source$manifest[[key]])) source$manifest[[key]] <- source$manifest[[key]][index]
   }
   source
@@ -83,47 +114,100 @@
   native <- if (side == "rows") query else Matrix::t(query)
   if (is.matrix(S)) {
     .validate_matrix(S, allow_missing = FALSE)
-    if (any(S <= 0)) stop("S must be finite and positive")
-    if (!setequal(rownames(S), rownames(native)) || !setequal(colnames(S), colnames(native))) stop("S axes differ from query")
+    if (any(S <= 0)) {
+      stop("S must be finite and positive")
+    }
+    if (!setequal(rownames(S), rownames(native)) || !setequal(colnames(S), colnames(native))) {
+      stop("S axes differ from query")
+    }
     return(S[rownames(native), colnames(native), drop = FALSE])
   }
-  if (!is.numeric(S) || any(!is.finite(S)) || any(S <= 0)) stop("S must be finite and positive")
+  if (!is.numeric(S) || any(!is.finite(S)) || any(S <= 0)) {
+    stop("S must be finite and positive")
+  }
   .validate_ids(names(S), "S axis")
   row <- setequal(names(S), rownames(native))
   col <- setequal(names(S), colnames(native))
-  if (row == col) stop("S vector has missing or ambiguous query axis IDs")
+  if (row == col) {
+    stop("S vector has missing or ambiguous query axis IDs")
+  }
   S[if (row) rownames(native) else colnames(native)]
 }
-.projection_output <- function(native, source, A, B, offset, query, side, scale, preprocessing, settings, name, call, budget) {
+.projection_output <- function(
+  native,
+  source,
+  A,
+  B,
+  offset,
+  query,
+  side,
+  scale,
+  preprocessing,
+  settings,
+  name,
+  call,
+  budget
+) {
   manifest <- source$manifest
   if (identical(source$manifest$engine, "gbcd")) {
     manifest$source_engine <- "gbcd"
-    manifest$source_component_mapping <- source$manifest[c("mapping_scope", "engine_component_indices", "component_labels")]
+    manifest$source_component_mapping <- source$manifest[c(
+      "mapping_scope",
+      "engine_component_indices",
+      "component_labels"
+    )]
     manifest$engine <- "flashier"
     manifest$mapping_scope <- "flashier"
     manifest$engine_component_indices <- NULL
     manifest$component_labels <- NULL
     fields <- c(
-      "effect_source", "effect_units", "log2_fc_source", "z_score_definition",
-      "lfsr_source", "uncertainty_conditioning", "baseline_definition"
+      "effect_source",
+      "effect_units",
+      "log2_fc_source",
+      "z_score_definition",
+      "lfsr_source",
+      "uncertainty_conditioning",
+      "baseline_definition"
     )
     manifest$source_gbcd_statistics <- manifest[fields]
     manifest[fields] <- NULL
   }
   manifest$source_basis_id <- source$manifest$basis_id
-  manifest$source_coordinates <- source$manifest[c("native_indices", "scaling", "activity_multiplier", "effects_multiplier", "native_pve", "intercept_index", "offset_model", "native_factor_ids", "factor_roles", "support_version", "factor_support")]
+  manifest$source_coordinates <- source$manifest[c(
+    "native_indices",
+    "scaling",
+    "activity_multiplier",
+    "effects_multiplier",
+    "native_pve",
+    "intercept_index",
+    "offset_model",
+    "native_factor_ids",
+    "factor_roles",
+    "support_version",
+    "factor_support"
+  )]
   intercept_index <- native$value[["intercept_index"]]
   manifest$intercept_index <- intercept_index
   object <- native$value$fit
   K <- ncol(A)
   manifest$native_factor_ids <- c(if (!is.null(intercept_index)) "Intercept", if (K) colnames(A) else character())
-  manifest$factor_roles <- stats::setNames(c(if (!is.null(intercept_index)) "offset", rep("factor", K)), manifest$native_factor_ids)
-  manifest$native_indices <- if (is.null(intercept_index)) seq_len(K) else setdiff(seq_len(object$n_factors), intercept_index)
+  manifest$factor_roles <- stats::setNames(
+    c(if (!is.null(intercept_index)) "offset", rep("factor", K)),
+    manifest$native_factor_ids
+  )
+  manifest$native_indices <- if (is.null(intercept_index)) {
+    seq_len(K)
+  } else {
+    setdiff(seq_len(object$n_factors), intercept_index)
+  }
   records <- manifest$factor_support
   records$native_index <- manifest$native_indices
   records$role <- rep("factor", K)
   estimated_side <- if (settings$fixed == "activity") "effects" else "activity"
-  records[[if (estimated_side == "effects") "effect_support" else "activity_support"]] <- rep(unname(manifest$constraints[estimated_side]), K)
+  records[[if (estimated_side == "effects") "effect_support" else "activity_support"]] <- rep(
+    unname(manifest$constraints[estimated_side]),
+    K
+  )
   manifest$factor_support <- records
   manifest$constraints <- .support_summary(records, manifest$constraints)
   manifest$schema_version <- manifest$representation_version <- "1.1.0"
@@ -137,8 +221,16 @@
   manifest$orientation_anchor <- rep(NA_character_, K)
   manifest$activity_center <- rep(0, K)
   manifest$activity_scale <- rep(1, K)
-  manifest$offset_definition <- if (!is.null(intercept_index)) "native_feature_intercept" else if (any(offset != 0)) "external_projection_offset" else "zero"
-  if (!is.null(intercept_index)) manifest$offset_model <- "feature"
+  manifest$offset_definition <- if (!is.null(intercept_index)) {
+    "native_feature_intercept"
+  } else if (any(offset != 0)) {
+    "external_projection_offset"
+  } else {
+    "zero"
+  }
+  if (!is.null(intercept_index)) {
+    manifest$offset_model <- "feature"
+  }
   manifest$sample_side <- side
   manifest$feature_scale <- scale
   manifest$preprocessing <- preprocessing
@@ -146,7 +238,23 @@
   manifest$prior_sample_side <- side
   manifest$fit_id <- digest::digest(list(source$manifest$basis_id, A, B, offset, settings, Sys.time()), algo = "sha256")
   view <- .make_representation(A, B, manifest, offset)
-  attr(object, "flashbridge_metadata") <- list(sample_side = side, factor_ids = if (K) colnames(A) else character(), fit_id = view$manifest$fit_id, feature_scale = scale, preprocessing = preprocessing, prior_support = view$manifest$constraints, prior_identifiers = view$manifest$prior_identifiers, offset = if (is.null(intercept_index)) offset else NULL, offset_model = manifest$offset_model, intercept_index = intercept_index, native_indices = manifest$native_indices, source_basis_id = source$manifest$basis_id, projection = settings, recipe_version = "1.0.0", refit_policy = "callback_required")
+  attr(object, "flashbridge_metadata") <- list(
+    sample_side = side,
+    factor_ids = if (K) colnames(A) else character(),
+    fit_id = view$manifest$fit_id,
+    feature_scale = scale,
+    preprocessing = preprocessing,
+    prior_support = view$manifest$constraints,
+    prior_identifiers = view$manifest$prior_identifiers,
+    offset = if (is.null(intercept_index)) offset else NULL,
+    offset_model = manifest$offset_model,
+    intercept_index = intercept_index,
+    native_indices = manifest$native_indices,
+    source_basis_id = source$manifest$basis_id,
+    projection = settings,
+    recipe_version = "1.0.0",
+    refit_policy = "callback_required"
+  )
   metadata <- attr(object, "flashbridge_metadata")
   metadata$native_factor_ids <- manifest$native_factor_ids
   metadata$factor_roles <- manifest$factor_roles
@@ -157,11 +265,34 @@
   # Native backfit warm-start setting; flashier records no per-run iteration count.
   iteration_fields <- native_fit[intersect("warmstart.backfits", names(native_fit))]
   iteration_fields$iteration_limit <- settings$maxiter
-  iteration_fields$iteration_limit_reached <- any(grepl("Maximum number of iterations reached", native$warnings, fixed = TRUE))
+  iteration_fields$iteration_limit_reached <- any(grepl(
+    "Maximum number of iterations reached",
+    native$warnings,
+    fixed = TRUE
+  ))
   metrics <- .projection_metrics(query, A, B[colnames(query), , drop = FALSE], offset[colnames(query)], budget)
   result <- list(
-    fit = object, representation = view, reconstruction = metrics, warnings = native$warnings, native_iteration_diagnostics = iteration_fields,
-    analysis_metadata = utils::modifyList(view$manifest, c(settings, list(engine = "flashier", source_basis_id = source$manifest$basis_id, native_warnings = native$warnings, prior_noise_policy = if (identical(settings$prior_policy, "fixed_reference")) "activity_prior_fixed_to_reference; noise_recalibrated_on_query" else "recalibrate_on_query_observations")))
+    fit = object,
+    representation = view,
+    reconstruction = metrics,
+    warnings = native$warnings,
+    native_iteration_diagnostics = iteration_fields,
+    analysis_metadata = utils::modifyList(
+      view$manifest,
+      c(
+        settings,
+        list(
+          engine = "flashier",
+          source_basis_id = source$manifest$basis_id,
+          native_warnings = native$warnings,
+          prior_noise_policy = if (identical(settings$prior_policy, "fixed_reference")) {
+            "activity_prior_fixed_to_reference; noise_recalibrated_on_query"
+          } else {
+            "recalibrate_on_query_observations"
+          }
+        )
+      )
+    )
   )
   .attach_provenance(result, name, call, settings)
 }
@@ -214,25 +345,49 @@
 #' projected$representation$effects
 #' projected$reconstruction
 #' @export
-project_factor_features <- function(fit, query, sample_side, feature_scale, factors = NULL, ebnm_fn = NULL, maxiter = 200L, S = NULL, dense_budget_bytes = 256 * 1024^2) {
+project_factor_features <- function(
+  fit,
+  query,
+  sample_side,
+  feature_scale,
+  factors = NULL,
+  ebnm_fn = NULL,
+  maxiter = 200L,
+  S = NULL,
+  dense_budget_bytes = 256 * 1024^2
+) {
   side <- match.arg(sample_side, c("rows", "columns"))
   .measurement_scale(feature_scale)
   .program_number(maxiter, "maxiter", TRUE, 1)
-  source <- .resolve_view(fit, sample_side = if (inherits(fit, "flash")) .resolve_sample_side(fit, if (is.null(attr(fit, "flashbridge_metadata")$sample_side)) side else NULL) else NULL)
+  source <- .resolve_view(
+    fit,
+    sample_side = if (inherits(fit, "flash")) {
+      .resolve_sample_side(fit, if (is.null(attr(fit, "flashbridge_metadata")$sample_side)) side else NULL)
+    } else {
+      NULL
+    }
+  )
   Y <- .projection_query(query, side, S)
   requested <- .select_ids(factors, colnames(source$activity), "factor")
   index <- which(seq_len(ncol(source$activity)) %in% requested)
-  affine <- any(source$offset != 0) || identical(source$manifest[["offset_model"]], "feature") ||
+  affine <- any(source$offset != 0) ||
+    identical(source$manifest[["offset_model"]], "feature") ||
     isTRUE(source$manifest[["offset_definition"]] %in% c("native_feature_intercept", "external_projection_offset"))
-  if (!length(index) && !isTRUE(affine)) stop("Select at least one factor")
-  if (!all(rownames(Y) %in% rownames(source$activity))) stop("Query contains cells absent from reference activities")
+  if (!length(index) && !isTRUE(affine)) {
+    stop("Select at least one factor")
+  }
+  if (!all(rownames(Y) %in% rownames(source$activity))) {
+    stop("Query contains cells absent from reference activities")
+  }
   rank <- length(index) + as.integer(isTRUE(affine))
   .projection_budget(8 * (length(Y) * 4 + nrow(Y) * rank * 6 + ncol(Y) * rank * 4), dense_budget_bytes)
   A <- source$activity[rownames(Y), index, drop = FALSE]
   S <- .projection_S(S, Y, side)
   design <- if (isTRUE(affine)) cbind("(Intercept)" = rep(1, nrow(A)), A) else A
   qrA <- qr(design)
-  if (qrA$rank < ncol(design)) stop("Rank-deficient activity/intercept initialization; select fewer independent factors or more measured cells")
+  if (qrA$rank < ncol(design)) {
+    stop("Rank-deficient activity/intercept initialization; select fewer independent factors or more measured cells")
+  }
   B0 <- t(qr.coef(qrA, as.matrix(Y)))
   colnames(B0) <- colnames(design)
   if (is.null(ebnm_fn)) {
@@ -263,10 +418,16 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
       pair <- if (side == "rows") list(A, B0) else list(B0, A)
       object <- flashier::flash_factors_init(object, pair, ebnm_fn = priors)
     }
-    object <- flashier::flash_factors_fix(object, seq_len(ncol(design)), which_dim = if (side == "rows") "loadings" else "factors")
+    object <- flashier::flash_factors_fix(
+      object,
+      seq_len(ncol(design)),
+      which_dim = if (side == "rows") "loadings" else "factors"
+    )
     object <- flashier::flash_backfit(object, maxiter = maxiter, extrapolate = FALSE, verbose = 0)
     fixed <- if (side == "rows") object$L_pm else object$F_pm
-    if (!isTRUE(all.equal(unname(fixed), unname(design), tolerance = 1e-12))) stop("Native projection changed fixed activities")
+    if (!isTRUE(all.equal(unname(fixed), unname(design), tolerance = 1e-12))) {
+      stop("Native projection changed fixed activities")
+    }
     B <- if (side == "rows") object$F_pm else object$L_pm
     offset <- stats::setNames(rep(0, nrow(B)), rownames(B))
     if (isTRUE(affine)) {
@@ -280,7 +441,26 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
   source <- .projection_source_subset(source, colnames(A))
   source$manifest$prior_identifiers <- .prior_identifiers(priors)
   source$manifest$constraints["effects"] <- .prior_support(priors[[if (side == "rows") 2 else 1]])
-  .projection_output(native, source, A, B, native$value$offset, Y, side, feature_scale, list(scope = "new_measurements_user_declared", reference_preprocessing = source$manifest$preprocessing), list(fixed = "activity", maxiter = maxiter, dense_budget_bytes = dense_budget_bytes, var_type = if (side == "rows") 2L else 1L), "project_factor_features", match.call(), dense_budget_bytes)
+  .projection_output(
+    native,
+    source,
+    A,
+    B,
+    native$value$offset,
+    Y,
+    side,
+    feature_scale,
+    list(scope = "new_measurements_user_declared", reference_preprocessing = source$manifest$preprocessing),
+    list(
+      fixed = "activity",
+      maxiter = maxiter,
+      dense_budget_bytes = dense_budget_bytes,
+      var_type = if (side == "rows") 2L else 1L
+    ),
+    "project_factor_features",
+    match.call(),
+    dense_budget_bytes
+  )
 }
 
 #' Transfer fixed reference programs to a new dataset
@@ -356,45 +536,111 @@ project_factor_features <- function(fit, query, sample_side, feature_scale, fact
 #' )
 #' fixed$representation$activity
 #' @export
-project_factor_activity <- function(fit, query, sample_side, feature_scale, preprocessing, factors = NULL, ebnm_fn = NULL, prior_policy = c("query", "fixed_reference"), feature_match = "exact", gene_mapping = NULL, min_coverage = 0.5, maxiter = 200L, S = NULL, var_type = NULL, dense_budget_bytes = 256 * 1024^2) {
+project_factor_activity <- function(
+  fit,
+  query,
+  sample_side,
+  feature_scale,
+  preprocessing,
+  factors = NULL,
+  ebnm_fn = NULL,
+  prior_policy = c("query", "fixed_reference"),
+  feature_match = "exact",
+  gene_mapping = NULL,
+  min_coverage = 0.5,
+  maxiter = 200L,
+  S = NULL,
+  var_type = NULL,
+  dense_budget_bytes = 256 * 1024^2
+) {
   # Validate arguments and resolve the reference view and prior policy.
   side <- match.arg(sample_side, c("rows", "columns"))
   .measurement_scale(feature_scale)
   prior_policy <- match.arg(prior_policy)
-  if (prior_policy == "fixed_reference" && !inherits(fit, "flash")) stop("fixed_reference requires the native reference fit")
-  if (is.null(var_type)) var_type <- attr(fit, "flashbridge_metadata")$configuration$var_type
-  if (is.null(var_type)) var_type <- 0L
+  if (prior_policy == "fixed_reference" && !inherits(fit, "flash")) {
+    stop("fixed_reference requires the native reference fit")
+  }
+  if (is.null(var_type)) {
+    var_type <- attr(fit, "flashbridge_metadata")$configuration$var_type
+  }
+  if (is.null(var_type)) {
+    var_type <- 0L
+  }
   .check_var_type(var_type, S)
-  source <- .resolve_view(fit, sample_side = if (inherits(fit, "flash")) .resolve_sample_side(fit, if (is.null(attr(fit, "flashbridge_metadata")$sample_side)) side else NULL) else NULL)
-  if (prior_policy == "fixed_reference") source <- standardize_factors(fit, sample_side = source$manifest$sample_side, scaling = "raw")
-  if (!identical(feature_scale, source$manifest$feature_scale)) stop("Query and reference feature units are incompatible")
-  if (!is.list(preprocessing) || is.null(preprocessing$scope) || !is.character(preprocessing$scope) || length(preprocessing$scope) != 1 || !nzchar(preprocessing$scope)) stop("Supply a preprocessing manifest with an explicit scope")
+  source <- .resolve_view(
+    fit,
+    sample_side = if (inherits(fit, "flash")) {
+      .resolve_sample_side(fit, if (is.null(attr(fit, "flashbridge_metadata")$sample_side)) side else NULL)
+    } else {
+      NULL
+    }
+  )
+  if (prior_policy == "fixed_reference") {
+    source <- standardize_factors(fit, sample_side = source$manifest$sample_side, scaling = "raw")
+  }
+  if (!identical(feature_scale, source$manifest$feature_scale)) {
+    stop("Query and reference feature units are incompatible")
+  }
+  if (
+    !is.list(preprocessing) ||
+      is.null(preprocessing$scope) ||
+      !is.character(preprocessing$scope) ||
+      length(preprocessing$scope) != 1 ||
+      !nzchar(preprocessing$scope)
+  ) {
+    stop("Supply a preprocessing manifest with an explicit scope")
+  }
   feature_match <- match.arg(feature_match, c("exact", "intersection"))
   .program_number(maxiter, "maxiter", TRUE, 1)
   .program_number(min_coverage, "min_coverage")
-  if (min_coverage > 1) stop("min_coverage must be <= 1")
+  if (min_coverage > 1) {
+    stop("min_coverage must be <= 1")
+  }
   # Map query genes to reference features and select factors.
   Y <- .projection_query(query, side, S)
-  if (nrow(Y) < 2L) stop("Projection needs at least two query samples; native flashier drops a single-sample dimension")
+  if (nrow(Y) < 2L) {
+    stop("Projection needs at least two query samples; native flashier drops a single-sample dimension")
+  }
   if (!is.null(gene_mapping)) {
     .validate_ids(names(gene_mapping), "Query mapping")
     .validate_ids(unname(gene_mapping), "Reference mapping")
-    if (!all(colnames(Y) %in% names(gene_mapping))) stop("Gene mapping must cover every query gene")
+    if (!all(colnames(Y) %in% names(gene_mapping))) {
+      stop("Gene mapping must cover every query gene")
+    }
     colnames(Y) <- unname(gene_mapping[colnames(Y)])
     if (!is.null(S)) stop("Explicit S with gene mapping requires pre-mapped query and S axes")
   }
   query_genes <- colnames(Y)
   genes <- intersect(rownames(source$effects), query_genes)
   coverage <- length(genes) / nrow(source$effects)
-  if (feature_match == "exact" && !setequal(colnames(Y), rownames(source$effects))) stop("Exact reference-gene matching failed; explicitly choose intersection if intended")
+  if (feature_match == "exact" && !setequal(colnames(Y), rownames(source$effects))) {
+    stop("Exact reference-gene matching failed; explicitly choose intersection if intended")
+  }
   requested <- .select_ids(factors, colnames(source$effects), "factor")
   index <- which(seq_len(ncol(source$effects)) %in% requested)
-  if (!length(index)) stop("Select at least one factor")
-  .projection_budget(8 * (nrow(source$effects) * length(index) * 2 + length(genes) * length(index) * 3 + nrow(Y) * length(index) * 4 + ncol(Y) * 4), dense_budget_bytes)
+  if (!length(index)) {
+    stop("Select at least one factor")
+  }
+  .projection_budget(
+    8 *
+      (nrow(source$effects) *
+        length(index) *
+        2 +
+        length(genes) * length(index) * 3 +
+        nrow(Y) * length(index) * 4 +
+        ncol(Y) * 4),
+    dense_budget_bytes
+  )
   B <- source$effects[, index, drop = FALSE]
   shared <- B[genes, , drop = FALSE]
-  if (coverage < min_coverage || nrow(shared) < ncol(shared) || qr(shared)$rank < ncol(shared)) stop("Insufficient or rank-deficient shared gene support; select fewer independent factors or increase gene coverage")
-  if (!is.null(S) && feature_match == "intersection") stop("Explicit S with intersection requires pre-subset query and S axes and exact matching")
+  if (coverage < min_coverage || nrow(shared) < ncol(shared) || qr(shared)$rank < ncol(shared)) {
+    stop(
+      "Insufficient or rank-deficient shared gene support; select fewer independent factors or increase gene coverage"
+    )
+  }
+  if (!is.null(S) && feature_match == "intersection") {
+    stop("Explicit S with intersection requires pre-subset query and S axes and exact matching")
+  }
   .projection_budget(8 * (nrow(Y) * ncol(B) * 4 + length(shared) * 3 + 4 * ncol(Y)), dense_budget_bytes)
   # Subtract reference offsets; check the dense-copy memory budget.
   Y <- Y[, genes, drop = FALSE]
@@ -402,22 +648,63 @@ project_factor_activity <- function(fit, query, sample_side, feature_scale, prep
   if (any(source$offset[genes] != 0)) {
     .projection_budget(8 * (length(Y) * 4 + nrow(Y) * ncol(B) * 4 + length(shared) * 3), dense_budget_bytes)
     inference <- sweep(as.matrix(Y), 2, source$offset[genes], "-")
-  } else if (!inherits(Y, "sparseMatrix")) .projection_budget(8 * (length(Y) * 4 + nrow(Y) * ncol(B) * 4 + length(shared) * 3), dense_budget_bytes)
+  } else if (!inherits(Y, "sparseMatrix")) {
+    .projection_budget(8 * (length(Y) * 4 + nrow(Y) * ncol(B) * 4 + length(shared) * 3), dense_budget_bytes)
+  }
   # Project query activities with reference effects fixed.
   S <- .projection_S(S, Y, side)
   priors <- .projection_priors(source, side, ebnm_fn)
   if (prior_policy == "fixed_reference" && !is.null(ebnm_fn)) {
     recorded <- tryCatch(.projection_priors(source, side, NULL), error = function(e) NULL)
     activity <- if (side == "rows") 1 else 2
-    if (!is.null(recorded) && !identical(priors[[activity]], recorded[[activity]])) stop("fixed_reference activity prior must be the reference fit's ebnm family")
+    if (!is.null(recorded) && !identical(priors[[activity]], recorded[[activity]])) {
+      stop("fixed_reference activity prior must be the reference fit's ebnm family")
+    }
   }
   g <- if (prior_policy == "fixed_reference") .reference_activity_g(fit, .projection_source_subset(source, colnames(B)))
-  native <- .projection_native(.native_projection(inference, list(effects = shared), side, priors, maxiter, S = S, var_type = var_type, return_fit = TRUE, g = g))
+  native <- .projection_native(.native_projection(
+    inference,
+    list(effects = shared),
+    side,
+    priors,
+    maxiter,
+    S = S,
+    var_type = var_type,
+    return_fit = TRUE,
+    g = g
+  ))
   A <- native$value$activity
   # Record projected priors and assemble the output.
   source <- .projection_source_subset(source, colnames(B))
   source$manifest$prior_identifiers <- .prior_identifiers(priors)
   source$manifest$constraints["activity"] <- .prior_support(priors[[if (side == "rows") 1 else 2]])
-  settings <- list(fixed = "effects_and_offsets", maxiter = maxiter, feature_match = feature_match, shared_genes = genes, coverage = coverage, missing_reference_genes = setdiff(rownames(B), genes), excluded_query_genes = setdiff(query_genes, genes), gene_mapping = gene_mapping, source_preprocessing = source$manifest$preprocessing, dense_budget_bytes = dense_budget_bytes, var_type = var_type, prior_policy = prior_policy)
-  .projection_output(native, source, A, B, source$offset, Y, side, feature_scale, preprocessing, settings, "project_factor_activity", match.call(), dense_budget_bytes)
+  settings <- list(
+    fixed = "effects_and_offsets",
+    maxiter = maxiter,
+    feature_match = feature_match,
+    shared_genes = genes,
+    coverage = coverage,
+    missing_reference_genes = setdiff(rownames(B), genes),
+    excluded_query_genes = setdiff(query_genes, genes),
+    gene_mapping = gene_mapping,
+    source_preprocessing = source$manifest$preprocessing,
+    dense_budget_bytes = dense_budget_bytes,
+    var_type = var_type,
+    prior_policy = prior_policy
+  )
+  .projection_output(
+    native,
+    source,
+    A,
+    B,
+    source$offset,
+    Y,
+    side,
+    feature_scale,
+    preprocessing,
+    settings,
+    "project_factor_activity",
+    match.call(),
+    dense_budget_bytes
+  )
 }

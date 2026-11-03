@@ -6,21 +6,36 @@
   B <- B[, .select_ids(factors, view$manifest$factor_ids, "factor"), drop = FALSE]
   network <- NULL
   if (is.data.frame(pathways)) {
-    if (!all(c("source", "target", "mor") %in% names(pathways))) stop("Network requires source, target and mor columns")
+    if (!all(c("source", "target", "mor") %in% names(pathways))) {
+      stop("Network requires source, target and mor columns")
+    }
     network <- as.data.frame(pathways[, c("source", "target", "mor")])
     .validate_ids(unique(network$source), "Network source")
     .validate_ids(unique(network$target), "Network target")
-    if (!is.numeric(network$mor) || any(!is.finite(network$mor))) stop("Network mor weights must be finite numeric values")
-    if (anyDuplicated(network[, c("source", "target")])) stop("Network source-target edges must be unique")
-    pathways <- stats::setNames(lapply(unique(network$source), function(source) network$target[network$source == source]), unique(network$source))
+    if (!is.numeric(network$mor) || any(!is.finite(network$mor))) {
+      stop("Network mor weights must be finite numeric values")
+    }
+    if (anyDuplicated(network[, c("source", "target")])) {
+      stop("Network source-target edges must be unique")
+    }
+    pathways <- stats::setNames(
+      lapply(unique(network$source), function(source) network$target[network$source == source]),
+      unique(network$source)
+    )
   }
-  if (!is.list(pathways) || is.null(names(pathways))) stop("pathways must be a named list of feature IDs or a decoupleR network")
+  if (!is.list(pathways) || is.null(names(pathways))) {
+    stop("pathways must be a named list of feature IDs or a decoupleR network")
+  }
   .validate_ids(names(pathways), "Pathway")
-  for (set in pathways) if (!is.character(set) || anyNA(set) || any(!nzchar(set))) stop("Pathway members must be nonempty feature IDs")
+  for (set in pathways) {
+    if (!is.character(set) || anyNA(set) || any(!nzchar(set))) stop("Pathway members must be nonempty feature IDs")
+  }
   pathways <- lapply(pathways, unique)
   excluded <- character()
   if (!is.null(feature_map)) {
-    if (!is.character(feature_map)) stop("feature_map must be a named one-to-one character mapping")
+    if (!is.character(feature_map)) {
+      stop("feature_map must be a named one-to-one character mapping")
+    }
     .validate_ids(names(feature_map), "Source feature map")
     .validate_ids(unname(feature_map), "Mapped feature")
     selected <- intersect(rownames(B), names(feature_map))
@@ -29,10 +44,19 @@
     rownames(B) <- unname(feature_map[selected])
   }
   sizes <- data.frame(
-    pathway = names(pathways), input_size = lengths(pathways),
+    pathway = names(pathways),
+    input_size = lengths(pathways),
     overlap_size = vapply(pathways, function(set) length(intersect(set, rownames(B))), integer(1))
   )
-  list(view = view, B = B, pathways = pathways, network = network, sizes = sizes, mapping_excluded = excluded, signal = signal)
+  list(
+    view = view,
+    B = B,
+    pathways = pathways,
+    network = network,
+    sizes = sizes,
+    mapping_excluded = excluded,
+    signal = signal
+  )
 }
 
 #' Enrich or score feature programs with a chosen native method
@@ -83,47 +107,112 @@
 #'   factors = "F1",
 #'   control = list(seed = 4, minSize = 3L, nPermSimple = 100L, eps = 1e-3)
 #' )$table
-enrich_factors <- function(fit, pathways, engine, factors = NULL, representation = NULL,
-                           signal = "effects", feature_map = NULL, control = list()) {
-  if (missing(engine)) stop("Choose enrichment engine explicitly")
+enrich_factors <- function(
+  fit,
+  pathways,
+  engine,
+  factors = NULL,
+  representation = NULL,
+  signal = "effects",
+  feature_map = NULL,
+  control = list()
+) {
+  if (missing(engine)) {
+    stop("Choose enrichment engine explicitly")
+  }
   engine <- match.arg(engine, c("fgsea", "decoupleR", "susie"))
-  if (engine == "susie") stop("SuSiE mode is unsupported: install and audit susieR/singlecelljamboreeR before enabling this capability")
-  if (is.data.frame(pathways) && engine != "decoupleR") stop("Weighted networks require engine='decoupleR'")
-  if (!.is_named_list(control)) stop("control must be a uniquely named list")
+  if (engine == "susie") {
+    stop("SuSiE mode is unsupported: install and audit susieR/singlecelljamboreeR before enabling this capability")
+  }
+  if (is.data.frame(pathways) && engine != "decoupleR") {
+    stop("Weighted networks require engine='decoupleR'")
+  }
+  if (!.is_named_list(control)) {
+    stop("control must be a uniquely named list")
+  }
   data <- .enrichment_input(fit, pathways, factors, representation, signal, feature_map)
   eligible <- data$sizes$overlap_size > 0L
   sets <- data$pathways[eligible]
   seed <- control$seed
   control$seed <- NULL
-  metadata <- c(data$view$manifest, list(
-    engine = engine, signal = data$signal, universe = rownames(data$B),
-    mapping_excluded = data$mapping_excluded, duplicate_policy = "unique_pathway_members_one_to_one_feature_map",
-    pathway_sizes = data$sizes, organism = attr(pathways, "organism"), annotation_version = attr(pathways, "annotation_version"),
-    control = control, seed = seed, ranking_ties = "native_fgsea_warning_retained"
-  ))
+  metadata <- c(
+    data$view$manifest,
+    list(
+      engine = engine,
+      signal = data$signal,
+      universe = rownames(data$B),
+      mapping_excluded = data$mapping_excluded,
+      duplicate_policy = "unique_pathway_members_one_to_one_feature_map",
+      pathway_sizes = data$sizes,
+      organism = attr(pathways, "organism"),
+      annotation_version = attr(pathways, "annotation_version"),
+      control = control,
+      seed = seed,
+      ranking_ties = "native_fgsea_warning_retained"
+    )
+  )
   if (!is.null(data$network)) {
     metadata$network_hash <- digest::digest(data$network, algo = "sha256")
     metadata$network_targets_excluded <- setdiff(data$network$target, rownames(data$B))
     metadata$duplicate_policy <- "unique_source_target_edges_one_to_one_feature_map"
   }
   if (!length(sets) || !nrow(data$B) || !ncol(data$B)) {
-    table <- if (engine == "fgsea") data.frame(pathway = character(), factor = character(), NES = numeric(), pval = numeric(), padj = numeric(), size = integer()) else data.frame(source = character(), condition = character(), statistic = character(), score = numeric(), p_value = numeric())
-    return(.attach_provenance(list(table = table, native = list(), analysis_metadata = c(metadata, list(status = "no_overlapping_pathways"))), "enrich_factors", match.call(), .resolved_parameters("enrich_factors", environment())))
+    table <- if (engine == "fgsea") {
+      data.frame(
+        pathway = character(),
+        factor = character(),
+        NES = numeric(),
+        pval = numeric(),
+        padj = numeric(),
+        size = integer()
+      )
+    } else {
+      data.frame(
+        source = character(),
+        condition = character(),
+        statistic = character(),
+        score = numeric(),
+        p_value = numeric()
+      )
+    }
+    return(.attach_provenance(
+      list(table = table, native = list(), analysis_metadata = c(metadata, list(status = "no_overlapping_pathways"))),
+      "enrich_factors",
+      match.call(),
+      .resolved_parameters("enrich_factors", environment())
+    ))
   }
   if (engine == "fgsea") {
     .check_engine("fgsea", "fgseaMultilevel")
     .check_engine("BiocParallel", "SerialParam")
-    if (is.null(control$BPPARAM) && is.null(control$nproc)) control$BPPARAM <- BiocParallel::SerialParam()
-    if (any(!names(control) %in% setdiff(names(formals(fgsea::fgseaMultilevel)), c("pathways", "stats")))) stop("Unsupported fgseaMultilevel control")
-    native <- .with_seed(seed, lapply(seq_len(ncol(data$B)), function(k) {
-      stats <- stats::setNames(data$B[, k], rownames(data$B))
-      do.call(fgsea::fgseaMultilevel, c(list(pathways = sets, stats = stats), if (!"nproc" %in% names(control)) list(nproc = 1L) else list(), control))
-    }))
-    table <- do.call(rbind, lapply(seq_along(native), function(k) {
-      out <- as.data.frame(native[[k]])
-      out$factor <- rep(colnames(data$B)[k], nrow(out))
-      out
-    }))
+    if (is.null(control$BPPARAM) && is.null(control$nproc)) {
+      control$BPPARAM <- BiocParallel::SerialParam()
+    }
+    if (any(!names(control) %in% setdiff(names(formals(fgsea::fgseaMultilevel)), c("pathways", "stats")))) {
+      stop("Unsupported fgseaMultilevel control")
+    }
+    native <- .with_seed(
+      seed,
+      lapply(seq_len(ncol(data$B)), function(k) {
+        stats <- stats::setNames(data$B[, k], rownames(data$B))
+        do.call(
+          fgsea::fgseaMultilevel,
+          c(
+            list(pathways = sets, stats = stats),
+            if (!"nproc" %in% names(control)) list(nproc = 1L) else list(),
+            control
+          )
+        )
+      })
+    )
+    table <- do.call(
+      rbind,
+      lapply(seq_along(native), function(k) {
+        out <- as.data.frame(native[[k]])
+        out$factor <- rep(colnames(data$B)[k], nrow(out))
+        out
+      })
+    )
     metadata$method <- "fgseaMultilevel"
   } else {
     method <- if (is.null(control$method)) "ulm" else match.arg(control$method, c("ulm", "mlm"))
@@ -131,9 +220,21 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
     symbol <- paste0("run_", method)
     .check_engine("decoupleR", symbol)
     fn <- getExportedValue("decoupleR", symbol)
-    if (any(!names(control) %in% setdiff(names(formals(fn)), c("mat", "network", ".source", ".target", ".mor", ".likelihood")))) stop("Unsupported decoupleR control")
+    if (
+      any(
+        !names(control) %in%
+          setdiff(names(formals(fn)), c("mat", "network", ".source", ".target", ".mor", ".likelihood"))
+      )
+    ) {
+      stop("Unsupported decoupleR control")
+    }
     network <- if (is.null(data$network)) {
-      do.call(rbind, lapply(names(sets), function(name) data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1)))
+      do.call(
+        rbind,
+        lapply(names(sets), function(name) {
+          data.frame(source = name, target = intersect(sets[[name]], rownames(data$B)), mor = 1)
+        })
+      )
     } else {
       data$network[data$network$target %in% rownames(data$B), , drop = FALSE]
     }
@@ -149,5 +250,10 @@ enrich_factors <- function(fit, pathways, engine, factors = NULL, representation
   table$basis_id <- rep(data$view$manifest$basis_id, nrow(table))
   metadata$engine_version <- as.character(utils::packageVersion(engine))
   attr(table, "analysis_metadata") <- metadata
-  .attach_provenance(list(table = table, native = native, analysis_metadata = metadata), "enrich_factors", match.call(), .resolved_parameters("enrich_factors", environment()))
+  .attach_provenance(
+    list(table = table, native = native, analysis_metadata = metadata),
+    "enrich_factors",
+    match.call(),
+    .resolved_parameters("enrich_factors", environment())
+  )
 }

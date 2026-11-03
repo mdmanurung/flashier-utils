@@ -4,8 +4,11 @@ test_that("ordinary and serialized legacy views keep their original manifests", 
   expect_null(view$manifest$factor_support)
   expect_identical(view$manifest$schema_version, "1.0.0")
   expected <- data.frame(
-    factor = c("F1", "F2"), native_index = 1:2,
-    role = "factor", activity_support = "signed", effect_support = "signed"
+    factor = c("F1", "F2"),
+    native_index = 1:2,
+    role = "factor",
+    activity_support = "signed",
+    effect_support = "signed"
   )
   expect_identical(.factor_support(view$manifest), expected)
   path <- tempfile()
@@ -20,15 +23,24 @@ test_that("ordinary and serialized legacy views keep their original manifests", 
 
 test_that("per-factor support and roles survive native edits and serialization", {
   X <- fixture_matrix()
-  fit <- fit_ebmf(X, "rows",
-    intercept = "feature", max_factors = 2,
+  fit <- fit_ebmf(
+    X,
+    "rows",
+    intercept = "feature",
+    max_factors = 2,
     ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
-    backfit = TRUE, nullcheck = FALSE, seed = 12, verbose = 0
+    backfit = TRUE,
+    nullcheck = FALSE,
+    seed = 12,
+    verbose = 0
   )
   view <- standardize_factors(fit)
   expected <- data.frame(
-    factor = c("F1", "F2"), native_index = 2:3,
-    role = "factor", activity_support = "signed", effect_support = "signed"
+    factor = c("F1", "F2"),
+    native_index = 2:3,
+    role = "factor",
+    activity_support = "signed",
+    effect_support = "signed"
   )
   expect_identical(view$manifest$factor_support, expected)
   expect_identical(view$manifest$schema_version, "1.1.0")
@@ -45,9 +57,16 @@ test_that("per-factor support and roles survive native edits and serialization",
   saveRDS(remaining, path)
   expect_identical(standardize_factors(readRDS(path))$manifest, standardize_factors(remaining)$manifest)
   raw <- standardize_factors(fixture_fit(), scaling = "raw")
-  initialized <- fit_initialized_ebmf(X, "rows", raw$activity, raw$effects,
-    activity_prior = ebnm::ebnm_normal, effect_prior = ebnm::ebnm_point_laplace,
-    fixed_side = "effects", verbose = 0, seed = 12
+  initialized <- fit_initialized_ebmf(
+    X,
+    "rows",
+    raw$activity,
+    raw$effects,
+    activity_prior = ebnm::ebnm_normal,
+    effect_prior = ebnm::ebnm_point_laplace,
+    fixed_side = "effects",
+    verbose = 0,
+    seed = 12
   )
   expect_identical(
     standardize_factors(initialized)$manifest$factor_support$role,
@@ -72,12 +91,7 @@ test_that("support records are hashed, validated and cannot be overridden", {
   expect_error(.validate_view(changed), "modified")
   for (key in c("factor", "native_index", "role", "activity_support", "effect_support")) {
     broken <- manifest
-    broken$factor_support[[key]][1] <- switch(key,
-      factor = "missing",
-      native_index = 8L,
-      role = "offset",
-      "invalid"
-    )
+    broken$factor_support[[key]][1] <- switch(key, factor = "missing", native_index = 8L, role = "offset", "invalid")
     expect_error(.make_representation(view$activity, view$effects, broken), "factor_support")
   }
   broken <- manifest
@@ -86,10 +100,7 @@ test_that("support records are hashed, validated and cannot be overridden", {
   broken <- manifest
   broken$constraints["activity"] <- "signed"
   expect_error(.make_representation(view$activity, view$effects, broken), "conservatively")
-  fit <- fit_ebmf(fixture_matrix(), "rows",
-    max_factors = 1,
-    intercept = "feature", verbose = 0
-  )
+  fit <- fit_ebmf(fixture_matrix(), "rows", max_factors = 1, intercept = "feature", verbose = 0)
   expect_error(standardize_factors(fit, prior_support = c(activity = "nonnegative", effects = "signed")), "override")
   raw <- standardize_factors(fit, scaling = "raw")
   forged <- raw$manifest
@@ -109,8 +120,12 @@ test_that("projection keeps fixed-side support and records the estimated prior",
   manifest$support_version <- "1.0.0"
   source <- .make_representation(view$activity, view$effects, manifest)
   query <- tcrossprod(source$activity, source$effects)
-  projected <- allow_maxiter(project_factor_activity(source, query, "rows",
-    "arcsinh_intensity", list(scope = "identity"),
+  projected <- allow_maxiter(project_factor_activity(
+    source,
+    query,
+    "rows",
+    "arcsinh_intensity",
+    list(scope = "identity"),
     factors = "F2",
     ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
   ))
@@ -121,7 +136,10 @@ test_that("projection keeps fixed-side support and records the estimated prior",
   expect_identical(out$effect_support, "unknown")
   expect_identical(standardize_factors(projected$fit)$manifest$factor_support, out)
   expect_error(standardize_factors(projected$fit, orientation = "anchor_feature"), "signed prior")
-  transposed <- allow_maxiter(project_factor_features(source, t(query), "columns",
+  transposed <- allow_maxiter(project_factor_features(
+    source,
+    t(query),
+    "columns",
     "arcsinh_intensity",
     factors = "F1",
     ebnm_fn = list(ebnm::ebnm_point_laplace, ebnm::ebnm_normal)

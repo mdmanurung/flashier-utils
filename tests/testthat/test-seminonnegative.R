@@ -6,18 +6,26 @@ test_that("semi-nonnegative fitting matches native calls in both orientations", 
   for (side in c("rows", "columns")) {
     Y <- if (side == "rows") X else t(X)
     priors <- list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_laplace)
-    if (side == "columns") priors <- rev(priors)
+    if (side == "columns") {
+      priors <- rev(priors)
+    }
     set.seed(93)
     before <- .Random.seed
-    fit <- fit_seminonnegative_ebmf(Y, side,
-      max_factors = 2, seed = 4,
-      backfit = TRUE, nullcheck = FALSE, verbose = 0, feature_scale = "intensity"
+    fit <- fit_seminonnegative_ebmf(
+      Y,
+      side,
+      max_factors = 2,
+      seed = 4,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      verbose = 0,
+      feature_scale = "intensity"
     )
     expect_identical(.Random.seed, before)
-    native <- .with_seed(4, flashier::flash(Y,
-      ebnm_fn = priors, greedy_Kmax = 2,
-      backfit = TRUE, nullcheck = FALSE, verbose = 0
-    ))
+    native <- .with_seed(
+      4,
+      flashier::flash(Y, ebnm_fn = priors, greedy_Kmax = 2, backfit = TRUE, nullcheck = FALSE, verbose = 0)
+    )
     expect_equal(fit$L_pm, native$L_pm, tolerance = 1e-8)
     expect_equal(fit$F_pm, native$F_pm, tolerance = 1e-8)
     expect_equal(fit$elbo, native$elbo, tolerance = 1e-8)
@@ -39,9 +47,14 @@ test_that("semi-nonnegative priors reject invalid support and retain unknown cus
   expect_error(fit_seminonnegative_ebmf(X, "rows", initialization = "NNLM"), "native_greedy")
   expect_error(fit_seminonnegative_ebmf(X, "rows", ebnm_fn = ebnm::ebnm_normal), "activity_prior")
   custom <- function(x, s, ...) ebnm::ebnm_point_laplace(x, s, ...)
-  fit <- fit_seminonnegative_ebmf(X, "rows",
+  fit <- fit_seminonnegative_ebmf(
+    X,
+    "rows",
     effect_prior = custom,
-    max_factors = 1, seed = 4, verbose = 0, feature_scale = "intensity"
+    max_factors = 1,
+    seed = 4,
+    verbose = 0,
+    feature_scale = "intensity"
   )
   expect_identical(attr(fit, "flashbridge_metadata")$prior_support["effects"], c(effects = "unknown"))
   expect_identical(attr(fit, "flashbridge_metadata")$refit_policy, "callback_required")

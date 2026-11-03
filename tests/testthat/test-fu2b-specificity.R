@@ -5,16 +5,22 @@
 
 # 5-sample fixture with a hand-computable Mann-Whitney AUC.
 fu2b_view <- function() {
-  A <- matrix(c(1, 2.5, 2.5, 4, 0.5), 5, 1,
-    dimnames = list(paste0("s", 1:5), "F1")
-  )
+  A <- matrix(c(1, 2.5, 2.5, 4, 0.5), 5, 1, dimnames = list(paste0("s", 1:5), "F1"))
   B <- matrix(1:4, 4, 1, dimnames = list(paste0("g", 1:4), "F1"))
-  .make_representation(A, B, list(
-    fit_id = "fu2b_fixture", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1L, scaling = "raw",
-    orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"),
-    feature_scale = "arcsinh_intensity"
-  ))
+  .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "fu2b_fixture",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1L,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
 }
 
 test_that("NA group labels fail with an explicit message, not an any(NA) exception", {
@@ -40,10 +46,7 @@ test_that("AUC matches a hand-computed Mann-Whitney oracle, both directions", {
   rn <- factor_specificity(v, md, "group", groups = "pos", direction = "negative")
   expect_equal(rn$auc[1], 0.25)
   # pROC agrees with the hand oracle (engine cross-check)
-  roc <- pROC::roc(md$group == "pos", v$activity[, 1],
-    levels = c(FALSE, TRUE),
-    direction = "<", quiet = TRUE
-  )
+  roc <- pROC::roc(md$group == "pos", v$activity[, 1], levels = c(FALSE, TRUE), direction = "<", quiet = TRUE)
   expect_equal(as.numeric(pROC::auc(roc)), 0.75)
 })
 
@@ -51,18 +54,23 @@ test_that("threshold ties are counted and the smallest finite threshold wins", {
   skip_if_not_installed("pROC")
   A <- matrix(c(1, 2, 2, 3), 4, 1, dimnames = list(paste0("s", 1:4), "F1"))
   B <- matrix(1:4, 4, 1, dimnames = list(paste0("g", 1:4), "F1"))
-  v <- .make_representation(A, B, list(
-    fit_id = "fu2b_tie", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1L, scaling = "raw",
-    orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"),
-    feature_scale = "arcsinh_intensity"
-  ))
+  v <- .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "fu2b_tie",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1L,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
   md <- data.frame(sample = paste0("s", 1:4), group = c("neg", "neg", "pos", "pos"))
   r <- factor_specificity(v, md, "group", groups = "pos")
-  roc <- pROC::roc(md$group == "pos", c(1, 2, 2, 3),
-    levels = c(FALSE, TRUE),
-    direction = "<", quiet = TRUE
-  )
+  roc <- pROC::roc(md$group == "pos", c(1, 2, 2, 3), levels = c(FALSE, TRUE), direction = "<", quiet = TRUE)
   best <- pROC::coords(roc, "best", best.method = "closest.topleft", transpose = FALSE)
   expect_equal(r$threshold_ties[1], nrow(best))
   expect_gt(r$threshold_ties[1], 1) # this fixture genuinely ties
@@ -73,12 +81,20 @@ test_that("units spanning both classes are visibly double-counted; counts stay d
   skip_if_not_installed("pROC")
   A <- matrix(c(1, 4, 2, 3, 0.5, 3.5), 6, 1, dimnames = list(paste0("s", 1:6), "F1"))
   B <- matrix(1:4, 4, 1, dimnames = list(paste0("g", 1:4), "F1"))
-  v <- .make_representation(A, B, list(
-    fit_id = "fu2b_units", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1L, scaling = "raw",
-    orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"),
-    feature_scale = "arcsinh_intensity"
-  ))
+  v <- .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "fu2b_units",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1L,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
   # u1 and u2 each span both classes -> not independent groups
   md <- data.frame(
     sample = paste0("s", 1:6),
@@ -98,12 +114,20 @@ test_that("extreme class imbalance stays typed and hand-checkable", {
   n <- 20
   A <- matrix(c(25, seq_len(n - 1)), n, 1, dimnames = list(paste0("s", 1:n), "F1"))
   B <- matrix(1:4, 4, 1, dimnames = list(paste0("g", 1:4), "F1"))
-  v <- .make_representation(A, B, list(
-    fit_id = "fu2b_imb", schema_version = "1.0.0",
-    sample_side = "rows", native_indices = 1L, scaling = "raw",
-    orientation = "as_fit", constraints = c(activity = "signed", effects = "signed"),
-    feature_scale = "arcsinh_intensity"
-  ))
+  v <- .make_representation(
+    A,
+    B,
+    list(
+      fit_id = "fu2b_imb",
+      schema_version = "1.0.0",
+      sample_side = "rows",
+      native_indices = 1L,
+      scaling = "raw",
+      orientation = "as_fit",
+      constraints = c(activity = "signed", effects = "signed"),
+      feature_scale = "arcsinh_intensity"
+    )
+  )
   md <- data.frame(sample = paste0("s", 1:n), group = c("pos", rep("neg", n - 1)))
   r <- factor_specificity(v, md, "group", groups = "pos")
   expect_equal(r$status[1], "available")
@@ -117,10 +141,23 @@ test_that("return schema is preserved exactly (no silent column drift)", {
   v <- fu2b_view()
   md <- data.frame(sample = paste0("s", 1:5), group = c("pos", "neg", "pos", "pos", "neg"))
   r <- factor_specificity(v, md, "group", groups = "pos", unit_col = NULL)
-  expect_named(r, c(
-    "factor", "group", "auc", "threshold", "sensitivity",
-    "specificity", "threshold_ties", "n_samples", "n_positive",
-    "n_negative", "n_units", "n_positive_units", "n_negative_units",
-    "status"
-  ))
+  expect_named(
+    r,
+    c(
+      "factor",
+      "group",
+      "auc",
+      "threshold",
+      "sensitivity",
+      "specificity",
+      "threshold_ties",
+      "n_samples",
+      "n_positive",
+      "n_negative",
+      "n_units",
+      "n_positive_units",
+      "n_negative_units",
+      "status"
+    )
+  )
 })

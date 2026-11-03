@@ -6,7 +6,10 @@ test_that("ECDF display retains signs, reference ties and excludes inference", {
   expect_equal(attr(out, "analysis_metadata")$reference_sample_ids, reference)
   expect_true(attr(out, "analysis_metadata")$display_only)
   expect_error(factor_cor(out, "pearson"), "Display-only")
-  expect_error(backproject_contrast(out, c(F1 = 1, F2 = 0), input = "coefficients", factor_basis = view$manifest), "Display-only")
+  expect_error(
+    backproject_contrast(out, c(F1 = 1, F2 = 0), input = "coefficients", factor_basis = view$manifest),
+    "Display-only"
+  )
   expect_error(factor_activity_percentile(view, "absent"), "reference sample")
   tied <- association_fixture()$view
   tied$activity[1:2, 1] <- 0

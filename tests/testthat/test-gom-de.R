@@ -16,9 +16,12 @@ test_that("GoM DE matches native fastTopics under the same seed", {
   for (shrink in c("ash", "none")) {
     out <- test_gom_de(d$X, d$L, "rows", seed = 3, shrink_method = shrink, control = list(ns = 100))
     set.seed(3)
-    native <- allow_maxiter(fastTopics::de_analysis(d$L, d$X,
+    native <- allow_maxiter(fastTopics::de_analysis(
+      d$L,
+      d$X,
       shrink.method = shrink,
-      control = list(ns = 100, nc = 1), verbose = FALSE
+      control = list(ns = 100, nc = 1),
+      verbose = FALSE
     ))
     expect_equal(out$statistics$log2_fc, as.vector(native$postmean))
     expect_equal(out$statistics$lower, as.vector(native$lower))
@@ -32,14 +35,17 @@ test_that("GoM DE matches native fastTopics under the same seed", {
       expect_true(all(is.na(out$statistics$lfsr)))
     }
   }
-  sparse <- test_gom_de(Matrix::Matrix(t(d$X) * 1, sparse = TRUE), d$L[40:1, ], "columns",
+  sparse <- test_gom_de(
+    Matrix::Matrix(t(d$X) * 1, sparse = TRUE),
+    d$L[40:1, ],
+    "columns",
     seed = 3,
     control = list(ns = 100)
   )
-  expect_equal(sparse$statistics$log2_fc, out <- test_gom_de(d$X, d$L, "rows",
-    seed = 3,
-    control = list(ns = 100)
-  )$statistics$log2_fc)
+  expect_equal(
+    sparse$statistics$log2_fc,
+    out <- test_gom_de(d$X, d$L, "rows", seed = 3, control = list(ns = 100))$statistics$log2_fc
+  )
 })
 
 test_that("GoM DE restores RNG state and records its settings", {
@@ -89,12 +95,15 @@ test_that("GoM DE refuses invalid counts, memberships and settings", {
 
 test_that("missing fastTopics fails before engine execution", {
   original <- base::requireNamespace
-  testthat::local_mocked_bindings(requireNamespace = function(package, ...) {
-    if (identical(package, "fastTopics")) {
-      return(FALSE)
-    }
-    original(package, ...)
-  }, .package = "base")
+  testthat::local_mocked_bindings(
+    requireNamespace = function(package, ...) {
+      if (identical(package, "fastTopics")) {
+        return(FALSE)
+      }
+      original(package, ...)
+    },
+    .package = "base"
+  )
   d <- gom_fixture()
   expect_error(test_gom_de(d$X, d$L, "rows", seed = 1), "unavailable")
 })

@@ -21,3 +21,4 @@
 ^\.lintr$
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
+^air\.toml$
