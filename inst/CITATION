@@ -1,7 +1,7 @@
 bibentry(
   bibtype = "Manual",
   title = "flashier.utils: Transparent Interpretation of Empirical Bayes Matrix Factorizations",
-  author = person("Mikhael", "Manurung"),
+  author = person("Mikhael", "Manurung", comment = c(ORCID = "0000-0003-2728-1829")),
   year = "2026",
   note = paste("R package version", meta$Version),
   url = "https://github.com/mdmanurung/flashier-utils",

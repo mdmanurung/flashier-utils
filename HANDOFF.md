@@ -11,8 +11,8 @@ Keep flashier.utils scientifically honest and shippable, working down
 test-coverage). Then P2 (srr): add `srr::srr_stats_roclet` to DESCRIPTION Roxygen roclets
 and `any::srr` to the roxygen-drift job in the same commit; `srr::srr_stats_roxygen(category =
 "unsupervised")`; annotate G then UL standards with file:line; @srrstatsNA where flashier
-does the fitting. User still owes: ORCID for Authors@R, CODECOV_TOKEN secret, and a
-decision on filing reports/autotest-20261103/upstream-issue.md.
+does the fitting. User still owes: CODECOV_TOKEN secret and a decision on filing
+reports/autotest-20261103/upstream-issue.md. ORCID added 2026-11-04.
 
 ## Previous next action
 `gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
@@ -94,7 +94,7 @@ Order is by what unblocks the next step. Estimates are hands-on effort.
   return classes in `@return` for the 6 flagged pages. Acceptance:
   `autotest_package(test = TRUE)` returns no `error` rows; remaining diagnostics
   listed in the srr report.
-- [x] P4 done 2026-11-03 except ORCID (needs user) and Codecov token (needs user). Original: Community files and README (1 day). README.Rmd that renders README.md;
+- [x] P4 done 2026-11-03; ORCID added 2026-11-04; Codecov token still needs the user. Original: Community files and README (1 day). README.Rmd that renders README.md;
   badges (R CMD check, Codecov, repostatus, lifecycle); Codecov upload step in
   R-CMD-check.yaml; CODE_OF_CONDUCT.md; inst/CITATION; ORCID for the maintainer in
   Authors@R. Acceptance: pkgcheck `has_citation`, `has_orcid` pass; README shows
