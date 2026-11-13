@@ -22,6 +22,8 @@ navbar:
           href: articles/ebmf-cnmf-comparison.html
         - text: Robustness checks
           href: articles/robustness-checks.html
+        - text: Batch correction before fitting
+          href: articles/batch-correction.html
     gallery:
       text: Plot gallery
       href: articles/plot-gallery.html
@@ -47,7 +49,12 @@ articles:
   - title: Robustness checks
     contents:
       - articles/robustness-checks
+      - articles/batch-correction
 reference:
+  - title: Prepare input
+    contents:
+      - correct_feature_batch
+      - harmony_assignments
   - title: Fit and extract factors
     contents:
       - fit_ebmf

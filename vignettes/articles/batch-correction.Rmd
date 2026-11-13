@@ -1,0 +1,150 @@
+---
+title: "Batch correction before fitting"
+description: "Remove cell-state-specific batch shifts from simulated expression with correct_feature_batch(), then fit EBMF."
+output: rmarkdown::html_document
+---
+
+A batch shift that differs between cell states cannot be removed by centering
+each batch once. `correct_feature_batch()` fits Harmony's ridge regression on
+batch within each cluster of similar samples and subtracts the batch terms
+from the feature matrix. This article plants such shifts in simulated data and
+fits EBMF with and without the correction.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 3)
+have_harmony <- requireNamespace("harmony", quietly = TRUE)
+```
+
+```{r simulate}
+library(flashier.utils)
+library(ggplot2)
+set.seed(5)
+
+# two cell states with one program each, three batches crossed with state
+n <- 90
+state <- rep(c("alpha", "beta"), each = n / 2)
+batch <- rep(c("b1", "b2", "b3"), length.out = n)
+activity_truth <- cbind(alpha = (state == "alpha") * 2, beta = (state == "beta") * 2) +
+  matrix(runif(2 * n, 0, 0.3), n, 2)
+effect_truth <- cbind(alpha = c(rep(1.5, 5), rep(0, 7)), beta = c(rep(0, 5), rep(1.5, 5), 0, 0))
+truth <- tcrossprod(activity_truth, effect_truth)
+
+# batch b2 raises genes 1-3 in beta samples only; b3 raises genes 6-8 in alpha samples only
+shift <- outer(batch == "b2" & state == "beta", c(1, 1, 1, rep(0, 9))) +
+  outer(batch == "b3" & state == "alpha", c(rep(0, 5), 1, 1, 1, rep(0, 4)))
+X <- truth + 1.2 * shift + matrix(rnorm(n * 12, sd = 0.15), n, 12)
+dimnames(X) <- list(sprintf("s%02d", seq_len(n)), sprintf("g%02d", 1:12))
+metadata <- data.frame(sample = rownames(X), batch = batch, state = state)
+```
+
+The shifts are confounded with neither state nor batch alone: batch b2 moves
+genes 1 to 3 only in beta samples, and batch b3 moves genes 6 to 8 only in
+alpha samples.
+
+## Correct, then fit
+
+Here the cluster labels are the simulated states. On real data they come from
+clustering, or from soft assignments made by `harmony_assignments()` (last
+section).
+
+```{r correct}
+corrected <- correct_feature_batch(X, "rows", metadata, "batch", assignments = "state")
+
+fit_settings <- list(
+  max_factors = 4, var_type = 2L, backfit = TRUE, nullcheck = TRUE, seed = 1, verbose = 0,
+  ebnm_fn = list(ebnm::ebnm_point_exponential, ebnm::ebnm_point_laplace),
+  feature_scale = "simulated_intensity"
+)
+fit_raw <- do.call(fit_ebmf, c(list(X, "rows"), fit_settings))
+fit_corrected <- do.call(fit_ebmf, c(list(corrected, "rows"), fit_settings))
+view_raw <- standardize_factors(fit_raw)
+view_corrected <- standardize_factors(fit_corrected)
+```
+
+## Does a factor still follow batch?
+
+For each factor, the share of its activity variance explained by batch within
+state, from a linear model `activity ~ state + batch` against `activity ~ state`.
+
+```{r batch-share}
+batch_share <- function(view, label) {
+  activity <- view$activity[metadata$sample, , drop = FALSE]
+  shares <- apply(activity, 2, function(a) {
+    rss_state <- sum(resid(lm(a ~ state))^2)
+    rss_both <- sum(resid(lm(a ~ state + batch))^2)
+    if (rss_state == 0) 0 else 1 - rss_both / rss_state
+  })
+  data.frame(input = label, factor = names(shares), batch_share = unname(shares))
+}
+shares <- rbind(batch_share(view_raw, "uncorrected"), batch_share(view_corrected, "corrected"))
+shares$input <- factor(shares$input, levels = c("uncorrected", "corrected"))
+shares
+```
+
+```{r batch-share-plot, fig.alt="Bar chart of the within-state batch share of activity variance for each factor, fitted on uncorrected and on corrected input.", fig.cap="Within-state batch share of each factor's activity variance. Bars start at zero; one bar per factor."}
+ggplot(shares, aes(factor, batch_share)) +
+  geom_col(fill = "#0072B2") +
+  facet_wrap(~input, scales = "free_x") +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = NULL, y = "batch share of within-state variance") +
+  theme_minimal()
+```
+
+```{r numbers, include=FALSE}
+max_share <- tapply(shares$batch_share, shares$input, max)
+n_factors <- c(uncorrected = ncol(view_raw$activity), corrected = ncol(view_corrected$activity))
+```
+
+On the uncorrected input the fit has `r n_factors[["uncorrected"]]` factors, and
+the most batch-driven one has `r round(max_share[["uncorrected"]], 2)` of its
+within-state variance explained by batch. After correction the fit has
+`r n_factors[["corrected"]]` factors, and the largest batch share is
+`r round(max_share[["corrected"]], 2)`. This is one simulated dataset with
+known states, not a calibration of the method.
+
+## Keep a covariate you want to study
+
+If donors or conditions are nested in batch, the correction also removes their
+effect within each cluster. Name such covariates in `protect`: they enter each
+cluster's regression without penalty and are not subtracted.
+
+```{r protect, eval=FALSE}
+correct_feature_batch(X, "rows", metadata, "batch", "state", protect = ~condition)
+```
+
+Batch should be technical. Correcting by donor also removes the donor
+differences that a later `test_factor_association()` on a donor-level
+condition would test.
+
+## Soft assignments from Harmony
+
+```{r harmony-skip, echo=FALSE, results="asis", eval=!have_harmony}
+cat("Check skipped: the harmony package is not installed.\n")
+```
+
+```{r harmony, eval=have_harmony}
+pcs <- prcomp(X, rank. = 4)$x
+h <- harmony_assignments(pcs, metadata, "batch", seed = 1, nclust = 4)
+corrected_soft <- correct_feature_batch(X, "rows", metadata, "batch", h$assignments, lambda = h$lambda)
+# within-state difference of b2 from b1 on genes 1-3, before and after
+in_beta <- metadata$state == "beta"
+gap <- function(Y) {
+  colMeans(Y[in_beta & batch == "b2", 1:3]) - colMeans(Y[in_beta & batch == "b1", 1:3])
+}
+round(rbind(uncorrected = gap(X), corrected = gap(corrected_soft)), 2)
+```
+
+The automatic penalty shrinks the batch terms toward zero, so part of each
+shift remains. A smaller `alpha` (passed to Harmony through
+`.options = harmony::harmony_options(alpha = ...)`) gives a weaker penalty,
+which should remove more of it; this article does not test that.
+
+The corrected matrix is part of the fit. For `factor_stability()` or
+`factor_holdout()`, run the correction inside the `fit_fn` callback on each
+resample; correcting once beforehand overstates stability.
+
+## Credits
+
+The correction is Harmony's mixture-of-experts ridge step (Korsunsky et al.
+2019, *Nature Methods* 16:1289-1296), applied to the feature matrix as in
+Dylan Kotliar's cNMF `Preprocess`. See [CREDITS](https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md).

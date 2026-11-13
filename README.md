@@ -36,7 +36,7 @@ remotes::install_github("mdmanurung/flashier-utils")
 Optional packages unlock some functions: `psych` and `clue` for
 `factor_replicability()` and `factor_stability()`; `limma` or `variancePartition`
 for the matching `test_factor_association()` engines; `gbcd` for `fit_gbcd_programs()`;
-`fastTopics` for `test_gom_de()`. Each page in the function reference names what
+`fastTopics` for `test_gom_de()`; `harmony` for `harmony_assignments()`. Each page in the function reference names what
 it needs.
 
 ## Quick start
@@ -64,6 +64,7 @@ the `view`: uncertainty functions need the fit, everything else takes the view.
 
 | Step | Functions |
 |----|----|
+| Remove batch shifts before fitting | `correct_feature_batch()`, `harmony_assignments()` |
 | Fit, or standardize an existing fit | `fit_ebmf()`, `standardize_factors()`, `factor_activity()`, `factor_effects()`, `factor_pve()` |
 | Interpret factors | `factor_features()`, `plot_factor_features()`, `plot_factor_weights()`, `plot_factor_activity()`, `plot_factor_scatter()`, `plot_factor_data()`, `plot_factor_embedding()`, `plot_factor_pve()` |
 | Relate factors to metadata | `summarize_factor_activity()`, `compare_factor_groups()`, `test_factor_association()`, `backproject_contrast()` |
@@ -91,7 +92,9 @@ Set the same variable before running the case study. No data are downloaded by
 package builds. The [plot gallery](https://mdmanurung.github.io/flashier-utils/articles/plot-gallery.html)
 shows seventeen plotting recipes from one simulated fit,
 [Robustness checks](https://mdmanurung.github.io/flashier-utils/articles/robustness-checks.html)
-lists eight checks to run before naming a factor, and the
+lists eight checks to run before naming a factor,
+[Batch correction before fitting](https://mdmanurung.github.io/flashier-utils/articles/batch-correction.html)
+removes cell-state-specific batch shifts, and the
 [function reference](https://mdmanurung.github.io/flashier-utils/reference/index.html)
 lists complete arguments.
 
