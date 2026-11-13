@@ -1,6 +1,6 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-11-03 · **Branch:** main · **Status:** rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done; P3 done as far as autotest 0.2.0.3 allows (227d637..d0a6ed8); P2 (srr) and P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
+**Date:** 2026-11-03 · **Branch:** main · **Status:** batch correction added 2026-11-04; rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done; P3 done as far as autotest 0.2.0.3 allows (227d637..d0a6ed8); P2 (srr) and P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
@@ -39,6 +39,7 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-11-04 batch correction (user: "build now"): correct_feature_batch() = Harmony's per-cluster ridge in R on the feature matrix (no clipping, protect = ~covariate, name-keyed lambda), harmony_assignments() wraps RunHarmony(return_object = TRUE); harmony in Suggests; parity with Harmony 2.0.5 embedding (~2e-5, float) and limma::removeBatchEffect at lambda 1e-6; article articles/batch-correction; scope statement gains a preprocessing paragraph.
 - 2026-11-03 P3: autotest report reports/autotest-20261103/ (S7 abort repro + draft issue; remaining errors are autotest call-reconstruction artefacts); var_type contract enforced at 3 entry points (14239c2); examples demonstrate flagged parameters; @return names classes. air format at 120 and a .lintr without big exclusions (lint was 200 s/file): 36 real lints in R/.
 - 2026-11-03 docs push: lucid-writer review fixes in ebmf-cnmf-comparison (inline CSV numbers, conditional congruence, split counts, cNMF cap, held-out replicate count) and robustness-checks; vignette code checks. All 7 vignettes render locally. Autotest aborts inside autotest on ggplot2 S7 objects (`cannot coerce type 'object'`): next step is excluding plot_* and reporting upstream.
 - 2026-11-03 renames: factor_provenance(), test_factor_association(); old names exported as .Deprecated() aliases in R/deprecated.R (CRAN clashes: provenance x4, test_factors x1).

@@ -19,6 +19,12 @@ units, and checks posterior intervals, resampling stability and held-out
 prediction. `factor_provenance()` reports which upstream code and package
 versions produced each result.
 
+One preprocessing step comes before the fit. `correct_feature_batch()` removes
+batch shifts from the feature matrix with Harmony's per-cluster ridge
+regression (Korsunsky et al. 2019), independently written in R, with optional
+protected covariates. `harmony_assignments()` supplies its cluster weights by
+calling the optional harmony package.
+
 ## Overlap with other software
 
 - **flashier** fits the factorization. flashier.utils calls only flashier's
@@ -31,6 +37,9 @@ versions produced each result.
 - **cNMF** (Python) and its R wrappers produce consensus NMF programs. The
   package compares saved fits, views or declared program matrices, including
   cNMF programs, through `compare_prior_fits()`, but runs no cNMF itself.
+- **harmony** corrects embeddings, and cNMF's `Preprocess` applies its ridge
+  step to gene counts before NMF. `correct_feature_batch()` applies the same
+  step to signed input such as shifted log expression, without clipping.
 - **gbcd** and **fastTopics** are called through optional adapters
   (`fit_gbcd_programs()`, `test_gom_de()`) that check inputs and record
   provenance; their methods are unchanged.
