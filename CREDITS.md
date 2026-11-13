@@ -53,6 +53,8 @@ citations for your installed versions.
 | `embed_factors` | David Zemmour / Zemmour Lab (ImmGenT workflows); James Melville and uwot contributors (full list in credits article) | Seurat/uwot public embedding APIs | WRAPPER / call_only |
 | `plot_factor_embedding` | David Zemmour / Zemmour Lab (ImmGenT workflows) | factor-space activity display workflow | NEW_QOL / call_only |
 | `factor_activity_percentile` | David Zemmour / Zemmour Lab (ImmGenT workflows) | stats::ecdf display workflow | ADAPTED / call_only |
+| `correct_feature_batch` | Mikhael Manurung (R implementation); Ilya Korsunsky; Soumya Raychaudhuri and Harmony coauthors; Dylan Kotliar (cNMF gene-matrix adaptation) | Harmony mixture-of-experts ridge correction (moe_correct_ridge_cpp); cNMF Preprocess.harmony_correct_X | ADAPTED / none |
+| `harmony_assignments` | Mikhael Manurung (adapter); Nikolaos Patikas; Hongcheng Yao; Ilya Korsunsky; Martin Hemberg; Nghia Millard; Jean Fan; Kamil Slowikowski; Soumya Raychaudhuri | RunHarmony(return_object = TRUE) | WRAPPER / call_only |
 
 </details>
 
@@ -222,6 +224,14 @@ Hoffman P, Satija R, Collins D, Hao Y, Hartman A, Molla G, Butler A, Stuart T (2
 James Melville [aut, cre, cph],   Aaron Lun [ctb],   Mohamed Nadhir Djekidel [ctb],   Yuhan Hao [ctb],   Dirk Eddelbuettel [ctb],   Wouter van der Bijl [ctb],   Hugo Gruson [ctb]
 
 Melville J (2026). _uwot: The Uniform Manifold Approximation and Projection (UMAP) Method for Dimensionality Reduction_. doi:10.32614/CRAN.package.uwot <https://doi.org/10.32614/CRAN.package.uwot>, R package version 0.2.5, <https://CRAN.R-project.org/package=uwot>.
+
+### harmony (2.0.5)
+
+Nikolaos Patikas [aut, ctb], Hongcheng Yao [aut, ctb], Ilya Korsunsky [cre, aut], Martin Hemberg [aut], Nghia Millard [aut], Jean Fan [aut, ctb], Kamil Slowikowski [aut, ctb], Miles Smith [ctb], Soumya Raychaudhuri [aut]
+
+Patikas N, Yao H, Korsunsky I, Hemberg M, Millard N, Fan J, Slowikowski K, Raychaudhuri S (2026). _harmony: Fast, Sensitive, and Accurate Integration of Single Cell Data_. doi:10.32614/CRAN.package.harmony <https://doi.org/10.32614/CRAN.package.harmony>, R package version 2.0.5, <https://CRAN.R-project.org/package=harmony>.
+
+Korsunsky I, Millard N, Fan J, Slowikowski K, Zhang F, Wei K, Baglaenko Y, Brenner M, Loh PR, Raychaudhuri S (2019). "Fast, sensitive and accurate integration of single-cell data with Harmony." _Nature Methods_, *16*, 1289-1296. doi:10.1038/s41592-019-0619-0 <https://doi.org/10.1038/s41592-019-0619-0>.
 
 ### pkgdown (2.2.1)
 
@@ -471,6 +481,16 @@ Abhishek Sarkar, Anthony Hung, Xihui Lin, Paul C. Boutros, Minzhe Wang, Tracy Ke
 and Eric Weine. The upstream package declares BSD_2_clause + file LICENSE.
 Mikhael Manurung wrote the adapter. No engine source is redistributed. ash
 shrinkage credits the ashr authors listed above.
+
+## Batch correction before fitting
+
+`correct_feature_batch()` is an R implementation of Harmony's per-cluster ridge
+correction (Korsunsky et al. 2019), applied to a feature matrix rather than to
+principal components. Applying it to gene expression follows Dylan Kotliar's
+cNMF `Preprocess` (MIT; Kotliar et al. 2019, eLife 8:e43803). Harmony's
+`src/harmony.cpp` (GPL-3, version 2.1.0) was read to confirm the update order;
+no Harmony or cNMF code is copied. `harmony_assignments()` calls `RunHarmony()`
+from the optional harmony package. Mikhael Manurung wrote both functions.
 
 Jiadong Mao's [EBNMF workshop](https://jiadongm.github.io/EBNMF-workshop/EBNMF.html)
 provides linked teaching material for model choice, GBCD and GoM DE.

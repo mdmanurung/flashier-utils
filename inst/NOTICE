@@ -111,3 +111,9 @@ CorShrink call-only engine (factor_cor engine = "corshrink"): upstream CorShrink
 by Kushal Dey and Matthew Stephens, with Peter Carbonetto as contributor,
 GPL (>= 2), commit a9f6ba0a81ed86cd3dbe785b0a239107cb80b0c3.
 No implementation source copied.
+
+Harmony ridge correction (correct_feature_batch, harmony_assignments): algorithm
+by Ilya Korsunsky, Soumya Raychaudhuri and coauthors (harmony, GPL-3), applied
+to a feature matrix as in Dylan Kotliar's cNMF (MIT). Independent R
+implementation; harmony is called only through Suggests. No implementation
+source copied.
