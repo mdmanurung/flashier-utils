@@ -32,6 +32,7 @@
       "marker",
       "counts",
       "memberships",
+      "assignments",
       "x",
       "y"
     )

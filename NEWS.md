@@ -1,5 +1,13 @@
 # flashier.utils 2.0.0.9000
 
+- New `correct_feature_batch()` removes batch shifts from a feature matrix
+  before fitting, cluster by cluster, with Harmony's mixture-of-experts ridge
+  regression. Cluster weights come from `harmony_assignments()` (optional
+  harmony package) or from a metadata column of hard labels. `protect = ~ x`
+  keeps covariates such as condition. Signed input such as shifted log
+  expression is not clipped. Tests check it against Harmony's own corrected
+  embedding and against `limma::removeBatchEffect()` in the zero-penalty limit.
+
 - `fit_ebmf()`, `fit_initialized_ebmf()` and `project_factor_activity()` now
   check `var_type` against the documented contract before calling flashier:
   one of 0, 1, 2 or `c(1, 2)`, and `NULL` only with `S`. Combinations such as
