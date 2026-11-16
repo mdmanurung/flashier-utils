@@ -35,7 +35,9 @@ of a metadata column of hard cluster labels, such as cell types.}
 
 \item{protect}{Optional one-sided formula of metadata covariates to keep,
 such as \code{~ condition}. They enter each cluster's regression without
-penalty and are not subtracted.}
+penalty and are not subtracted. A covariate fully determined by batch
+within a cluster (for example a condition applied to whole batches) keeps
+the batch shift aligned with it; the function warns in that case.}
 
 \item{id_col}{Metadata column holding sample IDs.}
 
@@ -46,7 +48,12 @@ everywhere. A clusters by batches matrix, named like \code{assignments} columns
 and the batch levels, gives each its own penalty.}
 
 \item{alpha}{Positive scale of the automatic penalty (Harmony default 0.2).
-Used only when \code{lambda} is \code{NULL}.}
+Used only when \code{lambda} is \code{NULL}. The ridge leaves part of each batch
+shift in place: about \code{alpha * E / (O + alpha * E)}, where \code{O} is the
+batch's weighted sample count in the cluster and \code{E} its expected count.
+In one test with a planted shift of 2 the default left a gap of 0.33.
+Batches with fewer samples than expected in a cluster are corrected less.
+Use a small \code{lambda} such as 1e-6 for near-complete removal.}
 
 \item{batch_prop_cutoff}{A batch is corrected within a cluster only when its
 mean assignment to that cluster exceeds this value (Harmony default 1e-5).
@@ -66,7 +73,8 @@ cluster, every feature is regressed on batch with a ridge penalty, weighted
 by the assignments, and the fitted batch terms are subtracted. Batch shifts
 may therefore differ between cell states, which a single per-batch centering
 cannot model. The input is not clipped, so signed data such as shifted log
-expression stay signed.
+expression stay signed. Nonnegative input can gain negative values, and
+zeros in sparse input become nonzero.
 }
 \details{
 For cluster \eqn{k} with assignment weights \eqn{r}, design
@@ -88,6 +96,9 @@ of the fit. For \code{\link[=factor_stability]{factor_stability()}} or \code{\li
 the \code{fit_fn} callback on each resample; correcting once beforehand
 overstates stability. Memory: the result is a dense n by p double matrix,
 and \code{sample_side = "columns"} holds one transposed copy as well.
+
+The automatic penalty (\code{alpha}) and \code{batch_prop_cutoff} come from the Harmony
+2.x software, not from the 2019 paper.
 }
 \examples{
 set.seed(1)

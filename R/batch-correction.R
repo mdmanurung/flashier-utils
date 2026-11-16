@@ -1,6 +1,7 @@
 # Harmony's per-cluster ridge correction, rewritten in R for a feature matrix.
 # Algorithm: Korsunsky et al. (2019); gene-matrix use: Kotliar's cNMF Preprocess.
 # harmony.cpp (2.1.0) was read to confirm the update order; no code is copied.
+# Parity is tested against the installed harmony package (2.0.5 when checked).
 
 #' Remove batch effects from a feature matrix, cluster by cluster
 #'
@@ -11,7 +12,8 @@
 #' by the assignments, and the fitted batch terms are subtracted. Batch shifts
 #' may therefore differ between cell states, which a single per-batch centering
 #' cannot model. The input is not clipped, so signed data such as shifted log
-#' expression stay signed.
+#' expression stay signed. Nonnegative input can gain negative values, and
+#' zeros in sparse input become nonzero.
 #' @param X Named numeric matrix or double sparse Matrix with no missing values,
 #'   for example shifted log expression. The result is dense.
 #' @param sample_side `"rows"` or `"columns"` of `X`.
@@ -24,7 +26,9 @@
 #'   of a metadata column of hard cluster labels, such as cell types.
 #' @param protect Optional one-sided formula of metadata covariates to keep,
 #'   such as `~ condition`. They enter each cluster's regression without
-#'   penalty and are not subtracted.
+#'   penalty and are not subtracted. A covariate fully determined by batch
+#'   within a cluster (for example a condition applied to whole batches) keeps
+#'   the batch shift aligned with it; the function warns in that case.
 #' @param id_col Metadata column holding sample IDs.
 #' @param lambda Ridge penalty on the batch terms. `NULL` (default) uses
 #'   Harmony's automatic penalty, `alpha` times the expected number of samples
@@ -32,7 +36,12 @@
 #'   everywhere. A clusters by batches matrix, named like `assignments` columns
 #'   and the batch levels, gives each its own penalty.
 #' @param alpha Positive scale of the automatic penalty (Harmony default 0.2).
-#'   Used only when `lambda` is `NULL`.
+#'   Used only when `lambda` is `NULL`. The ridge leaves part of each batch
+#'   shift in place: about `alpha * E / (O + alpha * E)`, where `O` is the
+#'   batch's weighted sample count in the cluster and `E` its expected count.
+#'   In one test with a planted shift of 2 the default left a gap of 0.33.
+#'   Batches with fewer samples than expected in a cluster are corrected less.
+#'   Use a small `lambda` such as 1e-6 for near-complete removal.
 #' @param batch_prop_cutoff A batch is corrected within a cluster only when its
 #'   mean assignment to that cluster exceeds this value (Harmony default 1e-5).
 #'   A cluster with fewer than two such batches is left unchanged.
@@ -59,6 +68,9 @@
 #'   the `fit_fn` callback on each resample; correcting once beforehand
 #'   overstates stability. Memory: the result is a dense n by p double matrix,
 #'   and `sample_side = "columns"` holds one transposed copy as well.
+#'
+#'   The automatic penalty (`alpha`) and `batch_prop_cutoff` come from the Harmony
+#'   2.x software, not from the 2019 paper.
 #' @references Korsunsky I, Millard N, Fan J, et al. (2019). Fast, sensitive and
 #'   accurate integration of single-cell data with Harmony. *Nature Methods*
 #'   16, 1289-1296. \doi{10.1038/s41592-019-0619-0}
@@ -150,10 +162,10 @@ correct_feature_batch <- function(
   protected <- if (is.null(protect)) {
     matrix(0, length(samples), 0L)
   } else {
-    design <- stats::model.matrix(protect, data = aligned)
+    # na.fail: a formula that gives NA or NaN must stop, not drop rows by position
+    design <- stats::model.matrix(protect, stats::model.frame(protect, data = aligned, na.action = stats::na.fail))
     design[, colnames(design) != "(Intercept)", drop = FALSE]
   }
-  n_unpenalized <- 1L + ncol(protected)
 
   # penalty per cluster and batch
   expected <- outer(colSums(cluster_weights), batch_sizes / length(samples))
@@ -190,16 +202,55 @@ correct_feature_batch <- function(
       next
     }
     rows <- which(rowSums(onehot[, kept, drop = FALSE]) > 0)
-    design_k <- cbind(1, protected[rows, , drop = FALSE], onehot[rows, kept, drop = FALSE])
+    # a protected column with no weight in this cluster (an absent factor level) is dropped here
+    protected_k <- protected[rows, colSums(abs(protected[rows, , drop = FALSE]) * r[rows]) > 0, drop = FALSE]
+    n_unpenalized <- 1L + ncol(protected_k)
+    design_k <- cbind(1, protected_k, onehot[rows, kept, drop = FALSE])
     weighted <- design_k * r[rows]
     unpenalized <- design_k[, seq_len(n_unpenalized), drop = FALSE] * sqrt(r[rows])
     if (qr(unpenalized)$rank < n_unpenalized) {
-      stop("Protected covariates are constant within the corrected samples of cluster ", k)
+      stop(
+        "Protected covariates are rank deficient within the corrected samples of cluster ",
+        k,
+        " (constant, collinear with each other, or an intercept-free factor coding)"
+      )
+    }
+    # a protected column fully explained by batch keeps the batch shift aligned with it
+    if (ncol(protected_k) > 0L) {
+      batch_part <- onehot[rows, kept, drop = FALSE] * sqrt(r[rows])
+      protected_part <- protected_k * sqrt(r[rows])
+      residual <- qr.resid(qr(batch_part), protected_part)
+      nested <- colnames(protected_k)[colSums(residual^2) <= 1e-8 * pmax(colSums(protected_part^2), 1e-12)]
+      if (length(nested) > 0L) {
+        warning(
+          "Protected covariate(s) ",
+          paste(nested, collapse = ", "),
+          " are fully determined by batch in cluster ",
+          k,
+          "; the batch shift aligned with them is kept, not removed",
+          call. = FALSE
+        )
+      }
     }
     ridge <- diag(c(rep(0, n_unpenalized), penalty[k, kept]), ncol(design_k))
     coefficients <- solve(crossprod(weighted, design_k) + ridge, crossprod(weighted, X[rows, , drop = FALSE]))
     coefficients[seq_len(n_unpenalized), ] <- 0
     corrected[rows, ] <- corrected[rows, , drop = FALSE] - weighted %*% coefficients
+  }
+  if (length(skipped) == length(clusters)) {
+    warning(
+      "Every cluster has fewer than two batches above batch_prop_cutoff, so nothing was corrected. ",
+      "Check that the assignments are not the batch labels.",
+      call. = FALSE
+    )
+  } else if (length(skipped) > 0L) {
+    warning(
+      length(skipped),
+      " cluster(s) with fewer than two batches above batch_prop_cutoff were left unchanged: ",
+      paste(utils::head(skipped, 5L), collapse = ", "),
+      if (length(skipped) > 5L) ", ...",
+      call. = FALSE
+    )
   }
   if (sample_side == "columns") {
     corrected <- t(corrected)

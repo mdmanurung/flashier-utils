@@ -7,6 +7,12 @@
   keeps covariates such as condition. Signed input such as shifted log
   expression is not clipped. Tests check it against Harmony's own corrected
   embedding and against `limma::removeBatchEffect()` in the zero-penalty limit.
+  An independent review found no error in the correction. It now warns when
+  clusters are skipped (and when none is corrected), and when a protected
+  covariate is fully determined by batch. A protected factor level absent from
+  one cluster no longer stops the call, and a `protect` formula that yields
+  `NA` stops instead of dropping rows. The docs state how much of a shift the
+  default penalty leaves.
 
 - `fit_ebmf()`, `fit_initialized_ebmf()` and `project_factor_activity()` now
   check `var_type` against the documented contract before calling flashier:
