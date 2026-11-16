@@ -22,3 +22,9 @@
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
 ^air\.toml$
+^experiments$
+^\.aws$
+^\.codex$
+^\.agents$
+^flashier\.utils_.*\.tar\.gz$
+^.*\.Rcheck$

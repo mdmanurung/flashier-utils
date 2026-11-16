@@ -8,7 +8,7 @@ scientific questions are all welcome.
 Open an issue at <https://github.com/mdmanurung/flashier-utils/issues>. Include
 the package version (`packageVersion("flashier.utils")`), the `flashier` and
 `ebnm` versions, a small reproducible example with named matrices, and the
-output of `provenance(result = <your result>)` if the question concerns a
+output of `factor_provenance(result = <your result>)` if the question concerns a
 function's origin or runtime versions.
 
 ## Propose a change

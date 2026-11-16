@@ -115,8 +115,10 @@ class SiteCheckTests(unittest.TestCase):
         self.add_gallery()
         (self.repo / "vignettes/articles/robustness-checks.Rmd").write_text("Checks")
         (self.site / "articles/robustness-checks.html").write_text("Checks")
+        (self.repo / "vignettes/articles/batch-correction.Rmd").write_text("Batch")
+        (self.site / "articles/batch-correction.html").write_text("Batch")
         receipt = self.check()
-        self.assertEqual(receipt["website_articles"], 2)
+        self.assertEqual(receipt["website_articles"], 3)
 
     def test_unapproved_nested_article(self):
         self.add_gallery()
