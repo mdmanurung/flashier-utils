@@ -28,3 +28,4 @@
 ^\.agents$
 ^flashier\.utils_.*\.tar\.gz$
 ^.*\.Rcheck$
+^tests/README\.md$

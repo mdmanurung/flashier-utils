@@ -103,6 +103,17 @@ removes cell-state-specific batch shifts, and the
 [function reference](https://mdmanurung.github.io/flashier-utils/reference/index.html)
 lists complete arguments.
 
+## Lifecycle
+
+The package is experimental. Function names and arguments can still change
+before a 1.0 release; the 2.0.0 line already removed single-value arguments
+and renamed `provenance()` and `test_factors()`. Every breaking change is listed
+in `NEWS.md`, and a renamed function keeps its old name as a deprecated alias for
+one release. The scientific contracts (named views, preserved orientation,
+conditional uncertainty semantics) are the part that is kept stable. The
+`flashier` version is pinned in `DESCRIPTION`; behaviour against other
+versions is not promised.
+
 ## Limits
 
 Unnamed fits are rejected. Native intercepts without role metadata remain
