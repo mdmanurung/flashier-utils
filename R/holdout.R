@@ -496,12 +496,13 @@ factor_holdout <- function(
           baseline <- matrix(Matrix::colMeans(trainingY, na.rm = TRUE), length(test), length(features), byrow = TRUE)
           observed <- truth
           observed[!score] <- NA_real_
-          metric_rows <- list()
+          metric_rows <- new.env()
+          metric_rows$rows <- list()
           score_rows <- function(indices, weighting, unit = NA_character_, cohort = NA_character_) {
             for (model in c("fixed_programs", "training_mean")) {
               predicted <- if (model == "fixed_programs") prediction else baseline
               values <- .prediction_metrics(observed[indices, , drop = FALSE], predicted[indices, , drop = FALSE])
-              metric_rows[[length(metric_rows) + 1L]] <<- data.frame(
+              metric_rows$rows[[length(metric_rows$rows) + 1L]] <- data.frame(
                 fold = label,
                 evaluation_type = evaluation,
                 model = model,
@@ -528,7 +529,7 @@ factor_holdout <- function(
               score_rows(which(as.character(md[[control$cohort_col]][test]) == cohort), "cohort", cohort = cohort)
             }
           }
-          metrics <- do.call(rbind, metric_rows)
+          metrics <- do.call(rbind, metric_rows$rows)
           metric_names <- c("rmse", "mae", "prediction_r2", "correlation")
           # Units averaged into each macro metric; NA metrics (a constant unit) drop out.
           for (name in metric_names) {

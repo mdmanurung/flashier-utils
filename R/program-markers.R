@@ -143,6 +143,9 @@ estimate_marker_thresholds <- function(
     values <- as.numeric(M[, j])
     x <- values[values > eligible_above]
     warnings <- character()
+    noted <- new.env()
+    noted$warnings <- character()
+    noted$fit_error <- NULL
     candidate <- separation <- bic1 <- bic2 <- NA_real_
     sizes <- integer()
     parameters <- NULL
@@ -161,16 +164,20 @@ estimate_marker_thresholds <- function(
               list(one = mclust::Mclust(x, G = 1, verbose = FALSE), two = mclust::Mclust(x, G = 2, verbose = FALSE))
             },
             warning = function(w) {
-              warnings <<- c(warnings, conditionMessage(w))
+              noted$warnings <- c(noted$warnings, conditionMessage(w))
               invokeRestart("muffleWarning")
             }
           )
         ),
         error = function(e) {
-          flags <<- c(flags, paste0("fit_failed: ", conditionMessage(e)))
+          noted$fit_error <- conditionMessage(e)
           NULL
         }
       )
+      warnings <- noted$warnings
+      if (!is.null(noted$fit_error)) {
+        flags <- c(flags, paste0("fit_failed: ", noted$fit_error))
+      }
       if (!is.null(models) && !is.null(models$two)) {
         model <- models$two
         parameters <- model$parameters

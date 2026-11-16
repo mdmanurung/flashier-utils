@@ -263,18 +263,19 @@ fit_gbcd_programs <- function(
   if (!identical(info$RemoteSha, .gbcd_pin)) {
     stop("GBCD requires audited source pin ", .gbcd_pin, "; installed pin is unknown or different")
   }
-  warnings <- character()
+  noted <- new.env()
+  noted$warnings <- character()
   res <- tryCatch(
     withCallingHandlers(
       do.call(
         gbcd::fit_gbcd,
         c(list(Y = Y, Kmax = kmax, prior = prior), dots)
       ),
-      warning = function(w) warnings <<- c(warnings, conditionMessage(w))
+      warning = function(w) noted$warnings <- c(noted$warnings, conditionMessage(w))
     ),
     error = function(e) stop("GBCD engine failed: ", conditionMessage(e), call. = FALSE)
   )
-  diagnostics$warnings <- warnings
+  diagnostics$warnings <- noted$warnings
   diagnostics$source_commit <- info$RemoteSha
   diagnostics$version <- info$Version
   diagnostics$settings <- utils::modifyList(

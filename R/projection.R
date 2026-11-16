@@ -52,12 +52,13 @@
   if (side == "rows") query else Matrix::t(query)
 }
 .projection_native <- function(code) {
-  warnings <- character()
+  noted <- new.env()
+  noted$warnings <- character()
+  # Retain and emit native warnings.
   value <- withCallingHandlers(force(code), warning = function(w) {
-    warnings <<- c(warnings, conditionMessage(w))
-    # Retain and emit native warnings.
+    noted$warnings <- c(noted$warnings, conditionMessage(w))
   })
-  list(value = value, warnings = warnings)
+  list(value = value, warnings = noted$warnings)
 }
 .projection_metrics <- function(Y, A, B, offset, budget) {
   # stream reconstruction by rows; no full dense query copy is required.

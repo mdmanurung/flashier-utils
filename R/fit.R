@@ -514,7 +514,7 @@ fit_multistart_ebmf <- function(
     settings <- control
     settings$greedy$init_fn <- initializer$callback
     started <- proc.time()[[3L]]
-    tryCatch(
+    failure <- tryCatch(
       {
         fitted <- fit_ebmf(
           X,
@@ -561,9 +561,13 @@ fit_multistart_ebmf <- function(
           .resolved_parameters("fit_multistart_ebmf", environment())
         )
         candidates$status[i] <- "supported"
+        NULL
       },
-      error = function(e) candidates$reason[i] <<- conditionMessage(e)
+      error = function(e) conditionMessage(e)
     )
+    if (!is.null(failure)) {
+      candidates$reason[i] <- failure
+    }
     candidates$initializer_calls[i] <- length(initializer$trace$hashes)
     candidates$initialization_digest[i] <- digest::digest(initializer$trace$hashes, algo = "sha256")
     candidates$elapsed_seconds[i] <- proc.time()[[3L]] - started

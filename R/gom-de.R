@@ -117,7 +117,8 @@ test_gom_de <- function(
   if (!is.matrix(X)) {
     X <- methods::as(X, "CsparseMatrix")
   }
-  warnings <- character()
+  noted <- new.env()
+  noted$warnings <- character()
   native <- .with_seed(
     seed,
     tryCatch(
@@ -132,7 +133,7 @@ test_gom_de <- function(
           control = control,
           verbose = FALSE
         ),
-        warning = function(w) warnings <<- c(warnings, conditionMessage(w))
+        warning = function(w) noted$warnings <- c(noted$warnings, conditionMessage(w))
       ),
       error = function(e) stop("fastTopics de_analysis failed: ", conditionMessage(e), call. = FALSE)
     )
@@ -166,7 +167,7 @@ test_gom_de <- function(
       seed = seed,
       unavailable = if (shrink_method == "ash") "neg_log10_p (ash shrinkage)" else "lfsr and svalue (no shrinkage)",
       acceptance_rates = native$ar,
-      warnings = warnings,
+      warnings = noted$warnings,
       sample_ids = rownames(X),
       engine_versions = list(fastTopics = info$Version),
       source_commit_if_known = list(fastTopics = if (is.null(info$RemoteSha)) "unknown" else info$RemoteSha)

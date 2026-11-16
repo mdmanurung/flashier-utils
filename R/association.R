@@ -188,11 +188,12 @@ test_factor_association <- function(
     stop("No non-intercept terms to test")
   }
   ids <- colnames(data$A)
-  warnings <- character()
+  noted <- new.env()
+  noted$warnings <- character()
   errors <- list()
   covariance <- list()
   capture <- function(code) {
-    withCallingHandlers(force(code), warning = function(w) warnings <<- c(warnings, conditionMessage(w)))
+    withCallingHandlers(force(code), warning = function(w) noted$warnings <- c(noted$warnings, conditionMessage(w)))
   }
   table <- expand.grid(factor = ids, contrast = colnames(C), stringsAsFactors = FALSE)
   table$term <- table$contrast
@@ -372,7 +373,7 @@ test_factor_association <- function(
       contrasts = C,
       coefficient_covariance = covariance,
       diagnostics = list(
-        warnings = warnings,
+        warnings = noted$warnings,
         errors = errors,
         native_attributes = if (engine == "dream") attributes(models) else NULL
       ),
