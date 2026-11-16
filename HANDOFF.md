@@ -1,18 +1,19 @@
 # Handoff — docs review, planted-truth benchmark and robustness article
 
-**Date:** 2026-11-03 · **Branch:** main · **Status:** batch correction added 2026-11-04; rOpenSci P1, P4–P7 and all 13 GBCD tracker partials done; P3 done as far as autotest 0.2.0.3 allows (227d637..d0a6ed8); P2 (srr) and P8 open. Plan: ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md
+**Date:** 2026-11-16 · **Branch:** main · **Status:** rOpenSci P1-P7 done; P2 (srr) done 2026-11-16: 58 of 101 standards met, `srr_stats_pre_submit()` clean, report in reports/srr-report-20261116.html; P8 (pkgcheck on a fresh clone, all CI jobs) open. Plan: ~/.claude/plans/make-a-thorouhg-workplan-graceful-wand.md
 
 ## Goal
 Keep flashier.utils scientifically honest and shippable, working down
 `docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
 
 ## Next action
-`gh run list --limit 4` must be green for c86a0e6 (R CMD check incl. roxygen-drift, pkgdown,
-test-coverage). Then P2 (srr): add `srr::srr_stats_roclet` to DESCRIPTION Roxygen roclets
-and `any::srr` to the roxygen-drift job in the same commit; `srr::srr_stats_roxygen(category =
-"unsupervised")`; annotate G then UL standards with file:line; @srrstatsNA where flashier
-does the fitting. User still owes: CODECOV_TOKEN secret and a decision on filing
-reports/autotest-20261103/upstream-issue.md. ORCID added 2026-11-04.
+`gh run list --limit 4` must be green for the last push, then re-run `pkgcheck::pkgcheck()` on a fresh clone
+(about 25 min; save the object before summarising: `checks_to_markdown(x, render = FALSE)`). The 17b8b0b run failed only on `<<-`
+(8 sites, now replaced by environment accumulators) and on a local LaTeX warning (missing inconsolata.sty, not a package
+defect; CI R CMD check is green). Optional :eyes: items left: duplicated function names on CRAN, `\dontrun{}` in examples,
+no ORCID for the two contributors. User still owes: CODECOV_TOKEN secret, the decision on filing
+reports/autotest-20261103/upstream-issue.md, approval for the G3.0 tolerance change (`== 0` on doubles in
+R/correlation.R and R/comparison.R) and to delete the two stale tarballs in the repo root.
 
 ## Previous next action
 `gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
@@ -39,6 +40,8 @@ ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
 - Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
 
 ## Shipped this thread (one line each)
+- 2026-11-16 P2 srr: roclet in DESCRIPTION and the drift job; 43 `@srrstatsNA` in R/srr-stats-standards.R, 58 `@srrstats` tags at the end of the R files and in tests/testthat/test-srr-edges.R; docs added (references, glossary, lifecycle in README, tests/README.md); test-srr-edges.R covers G5.8a/b/d and G5.9. Still unmet by choice: G2.9, G2.14b (new messages), G3.0, print/summary/plot methods, error classes.
+- 2026-11-16 batch correction review (independent Fable-model agent): no correctness bug (26 tests, parity with Harmony 2.0.5 and a QR reference to 1e-14). Fixed: warning on skipped clusters and on a protected covariate nested in batch, absent protected factor levels no longer stop, NA formulas stop, docs state the residual shift. Not changed: solve() on poorly scaled covariates (fails loudly). The planted batch benchmark (validation/batch-planted-20261112) is still a draft with no results.
 - 2026-11-04 batch correction (user: "build now"): correct_feature_batch() = Harmony's per-cluster ridge in R on the feature matrix (no clipping, protect = ~covariate, name-keyed lambda), harmony_assignments() wraps RunHarmony(return_object = TRUE); harmony in Suggests; parity with Harmony 2.0.5 embedding (~2e-5, float) and limma::removeBatchEffect at lambda 1e-6; article articles/batch-correction; scope statement gains a preprocessing paragraph.
 - 2026-11-03 P3: autotest report reports/autotest-20261103/ (S7 abort repro + draft issue; remaining errors are autotest call-reconstruction artefacts); var_type contract enforced at 3 entry points (14239c2); examples demonstrate flagged parameters; @return names classes. air format at 120 and a .lintr without big exclusions (lint was 200 s/file): 36 real lints in R/.
 - 2026-11-03 docs push: lucid-writer review fixes in ebmf-cnmf-comparison (inline CSV numbers, conditional congruence, split counts, cNMF cap, held-out replicate count) and robustness-checks; vignette code checks. All 7 vignettes render locally. Autotest aborts inside autotest on ggplot2 S7 objects (`cannot coerce type 'object'`): next step is excluding plot_* and reporting upstream.
