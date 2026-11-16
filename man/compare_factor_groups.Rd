@@ -20,7 +20,8 @@ compare_factor_groups(
 
 \item{metadata}{Data frame with one row per sample; sample IDs in \code{id_col}.}
 
-\item{group}{Name of the \code{metadata} column holding group labels.}
+\item{group}{Name of the \code{metadata} column holding group labels. Factor level
+order is ignored; levels only define the groups.}
 
 \item{contrast}{Two group labels, e.g. \code{c("treated", "control")}: first minus second.}
 

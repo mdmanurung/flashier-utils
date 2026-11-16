@@ -287,3 +287,10 @@ factor_pve <- function(fit, factors = NULL) {
     .resolved_parameters("factor_pve", environment())
   )
 }
+
+#' srr standards evidence for extract.R
+#'
+#' @srrstats {G2.4b} Explicit as.numeric() on native PVE values in R/extract.R factor_pve() and on baseline values in R/metadata.R center_factor_activity().
+#' @srrstats {UL7.3} Met for selection and projection. Tests show row and column names carry through to outputs: rownames(A) equals c("s3","s1") (tests/testthat/test-extract.R) and projected activity keeps query rownames (tests/testthat/test-projection.R). Code: R/extract.R .extract().
+#' @noRd
+NULL

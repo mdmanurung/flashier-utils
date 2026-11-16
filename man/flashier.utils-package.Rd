@@ -17,6 +17,41 @@ Every exported function's reference page names its original authors;
 \code{\link[=factor_provenance]{factor_provenance()}} returns the audited source registry. Full credits:
 \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
 }
+\section{Conventions}{
+
+Character arguments that take one of a fixed set of values, such as
+\code{sample_side} or \code{scaling}, are case-sensitive and checked with
+\code{\link[=match.arg]{match.arg()}}. Group columns in metadata may be factors or character;
+factor level order is ignored and only the grouping is used. Only dimnames
+of an input matrix are kept; other attributes are dropped. Outputs hold no
+\code{NA} or \code{Inf} unless a function's documentation says so.
+}
+
+\section{Glossary}{
+
+\describe{
+\item{view}{A named \code{factor_representation}: samples by factors activity and
+features by factors effects that share factor columns and reconstruct
+the fit.}
+\item{activity, effects}{The sample-side and feature-side loadings of each
+factor.}
+\item{sample_side}{Whether samples are the \code{"rows"} or the \code{"columns"} of the
+fitted matrix.}
+\item{scaling}{The coordinate choice for factors: \code{"ldf"} (unit-norm
+factors), \code{"raw"} (flashier's own) or \code{"rms"} (unit root-mean-square
+activity). A scaling changes units, not the fitted model.}
+\item{PVE}{Proportion of variance explained as flashier computes it. It is
+not a unique variance decomposition and not held-out prediction.}
+\item{lfsr}{Local false sign rate, the posterior probability that the sign
+of an effect is wrong (Stephens 2017). Reported only for the EB-SNMF
+point estimates that carry it.}
+\item{specificity}{A descriptive one-versus-rest measure of how
+concentrated a factor's activity is in a group; see \code{\link[=factor_specificity]{factor_specificity()}}.}
+\item{congruence}{Tucker congruence, the cosine similarity of two factors'
+effect vectors on shared named features; see \code{\link[=factor_replicability]{factor_replicability()}}.}
+}
+}
+
 \seealso{
 Useful links:
 \itemize{

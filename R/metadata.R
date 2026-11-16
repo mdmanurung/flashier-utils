@@ -49,7 +49,8 @@
 #' active_n and active_proportion remain raw observation summaries.
 #' @param fit Native fit or a view from [standardize_factors()].
 #' @param metadata Data frame with one row per sample; sample IDs in `id_col`.
-#' @param by Name of one or more `metadata` columns to group by.
+#' @param by Name of one or more `metadata` columns to group by. Factor level
+#'   order is ignored; levels only define the groups.
 #' @param id_col Name of the sample ID column (default `"sample"`).
 #' @param unit_col Optional name of the independent-unit column, e.g. donor;
 #'   adds an `n_units` count.
@@ -399,7 +400,8 @@ rank_factors_by_metadata <- function(
 #' ZemmourLib FlashierDGE. No p-values or automatic conversion to fold changes.
 #' @param fit Native fit or a view from [standardize_factors()].
 #' @param metadata Data frame with one row per sample; sample IDs in `id_col`.
-#' @param group Name of the `metadata` column holding group labels.
+#' @param group Name of the `metadata` column holding group labels. Factor level
+#'   order is ignored; levels only define the groups.
 #' @param contrast Two group labels, e.g. `c("treated", "control")`: first minus second.
 #' @param id_col Name of the sample ID column (default `"sample"`).
 #' @param unit_col Optional name of the independent-unit column for counts.
@@ -506,3 +508,10 @@ compare_factor_groups <- function(
     .resolved_parameters("compare_factor_groups", environment())
   )
 }
+
+#' srr standards evidence for metadata.R
+#'
+#' @srrstats {G2.0a} Length expectations appear in many @param entries, e.g. 'single nonnegative finite threshold' (R/metadata.R summarize_factor_activity()) and 'single contrast label' (R/validation.R validate_backprojection()). The documentation is not uniform across all functions.
+#' @srrstats {G2.5} The package help page says factor level order is ignored. The @param text of the grouping arguments says levels only define groups: metadata `by` and `group` (R/metadata.R) and batch_col in correct_feature_batch() (R/batch-correction.R).
+#' @noRd
+NULL

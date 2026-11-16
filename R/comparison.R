@@ -747,3 +747,9 @@ plot.prior_comparison <- function(
     .discrete_scale(d$pole, "fill") +
     ggplot2::labs(x = "Feature", y = "Span residual in unit-loading coordinates", fill = "Pole", subtitle = shared)
 }
+
+#' srr standards evidence for comparison.R
+#'
+#' @srrstats {UL6.0} Partly met. Only prior_comparison has a plot() method (R/comparison.R plot.prior_comparison()). Other results use named functions such as R/plots.R plot_factor_activity() and R/plot-suite.R plot_factor_weights(). The returned flash fit has no default plot method.
+#' @noRd
+NULL

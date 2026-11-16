@@ -708,3 +708,10 @@ project_factor_activity <- function(
     dense_budget_bytes
   )
 }
+
+#' srr standards evidence for projection.R
+#'
+#' @srrstats {UL3.3} project_factor_activity() in R/projection.R estimates activities for new samples with effects held fixed. project_factor_features() in the same file estimates effects for new features with activities fixed. Neither re-runs the full factorization.
+#' @srrstats {UL7.0} Partly met. Tests check that bad inputs error: sparse S, duplicate rownames, unknown ids (tests/testthat/test-projection.R, tests/testthat/test-extract.R). Errors come from bare stop() calls, e.g. R/projection.R .projection_query(). No error classes, and no systematic wrong-type input tests.
+#' @noRd
+NULL

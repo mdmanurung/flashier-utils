@@ -435,3 +435,9 @@ plot_factor_data <- function(
   )
   .attach_provenance(p, "plot_factor_data", match.call(), .resolved_parameters("plot_factor_data", environment()))
 }
+
+#' srr standards evidence for plot-suite.R
+#'
+#' @srrstats {UL6.2} Partly met. Feature labels use seeded ggrepel with max.overlaps = Inf (R/plot-suite.R .label_layer()), and n_label caps the count in plot_factor_weights(). No message is issued when labels crowd. Plain geom_text is used when ggrepel is absent (.label_layer()) and in R/comparison.R plot.prior_comparison().
+#' @noRd
+NULL

@@ -99,7 +99,8 @@
 #' equally valid. Uses public flashier fitting calls. max_factors is an upper bound. Priors in a
 #' list are in native row/column order, independent of sample_side. A supplied
 #' seed restores the caller's RNG state; NULL consumes it. No preprocessing.
-#' @param X Named numeric matrix or double sparse Matrix; NA is observed missingness.
+#' @param X Named numeric matrix or double sparse Matrix; NA is observed
+#'   missingness. Only dimnames are kept; other attributes are dropped.
 #' @param sample_side `"rows"` or `"columns"`: which side holds samples. Required.
 #' @param ebnm_fn Prior family: one `ebnm::ebnm_*` function for both sides, or a
 #'   list of two in native row/column order (not sample/feature order). Default
@@ -108,7 +109,10 @@
 #'   matrix). `NULL` (default) estimates noise from the data.
 #' @param var_type Residual variance structure passed to flashier: `0L`
 #'   (default) one constant, `1L` per row, `2L` per column, `c(1L, 2L)` both
-#'   (in that order), `NULL` none, which requires `S`.
+#'   (in that order), `NULL` none, which requires `S`. With one constant
+#'   variance (`0L`), features measured on larger scales dominate the fit, so
+#'   use `2L` or rescale the features first. No centering is assumed; an
+#'   intercept is available through `intercept`.
 #' @param max_factors Upper bound on the number of greedily added factors
 #'   (default 50). The fit can stop earlier.
 #' @param backfit Run the native backfit after greedy addition (default `FALSE`).
@@ -129,6 +133,16 @@
 #' @return A native flash object with a `flashbridge_metadata` attribute that
 #'   records the declarations. Pass it to [standardize_factors()]. Sparse input
 #'   with explicit S is unsupported by the audited native engine and refused.
+#' @references Wang W, Stephens M (2021). Empirical Bayes matrix factorization.
+#'   *Journal of Machine Learning Research* 22(120).
+#'
+#'   Willwerscheid J, Carbonetto P, Wang W, Stephens M. flashier: Empirical Bayes
+#'   Matrix Factorization. R package, \url{https://github.com/willwerscheid/flashier}.
+#'
+#'   Willwerscheid J, Carbonetto P, Stephens M (2025). ebnm: An R package for
+#'   solving the empirical Bayes normal means problem using a variety of prior
+#'   families. *Journal of Statistical Software* 114(3), 1-33.
+#'   \doi{10.18637/jss.v114.i03}
 #' @seealso [standardize_factors()], [factor_pve()]
 #' @importClassesFrom Matrix sparseMatrix dMatrix
 #' @export
@@ -600,3 +614,24 @@ fit_multistart_ebmf <- function(
     .resolved_parameters("fit_multistart_ebmf", environment())
   )
 }
+
+#' srr standards evidence for fit.R
+#'
+#' @srrstats {G1.0} fit_ebmf() lists Wang and Stephens (2021, JMLR) for the method, the flashier package and the ebnm paper in its @references (R/fit.R). correct_feature_batch() cites Harmony and cNMF (R/batch-correction.R).
+#' @srrstats {G1.1} Exported functions state their origin in @details, e.g. WRAPPER / call_only in R/fit.R fit_ebmf() and NEW_ORCHESTRATION / none in R/validation.R validate_backprojection(). The header of R/batch-correction.R says Harmony's ridge step is rewritten in R. The package fits no new model.
+#' @srrstats {G2.1a} Vector and matrix types are documented in @param text, e.g. 'Named numeric matrix or double sparse Matrix' for X in R/fit.R fit_ebmf() and 'Integer vector of top-feature overlap sizes' for top_n in R/validation.R validate_backprojection().
+#' @srrstats {G2.2} Scalar parameters reject vector input through length checks (R/programs.R .program_number(), R/fit.R fit_ebmf(), R/ids.R .with_seed()) and through match.arg (R/fit.R fit_ebmf(), R/representation.R).
+#' @srrstats {G2.3a} match.arg restricts character choices in 81 calls, e.g. R/fit.R fit_ebmf() (sample_side, intercept), R/representation.R (scaling, d_location, orientation), R/ids.R .validate_matrix() (id_policy).
+#' @srrstats {G2.4a} Explicit as.integer() on user-supplied initializer seeds after validation in R/fit.R fit_multistart_ebmf().
+#' @srrstats {G5.5} Tests fix seeds. The shared fixture in tests/testthat/helper-fixtures.R calls set.seed(55) and fits with seed = 12. R/fit.R fit_ebmf() applies seed in a scoped way through .with_seed() in R/ids.R, restoring the caller's RNG state. The seed contract is not uniform across all functions.
+#' @srrstats {UL1.0} R/fit.R fit_ebmf() documents X as a named numeric matrix or double sparse Matrix, with NA as observed missingness. R/ids.R .validate_matrix() enforces this and rejects other classes such as data.frame, which test-srr-edges.R checks. The documentation does not list rejected classes.
+#' @srrstats {UL1.3} fit_ebmf() in R/fit.R keeps row and column names of X as row_ids and column_ids in the fit metadata. R/representation.R .make_representation() copies them into the manifest as sample_ids and feature_ids. Other attributes of X are dropped, as the X documentation states.
+#' @srrstats {UL1.3a} The @param X text of fit_ebmf() (R/fit.R) says only dimnames are kept and other attributes are dropped. The package help page repeats this.
+#' @srrstats {UL1.4a} The @param var_type text of fit_ebmf() (R/fit.R) says one constant variance lets large-scale features dominate, so use var_type = 2L or rescale. vignettes/articles/robustness-checks.Rmd section 7 shows the effect.
+#' @srrstats {UL1.4b} No example, vignette or R code calls scale() on input. The fit_ebmf() example in R/fit.R uses unscaled simulated data and declares feature_scale = "simulated_centered_intensity". No scale contrast is shown because no scaling is applied.
+#' @srrstats {UL2.1} The package applies no default transformation. The fit_ebmf() docs in R/fit.R say "No preprocessing" and feature_scale is "Recorded, never applied". The only input change is generated IDs under id_policy = "generate" (.validate_matrix() in R/ids.R), off by default.
+#' @srrstats {UL4.0} fit_ebmf() in R/fit.R returns a native flash model object carrying a flashbridge_metadata attribute. standardize_factors() (R/representation.R) returns a factor_representation list with manifest, and fit_gbcd_programs() (R/gbcd.R) returns a gbcd_program_result.
+#' @srrstats {UL4.1} fit_ebmf() in R/fit.R with max_factors = 0 returns an initialised but unfitted flash object via flash_init, and metadata is attached afterwards. This lets a model object exist before greedy fitting.
+#' @srrstats {UL4.2} fit_ebmf() in R/fit.R records its control settings in flashbridge_metadata: S, var_type, max_factors, backfit, nullcheck, id_policy, verbose and control, plus seed, RNG kind and prior identifiers. Other fit wrappers were not checked.
+#' @noRd
+NULL

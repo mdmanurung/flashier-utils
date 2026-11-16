@@ -19,7 +19,8 @@
 #' @param sample_side `"rows"` or `"columns"` of `X`.
 #' @param metadata Data frame with one row per sample, keyed by `id_col`. Extra
 #'   rows are dropped and recorded.
-#' @param batch_col Metadata column holding the batch to remove; at least two levels.
+#' @param batch_col Metadata column holding the batch to remove; at least two
+#'   levels. Factor level order is ignored beyond the order of the penalty columns.
 #' @param assignments Either a samples by clusters matrix of soft assignments,
 #'   with sample row names and cluster column names, nonnegative and each row
 #'   summing to one within 1e-5 (as from [harmony_assignments()]); or the name

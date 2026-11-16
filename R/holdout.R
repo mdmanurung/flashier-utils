@@ -643,3 +643,9 @@ factor_holdout <- function(
     .resolved_parameters("factor_holdout", environment())
   )
 }
+
+#' srr standards evidence for holdout.R
+#'
+#' @srrstats {G4.0} Users pass only checkpoint_dir. The package builds the file names with a fixed .rds suffix in R/holdout.R factor_holdout() and R/stability.R factor_stability(). No user-supplied file name is parsed, so no suffix can be missing.
+#' @noRd
+NULL

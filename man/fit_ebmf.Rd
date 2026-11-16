@@ -23,7 +23,8 @@ fit_ebmf(
 )
 }
 \arguments{
-\item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
+\item{X}{Named numeric matrix or double sparse Matrix; NA is observed
+missingness. Only dimnames are kept; other attributes are dropped.}
 
 \item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
@@ -36,7 +37,10 @@ matrix). \code{NULL} (default) estimates noise from the data.}
 
 \item{var_type}{Residual variance structure passed to flashier: \code{0L}
 (default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both
-(in that order), \code{NULL} none, which requires \code{S}.}
+(in that order), \code{NULL} none, which requires \code{S}. With one constant
+variance (\code{0L}), features measured on larger scales dominate the fit, so
+use \code{2L} or rescale the features first. No centering is assumed; an
+intercept is available through \code{intercept}.}
 
 \item{max_factors}{Upper bound on the number of greedily added factors
 (default 50). The fit can stop earlier.}
@@ -104,6 +108,18 @@ with_offset <- fit_ebmf(X, "rows",
 )
 # Known noise standard deviations instead of an estimated variance.
 known_noise <- fit_ebmf(X, "rows", max_factors = 1, seed = 4, verbose = 0, S = 0.2, var_type = NULL)
+}
+\references{
+Wang W, Stephens M (2021). Empirical Bayes matrix factorization.
+\emph{Journal of Machine Learning Research} 22(120).
+
+Willwerscheid J, Carbonetto P, Wang W, Stephens M. flashier: Empirical Bayes
+Matrix Factorization. R package, \url{https://github.com/willwerscheid/flashier}.
+
+Willwerscheid J, Carbonetto P, Stephens M (2025). ebnm: An R package for
+solving the empirical Bayes normal means problem using a variety of prior
+families. \emph{Journal of Statistical Software} 114(3), 1-33.
+\doi{10.18637/jss.v114.i03}
 }
 \seealso{
 \code{\link[=standardize_factors]{standardize_factors()}}, \code{\link[=factor_pve]{factor_pve()}}

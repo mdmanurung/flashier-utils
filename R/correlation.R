@@ -137,3 +137,10 @@ factor_cor <- function(
     .resolved_parameters("factor_cor", environment())
   )
 }
+
+#' srr standards evidence for correlation.R
+#'
+#' @srrstats {G3.1} factor_cor() makes users choose pearson, spearman or corshrink. It dispatches to stats::cor or CorShrink::CorShrinkData (both in R/correlation.R factor_cor()). It handles correlation, not covariance, and the repo shows no other covariance estimation code.
+#' @srrstats {G5.4} Correctness tests compare results to independent oracles: tests/testthat/test-fnd-oracles.R rebuilds a fresh public flashier pipeline (FND-001 oracle), and tests/testthat/test-correlation.R compares R/correlation.R factor_cor() with stats::cor.
+#' @noRd
+NULL

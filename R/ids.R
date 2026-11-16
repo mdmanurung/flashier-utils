@@ -168,3 +168,23 @@
 
 # A list whose entries, if any, carry unique names.
 .is_named_list <- function(x) is.list(x) && (!length(x) || (!is.null(names(x)) && !anyDuplicated(names(x))))
+
+#' srr standards evidence for ids.R
+#'
+#' @srrstats {G2.0} Length assertions exist for scalar inputs: R/programs.R .program_number(), R/ids.R .with_seed() (seed), R/fit.R fit_ebmf() (max_factors), R/ids.R .is_flag(). Coverage is by helper, not for every parameter of every function.
+#' @srrstats {G2.1} Type assertions: R/ids.R .validate_matrix() (numeric matrix or double sparse Matrix), R/ids.R .check_S(), R/programs.R .program_number() (finite integer or number), R/ids.R .is_flag() (logical flag). Not every parameter is type-checked.
+#' @srrstats {G2.4} Explicit conversions are used where input is coerced; see the lettered sub-items. Examples: R/ids.R .match_ids() and .select_ids(), R/batch-correction.R correct_feature_batch(), R/fit.R fit_multistart_ebmf(), R/extract.R factor_pve().
+#' @srrstats {G2.4c} Character conversion uses as.character() (not paste) for metadata IDs in R/ids.R .match_ids() and for requested selections in R/ids.R .select_ids().
+#' @srrstats {G2.4d} Factor conversion uses as.factor() inside R/ids.R .tuple_groups(), R/batch-correction.R correct_feature_batch() and R/batch-correction.R harmony_assignments(). It is used internally for grouping only. No user-facing conversion argument exists.
+#' @srrstats {G2.4e} Factor-to-character conversion goes through as.character() in R/ids.R .select_ids() (is.factor, then as.character) before the character-only check in the same function.
+#' @srrstats {G2.6} One-dimensional ID input is normalised: R/ids.R .select_ids() turns factors into character and rejects other non-character input. R/metadata.R .weights() requires numeric, named, finite, nonnegative weights. Partial: not all vector classes are handled.
+#' @srrstats {G2.8} Fit input goes through one gate, R/ids.R .validate_matrix(), called from R/fit.R fit_ebmf(). Downstream functions resolve fits and views to one factor_representation class in R/representation.R .resolve_view().
+#' @srrstats {G2.10} Metadata columns are taken with [[ ]] and rows with drop = FALSE in R/ids.R .match_ids(), so extraction does not depend on data.frame, tibble or data.table class.
+#' @srrstats {G2.13} Missing data are checked before analysis. R/ids.R .validate_matrix() screens X for Inf/NaN and optionally NA. R/ids.R .match_ids() applies complete.cases to metadata rows. NA in X is documented as observed missingness in the R/fit.R fit_ebmf() docs.
+#' @srrstats {G2.14a} Error on missing data is the default. R/ids.R .match_ids() stops on incomplete metadata when na_action = 'fail'. R/ids.R .validate_matrix() stops when allow_missing = FALSE, as R/batch-correction.R correct_feature_batch() requests.
+#' @srrstats {G2.16} Inf, -Inf and NaN in X are rejected with an error in R/ids.R .validate_matrix(). Activities and weights must be finite: see R/representation.R .make_representation() and R/metadata.R .weights(). Error-only: there is no option to ignore or remove them, and the contract is not documented.
+#' @srrstats {UL1.1} Input checks sit in separate helpers, .validate_ids() and .validate_matrix() in R/ids.R, called from fit_ebmf() in R/fit.R and fit_multistart_ebmf(). Messages are informative but come from untyped bare stop() calls.
+#' @srrstats {UL1.2} Default id_policy = "require" makes .validate_matrix() in R/ids.R stop on missing dimnames. The "generate" path creates row and column names silently, but fit_ebmf() in R/fit.R records them in the generated_ids metadata. No message is issued.
+#' @srrstats {UL3.2} fit_ebmf() in R/fit.R has id_policy = "generate", which creates row1.../col1... labels for unlabelled input in .validate_matrix() (R/ids.R). The default "require" stops on missing dimnames.
+#' @noRd
+NULL

@@ -27,7 +27,8 @@ fit_multistart_ebmf(
 )
 }
 \arguments{
-\item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
+\item{X}{Named numeric matrix or double sparse Matrix; NA is observed
+missingness. Only dimnames are kept; other attributes are dropped.}
 
 \item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 
@@ -40,7 +41,10 @@ matrix). \code{NULL} (default) estimates noise from the data.}
 
 \item{var_type}{Residual variance structure passed to flashier: \code{0L}
 (default) one constant, \code{1L} per row, \code{2L} per column, \code{c(1L, 2L)} both
-(in that order), \code{NULL} none, which requires \code{S}.}
+(in that order), \code{NULL} none, which requires \code{S}. With one constant
+variance (\code{0L}), features measured on larger scales dominate the fit, so
+use \code{2L} or rescale the features first. No centering is assumed; an
+intercept is available through \code{intercept}.}
 
 \item{max_factors}{Positive bound on each candidate's greedy rank.}
 

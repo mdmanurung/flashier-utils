@@ -15,7 +15,8 @@ fit_nonnegative_ebmf(
 )
 }
 \arguments{
-\item{X}{Named numeric matrix or double sparse Matrix; NA is observed missingness.}
+\item{X}{Named numeric matrix or double sparse Matrix; NA is observed
+missingness. Only dimnames are kept; other attributes are dropped.}
 
 \item{sample_side}{\code{"rows"} or \code{"columns"}: which side holds samples. Required.}
 

@@ -21,7 +21,8 @@ summarize_factor_activity(
 
 \item{metadata}{Data frame with one row per sample; sample IDs in \code{id_col}.}
 
-\item{by}{Name of one or more \code{metadata} columns to group by.}
+\item{by}{Name of one or more \code{metadata} columns to group by. Factor level
+order is ignored; levels only define the groups.}
 
 \item{id_col}{Name of the sample ID column (default \code{"sample"}).}
 

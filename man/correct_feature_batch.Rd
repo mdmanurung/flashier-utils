@@ -26,7 +26,8 @@ for example shifted log expression. The result is dense.}
 \item{metadata}{Data frame with one row per sample, keyed by \code{id_col}. Extra
 rows are dropped and recorded.}
 
-\item{batch_col}{Metadata column holding the batch to remove; at least two levels.}
+\item{batch_col}{Metadata column holding the batch to remove; at least two
+levels. Factor level order is ignored beyond the order of the penalty columns.}
 
 \item{assignments}{Either a samples by clusters matrix of soft assignments,
 with sample row names and cluster column names, nonnegative and each row
