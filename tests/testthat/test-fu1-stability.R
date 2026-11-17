@@ -99,3 +99,93 @@ test_that("rotated rank-2 subspace is recoverable via existing alignment (FU-1/U
   expect_identical(nrow(al$matches), 2L)
   expect_true(all(al$matches$similarity > 0.5))
 })
+
+test_that("n_matched counts refits that assigned the factor, and the quantiles describe only those (review)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("clue")
+  X <- fixture_matrix()
+  fit <- .stab_fit()
+  # every second seed refits one factor only, so the other reference factor is lost in those refits
+  losing_cb <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(
+      X,
+      sample_side,
+      max_factors = if (seed %% 2L == 0L) 1L else 2L,
+      backfit = TRUE,
+      seed = seed,
+      verbose = 0L,
+      feature_scale = "intensity"
+    )
+  }
+  out <- allow_maxiter(factor_stability(X, fit, .stab_md, unit_col = "donor", B = 6, seed = 7, fit_fn = losing_cb))
+  finite <- tapply(is.finite(out$matches$similarity), out$matches$reference_factor, sum)
+  expect_equal(out$summary$n_matched, as.integer(finite[out$summary$factor]), ignore_attr = TRUE)
+  expect_true(all(out$summary$n_matched <= out$summary$n_eligible))
+  expect_true(any(out$summary$n_matched < out$summary$n_successful))
+})
+
+test_that("a subsample stratum that draws all its units warns and the plan is recorded", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("clue")
+  X <- fixture_matrix()
+  fit <- .stab_fit()
+  expect_warning(
+    allow_maxiter(factor_stability(
+      X,
+      fit,
+      .stab_md,
+      unit_col = "donor",
+      B = 1,
+      seed = 7,
+      fit_fn = .stab_cb,
+      scheme = "subsample",
+      fraction = 0.9
+    )),
+    "draws all its units"
+  )
+  out <- allow_maxiter(factor_stability(
+    X,
+    fit,
+    .stab_md,
+    unit_col = "donor",
+    B = 1,
+    seed = 7,
+    fit_fn = .stab_cb,
+    scheme = "subsample",
+    fraction = 0.5
+  ))
+  plan <- out$analysis_metadata$resampling_plan
+  expect_equal(plan$n_units, 6L)
+  expect_equal(plan$n_drawn, 3)
+  expect_equal(plan$realised_fraction, 0.5)
+})
+
+test_that("best_similarity exposes a near-perfect candidate that one-to-one assignment gave away", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("clue")
+  view <- function(B) {
+    dimnames(B) <- list(paste0("g", 1:3), paste0("F", seq_len(ncol(B))))
+    .make_representation(
+      matrix(1, 3, ncol(B), dimnames = list(paste0("s", 1:3), colnames(B))),
+      B,
+      list(
+        fit_id = "stub",
+        schema_version = "1.0.0",
+        sample_side = "rows",
+        native_indices = seq_len(ncol(B)),
+        scaling = "raw",
+        orientation = "as_fit",
+        constraints = c(activity = "signed", effects = "signed"),
+        feature_scale = "intensity"
+      )
+    )
+  }
+  reference <- view(cbind(c(1, 0, 0), c(1, 0.2, 0)))
+  target <- view(cbind(c(1, 0.15, 0), c(0, 0, 1)))
+  aligned <- .align_programs(reference, target)
+  f1 <- aligned$matches[aligned$matches$reference_factor %in% "F1", ]
+  # F1 is closest to T1 (0.989) but F2 (0.999) takes T1, leaving F1 with no assigned match
+  expect_true(is.na(f1$similarity))
+  expect_equal(f1$best_similarity, aligned$similarity_matrix["F1", "F1"])
+  expect_gt(f1$best_similarity, 0.98)
+})

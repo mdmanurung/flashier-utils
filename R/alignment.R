@@ -108,6 +108,11 @@
     target_factor = ifelse(is.na(assignment), NA_character_, tids[assignment]),
     congruence = rep(NA_real_, length(rids)),
     similarity = rep(NA_real_, length(rids)),
+    best_similarity = vapply(
+      seq_along(rids),
+      function(i) if (any(is.finite(similarity[i, ]))) max(similarity[i, is.finite(similarity[i, ])]) else NA_real_,
+      numeric(1)
+    ),
     sign = rep(NA_real_, length(rids)),
     matched = rep(if (is.null(min_congruence)) NA else FALSE, length(rids)),
     candidate = !is.na(assignment),
@@ -131,6 +136,7 @@
         target_factor = unmatched,
         congruence = NA_real_,
         similarity = NA_real_,
+        best_similarity = NA_real_,
         sign = NA_real_,
         matched = if (is.null(min_congruence)) NA else FALSE,
         candidate = FALSE,

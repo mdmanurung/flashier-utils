@@ -139,7 +139,7 @@ Order is by what unblocks the next step. Estimates are hands-on effort.
 - compare_prior_fits promoted 2026-10-27 with the A1 acceptance oracles in tests/testthat/test-comparison.R (supersedes the 2026-10-25 hold). Remaining A2 work: comparison reports beyond print/plot.
 
 ## Findings to keep
-- Planted stability (2026-10-27): signed EBMF shared-block factors rotate under cell subsampling (recovery 0.05-1.0 at congruence 0.9) while nonnegative arms recover them in every refit; semi-nonnegative bipolar factor next least stable (0.30-0.90).
+- Planted stability (2026-10-27, reworded 2026-11-17): signed EBMF shared-block factors fail to recover under cell subsampling (recovery 0.05-1.0 at congruence 0.9) while nonnegative arms recover them in every refit. A subspace check found P2/P3 failures stay inside the refit span (54 of 54, share >= 0.975: rotation) but the lowest-variance shared factor F7 is partly lost (0 of 64 at >= 0.95; median share 0.44-0.69, chance 0.0175). One signed arm, five datasets, cell unit; `table fallback: per-refit values in validation/planted-validation-20261027/review-20261117/p6_rotation_seed0*.csv`, no figure. Semi-nonnegative bipolar factor next least stable (0.30-0.90).
 - SCI-004a/b are the protocol's scientific gates (fixed-B point projection; supplied-profile consensus recovery) and remain open. The release software gates in reports/GO_MEMO_SCI004.md are REL-001a/b (renamed 2026-10-27).
 - Fixed priors alone do not remove query-set dependence: only fixed priors plus sample-wise
   var_type do (same cell, two query sets: 5e-7 vs 4e-4 to 9e-4).

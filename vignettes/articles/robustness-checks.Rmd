@@ -125,8 +125,8 @@ cat("*Check 5 skipped in this build: the psych and clue packages are not install
 ```{r stability, eval=have_alignment, fig.width=5, fig.height=3, fig.alt="Two panels per factor: the recovery rate over eight refits, and the median congruence with its 2.5 to 97.5 percent range and a dashed line at 0.9.", fig.cap="Recovery across eight donor-subsample refits (nine of twelve donors each). Left: fraction of refits in which the factor was recovered. Right: congruence of the recovered factor, median and empirical 2.5 to 97.5% range over refits. Refits share data and are not independent replicates."}
 stability <- factor_stability(X, fit, metadata, unit_col = "donor", seed = 4, B = 8,
   scheme = "subsample", fraction = 0.75, min_congruence = 0.9)
-stability$summary[, c("factor", "n_successful", "recovery_rate", "median_congruence",
-                      "q025_congruence")]
+stability$summary[, c("factor", "n_successful", "n_matched", "recovery_rate",
+                      "recovery_rate_all_requested", "median_congruence", "q025_congruence")]
 stability_long <- rbind(
   data.frame(factor = stability$summary$factor, panel = "recovery rate (8 refits)",
              value = stability$summary$recovery_rate, lower = NA, upper = NA),
@@ -145,8 +145,13 @@ ggplot(stability_long, aes(factor, value)) +
 `factor_stability()` refits on resampled biological units and reports how
 often each reference factor is recovered. Use `scheme = "subsample"` so no
 duplicated rows bias the empirical Bayes priors. Bad signs: a recovery rate
-well below one, a low 2.5% congruence quantile, or failed replicates. Eight
-replicates illustrate the call; use tens to hundreds for a real estimate.
+well below one, or failed replicates. Report `recovery_rate_all_requested`, which
+counts refits that lost the factor entirely; `recovery_rate` leaves those out. With
+`min_congruence` set, the congruence quantiles describe match quality among the
+recovered refits only and cannot fall below the threshold, so the recovery rate,
+not a low quantile, shows instability (`n_matched` counts the refits behind the
+quantiles). Eight replicates illustrate the call; use tens to hundreds for a real
+estimate.
 
 ## 6. Does a different prior tell the same story?
 

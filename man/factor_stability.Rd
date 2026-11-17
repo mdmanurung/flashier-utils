@@ -39,9 +39,16 @@ the unit column.}
 
 \item{scheme}{"bootstrap" (default) draws units with replacement; "subsample"
 draws \code{fraction} of the units per stratum without replacement, so no
-duplicated rows bias empirical Bayes prior and noise estimates.}
+duplicated rows bias empirical Bayes prior and noise estimates. Bootstrap
+duplicates units, and in a simulation its refits fitted more factors than the
+reference (a higher \code{rank} in \verb{$replicates}), which changes what is matched;
+"subsample" did not.}
 
-\item{fraction}{Subsample fraction in (0, 1); required for "subsample".}
+\item{fraction}{Subsample fraction in (0, 1); required for "subsample". Each
+stratum draws \code{ceiling(fraction * units)} units (at least one), so a stratum
+with few units can draw all of them and is then not resampled. The function
+warns when that happens and records the realised fractions in
+\code{analysis_metadata$resampling_plan}.}
 
 \item{strata}{Optional names of unit-level \code{metadata} columns to stratify resampling by.}
 
@@ -67,9 +74,19 @@ candidates.}
 \code{callback_configuration} passed to \code{fit_fn}.}
 }
 \value{
-A \code{stability_result} with \verb{$summary} (per reference factor:
-recovery rate and similarity quantiles), \verb{$replicates}, \verb{$matches},
-\verb{$resamples} and \verb{$failures}.
+A \code{stability_result} with \verb{$summary} (per reference factor), \verb{$replicates}, \verb{$matches},
+\verb{$resamples} and \verb{$failures}. In \verb{$summary}, \code{recovery_rate} is recovered
+refits over eligible refits (refits that returned no factor are not
+eligible), \code{recovery_rate_all_requested} is recovered refits over all \code{B}
+requested and is the one to report, and \code{n_matched} counts the refits where
+the factor was assigned a finite similarity. The congruence quantiles
+(\code{median_}, \code{q025_}, \code{q975_congruence}) describe match quality among those
+\code{n_matched} refits only: they say nothing about refits that lost the factor,
+and with \code{min_congruence} set they cannot fall below it. Read them with
+\code{recovery_rate_all_requested}. In \verb{$matches}, \code{similarity} belongs to the
+assigned pair, which one-to-one assignment can make lower than the best
+candidate; \code{best_similarity} is the highest similarity of that reference
+factor with any refit factor.
 }
 \description{
 Refit the model on bootstrap or subsample draws of biological units (e.g.

@@ -1,5 +1,15 @@
 # flashier.utils 2.0.0.9000
 
+- `factor_stability()`: `$summary` gains `n_matched`, the refits behind the congruence
+  quantiles, and the docs now say those quantiles describe match quality among matched
+  refits only (with `min_congruence` they cannot fall below it), that
+  `recovery_rate_all_requested` is the rate to report, and that the default `bootstrap`
+  scheme refits more factors than the reference while `subsample` does not. A subsample
+  stratum that draws all its units now warns, and `analysis_metadata$resampling_plan`
+  records units drawn and the realised fraction per stratum. `$matches` (also from
+  `factor_replicability()`) gains `best_similarity`, the best candidate similarity, which
+  can exceed the assigned `similarity` when one-to-one assignment gives the candidate away.
+
 - `factor_holdout()` adds a `skill` column, `1 - SSE(fit) / SSE(training mean)` on the
   same scored entries, and documents that `prediction_r2` is centred on the held-out grand
   mean, so feature means alone score high. A masked feature split no longer fails every

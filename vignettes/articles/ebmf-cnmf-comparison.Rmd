@@ -475,10 +475,18 @@ both nonnegative arms recover every shared-block factor in every refit. One
 reading is rotation inside the shared subspace, which a signed prior leaves
 free and a nonnegativity constraint pins down. Another is that the signed arm
 spends fewer factors on the blocks, so per-factor congruence penalizes any
-reparameterization. A subspace comparison across refits, such as the projector
-distance in the [prior comparison](compare-priors.html), would separate the two;
-it was not run. The semi-nonnegative arm's bipolar factor is the next least
-stable. Treat both as simulation observations, not rules for real data.
+reparameterization. A later subspace check on the signed arm separates the two
+by factor. For each unrecovered refit it measured the share of the reference
+factor's squared effect norm that lies inside the span of that refit's seven
+effect columns (chance level 7/400 = 0.0175). Reference factors F2 and F3 stay inside
+the refit span in all 54 of their failed refits (share at least 0.975), which is
+what rotation predicts. The lowest-variance shared factor, F7, is partly lost
+instead: none of its 64 failed refits reach 0.95, and the per-seed median share is
+0.44 to 0.69. So "rotation" describes the larger shared factors and not all of
+them. This check covers one signed arm, five simulated datasets and cells as the
+resampling unit; its per-refit values are a table, not a figure, and are kept with
+the validation receipts. The semi-nonnegative arm's bipolar factor is the next
+least stable. Treat both as simulation observations, not rules for real data.
 
 Refit stability under cell subsampling is a necessary check, not evidence
 of biological replication: the 240-cell subsamples share the generating

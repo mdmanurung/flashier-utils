@@ -1,4 +1,9 @@
 # Newly written biological-unit bootstrap and atomic checkpoint orchestration.
+# Units drawn per stratum by a subsample: ceiling(fraction * units), at least one.
+.subsample_size <- function(n_units, fraction) {
+  max(1L, ceiling(fraction * n_units))
+}
+
 .bootstrap_units <- function(metadata, unit_col, strata, seed, id_col = "sample", fraction = NULL) {
   if (!unit_col %in% names(metadata)) {
     stop("Missing biological unit column")
@@ -35,7 +40,7 @@
         if (is.null(fraction)) {
           group[sample.int(length(group), length(group), replace = TRUE)]
         } else {
-          group[sample.int(length(group), max(1L, ceiling(fraction * length(group))))]
+          group[sample.int(length(group), .subsample_size(length(group), fraction))]
         }
       }),
       use.names = FALSE
@@ -183,8 +188,15 @@
 #' @param B Number of resamples (default 100).
 #' @param scheme "bootstrap" (default) draws units with replacement; "subsample"
 #'   draws `fraction` of the units per stratum without replacement, so no
-#'   duplicated rows bias empirical Bayes prior and noise estimates.
-#' @param fraction Subsample fraction in (0, 1); required for "subsample".
+#'   duplicated rows bias empirical Bayes prior and noise estimates. Bootstrap
+#'   duplicates units, and in a simulation its refits fitted more factors than the
+#'   reference (a higher `rank` in `$replicates`), which changes what is matched;
+#'   "subsample" did not.
+#' @param fraction Subsample fraction in (0, 1); required for "subsample". Each
+#'   stratum draws `ceiling(fraction * units)` units (at least one), so a stratum
+#'   with few units can draw all of them and is then not resampled. The function
+#'   warns when that happens and records the realised fractions in
+#'   `analysis_metadata$resampling_plan`.
 #' @param strata Optional names of unit-level `metadata` columns to stratify resampling by.
 #' @param fit_fn Optional callback `function(X, metadata, sample_side, seed,
 #'   settings, observation_aux)`. `NULL` (default) replays the reference fit's
@@ -202,9 +214,19 @@
 #' @param keep_fits Retain every replicate fit (default `FALSE`; memory heavy).
 #' @param control Optional named list: `settings`, `observation_aux` and
 #'   `callback_configuration` passed to `fit_fn`.
-#' @return A `stability_result` with `$summary` (per reference factor:
-#'   recovery rate and similarity quantiles), `$replicates`, `$matches`,
-#'   `$resamples` and `$failures`.
+#' @return A `stability_result` with `$summary` (per reference factor), `$replicates`, `$matches`,
+#'   `$resamples` and `$failures`. In `$summary`, `recovery_rate` is recovered
+#'   refits over eligible refits (refits that returned no factor are not
+#'   eligible), `recovery_rate_all_requested` is recovered refits over all `B`
+#'   requested and is the one to report, and `n_matched` counts the refits where
+#'   the factor was assigned a finite similarity. The congruence quantiles
+#'   (`median_`, `q025_`, `q975_congruence`) describe match quality among those
+#'   `n_matched` refits only: they say nothing about refits that lost the factor,
+#'   and with `min_congruence` set they cannot fall below it. Read them with
+#'   `recovery_rate_all_requested`. In `$matches`, `similarity` belongs to the
+#'   assigned pair, which one-to-one assignment can make lower than the best
+#'   candidate; `best_similarity` is the highest similarity of that reference
+#'   factor with any refit factor.
 #' @seealso [factor_replicability()] for one pair of fits
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
@@ -368,6 +390,32 @@ factor_stability <- function(
     ),
     algo = "sha256"
   )
+  # units per stratum and how many each subsample draws
+  unit_stratum <- unique(data.frame(
+    unit = as.character(md[[unit_col]]),
+    stratum = if (length(strata)) as.character(.tuple_groups(md[strata])) else "all"
+  ))
+  stratum_units <- table(unit_stratum$stratum)
+  resampling_plan <- data.frame(
+    stratum = names(stratum_units),
+    n_units = as.integer(stratum_units),
+    n_drawn = if (scheme == "subsample") {
+      vapply(as.integer(stratum_units), .subsample_size, numeric(1), fraction = fraction)
+    } else {
+      as.integer(stratum_units)
+    }
+  )
+  resampling_plan$realised_fraction <- resampling_plan$n_drawn / resampling_plan$n_units
+  if (scheme == "subsample" && any(resampling_plan$n_drawn >= resampling_plan$n_units)) {
+    warning(
+      "Stratum ",
+      paste(resampling_plan$stratum[resampling_plan$n_drawn >= resampling_plan$n_units], collapse = ", "),
+      " draws all its units at fraction = ",
+      fraction,
+      ", so it is not resampled and stability there is overstated. Use a smaller fraction or more units.",
+      call. = FALSE
+    )
+  }
   if (!is.null(checkpoint_dir)) {
     dir.create(checkpoint_dir, recursive = TRUE, showWarnings = FALSE)
   }
@@ -500,6 +548,7 @@ factor_stability <- function(
         n_successful = sum(successful),
         n_failed = sum(!successful),
         n_eligible = eligible,
+        n_matched = length(similarity),
         recovery_rate = if (is.null(min_congruence) || !eligible) NA_real_ else recovered / eligible,
         recovery_rate_all_requested = if (is.null(min_congruence)) NA_real_ else recovered / B,
         median_congruence = quantiles[2],
@@ -544,6 +593,7 @@ factor_stability <- function(
           exclusions = matched$exclusions,
           scheme = scheme,
           fraction = fraction,
+          resampling_plan = resampling_plan,
           n_requested = B,
           seed = seed,
           workers = workers,
