@@ -235,7 +235,9 @@ summarize_factor_activity <- function(
 #' @param fit Native fit or representation.
 #' @param metadata Sample metadata.
 #' @param by Grouping column(s).
-#' @param baseline `equal_group` or `observation_weighted`.
+#' @param baseline `equal_group` or `observation_weighted`. With `weights`, the
+#'   group means are weighted means but the baseline still weights them by group
+#'   size `n`, so it is then not a weighted grand mean.
 #' @param id_col Sample ID column.
 #' @param unit_col Optional independent-unit column (carried through).
 #' @param weights Optional named observation weights (passed to

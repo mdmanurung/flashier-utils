@@ -60,6 +60,12 @@ rank_features <- function(fit, factors = NULL, direction = "absolute", ties = "a
 #' @param engine singlecelljamboreeR selects the audited local implementation.
 #' @param format long or matrix.
 #' @return Original estimate and distinctiveness separately, or margin matrix.
+#'   Distinctiveness compares a feature's effect across factor columns, so it
+#'   depends on how those columns are scaled. Use a view with `scaling = "ldf"`
+#'   and `d_location = "activity"` (unit-norm effect columns) for a comparison on
+#'   one scale; `"raw"` and `"rms"` scalings leave the columns on different scales,
+#'   and a warning is given. The scaling and `d_location` are recorded in
+#'   `analysis_metadata$comparison_scaling`.
 #' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -97,6 +103,15 @@ factor_distinctiveness <- function(
     stop("Distinctiveness requires declared common scaling and orientation")
   }
   B <- view$effects
+  if (view$manifest$scaling %in% c("raw", "rms")) {
+    warning(
+      "scaling = '",
+      view$manifest$scaling,
+      "' leaves effect columns on different scales, so distinctiveness is not comparable across factors; ",
+      "use scaling = 'ldf' with d_location = 'activity'.",
+      call. = FALSE
+    )
+  }
   pool <- colnames(B)[.select_ids(compare_factors, colnames(B), "comparison factor")]
   margin <- .compute_le_effects(B)
   if (!is.null(compare_factors)) {
@@ -115,6 +130,7 @@ factor_distinctiveness <- function(
     view$manifest,
     list(
       competition_factors = pool,
+      comparison_scaling = c(scaling = view$manifest$scaling, d_location = view$manifest$d_location),
       definition = "singlecelljamboreeR_least_extreme",
       code_reuse = "modified"
     )

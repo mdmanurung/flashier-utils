@@ -320,7 +320,7 @@ factor_specificity <- function(
         status = "unavailable_absent_class"
       )
       if (any(target) && any(!target)) {
-        if (length(unique(x)) == 1) {
+        if (.is_constant(x)) {
           row$auc <- 0.5
           row$status <- "constant_predictor"
         } else {

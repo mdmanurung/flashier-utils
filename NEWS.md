@@ -1,5 +1,15 @@
 # flashier.utils 2.0.0.9000
 
+- Summary and diagnostic functions. `factor_pve()` gains a `denominator` column and the docs
+  say the shares are of the uncentred second moment, which includes a feature intercept.
+  `factor_gate_alignment()` reports `n_tied_at_cutoff`, `overlap_min` and `overlap_max` and sets
+  `status = "available_tied_at_cutoff"` when ties at the cutoff make the overlap depend on
+  sample IDs. `factor_distinctiveness()` warns for `scaling = "raw"` or `"rms"`, whose effect
+  columns are on different scales, and records the scaling used. `factor_specificity()` and the
+  marker correlations treat a predictor constant up to rounding noise as constant.
+  `center_factor_activity()` documents that its `observation_weighted` baseline is not a
+  weighted grand mean when `weights` are supplied.
+
 - `factor_intervals()` warns when `nsamp` leaves fewer than 5 draws in each tail
   (`nsamp * (1 - level) / 2 < 5`, under 200 draws at level 0.95), because interval ends are
   then noisy and too narrow. The docs and the robustness article now give the coverage seen

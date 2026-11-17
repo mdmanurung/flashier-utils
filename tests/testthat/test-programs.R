@@ -1,54 +1,61 @@
 test_that("signed network selection and comparison pools are hand calculable", {
-  view <- fixture_view()
-  saved <- view
-  network <- factor_network(view, direction = "both", n = 1)
-  expect_equal(network$edges$feature, c("g1", "g2", "g3", "g2"))
-  expect_equal(network$edges$weight, c(1, -0.5, 1, -0.5))
-  expect_true(all(network$edges$from != network$edges$to))
-  expect_equal(factor_distinctiveness(view, format = "matrix", compare_factors = "F1")[, "F1"], view$effects[, "F1"])
-  expect_equal(factor_distinctiveness(view, format = "matrix")["g1", "F1"], 0)
-  expect_equal(plot_feature_rankings(view, "F1")$data$difference, c(-1, 1, -4, 1))
-  expect_equal(plot_feature_rankings(view, "F1", direction = "negative")$data$difference, c(-1, 1, -4, 1))
-  expect_equal(factor_features(view, "F1", select = "distinctive", compare_factors = "F1")$feature, c("g1", "g2", "g4"))
-  p <- plot_factor_features(
-    view,
-    c("F1", "F2"),
-    features = c("g1", "g3"),
-    display_normalization = "max_abs",
-    annotation = c(F1 = "a", F2 = "b"),
-    transpose = TRUE
-  )
-  expect_equal(p$data$estimate, c(1, 0, 0.75, 1))
-  expect_error(factor_network(view, threshold = -1), "threshold")
-  expect_error(plot_feature_rankings(view, "F1", compare_factors = "bad"), "Unknown")
-  expect_identical(view, saved)
+  allow_scale_warning({
+    view <- fixture_view()
+    saved <- view
+    network <- factor_network(view, direction = "both", n = 1)
+    expect_equal(network$edges$feature, c("g1", "g2", "g3", "g2"))
+    expect_equal(network$edges$weight, c(1, -0.5, 1, -0.5))
+    expect_true(all(network$edges$from != network$edges$to))
+    expect_equal(factor_distinctiveness(view, format = "matrix", compare_factors = "F1")[, "F1"], view$effects[, "F1"])
+    expect_equal(factor_distinctiveness(view, format = "matrix")["g1", "F1"], 0)
+    expect_equal(plot_feature_rankings(view, "F1")$data$difference, c(-1, 1, -4, 1))
+    expect_equal(plot_feature_rankings(view, "F1", direction = "negative")$data$difference, c(-1, 1, -4, 1))
+    expect_equal(
+      factor_features(view, "F1", select = "distinctive", compare_factors = "F1")$feature,
+      c("g1", "g2", "g4")
+    )
+    p <- plot_factor_features(
+      view,
+      c("F1", "F2"),
+      features = c("g1", "g3"),
+      display_normalization = "max_abs",
+      annotation = c(F1 = "a", F2 = "b"),
+      transpose = TRUE
+    )
+    expect_equal(p$data$estimate, c(1, 0, 0.75, 1))
+    expect_error(factor_network(view, threshold = -1), "threshold")
+    expect_error(plot_feature_rankings(view, "F1", compare_factors = "bad"), "Unknown")
+    expect_identical(view, saved)
+  })
 })
 test_that("diagnostic definitions, expression axis and annotation stay explicit", {
-  v <- fixture_view()
-  d <- factor_diagnostics(v, activity_threshold = 0.1, feature_threshold = 0.25)
-  expect_equal(d$factors$active_proportion, c(1, 1 / 3))
-  expect_equal(d$factors$active_features, c(3, 3))
-  expect_equal(d$samples$programs, c(2, 1, 1))
-  expect_equal(
-    factor_diagnostics(
+  allow_scale_warning({
+    v <- fixture_view()
+    d <- factor_diagnostics(v, activity_threshold = 0.1, feature_threshold = 0.25)
+    expect_equal(d$factors$active_proportion, c(1, 1 / 3))
+    expect_equal(d$factors$active_features, c(3, 3))
+    expect_equal(d$samples$programs, c(2, 1, 1))
+    expect_equal(
+      factor_diagnostics(
+        v,
+        activity_threshold = 0.1,
+        feature_threshold = 0.25,
+        activity_direction = "absolute"
+      )$samples$programs,
+      c(2, 1, 2)
+    )
+    s <- summarize_factors(
       v,
       activity_threshold = 0.1,
       feature_threshold = 0.25,
-      activity_direction = "absolute"
-    )$samples$programs,
-    c(2, 1, 2)
-  )
-  s <- summarize_factors(
-    v,
-    activity_threshold = 0.1,
-    feature_threshold = 0.25,
-    annotations = c(F1 = "user label", F2 = "unknown")
-  )
-  expect_equal(s$annotation, c("user label", "unknown"))
-  p <- plot_factor_signature(v, "F1", setNames(1:4, paste0("g", 1:4)), "log expression")
-  expect_equal(p$data$expression, 1:4)
-  expect_match(p$labels$y, "Mean expression")
-  expect_error(plot_factor_signature(v, "F1", c(g1 = 1), "unknown"), "every feature|non-unknown")
+      annotations = c(F1 = "user label", F2 = "unknown")
+    )
+    expect_equal(s$annotation, c("user label", "unknown"))
+    p <- plot_factor_signature(v, "F1", setNames(1:4, paste0("g", 1:4)), "log expression")
+    expect_equal(p$data$expression, 1:4)
+    expect_match(p$labels$y, "Mean expression")
+    expect_error(plot_factor_signature(v, "F1", c(g1 = 1), "unknown"), "every feature|non-unknown")
+  })
 })
 test_that("native pROC direction, constants and absent groups are explicit", {
   skip_if_not_installed("pROC")
@@ -178,41 +185,43 @@ test_that("plot rendering retains RNG, basis and full-population correlations", 
   expect_identical(.Random.seed, old)
 })
 test_that("default clipped margins match the existing audited helper exactly", {
-  v <- fixture_view()
-  expect_equal(
-    unname(factor_distinctiveness(v, format = "matrix")),
-    unname(.compute_le_effects(v$effects)),
-    ignore_attr = TRUE
-  )
-  zero <- .make_representation(v$activity, v$effects * 0, v$manifest)
-  expect_equal(
-    factor_diagnostics(zero, activity_threshold = 0.1, feature_threshold = 0.25)$factors$active_features,
-    c(0, 0)
-  )
-  net <- factor_network(zero)
-  expect_equal(nrow(net$edges), 0)
-  expect_equal(nrow(net$nodes), 2)
-  if (requireNamespace("igraph", quietly = TRUE) && requireNamespace("ggraph", quietly = TRUE)) {
-    expect_silent(ggplot2::ggplot_build(plot_factor_network(net)))
-  }
-  collision <- v$effects
-  rownames(collision)[1] <- "F1"
-  collision <- .make_representation(v$activity, collision, v$manifest)
-  net <- factor_network(collision)
-  expect_true(all(c("factor:F1", "feature:F1") %in% net$nodes$id))
-  tie <- .make_representation(
-    cbind(F1 = c(s3 = 1, s2 = 1, s1 = 1)),
-    v$effects[, 1, drop = FALSE],
-    utils::modifyList(v$manifest, list(native_indices = 1))
-  )
-  gate <- factor_gate_alignment(
-    tie,
-    cbind(M = c(s1 = 0, s2 = 1, s3 = 0)),
-    "F1",
-    positive = "M",
-    thresholds = c(M = 0.5)
-  )
-  expect_equal(gate$activity_ids, "s1")
+  allow_scale_warning({
+    v <- fixture_view()
+    expect_equal(
+      unname(factor_distinctiveness(v, format = "matrix")),
+      unname(.compute_le_effects(v$effects)),
+      ignore_attr = TRUE
+    )
+    zero <- .make_representation(v$activity, v$effects * 0, v$manifest)
+    expect_equal(
+      factor_diagnostics(zero, activity_threshold = 0.1, feature_threshold = 0.25)$factors$active_features,
+      c(0, 0)
+    )
+    net <- factor_network(zero)
+    expect_equal(nrow(net$edges), 0)
+    expect_equal(nrow(net$nodes), 2)
+    if (requireNamespace("igraph", quietly = TRUE) && requireNamespace("ggraph", quietly = TRUE)) {
+      expect_silent(ggplot2::ggplot_build(plot_factor_network(net)))
+    }
+    collision <- v$effects
+    rownames(collision)[1] <- "F1"
+    collision <- .make_representation(v$activity, collision, v$manifest)
+    net <- factor_network(collision)
+    expect_true(all(c("factor:F1", "feature:F1") %in% net$nodes$id))
+    tie <- .make_representation(
+      cbind(F1 = c(s3 = 1, s2 = 1, s1 = 1)),
+      v$effects[, 1, drop = FALSE],
+      utils::modifyList(v$manifest, list(native_indices = 1))
+    )
+    gate <- factor_gate_alignment(
+      tie,
+      cbind(M = c(s1 = 0, s2 = 1, s3 = 0)),
+      "F1",
+      positive = "M",
+      thresholds = c(M = 0.5)
+    )
+    expect_equal(gate$activity_ids, "s1")
+  })
 })
 test_that("tied ROC optima choose smallest finite native threshold", {
   skip_if_not_installed("pROC")
@@ -226,4 +235,58 @@ test_that("tied ROC optima choose smallest finite native threshold", {
   expect_gt(nrow(best), 1)
   expect_equal(r$threshold_ties, nrow(best))
   expect_equal(r$threshold, min(best$threshold[is.finite(best$threshold)]))
+})
+
+test_that("a tie at the activity cutoff is reported with the range of attainable overlaps", {
+  v <- fixture_view()
+  tied <- .make_representation(
+    cbind(F1 = c(s1 = 5, s2 = 5, s3 = 5), F2 = c(1, 2, 3)),
+    v$effects,
+    v$manifest
+  )
+  M <- cbind(CD1 = c(s1 = 2, s2 = 2, s3 = 0))
+  r <- factor_gate_alignment(tied, M, "F1", positive = "CD1", thresholds = c(CD1 = 1))
+  # gate = s1, s2; the two selected are the first two of three tied samples, so overlap is 1 or 2
+  expect_equal(r$summary$n_tied_at_cutoff, 3)
+  expect_equal(r$summary$overlap_min, 1)
+  expect_equal(r$summary$overlap_max, 2)
+  expect_identical(r$summary$status, "available_tied_at_cutoff")
+  # without ties the range collapses to the overlap and the status stays available
+  untied <- .make_representation(
+    cbind(F1 = c(s1 = 5, s2 = 4, s3 = 3), F2 = c(1, 2, 3)),
+    v$effects,
+    v$manifest
+  )
+  clean <- factor_gate_alignment(untied, M, "F1", positive = "CD1", thresholds = c(CD1 = 1))
+  expect_equal(clean$summary$overlap_min, clean$summary$overlap_max)
+  expect_identical(clean$summary$status, "available")
+})
+
+test_that("distinctiveness warns for raw scaling and records the scaling when it is comparable", {
+  view <- fixture_view()
+  expect_warning(factor_distinctiveness(view, format = "matrix"), "effect columns on different scales")
+  ldf <- .make_representation(
+    view$activity,
+    view$effects,
+    utils::modifyList(view$manifest, list(scaling = "ldf", d_location = "activity"))
+  )
+  expect_no_warning(out <- factor_distinctiveness(ldf, format = "matrix"))
+  expect_identical(
+    attr(out, "analysis_metadata")$comparison_scaling,
+    c(scaling = "ldf", d_location = "activity")
+  )
+})
+
+test_that("a predictor constant up to rounding noise is a constant predictor", {
+  skip_if_not_installed("pROC")
+  v <- fixture_view()
+  v2 <- .make_representation(
+    cbind(F1 = c(s1 = 0.1 + 0.2, s2 = 0.3, s3 = 0.3)),
+    v$effects[, "F1", drop = FALSE],
+    utils::modifyList(v$manifest, list(native_indices = 1))
+  )
+  md <- data.frame(sample = c("s3", "s1", "s2"), group = c("high", "low", "low"))
+  out <- factor_specificity(v2, md, "group", groups = "high")
+  expect_equal(out$status, "constant_predictor")
+  expect_equal(out$auc, 0.5)
 })

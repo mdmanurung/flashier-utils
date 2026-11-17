@@ -12,7 +12,11 @@ factor_pve(fit, factors = NULL)
 \item{factors}{Optional character factor IDs in the order wanted. Default all.}
 }
 \value{
-Table with columns \code{factor}, \code{pve} and \code{definition}.
+Table with columns \code{factor}, \code{pve}, \code{definition} and \code{denominator}.
+flashier's PVE is a share of the uncentred second moment of the data, not of
+variance around the mean. In a fit with a feature intercept (\code{fit_ebmf(intercept = "feature")}) the hidden intercept stays in that denominator, so the biological
+shares are smaller than shares of what the intercept leaves; \code{denominator} says
+which case applies (\code{"second_moment"} or \code{"second_moment_including_intercept"}).
 }
 \description{
 Get each factor's proportion of variance explained (PVE) as flashier

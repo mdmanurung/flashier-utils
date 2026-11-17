@@ -22,7 +22,9 @@ center_factor_activity(
 
 \item{by}{Grouping column(s).}
 
-\item{baseline}{\code{equal_group} or \code{observation_weighted}.}
+\item{baseline}{\code{equal_group} or \code{observation_weighted}. With \code{weights}, the
+group means are weighted means but the baseline still weights them by group
+size \code{n}, so it is then not a weighted grand mean.}
 
 \item{id_col}{Sample ID column.}
 

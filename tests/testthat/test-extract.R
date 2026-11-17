@@ -11,3 +11,24 @@ test_that("selection preserves dimensions, order and matched basis", {
   expect_error(factor_activity(view, samples = "unknown"), "Unknown")
   expect_error(factor_activity(view, factors = c("F1", "F1")), "unique")
 })
+
+test_that("factor_pve names its denominator, and a feature intercept stays in it", {
+  plain <- factor_pve(fixture_fit())
+  expect_identical(unique(plain$denominator), "second_moment")
+  with_intercept <- fit_ebmf(
+    fixture_matrix(),
+    "rows",
+    ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+    max_factors = 2L,
+    intercept = "feature",
+    nullcheck = FALSE,
+    backfit = TRUE,
+    verbose = 0,
+    seed = 12
+  )
+  expect_identical(unique(factor_pve(with_intercept)$denominator), "second_moment_including_intercept")
+  expect_identical(
+    unique(factor_pve(standardize_factors(with_intercept))$denominator),
+    "second_moment_including_intercept"
+  )
+})

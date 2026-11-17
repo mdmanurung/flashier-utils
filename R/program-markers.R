@@ -23,7 +23,7 @@ correlate_factor_markers <- function(fit, measurements, factors = NULL, method =
   out <- list()
   for (k in seq_len(ncol(A))) {
     for (j in seq_len(ncol(M))) {
-      variable <- nrow(A) > 1 && stats::sd(A[, k]) > 0 && stats::sd(M[, j]) > 0
+      variable <- nrow(A) > 1 && !.is_constant(A[, k]) && !.is_constant(M[, j])
       out[[length(out) + 1L]] <- data.frame(
         factor = colnames(A)[k],
         marker = colnames(M)[j],
@@ -302,7 +302,12 @@ plot_marker_thresholds <- function(result, measurements) {
 #'   highest-activity samples; `"low"` uses the lowest-activity samples, for
 #'   factors expected to mark marker-negative populations.
 #' @return Overlap counts/scores, mean activities and selected IDs. Empty gates
-#'   have unavailable scores. Activity ties are broken by sample ID.
+#'   have unavailable scores. Activity ties are broken by sample ID, so when the
+#'   cutoff falls inside a block of tied activities the overlap depends on the
+#'   IDs: `n_tied_at_cutoff` counts the samples tied with the last selected one,
+#'   `overlap_min` and `overlap_max` give the range of overlaps over all ways to
+#'   break the tie, and `status` is `"available_tied_at_cutoff"` when that range
+#'   is wider than a single value.
 #' @author Mikhael Manurung; conceptual ImmGen-T Figure 7 gate workflow.
 #' @keywords internal
 factor_gate_alignment <- function(
@@ -339,6 +344,14 @@ factor_gate_alignment <- function(
   n <- length(gated)
   selected <- utils::head(rownames(A)[order(if (direction == "high") -A[, 1] else A[, 1], rownames(A))], n)
   overlap <- length(intersect(gated, selected))
+  # a tie block at the cutoff makes the overlap depend on sample IDs: bound it over every way to break the tie
+  cutoff <- if (n) A[selected[n], 1] else NA_real_
+  tied <- if (n) rownames(A)[A[, 1] == cutoff] else character()
+  tied_selected <- if (n) sum(A[selected, 1] == cutoff) else 0L
+  sure_gated <- if (n) sum(gated %in% selected[A[selected, 1] != cutoff]) else 0L
+  tied_gated <- sum(tied %in% gated)
+  overlap_min <- sure_gated + max(0L, tied_selected - (length(tied) - tied_gated))
+  overlap_max <- sure_gated + min(tied_selected, tied_gated)
   summary <- data.frame(
     factor = factor,
     direction = direction,
@@ -346,11 +359,20 @@ factor_gate_alignment <- function(
     n_gate = n,
     n_activity = length(selected),
     overlap = overlap,
+    n_tied_at_cutoff = length(tied),
+    overlap_min = if (n) overlap_min else NA_integer_,
+    overlap_max = if (n) overlap_max else NA_integer_,
     overlap_fraction = if (n) overlap / n else NA_real_,
     jaccard = if (n) overlap / (2 * n - overlap) else NA_real_,
     mean_gate = if (n) mean(A[gated, 1]) else NA_real_,
     mean_activity = if (n) mean(A[selected, 1]) else NA_real_,
-    status = if (n) "available" else "unavailable_empty_gate"
+    status = if (!n) {
+      "unavailable_empty_gate"
+    } else if (overlap_min < overlap_max) {
+      "available_tied_at_cutoff"
+    } else {
+      "available"
+    }
   )
   .program_result(
     list(summary = summary, gate_ids = gated, activity_ids = selected, population_ids = rownames(A)),

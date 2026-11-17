@@ -125,6 +125,15 @@ allow_small_nsamp <- function(code) {
   })
 }
 
+# the raw-scaling fixtures trigger the distinctiveness scale warning, which is expected there
+allow_scale_warning <- function(code) {
+  withCallingHandlers(code, warning = function(w) {
+    if (grepl("effect columns on different scales", conditionMessage(w), fixed = TRUE)) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
 allow_maxiter <- function(code) {
   withCallingHandlers(code, warning = function(w) {
     if (grepl("Maximum number of iterations reached", conditionMessage(w), fixed = TRUE)) {

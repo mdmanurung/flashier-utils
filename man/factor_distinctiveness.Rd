@@ -29,6 +29,12 @@ effects are eligible.}
 }
 \value{
 Original estimate and distinctiveness separately, or margin matrix.
+Distinctiveness compares a feature's effect across factor columns, so it
+depends on how those columns are scaled. Use a view with \code{scaling = "ldf"}
+and \code{d_location = "activity"} (unit-norm effect columns) for a comparison on
+one scale; \code{"raw"} and \code{"rms"} scalings leave the columns on different scales,
+and a warning is given. The scaling and \code{d_location} are recorded in
+\code{analysis_metadata$comparison_scaling}.
 }
 \description{
 Adapted from singlecelljamboreeR compute_le_effects. The margin to the

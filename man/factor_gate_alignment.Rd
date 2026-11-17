@@ -31,7 +31,12 @@ factors expected to mark marker-negative populations.}
 }
 \value{
 Overlap counts/scores, mean activities and selected IDs. Empty gates
-have unavailable scores. Activity ties are broken by sample ID.
+have unavailable scores. Activity ties are broken by sample ID, so when the
+cutoff falls inside a block of tied activities the overlap depends on the
+IDs: \code{n_tied_at_cutoff} counts the samples tied with the last selected one,
+\code{overlap_min} and \code{overlap_max} give the range of overlaps over all ways to
+break the tie, and \code{status} is \code{"available_tied_at_cutoff"} when that range
+is wider than a single value.
 }
 \description{
 Compare explicit marker gates with an equal-size activity population

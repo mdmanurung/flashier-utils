@@ -241,7 +241,12 @@ factor_uncertainty <- function(
 #' unique variance decomposition or held-out prediction R squared.
 #' @param fit Native flash fit or a view that carries native PVE.
 #' @param factors Optional character factor IDs in the order wanted. Default all.
-#' @return Table with columns `factor`, `pve` and `definition`.
+#' @return Table with columns `factor`, `pve`, `definition` and `denominator`.
+#'   flashier's PVE is a share of the uncentred second moment of the data, not of
+#'   variance around the mean. In a fit with a feature intercept (`fit_ebmf(intercept
+#'   = "feature")`) the hidden intercept stays in that denominator, so the biological
+#'   shares are smaller than shares of what the intercept leaves; `denominator` says
+#'   which case applies (`"second_moment"` or `"second_moment_including_intercept"`).
 #' @export
 #' @author Jason Willwerscheid; Peter Carbonetto; Wei Wang; Matthew Stephens.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -280,8 +285,19 @@ factor_pve <- function(fit, factors = NULL) {
     stop("Native PVE is unavailable")
   }
   index <- .select_ids(factors, ids, "factor")
+  roles <- if (inherits(fit, "factor_representation")) {
+    fit$manifest$factor_roles
+  } else {
+    attr(fit, "flashbridge_metadata")$factor_roles
+  }
+  denominator <- if (any(roles == "offset")) "second_moment_including_intercept" else "second_moment"
   .attach_provenance(
-    data.frame(factor = ids[index], pve = as.numeric(pve[index]), definition = rep("flashier_native", length(index))),
+    data.frame(
+      factor = ids[index],
+      pve = as.numeric(pve[index]),
+      definition = rep("flashier_native", length(index)),
+      denominator = rep(denominator, length(index))
+    ),
     "factor_pve",
     match.call(),
     .resolved_parameters("factor_pve", environment())
