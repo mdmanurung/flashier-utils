@@ -34,3 +34,30 @@ test_that("factors with very different residual variance scales trigger the mode
     "differ more than tenfold"
   )
 })
+
+test_that("the variance-ratio warning is not silenced by a zero-variance factor", {
+  skip_if_not_installed("limma")
+  d <- association_fixture()
+  activity <- d$view$activity
+  activity[, "F2"] <- 0
+  activity[, "F3"] <- activity[, "F3"] * 20
+  view <- .make_representation(activity, d$view$effects, d$view$manifest)
+  out <- suppressWarnings(
+    test_factor_association(view, d$metadata, ~group, "limma", unit_col = "donor", independence = "independent")
+  )
+  # limma's own notice about offsetting zero variances is expected for this fixture
+  limma_notice <- function(code) {
+    withCallingHandlers(code, warning = function(w) {
+      if (grepl("Zero sample variances detected", conditionMessage(w), fixed = TRUE)) invokeRestart("muffleWarning")
+    })
+  }
+  expect_warning(
+    limma_notice(
+      test_factor_association(view, d$metadata, ~group, "limma", unit_col = "donor", independence = "independent")
+    ),
+    "zero residual variance"
+  )
+  expect_true(any(grepl("zero residual variance", out$diagnostics$warnings)))
+  # the finite positive variances alone still trigger the tenfold message
+  expect_true(any(grepl("more than tenfold", out$diagnostics$warnings)))
+})

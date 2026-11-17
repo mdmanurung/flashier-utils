@@ -1,5 +1,16 @@
 # flashier.utils 2.0.0.9000
 
+- Further follow-ups. `test_factor_association(engine = "dream")` now requires the random
+  intercept's grouping to match the biological unit one-to-one: `(1 | donor:visit)` is refused
+  (it rejected at 0.17 instead of 0.05 in a simulation), while `(1 | site/donor)` with unique
+  donor IDs is still accepted. The residual-variance warning also fires when a factor has zero
+  residual variance and is kept in `diagnostics$warnings`. Non-estimable rows get `p.value = NA`
+  instead of entering the Benjamini-Hochberg family with `p = 0`. `shrink_factor_effects()`
+  converts t to z on the log scale, so very large t statistics no longer fail, stops with a clear
+  message for an exactly zero estimate with finite `df`, and returns `$df` and `$Shat_used`.
+  `factor_holdout()` drops fully masked features also when `S` is a scalar or a per-feature
+  vector. `compare_prior_fits()` warns when a holdout's prior identifiers differ from the source's.
+
 - Follow-ups from a second review of the fixes above. `enrich_factors(engine = "fgsea")` again
   refuses an invalid `seed` (negative, fractional, too large, text or `NA`). `factor_holdout()`
   drops fully masked features before projection only when `var_type` is not 0, so a masked

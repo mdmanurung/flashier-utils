@@ -343,6 +343,28 @@
         )
       }
     }
+    # a holdout fitted with another prior family is not evidence for this source; warn, as for the factor count
+    for (side in c("reference", "target")) {
+      held_priors <- evidence[[side]]$holdout$analysis_metadata$prior_identifiers
+      source_priors <- sources[[side]]$manifest$prior_identifiers
+      if (
+        bound &&
+          length(held_priors) &&
+          length(source_priors) &&
+          !identical(unname(held_priors), unname(source_priors))
+      ) {
+        warning(
+          "The ",
+          side,
+          " holdout fitted priors ",
+          paste(held_priors, collapse = "/"),
+          " but the source has ",
+          paste(source_priors, collapse = "/"),
+          "; the holdout may not belong to this source",
+          call. = FALSE
+        )
+      }
+    }
     masked <- identical(ma$evaluation_type, "masked") && identical(mb$evaluation_type, "masked")
     if (bound && !masked) {
       stop("Predictive evidence requires masked held-out evaluation")
@@ -387,7 +409,8 @@
 #'   `source_basis_id` is the caller's assertion that the holdout belongs to that
 #'   source; it is compared with the source's basis id but nothing checks that the
 #'   holdout's fits were built from the source's recipe (a warning appears when the
-#'   holdout folds fitted a different factor count). Two holdouts count as paired
+#'   holdout folds fitted a different factor count, or when the holdout's recorded
+#'   prior identifiers differ from those recorded in the source). Two holdouts count as paired
 #'   only when they share the input, folds, masks and scored values (after any
 #'   transform), score the same folds, units and cohorts, and have no failed fold.
 #' @return A prior_comparison with similarities, bidirectional coverage, residual

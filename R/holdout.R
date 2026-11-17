@@ -492,9 +492,34 @@ factor_holdout <- function(
           projected <- which(colSums(is.finite(Y)) > 0)
           # var_type 0 ignores all-missing columns, so only a per-feature or per-sample variance needs the drop
           drop_masked <- evaluation == "masked" &&
-            is.null(test_aux$S) &&
             length(projected) < ncol(Y) &&
             any(fold_var_type != 0L)
+          projected_S <- test_aux$S
+          if (drop_masked && !is.null(projected_S) && length(projected_S) > 1L) {
+            # subset S on its feature axis; an S whose axis cannot be told apart keeps the old path (no drop)
+            kept <- colnames(Y)[projected]
+            if (is.matrix(projected_S)) {
+              feature_axis <- if (side == "rows") 2L else 1L
+              feature_ids <- dimnames(projected_S)[[feature_axis]]
+              if (is.null(feature_ids) || !all(kept %in% feature_ids)) {
+                drop_masked <- FALSE
+              } else if (side == "rows") {
+                projected_S <- projected_S[, kept, drop = FALSE]
+              } else {
+                projected_S <- projected_S[kept, , drop = FALSE]
+              }
+            } else if (is.null(names(projected_S))) {
+              drop_masked <- FALSE
+            } else if (setequal(names(projected_S), colnames(Y))) {
+              if (setequal(names(projected_S), rownames(Y))) {
+                drop_masked <- FALSE
+              } else {
+                projected_S <- projected_S[kept]
+              }
+            } else if (!setequal(names(projected_S), rownames(Y))) {
+              drop_masked <- FALSE
+            }
+          }
           projection_view <- view
           if (drop_masked) {
             projection_view$effects <- view$effects[projected, , drop = FALSE]
@@ -505,7 +530,7 @@ factor_holdout <- function(
             side,
             priors,
             if (is.null(control$maxiter)) 100L else control$maxiter,
-            S = test_aux$S,
+            S = if (drop_masked) projected_S else test_aux$S,
             var_type = fold_var_type,
             g = if (prior_policy == "fixed_reference" && ncol(view$effects)) .reference_activity_g(train_fit, view)
           )

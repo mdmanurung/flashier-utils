@@ -32,3 +32,10 @@ test_that("selections take character or factor IDs, never positions", {
   expect_error(factor_activity(v, factors = 2), "character IDs, not positions")
   expect_error(factor_activity(v, factors = c(TRUE, FALSE)), "character IDs, not positions")
 })
+
+test_that(".is_constant is relative to the largest absolute value", {
+  expect_true(.is_constant(c(0.1 + 0.2, 0.3, 0.3, 0.1 + 0.2)))
+  expect_false(.is_constant(c(1, 2, 3, 4) * 1e-9))
+  # documented limit: rounding-level spread around zero is not flagged; change it deliberately
+  expect_false(.is_constant(c(1e-17, -1e-17, 1e-17, -1e-17)))
+})

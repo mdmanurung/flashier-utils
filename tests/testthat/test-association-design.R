@@ -64,3 +64,20 @@ test_that("intercept tests do not change the adjusted p-values of the other term
   keep <- with_intercept$term != "(Intercept)"
   expect_equal(with_intercept$adj.p.value[keep], without$adj.p.value)
 })
+
+test_that("dream accepts only a random intercept grouped by the biological unit", {
+  skip_if_not_installed("reformulas")
+  d <- association_fixture(TRUE)
+  md <- d$metadata
+  md$site <- rep(c("s1", "s2"), each = 12)
+  design <- function(formula) {
+    .association_design(d$view, md, formula, "dream", "sample", "donor", "repeated", NULL, "fail")
+  }
+  expect_no_error(design(~ group + (1 | donor)))
+  # donor IDs are unique across sites, so site/donor still has one level per donor
+  expect_no_error(design(~ group + (1 | site / donor)))
+  # a finer grouping gives every repeat its own intercept
+  expect_error(design(~ group + (1 | donor:visit)), "biological unit")
+  # a slope without an intercept is not a unit effect
+  expect_error(design(~ group + (0 + visit | donor)), "biological unit")
+})

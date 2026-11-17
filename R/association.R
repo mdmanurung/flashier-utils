@@ -50,12 +50,26 @@
       stop("dream requires repeated independence and a random-effect formula")
     }
     bars <- reformulas::findbars(formula)
-    # the unit must group a random effect that has an intercept (a slope alone is not a unit effect)
+    # the bar must group by the biological unit itself: a finer grouping (donor:visit) gives each
+    # repeat its own intercept, so the donor correlation is not modelled and tests are anti-conservative
     has_unit_intercept <- function(bar) {
-      unit_col %in% all.vars(bar[[3]]) && attr(stats::terms(stats::as.formula(call("~", bar[[2]]))), "intercept") == 1L
+      if (attr(stats::terms(stats::as.formula(call("~", bar[[2]]))), "intercept") != 1L) {
+        return(FALSE)
+      }
+      vars <- all.vars(bar[[3]])
+      if (!length(vars) || !all(vars %in% names(data$metadata))) {
+        return(FALSE)
+      }
+      group <- interaction(data$metadata[vars], drop = TRUE)
+      n_pairs <- nrow(unique(data.frame(group = group, unit = units)))
+      # one-to-one: each level lies within one unit and each unit within one level
+      n_pairs == nlevels(group) && n_pairs == length(unique(units))
     }
     if (!any(vapply(bars, has_unit_intercept, logical(1)))) {
-      stop("dream random effects must include a random intercept for the declared biological unit")
+      stop(
+        "dream random effects must include a random intercept for the declared biological unit; ",
+        "the grouping must be the biological unit (one level per unit_col value), not a finer one such as donor:visit"
+      )
     }
     fixed <- reformulas::nobars(formula)
   } else {
@@ -350,16 +364,27 @@ test_factor_association <- function(
     }
     if ((engine == "limma" || moderate) && length(ids) > 1L) {
       residual_variance <- model$sigma^2
-      if (
-        all(is.finite(residual_variance)) &&
-          min(residual_variance) > 0 &&
-          max(residual_variance) / min(residual_variance) > 10
-      ) {
-        warning(
-          "Factor residual variances differ more than tenfold; moderation assumes a similar scale. ",
-          "Consider engine = 'lm' or standardised factors.",
-          call. = FALSE
+      positive <- residual_variance[is.finite(residual_variance) & residual_variance > 0]
+      # a zero-variance factor must not silence the check: say so, and compare the rest
+      has_zero <- any(is.finite(residual_variance) & residual_variance <= 0)
+      too_wide <- length(positive) > 1L && max(positive) / min(positive) > 10
+      if (has_zero || too_wide || length(positive) < 2L) {
+        msg <- paste0(
+          if (has_zero) {
+            "At least one factor has zero residual variance, so the variance ratio is undefined for it. "
+          } else {
+            ""
+          },
+          if (length(positive) < 2L) "Fewer than two factors have positive residual variance. " else "",
+          if (too_wide) {
+            "Factor residual variances differ more than tenfold; moderation assumes a similar scale. "
+          } else {
+            ""
+          },
+          "Consider engine = 'lm' or standardised factors."
         )
+        noted$warnings <- c(noted$warnings, msg)
+        warning(msg, call. = FALSE)
       }
     }
     for (i in seq_len(nrow(table))) {
@@ -390,6 +415,8 @@ test_factor_association <- function(
     }
     models <- model
   }
+  # a zero standard error gives p = 0; a non-estimable test has no p-value, so it stays out of the BH family
+  table$p.value[table$status == "non_estimable"] <- NA_real_
   is_intercept <- table$term == "(Intercept)"
   table$adj.p.value <- if (adjust_scope == "all_tests") {
     # intercept tests (include_intercept = TRUE) form their own family, so they do not change the other adjusted p-values

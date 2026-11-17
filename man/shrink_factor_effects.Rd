@@ -39,7 +39,12 @@ is recorded in \code{analysis_metadata$df_source}.}
 \item{control}{Named public mash settings; outputlevel must retain summaries.}
 }
 \value{
-Posterior table, native fit, input matrices and covariance metadata.
+A list with the posterior \code{table}, the \code{native} fit, the input
+estimate matrix \code{Bhat}, the input standard errors \code{Shat}, \code{Shat_used} (the
+standard errors mash actually used: z-equivalent SEs for cells with finite
+\code{df}, otherwise equal to \code{Shat}), \code{df} (factor by condition matrix of the
+table \code{df} values, \code{NULL} without a \code{df} column), the covariances and
+\code{analysis_metadata}. A finite \code{df} with an estimate of exactly 0 is an error.
 }
 \description{
 Requires a common activity basis and all eligible factor rows, never only

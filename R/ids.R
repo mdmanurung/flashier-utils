@@ -171,6 +171,8 @@
 
 # TRUE or FALSE, nothing else.
 #' TRUE when a numeric vector is constant up to rounding noise (or has under two finite values)
+#' The tolerance is relative to the largest absolute value, so a column centred at zero
+#' with rounding-level spread is not flagged.
 #' @noRd
 .is_constant <- function(x) {
   x <- x[is.finite(x)]

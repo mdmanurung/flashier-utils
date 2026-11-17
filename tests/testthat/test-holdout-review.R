@@ -274,3 +274,101 @@ test_that("a masked split with var_type 0 still works when samples are columns a
   )
   expect_equal(nrow(out$failures), 0L)
 })
+
+test_that("a masked feature split with a supplied S runs for var_type 1 and 2, samples as rows or columns", {
+  set.seed(1)
+  X <- fixture_matrix()
+  X <- rbind(X, X + matrix(rnorm(length(X), sd = 0.3), nrow(X)))
+  rownames(X) <- paste0("s", 1:24)
+  md <- data.frame(sample = rownames(X), donor = paste0("d", 1:24))
+  folds <- data.frame(sample = md$sample, fold = rep(c("train", "test"), c(18, 6)))
+  S_callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(
+      X,
+      sample_side,
+      ebnm_fn = if (sample_side == "rows") {
+        list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+      } else {
+        list(ebnm::ebnm_point_laplace, ebnm::ebnm_normal)
+      },
+      max_factors = 2L,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      seed = seed,
+      verbose = 0,
+      feature_scale = "intensity",
+      var_type = settings$var_type,
+      S = observation_aux$S
+    )
+  }
+  features <- colnames(X)
+  S_vector <- stats::setNames(seq(0.2, 0.4, length.out = length(features)), features)
+  for (side in c("rows", "columns")) {
+    data <- if (side == "rows") X else t(X)
+    for (S in list(0.3, S_vector)) {
+      for (var_type in list(1L, 2L)) {
+        out <- allow_maxiter(factor_holdout(
+          data,
+          md,
+          "donor",
+          folds,
+          S_callback,
+          seed = 12,
+          evaluation = "masked",
+          activity_features = paste0("g", 1:4),
+          scoring_features = paste0("g", 5:8),
+          control = review_control(
+            sample_side = side,
+            settings = list(var_type = var_type),
+            observation_aux = list(S = S)
+          )
+        ))
+        expect_equal(nrow(out$failures), 0L)
+        expect_true(all(is.finite(out$activities$test)))
+      }
+    }
+  }
+})
+
+test_that("a masked split with a supplied S and var_type 0 is unchanged by the S feature drop", {
+  # 18 training samples against 8 features keeps the S axis unambiguous in the training fit
+  set.seed(1)
+  X <- fixture_matrix()
+  X <- rbind(X, X + matrix(rnorm(length(X), sd = 0.3), nrow(X)))
+  rownames(X) <- paste0("s", 1:24)
+  md <- data.frame(sample = rownames(X), donor = paste0("d", 1:24))
+  folds <- data.frame(sample = md$sample, fold = rep(c("train", "test"), c(18, 6)))
+  S_vector <- stats::setNames(rep(0.3, ncol(X)), colnames(X))
+  S_callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(
+      X,
+      sample_side,
+      ebnm_fn = list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace),
+      max_factors = 2L,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      seed = seed,
+      verbose = 0,
+      feature_scale = "intensity",
+      var_type = 0L,
+      S = observation_aux$S
+    )
+  }
+  run <- function(control) {
+    allow_maxiter(factor_holdout(
+      X,
+      md,
+      "donor",
+      folds,
+      S_callback,
+      seed = 12,
+      evaluation = "masked",
+      activity_features = paste0("g", 1:4),
+      scoring_features = paste0("g", 5:8),
+      control = control
+    ))
+  }
+  out <- run(review_control(observation_aux = list(S = S_vector)))
+  expect_equal(nrow(out$failures), 0L)
+  expect_true(all(is.finite(out$activities$test)))
+})

@@ -129,3 +129,60 @@ test_that("one N(0, I) component with a unit grid gives the closed-form posterio
   expect_equal(key(again)$estimate, key(out)$estimate)
   expect_equal(key(again)$lfsr, key(out)$lfsr)
 })
+
+test_that("a different df per cell is matched by factor and condition, not by row order", {
+  skip_if_not_installed("mashr")
+  coefficients <- shrinkage_coefficients()
+  # df varies by cell and includes Inf; the table is shuffled so row order carries no meaning
+  coefficients$df <- rep(c(3, 5, 8, 20, Inf, 12), length.out = nrow(coefficients))
+  shuffled <- coefficients[.with_seed(11, sample(nrow(coefficients))), ]
+  run <- function(x) shrink_factor_effects(x, "cohort", term = "groupB", independent_conditions = TRUE)
+  out <- run(shuffled)
+  ids <- rownames(out$Bhat)
+  conditions <- colnames(out$Bhat)
+  df_matrix <- matrix(NA_real_, length(ids), length(conditions), dimnames = list(ids, conditions))
+  df_matrix[cbind(match(coefficients$factor, ids), match(coefficients$cohort, conditions))] <- coefficients$df
+  expect_equal(out$df, df_matrix)
+  manual_fit <- function(Dhat) {
+    data <- mashr::mash_set_data(out$Bhat, out$Shat, df = Dhat)
+    mashr::mash(data, Ulist = mashr::cov_canonical(data), verbose = FALSE)
+  }
+  manual <- manual_fit(df_matrix)
+  expect_equal(out$table$estimate, unname(as.vector(ashr::get_pm(manual))), tolerance = 1e-10)
+  expect_equal(out$table$lfsr, unname(as.vector(ashr::get_lfsr(manual))), tolerance = 1e-10)
+  # cells with infinite df keep their input SE
+  expect_equal(out$Shat_used[is.infinite(df_matrix)], out$Shat[is.infinite(df_matrix)])
+  # a mis-indexed df must change the answer
+  reversed <- shuffled
+  reversed$df <- rev(reversed$df)
+  expect_gt(max(abs(run(reversed)$table$lfsr - out$table$lfsr)), 1e-6)
+})
+
+test_that("very large t statistics with finite df run and give finite lfsr", {
+  skip_if_not_installed("mashr")
+  coefficients <- shrinkage_coefficients()
+  coefficients$df <- 4
+  # t = 1e8 still converts in mashr; t = 1e150 underflows pt() and made the old path fail
+  coefficients$estimate[1] <- 1e8 * coefficients$std.error[1]
+  coefficients$estimate[2] <- 1e150 * coefficients$std.error[2]
+  # mash warns about non-finite mixture likelihoods at this extreme; the fit still completes
+  out <- suppressWarnings(
+    shrink_factor_effects(coefficients, "cohort", term = "groupB", independent_conditions = TRUE)
+  )
+  expect_true(all(is.finite(out$table$lfsr)))
+  expect_true(all(is.finite(out$Shat_used)))
+})
+
+test_that("an exactly zero estimate with finite df stops and names the cell", {
+  skip_if_not_installed("mashr")
+  coefficients <- shrinkage_coefficients()
+  coefficients$df <- 4
+  coefficients$estimate[2] <- 0
+  expect_error(
+    shrink_factor_effects(coefficients, "cohort", term = "groupB", independent_conditions = TRUE),
+    sprintf("exactly 0.*'%s'.*'%s'", coefficients$factor[2], coefficients$cohort[2])
+  )
+  # with infinite df the zero is harmless
+  coefficients$df <- Inf
+  expect_no_error(shrink_factor_effects(coefficients, "cohort", term = "groupB", independent_conditions = TRUE))
+})

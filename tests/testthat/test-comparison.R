@@ -274,3 +274,44 @@ testthat::test_that("holdout evidence binds only when inputs, folds and masks ar
   unbound <- compare_prior_fits(v1, v2, evidence = list(reference = list(holdout = h1), target = list(holdout = h2)))
   testthat::expect_equal(unbound$evidence$state, "unbound_holdout_not_assessed")
 })
+
+test_that("a holdout fitted with other priors warns when the source records its priors", {
+  B <- diag(2)
+  dimnames(B) <- list(c("g1", "g2"), c("F1", "F2"))
+  s <- .program_source(list(
+    activity = matrix(1:6, 3, 2, dimnames = list(paste0("s", 1:3), c("F1", "F2"))),
+    effects = B,
+    support = list(activity = "signed", effects = "signed"),
+    feature_scale = "simulated",
+    preprocessing = list(scope = "fixture", transformation = "none", compatibility = "fixture")
+  ))
+  s$manifest <- list(prior_identifiers = c("ebnm_normal", "ebnm_point_laplace"))
+  stub <- function(priors) {
+    structure(
+      list(
+        metrics = data.frame(fold = "test", weighting = "observation", unit = NA_character_, cohort = NA_character_),
+        failures = data.frame(fold = character(), reason = character()),
+        analysis_metadata = list(
+          input_digest = "input",
+          evaluation_digest = "same",
+          truth_digest = "t",
+          evaluation_type = "masked",
+          fold_factor_counts = c(test = 2L),
+          prior_identifiers = priors
+        )
+      ),
+      class = "holdout_result"
+    )
+  }
+  evidence <- function(a, b) {
+    list(
+      reference = list(holdout = a, source_basis_id = s$basis_id),
+      target = list(holdout = b, source_basis_id = s$basis_id)
+    )
+  }
+  sources <- list(reference = s, target = s)
+  same <- stub(c("ebnm_normal", "ebnm_point_laplace"))
+  expect_no_warning(.program_evidence(evidence(same, same), sources))
+  other <- stub(c("ebnm_normal", "ebnm_normal"))
+  expect_warning(.program_evidence(evidence(other, same), sources), "reference holdout fitted priors")
+})

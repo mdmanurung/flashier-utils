@@ -43,7 +43,8 @@ artifacts and explicitly driver-bound paired holdout artifacts. Each entry's
 \code{source_basis_id} is the caller's assertion that the holdout belongs to that
 source; it is compared with the source's basis id but nothing checks that the
 holdout's fits were built from the source's recipe (a warning appears when the
-holdout folds fitted a different factor count). Two holdouts count as paired
+holdout folds fitted a different factor count, or when the holdout's recorded
+prior identifiers differ from those recorded in the source). Two holdouts count as paired
 only when they share the input, folds, masks and scored values (after any
 transform), score the same folds, units and cohorts, and have no failed fold.}
 

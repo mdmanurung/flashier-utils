@@ -18,7 +18,12 @@
 #' @param V Optional condition error-correlation matrix.
 #' @param independent_conditions Explicit TRUE when using identity V.
 #' @param control Named public mash settings; outputlevel must retain summaries.
-#' @return Posterior table, native fit, input matrices and covariance metadata.
+#' @return A list with the posterior `table`, the `native` fit, the input
+#'   estimate matrix `Bhat`, the input standard errors `Shat`, `Shat_used` (the
+#'   standard errors mash actually used: z-equivalent SEs for cells with finite
+#'   `df`, otherwise equal to `Shat`), `df` (factor by condition matrix of the
+#'   table `df` values, `NULL` without a `df` column), the covariances and
+#'   `analysis_metadata`. A finite `df` with an estimate of exactly 0 is an error.
 #' @keywords internal
 #' @author Mikhael Manurung; Matthew Stephens; Sarah Urbut; Gao Wang; Yuxin Zou; Peter Carbonetto (mashr); ashr contributors.
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -146,7 +151,28 @@ shrink_factor_effects <- function(
     Dhat[index] <- table$df
     df_source <- "table_df_column"
   }
-  data <- mashr::mash_set_data(Bhat, Shat, V = V, df = Dhat)
+  # Convert t to z-equivalent SEs here on the log scale: mashr's own conversion
+  # underflows for very large t and then fails with 'inv_sympd(): matrix is singular'
+  Shat_used <- Shat
+  finite_df <- is.finite(Dhat)
+  if (any(finite_df)) {
+    zero <- finite_df & Bhat == 0
+    if (any(zero)) {
+      at <- which(zero, arr.ind = TRUE)[1, ]
+      stop(
+        sprintf(
+          "Estimate is exactly 0 with finite df for factor '%s', condition '%s': the z-equivalent SE is undefined",
+          ids[at[[1]]],
+          conditions[at[[2]]]
+        ),
+        call. = FALSE
+      )
+    }
+    tstat <- Bhat[finite_df] / Shat[finite_df]
+    z <- -stats::qnorm(stats::pt(-abs(tstat), Dhat[finite_df], log.p = TRUE), log.p = TRUE)
+    Shat_used[finite_df] <- abs(Bhat[finite_df]) / z
+  }
+  data <- mashr::mash_set_data(Bhat, Shat_used, V = V, df = Inf)
   U <- if (identical(covariances, "canonical")) mashr::cov_canonical(data) else covariances
   if (!is.list(U) || !length(U)) {
     stop("covariances must be canonical or an explicit native covariance list")
@@ -184,7 +210,16 @@ shrink_factor_effects <- function(
   )
   attr(out, "analysis_metadata") <- metadata
   .attach_provenance(
-    list(table = out, native = native, Bhat = Bhat, Shat = Shat, covariances = U, analysis_metadata = metadata),
+    list(
+      table = out,
+      native = native,
+      Bhat = Bhat,
+      Shat = Shat,
+      Shat_used = Shat_used,
+      df = if (is.matrix(Dhat)) Dhat else NULL,
+      covariances = U,
+      analysis_metadata = metadata
+    ),
     "shrink_factor_effects",
     match.call(),
     .resolved_parameters("shrink_factor_effects", environment())
