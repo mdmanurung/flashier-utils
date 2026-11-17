@@ -271,3 +271,25 @@ This establishes technical feasibility for fixed-prior experiments, not scientif
 
 **Reason:** the current public fixed-program projection initializes the programs jointly with one activity-side EBNM prior family. Assigning different activity priors to individual fixed programs is not part of the audited core path and must not be approximated silently.
 
+
+## D018 — Audit refresh at b03ba4c (2026-11-18)
+
+**Finding:** the bundle audited flashier-utils at `75a1709`. At `b03ba4c`, R/alignment.R, R/projection.R, R/representation.R, R/holdout.R and R/stability.R changed by 2535 insertions and 603 deletions. The shared projection helper `.native_projection()` now lives in R/holdout.R and gained `S`, `var_type`, `return_fit` and per-factor fixed `g`. `.align_programs()` keeps psych congruence then clue LSAP. The flashier pin is unchanged (`fd44811`).
+
+**Decision:** M6 reuses `.native_projection()` from R/holdout.R unchanged. The all-pairs similarity path computes congruence itself and never calls `.align_programs()` or `clue::solve_LSAP()`.
+
+## D019 — User confirmation of inherited defaults (2026-11-18)
+
+The user confirmed these spec values, row by row, as written:
+
+- generic profiles: L1 for non-negative effects, L2 for signed and semi-nonnegative effects (spec §8);
+- generic similarity: Tucker congruence, matching `factor_replicability()` (spec §10);
+- sign equivalence (absolute similarity) only when both members are signed/signed (spec §8, §10);
+- generic reference features: intersection of measured source features (spec §13);
+- generic graph: caller-supplied `min_similarity` with no default (D008), `reciprocal = FALSE`, no rank filter unless requested (spec §11);
+- merge density `>= 2/3` in both modes, one member per dataset, `min_datasets = 2` (spec §12, §14, D009);
+- starcat2025: Pearson on shared ∩ union(source sets); spectra scaled to sum 1e6, then divided by source SD; `min_similarity = 0.5` strict; reciprocal top-rank with `rank_max = n_datasets` when NULL; density `>= 2/3` (spec §9, §11).
+
+## D020 — Scope (2026-11-18)
+
+The user chose the full core path M0–M6 on branch `starcat/m0`. The rOpenSci pkgcheck step on `main` is parked. Run state for this build lives in `validation/starcat-20261118/`, which `.Rbuildignore` excludes.
