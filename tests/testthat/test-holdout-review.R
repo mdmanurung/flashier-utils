@@ -372,3 +372,81 @@ test_that("a masked split with a supplied S and var_type 0 is unchanged by the S
   expect_equal(nrow(out$failures), 0L)
   expect_true(all(is.finite(out$activities$test)))
 })
+
+test_that("a masked feature split with a matrix S runs for per-feature and per-sample variance", {
+  set.seed(1)
+  X <- fixture_matrix()
+  X <- rbind(X, X + matrix(rnorm(length(X), sd = 0.3), nrow(X)))
+  rownames(X) <- paste0("s", 1:24)
+  md <- data.frame(sample = rownames(X), donor = paste0("d", 1:24))
+  folds <- data.frame(sample = md$sample, fold = rep(c("train", "test"), c(18, 6)))
+  S_callback <- function(X, metadata, sample_side, seed, settings, observation_aux = list()) {
+    fit_ebmf(
+      X,
+      sample_side,
+      ebnm_fn = if (sample_side == "rows") {
+        list(ebnm::ebnm_normal, ebnm::ebnm_point_laplace)
+      } else {
+        list(ebnm::ebnm_point_laplace, ebnm::ebnm_normal)
+      },
+      max_factors = 2L,
+      backfit = TRUE,
+      nullcheck = FALSE,
+      seed = seed,
+      verbose = 0,
+      feature_scale = "intensity",
+      var_type = settings$var_type,
+      S = observation_aux$S
+    )
+  }
+  for (side in c("rows", "columns")) {
+    data <- if (side == "rows") X else t(X)
+    # a matrix S in the orientation of the data, with a little variation so it is not a scalar in disguise
+    S_matrix <- matrix(0.3 + 0.05 * seq_along(data) / length(data), nrow(data), ncol(data), dimnames = dimnames(data))
+    for (var_type in list(1L, 2L)) {
+      out <- allow_maxiter(factor_holdout(
+        data,
+        md,
+        "donor",
+        folds,
+        S_callback,
+        seed = 12,
+        evaluation = "masked",
+        activity_features = paste0("g", 1:4),
+        scoring_features = paste0("g", 5:8),
+        control = review_control(
+          sample_side = side,
+          settings = list(var_type = var_type),
+          observation_aux = list(S = S_matrix)
+        )
+      ))
+      expect_equal(nrow(out$failures), 0L, info = paste(side, var_type))
+      expect_true(all(is.finite(out$activities$test)), info = paste(side, var_type))
+    }
+  }
+})
+
+test_that("with var_type 0 the masked activities equal a direct projection with no feature dropped", {
+  s <- review_setup()
+  out <- factor_holdout(
+    s$X,
+    s$md,
+    "donor",
+    s$folds,
+    review_callback,
+    seed = 12,
+    evaluation = "masked",
+    activity_features = paste0("g", 1:4),
+    scoring_features = paste0("g", 5:8),
+    control = review_control(keep_fits = TRUE)
+  )
+  fit <- out$fold_results$test$fit
+  view <- standardize_factors(fit, sample_side = "rows", scaling = "raw")
+  # the old path: every feature, scoring features as NA, offset removed, no drop
+  Y <- s$X[9:12, ]
+  Y[, paste0("g", 5:8)] <- NA_real_
+  Y <- sweep(Y, 2L, view$offset, "-")
+  priors <- lapply(attr(fit, "flashbridge_metadata")$prior_identifiers, .prior_from_identifier)
+  direct <- .native_projection(Y, view, "rows", priors, 100L, var_type = 0L)
+  expect_equal(out$activities$test, direct, ignore_attr = TRUE)
+})
