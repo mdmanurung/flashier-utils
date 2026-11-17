@@ -28,6 +28,12 @@
   if (!ncol(data$A)) {
     stop("No factor responses selected")
   }
+  if (identical(unit_col, id_col)) {
+    message(
+      "unit_col is the sample ID, so every sample is treated as its own biological unit. ",
+      "Name the donor or subject column if samples share a unit."
+    )
+  }
   units <- as.character(data$metadata[[unit_col]])
   if (anyNA(units) || any(!nzchar(trimws(units)))) {
     stop("Independent unit IDs must be nonempty")
@@ -44,8 +50,12 @@
       stop("dream requires repeated independence and a random-effect formula")
     }
     bars <- reformulas::findbars(formula)
-    if (!any(vapply(bars, function(bar) unit_col %in% all.vars(bar[[3]]), logical(1)))) {
-      stop("dream random effects must include the declared biological unit")
+    # the unit must group a random effect that has an intercept (a slope alone is not a unit effect)
+    has_unit_intercept <- function(bar) {
+      unit_col %in% all.vars(bar[[3]]) && attr(stats::terms(stats::as.formula(call("~", bar[[2]]))), "intercept") == 1L
+    }
+    if (!any(vapply(bars, has_unit_intercept, logical(1)))) {
+      stop("dream random effects must include a random intercept for the declared biological unit")
     }
     fixed <- reformulas::nobars(formula)
   } else {
@@ -109,9 +119,12 @@
 #'   columns, the sample ID and the biological unit.
 #' @param formula One-sided design formula over `metadata` columns, e.g. `~ group + age`.
 #' @param engine `"lm"` (stats), `"limma"` or `"dream"` (variancePartition),
-#'   chosen explicitly; the last two need their packages installed. With few factors limma
-#'   and dream moderation reproduce lm (identical SE, df and p at K = 2);
-#'   empirical Bayes moderation needs K in the tens to borrow strength.
+#'   chosen explicitly; the last two need their packages installed. limma always
+#'   applies empirical Bayes moderation; with few factors it reproduces lm (identical
+#'   SE, df and p at K = 2) and needs K in the tens to borrow strength. Moderation
+#'   assumes the factors' residual variances are on a similar scale, so use `lm` for
+#'   views in raw scale (a warning appears when they differ by more than tenfold).
+#'   dream reports its own Satterthwaite t, df and p unless `moderate = TRUE`.
 #' @param id_col Name of the sample ID column (default `"sample"`).
 #' @param unit_col Name of the biological unit column, e.g. `"donor"`. Required.
 #' @param independence `"independent"` (one sample per unit) or `"repeated"`
@@ -128,10 +141,19 @@
 #' @param control Optional named list of engine settings: lm `joint_coefficient_covariance`,
 #'   limma/dream `ebayes`, and dream native settings (dropped-method changes are forbidden).
 #' @param keep_models Retain native model fits for diagnostics (default `FALSE`).
+#' @param moderate `engine = "dream"` only: apply empirical Bayes moderation
+#'   ([variancePartition::eBayes()]) after the fit (default `FALSE`). The moderated
+#'   df pools residual df across factors (about 8000 in a simulation where the
+#'   between-donor df is 8), which makes p-values for terms that vary between donors
+#'   anti-conservative once there are three or more factors. limma always
+#'   moderates and `lm` never does, so the argument is ignored for them.
 #' @return List with `$table` (one row per factor and term: `estimate`,
 #'   `std.error`, `statistic`, `df`, `p.value`, `adj.p.value`), `$models`, `$design`, `$contrasts`, `$diagnostics`,
 #'   `$coefficient_covariance` where available, and `$analysis_metadata`
-#'   identifying conditional inference.
+#'   identifying conditional inference. With `adjust_scope = "all_tests"` the
+#'   Benjamini-Hochberg family is the non-intercept tests; intercept tests (from
+#'   `include_intercept = TRUE`) are adjusted within their own family.
+#'   `adj.p.value` is adjusted only within this call.
 #' @seealso [backproject_contrast()] to express a term in feature units
 #' @export
 #' @author Mikhael Manurung; R Core Team (stats::lm); Gordon Smyth and limma contributors; Gabriel Hoffman (variancePartition::dream).
@@ -151,6 +173,7 @@
 #'   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
 #' )
 #' view <- standardize_factors(fit)
+#' # one sample per donor, so the sample ID can serve as the unit; name the donor column otherwise
 #' metadata <- data.frame(
 #'   sample = rownames(X), donor = rownames(X),
 #'   group = rep(c("A", "B"), each = 12)
@@ -171,8 +194,12 @@ test_factor_association <- function(
   adjust = "BH",
   adjust_scope = "all_tests",
   control = list(),
-  keep_models = TRUE
+  keep_models = TRUE,
+  moderate = FALSE
 ) {
+  if (!.is_flag(moderate)) {
+    stop("moderate must be TRUE or FALSE")
+  }
   if (missing(engine) || missing(unit_col) || missing(independence)) {
     stop("Choose engine, unit_col and independence explicitly")
   }
@@ -270,6 +297,9 @@ test_factor_association <- function(
     if (is.null(ebayes)) {
       ebayes <- list()
     }
+    if (engine == "dream" && !moderate && length(ebayes)) {
+      stop("control$ebayes needs moderate = TRUE for engine = 'dream'")
+    }
     if (
       !is.list(ebayes) ||
         (length(ebayes) && is.null(names(ebayes))) ||
@@ -310,7 +340,27 @@ test_factor_association <- function(
         c(list(exprObj = t(data$A), formula = formula, data = data$metadata), native_L, settings)
       ))
       errors <- attr(model, "errors")
-      model <- capture(do.call(variancePartition::eBayes, c(list(fit = model), ebayes)))
+      if (moderate) {
+        model <- capture(do.call(variancePartition::eBayes, c(list(fit = model), ebayes)))
+      }
+    }
+    # a single-factor fit comes back without row names; the rows are in factor order
+    if (is.null(rownames(model$coefficients)) && nrow(model$coefficients) == length(ids)) {
+      rownames(model$coefficients) <- ids
+    }
+    if ((engine == "limma" || moderate) && length(ids) > 1L) {
+      residual_variance <- model$sigma^2
+      if (
+        all(is.finite(residual_variance)) &&
+          min(residual_variance) > 0 &&
+          max(residual_variance) / min(residual_variance) > 10
+      ) {
+        warning(
+          "Factor residual variances differ more than tenfold; moderation assumes a similar scale. ",
+          "Consider engine = 'lm' or standardised factors.",
+          call. = FALSE
+        )
+      }
     }
     for (i in seq_len(nrow(table))) {
       k <- match(table$factor[i], rownames(model$coefficients))
@@ -319,8 +369,16 @@ test_factor_association <- function(
         table$reason[i] <- "native fit omitted failed factor/contrast"
         next
       }
-      se <- model$stdev.unscaled[k, j] * sqrt(model$s2.post[k])
-      df <- if (is.matrix(model$df.total)) model$df.total[k, j] else model$df.total[k]
+      # moderated fits carry s2.post and df.total; an unmoderated dream fit has sigma and per-term df
+      moderated <- !is.null(model$s2.post)
+      se <- model$stdev.unscaled[k, j] * sqrt(if (moderated) model$s2.post[k] else model$sigma[k]^2)
+      df <- if (!moderated) {
+        model$df.residual[k, j]
+      } else if (is.matrix(model$df.total)) {
+        model$df.total[k, j]
+      } else {
+        model$df.total[k]
+      }
       table[i, c("estimate", "std.error", "statistic", "df", "p.value")] <- list(
         model$coefficients[k, j],
         se,
@@ -332,8 +390,10 @@ test_factor_association <- function(
     }
     models <- model
   }
+  is_intercept <- table$term == "(Intercept)"
   table$adj.p.value <- if (adjust_scope == "all_tests") {
-    stats::p.adjust(table$p.value, method = adjust)
+    # intercept tests (include_intercept = TRUE) form their own family, so they do not change the other adjusted p-values
+    stats::ave(table$p.value, is_intercept, FUN = function(p) stats::p.adjust(p, method = adjust))
   } else {
     stats::ave(table$p.value, table$term, FUN = function(p) stats::p.adjust(p, method = adjust))
   }
@@ -359,7 +419,14 @@ test_factor_association <- function(
       adjustment = adjust,
       adjust_scope = adjust_scope,
       tested_family = table[, c("factor", "contrast")],
-      moderation = control$ebayes,
+      moderation = if (engine == "lm") {
+        "none"
+      } else if (engine == "limma" || moderate) {
+        "ebayes"
+      } else {
+        "none"
+      },
+      moderation_settings = control$ebayes,
       small_factor_moderation_caveat = engine != "lm",
       inference = "conditional_on_factor_fit"
     )

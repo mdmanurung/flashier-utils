@@ -19,7 +19,8 @@ test_factor_association(
   adjust = "BH",
   adjust_scope = "all_tests",
   control = list(),
-  keep_models = TRUE
+  keep_models = TRUE,
+  moderate = FALSE
 )
 }
 \arguments{
@@ -31,9 +32,12 @@ columns, the sample ID and the biological unit.}
 \item{formula}{One-sided design formula over \code{metadata} columns, e.g. \code{~ group + age}.}
 
 \item{engine}{\code{"lm"} (stats), \code{"limma"} or \code{"dream"} (variancePartition),
-chosen explicitly; the last two need their packages installed. With few factors limma
-and dream moderation reproduce lm (identical SE, df and p at K = 2);
-empirical Bayes moderation needs K in the tens to borrow strength.}
+chosen explicitly; the last two need their packages installed. limma always
+applies empirical Bayes moderation; with few factors it reproduces lm (identical
+SE, df and p at K = 2) and needs K in the tens to borrow strength. Moderation
+assumes the factors' residual variances are on a similar scale, so use \code{lm} for
+views in raw scale (a warning appears when they differ by more than tenfold).
+dream reports its own Satterthwaite t, df and p unless \code{moderate = TRUE}.}
 
 \item{unit_col}{Name of the biological unit column, e.g. \code{"donor"}. Required.}
 
@@ -61,12 +65,22 @@ supplied (default \code{FALSE}).}
 limma/dream \code{ebayes}, and dream native settings (dropped-method changes are forbidden).}
 
 \item{keep_models}{Retain native model fits for diagnostics (default \code{FALSE}).}
+
+\item{moderate}{\code{engine = "dream"} only: apply empirical Bayes moderation
+(\code{\link[variancePartition:eBayes]{variancePartition::eBayes()}}) after the fit (default \code{FALSE}). The moderated
+df pools residual df across factors (about 8000 in a simulation where the
+between-donor df is 8), which makes p-values for terms that vary between donors
+anti-conservative once there are three or more factors. limma always
+moderates and \code{lm} never does, so the argument is ignored for them.}
 }
 \value{
 List with \verb{$table} (one row per factor and term: \code{estimate},
 \code{std.error}, \code{statistic}, \code{df}, \code{p.value}, \code{adj.p.value}), \verb{$models}, \verb{$design}, \verb{$contrasts}, \verb{$diagnostics},
 \verb{$coefficient_covariance} where available, and \verb{$analysis_metadata}
-identifying conditional inference.
+identifying conditional inference. With \code{adjust_scope = "all_tests"} the
+Benjamini-Hochberg family is the non-intercept tests; intercept tests (from
+\code{include_intercept = TRUE}) are adjusted within their own family.
+\code{adj.p.value} is adjusted only within this call.
 }
 \description{
 Regress each factor's activity on a sample-level design and return one row
@@ -91,6 +105,7 @@ fit <- fit_ebmf(X, "rows",
   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
 )
 view <- standardize_factors(fit)
+# one sample per donor, so the sample ID can serve as the unit; name the donor column otherwise
 metadata <- data.frame(
   sample = rownames(X), donor = rownames(X),
   group = rep(c("A", "B"), each = 12)

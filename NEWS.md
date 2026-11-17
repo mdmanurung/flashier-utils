@@ -1,5 +1,18 @@
 # flashier.utils 2.0.0.9000
 
+- `test_factor_association()` fixes found by an independent statistical review.
+  With `engine = "dream"` the default no longer applies `variancePartition::eBayes()`:
+  eBayes pooled residual df across factors, so a term that varies between donors
+  got about 8,000 df instead of 8 and its p-values were anti-conservative (rejection
+  rate 0.092 at a nominal 0.05 over 600 null p-values from 150 simulated datasets
+  with 10 donors and 4 factors; 0.058 without eBayes). dream's own Satterthwaite t,
+  df and p are reported; `moderate = TRUE` restores the old path. `engine = "limma"` with a single
+  factor returned all `NA`; it now works and equals `lm` at K = 1. limma and moderated
+  dream warn when factor residual variances differ more than tenfold. A dream random
+  slope without a unit random intercept is refused. Intercept tests no longer enter the
+  Benjamini-Hochberg family of the other terms, and using the sample ID as `unit_col`
+  prints a message.
+
 - New `correct_feature_batch()` removes batch shifts from a feature matrix
   before fitting, cluster by cluster, with Harmony's mixture-of-experts ridge
   regression. Cluster weights come from `harmony_assignments()` (optional
