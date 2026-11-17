@@ -21,8 +21,8 @@
   with a matrix error; `NULL` without `S` failed late in ebnm. Found by autotest.
 
 - `factor_cor()` now treats a column as constant when its standard deviation is
-  within floating-point noise (below `sqrt(.Machine$double.eps)` times the
-  column's largest absolute value or 1), not only when it is exactly zero.
+  within rounding noise (at most 8 machine epsilons times the column's largest
+  absolute value), not only when it is exactly zero.
   A column that is constant up to rounding, such as `0.1 + 0.2` against `0.3`,
   was passed to `cor()`, whose result then came from rounding noise.
 

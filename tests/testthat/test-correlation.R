@@ -41,3 +41,16 @@ test_that("a column constant up to floating-point noise counts as constant", {
   expect_equal(out$constant_factors, "F1")
   expect_true(all(is.na(out$correlation[1, ])))
 })
+
+test_that("a small-scale or offset column is not mistaken for a constant", {
+  d <- association_fixture()
+  truth <- cor(d$view$activity)[1, 2]
+  scaled <- d$view$activity
+  scaled[, 1] <- scaled[, 1] * 1e-9
+  view <- .make_representation(scaled, d$view$effects, d$view$manifest)
+  expect_equal(factor_cor(view, "pearson")$correlation[1, 2], truth)
+  shifted <- d$view$activity
+  shifted[, 1] <- shifted[, 1] + 1e6
+  view <- .make_representation(shifted, d$view$effects, d$view$manifest)
+  expect_equal(factor_cor(view, "pearson")$correlation[1, 2], truth, tolerance = 1e-6)
+})
