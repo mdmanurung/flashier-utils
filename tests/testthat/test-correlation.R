@@ -32,3 +32,12 @@ test_that("CorShrink delegates only the audited public method", {
   expect_true(all(out$pair_counts == nrow(d$view$activity)))
   expect_true(is.finite(out$analysis_metadata$matrix_properties$minimum_eigenvalue_of_symmetric_part))
 })
+
+test_that("a column constant up to floating-point noise counts as constant", {
+  d <- association_fixture()
+  d$view$activity[, 1] <- rep(c(0.1 + 0.2, 0.3), length.out = nrow(d$view$activity))
+  d$view <- .make_representation(d$view$activity, d$view$effects, d$view$manifest)
+  out <- factor_cor(d$view, "pearson")
+  expect_equal(out$constant_factors, "F1")
+  expect_true(all(is.na(out$correlation[1, ])))
+})
