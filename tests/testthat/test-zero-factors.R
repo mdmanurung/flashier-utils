@@ -34,7 +34,7 @@ test_that("zero-factor summaries preserve their schemas and sample population", 
 
 test_that("named native zero-rank fits need no sampler for empty intervals", {
   fit <- fit_ebmf(fixture_matrix(), "rows", max_factors = 0, verbose = 0)
-  result <- factor_intervals(fit, "effects", nsamp = 2)
+  result <- allow_small_nsamp(factor_intervals(fit, "effects", nsamp = 2))
   expect_identical(result$factor, character())
   expect_identical(result$lower, numeric())
 })

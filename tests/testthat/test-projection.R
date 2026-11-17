@@ -210,7 +210,7 @@ test_that("projected F2 uses new native coordinates, moments, PVE and draws", {
         out <- factor_uncertainty(result$fit, side, representation = projected)
         expect_equal(out$posterior.sd, as.vector(result$fit[[paste0(prefix, "_psd")]]), tolerance = 1e-8)
       }
-      intervals <- factor_intervals(
+      intervals <- allow_small_nsamp(factor_intervals(
         result$fit,
         "activity",
         representation = projected,
@@ -218,7 +218,7 @@ test_that("projected F2 uses new native coordinates, moments, PVE and draws", {
         ids = "s2",
         nsamp = 20,
         seed = 39
-      )
+      ))
       set.seed(39)
       draws <- result$fit$sampler(20)
       native_side <- if (orientation == "rows") 1L else 2L
@@ -260,7 +260,13 @@ test_that("intersection moments match native IDs and absent features are unavail
       "unavailable"
     )
     expect_error(
-      factor_intervals(result$fit, "effects", representation = result$representation, ids = "g4", nsamp = 20),
+      allow_small_nsamp(factor_intervals(
+        result$fit,
+        "effects",
+        representation = result$representation,
+        ids = "g4",
+        nsamp = 20
+      )),
       "unavailable"
     )
   }

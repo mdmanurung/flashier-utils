@@ -100,9 +100,9 @@ factors.
 
 ## 4. How wide is the conditional uncertainty?
 
-```{r uncertainty, fig.width=6, fig.height=3, fig.alt="Point ranges of each feature effect for F1 with 95 percent conditional intervals; a dashed line marks zero.", fig.cap="Equal-tail 95% intervals from 200 posterior draws for every F1 feature effect, conditional on the estimated priors and rank. An interval that crosses the dashed zero line is a feature you cannot call."}
+```{r uncertainty, fig.width=6, fig.height=3, fig.alt="Point ranges of each feature effect for F1 with 95 percent conditional intervals; a dashed line marks zero.", fig.cap="Equal-tail 95% intervals from 2000 posterior draws for every F1 feature effect, conditional on the estimated priors and rank. An interval that crosses the dashed zero line is a feature you cannot call."}
 intervals <- factor_intervals(fit, side = "effects", representation = view,
-                              factors = "F1", nsamp = 200, seed = 3)
+                              factors = "F1", nsamp = 2000, seed = 3)
 ggplot(intervals, aes(feature, mean)) +
   geom_pointrange(aes(ymin = lower, ymax = upper)) +
   geom_hline(yintercept = 0, linetype = 2) + theme_minimal()
@@ -112,7 +112,9 @@ intervals[intervals$feature %in% c("g01", "g05", "g07"),
 
 Posterior standard deviations and intervals are conditional on the
 estimated priors and on the fitted rank. Mean-field intervals are typically
-too narrow. Bad signs: an interval that crosses zero for an effect you want
+too narrow: in one rank-1 simulation, intervals for non-null effects covered 0.67
+to 0.91 of the true values at a nominal 0.95, while effects that were truly zero
+were excluded at the nominal rate. Bad signs: an interval that crosses zero for an effect you want
 to call, or `prob_zero` near one. Good signs here do not substitute for
 regression standard errors or biological replication.
 

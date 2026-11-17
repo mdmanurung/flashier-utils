@@ -116,6 +116,15 @@ fixture_fit_zero_factors <- function() {
 }
 
 # Muffle only flashier's iteration-cap warning; any other warning still reaches the test.
+# small nsamp keeps interval tests fast; the warning about few tail draws is expected there
+allow_small_nsamp <- function(code) {
+  withCallingHandlers(code, warning = function(w) {
+    if (grepl("draws in each tail", conditionMessage(w), fixed = TRUE)) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
 allow_maxiter <- function(code) {
   withCallingHandlers(code, warning = function(w) {
     if (grepl("Maximum number of iterations reached", conditionMessage(w), fixed = TRUE)) {

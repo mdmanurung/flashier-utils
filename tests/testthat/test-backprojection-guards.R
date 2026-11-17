@@ -118,7 +118,9 @@ test_that("a known df gives a t interval, and the table df column is used when n
 test_that("an intercept term is labelled a contribution and warns when the offset is nonzero", {
   view <- fixture_view()
   view <- .make_representation(
-    view$activity, view$effects, view$manifest,
+    view$activity,
+    view$effects,
+    view$manifest,
     offset = stats::setNames(rep(1, nrow(view$effects)), rownames(view$effects))
   )
   beta <- c(F1 = 2, F2 = -1)

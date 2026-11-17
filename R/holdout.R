@@ -8,14 +8,21 @@
   if (!length(o) || any(!is.finite(p))) {
     stop("No finite scored entries or nonfinite predictions")
   }
-  sse_reference <- if (is.null(reference)) NA_real_ else sum((o - reference[keep])^2)
-  c(
+  out <- c(
     rmse = sqrt(mean((o - p)^2)),
     mae = mean(abs(o - p)),
     prediction_r2 = if (!.is_constant(o)) 1 - sum((o - p)^2) / sum((o - mean(o))^2) else NA_real_,
-    skill = if (is.finite(sse_reference) && sse_reference > 0) 1 - sum((o - p)^2) / sse_reference else NA_real_,
     correlation = if (length(o) > 1L && !.is_constant(o) && !.is_constant(p)) stats::cor(o, p) else NA_real_,
     n_scored_entries = length(o)
+  )
+  if (is.null(reference)) {
+    return(out)
+  }
+  sse_reference <- sum((o - reference[keep])^2)
+  c(
+    out[1:3],
+    skill = if (sse_reference > 0) 1 - sum((o - p)^2) / sse_reference else NA_real_,
+    out[4:5]
   )
 }
 
@@ -538,7 +545,7 @@ factor_holdout <- function(
                 rmse = values["rmse"],
                 mae = values["mae"],
                 prediction_r2 = values["prediction_r2"],
-                skill = values["skill"],
+                skill = if ("skill" %in% names(values)) values[["skill"]] else NA_real_,
                 correlation = values["correlation"],
                 n_scored_entries = values["n_scored_entries"],
                 n_samples = length(indices),

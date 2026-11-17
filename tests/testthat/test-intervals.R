@@ -1,7 +1,15 @@
 test_that("native intervals transform identical selected sampler draws", {
   fit <- fixture_fit()
   view <- standardize_factors(fit, d_location = "activity")
-  out <- factor_intervals(fit, "activity", representation = view, factors = "F1", ids = "s2", nsamp = 20L, seed = 123)
+  out <- allow_small_nsamp(factor_intervals(
+    fit,
+    "activity",
+    representation = view,
+    factors = "F1",
+    ids = "s2",
+    nsamp = 20L,
+    seed = 123
+  ))
   set.seed(123)
   draws <- fit$sampler(20L)
   values <- vapply(draws, function(d) d[[1]][2, 1], numeric(1)) * view$manifest$activity_multiplier[1]
@@ -42,8 +50,22 @@ test_that("conditional covariance and draws use full signed feature algebra", {
 test_that("factor_intervals defaults to activity like factor_uncertainty", {
   fit <- fixture_fit()
   expect_equal(
-    factor_intervals(fit, nsamp = 4L, seed = 1),
-    factor_intervals(fit, "activity", nsamp = 4L, seed = 1),
+    allow_small_nsamp(factor_intervals(fit, nsamp = 4L, seed = 1)),
+    allow_small_nsamp(factor_intervals(fit, "activity", nsamp = 4L, seed = 1)),
     ignore_attr = TRUE
+  )
+})
+
+test_that("few draws in each tail warn, and 200 draws at level 0.95 do not", {
+  fit <- fixture_fit()
+  expect_warning(
+    factor_intervals(fit, "activity", factors = "F1", ids = "s2", nsamp = 20L, seed = 1),
+    "fewer than 5 draws in each tail"
+  )
+  expect_no_warning(factor_intervals(fit, "activity", factors = "F1", ids = "s2", nsamp = 200L, seed = 1))
+  # the tail count depends on the level: 2000 draws at level 0.999 leave 1 draw per tail
+  expect_warning(
+    factor_intervals(fit, "activity", factors = "F1", ids = "s2", nsamp = 2000L, level = 0.999, seed = 1),
+    "fewer than 5 draws"
   )
 })

@@ -37,7 +37,11 @@ order wanted. Default all.}
 
 \item{level}{Interval coverage, strictly between zero and one (default 0.95).}
 
-\item{nsamp}{Number of posterior draws, at least two (default 2000).}
+\item{nsamp}{Number of posterior draws, at least two (default 2000). Interval ends
+are sample quantiles, so a small \code{nsamp} leaves few draws in each tail and the
+interval comes out too narrow; the function warns when fewer than 5 draws fall
+in each tail (\code{nsamp * (1 - level) / 2 < 5}, under 200 draws at level 0.95).
+Small values are for speed in examples, not for conclusions.}
 
 \item{seed}{Optional integer; the caller's RNG state is restored afterwards.}
 }
@@ -51,7 +55,11 @@ probabilities for selected activities or effects, in the coordinates of the
 view you pass. Needs the native fit. Uses fit$sampler batches with fixed representation multipliers, conditional on
 empirical priors. Quantiles are exact sample quantiles. Draws do not include
 rank, optimization or biological resampling uncertainty. Mean-field
-variational draws are typically underdispersed, so intervals can be too narrow.
+variational draws are typically underdispersed, so intervals can be too narrow:
+in one rank-1 simulation intervals for non-null effects covered 0.67 to 0.91 of
+the true values at nominal 0.95, while effects that were truly zero were
+excluded at the nominal rate. Each fit is one local optimum, so the intervals are
+conditional on the optimum reached; refit with another seed to see whether they move.
 A bare native fit uses LDF coordinates, as in \code{\link[=factor_activity]{factor_activity()}}.
 Selected IDs must be present in the native fit; unmeasured reference features
 have no native sampler entries and are refused explicitly.
@@ -73,7 +81,8 @@ fit <- fit_ebmf(X, "rows",
   nullcheck = FALSE, backfit = TRUE, feature_scale = "simulated_centered_intensity"
 )
 view <- standardize_factors(fit)
-factor_intervals(fit, side = "activity", factors = "F1", ids = c("s1", "s2"), nsamp = 20, seed = 9)
+# nsamp = 200 is for speed; use the default 2000 for conclusions.
+factor_intervals(fit, side = "activity", factors = "F1", ids = c("s1", "s2"), nsamp = 200, seed = 9)
 }
 \seealso{
 \code{\link[=factor_uncertainty]{factor_uncertainty()}} for closed-form posterior SDs

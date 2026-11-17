@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- `factor_intervals()` warns when `nsamp` leaves fewer than 5 draws in each tail
+  (`nsamp * (1 - level) / 2 < 5`, under 200 draws at level 0.95), because interval ends are
+  then noisy and too narrow. The docs and the robustness article now give the coverage seen
+  in one rank-1 simulation (0.67 to 0.91 for non-null effects at a nominal 0.95; truly zero
+  effects were excluded at the nominal rate). `holdout_result` and `project_factor_activity()`
+  share one metric helper, so `project_factor_activity()`'s `$reconstruction` is unchanged.
+
 - `factor_stability()`: `$summary` gains `n_matched`, the refits behind the congruence
   quantiles, and the docs now say those quantiles describe match quality among matched
   refits only (with `min_congruence` they cannot fall below it), that

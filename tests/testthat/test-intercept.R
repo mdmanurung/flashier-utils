@@ -50,7 +50,7 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
         expect_identical(projection$factor_mapping$native_index, 2:3)
       }
     }
-    intervals <- factor_intervals(
+    intervals <- allow_small_nsamp(factor_intervals(
       fit,
       "activity",
       representation = list(scaling = "raw"),
@@ -58,7 +58,7 @@ test_that("feature intercepts are offsets while adaptive native maps remain corr
       ids = "s2",
       nsamp = 20,
       seed = 39
-    )
+    ))
     set.seed(39)
     draws <- fit$sampler(20)
     values <- vapply(draws, function(d) d[[if (side == "rows") 1 else 2]][2, 3], numeric(1))
@@ -95,7 +95,7 @@ test_that("column-oriented intercept-only fits preserve offsets and empty axes",
     expect_identical(dim(view$effects), c(8L, 0L))
     expect_equal(view$offset, fit$L_pm[, 1])
     expect_equal(unname(t(stats::fitted(fit))), unname(matrix(view$offset, 12, 8, byrow = TRUE)))
-    expect_equal(nrow(factor_intervals(fit, "effects", nsamp = 2)), 0L)
+    expect_equal(nrow(allow_small_nsamp(factor_intervals(fit, "effects", nsamp = 2))), 0L)
   }
 })
 
@@ -119,7 +119,7 @@ test_that("intercept-only fits have semantic rank zero, including a zero offset"
     expect_equal(nrow(uncertainty), 0L)
     expect_type(uncertainty$status, "character")
     expect_type(uncertainty$reason, "character")
-    intervals <- factor_intervals(fit, "activity", nsamp = 2, seed = 7)
+    intervals <- allow_small_nsamp(factor_intervals(fit, "activity", nsamp = 2, seed = 7))
     expect_equal(nrow(intervals), 0L)
     expect_type(intervals$mean, "double")
     expect_equal(
