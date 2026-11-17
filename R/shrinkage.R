@@ -4,7 +4,13 @@
 #' Requires a common activity basis and all eligible factor rows, never only
 #' significant rows. V describes correlated estimation errors across conditions,
 #' not true-effect covariance. Small factor counts limit covariance learning.
-#' @param results A coefficient table with attached activity manifest.
+#' @param results A coefficient table with attached activity manifest. The
+#'   model is `estimate ~ N(B, std.error^2 V)` per factor. If the table has a
+#'   `df` column (as from [test_factor_association()]) the t statistics are
+#'   converted to z-equivalent standard errors with `mashr::mash_set_data(df = )`;
+#'   without it the standard errors are taken as known (`df = Inf`), which makes
+#'   `lfsr` too small when they were estimated from few residual df. The choice
+#'   is recorded in `analysis_metadata$df_source`.
 #' @param condition Condition column name.
 #' @param method Only mash is supported.
 #' @param term Required comparable term value.
@@ -129,7 +135,18 @@ shrink_factor_effects <- function(
   if (!is.null(control$outputlevel) && control$outputlevel < 2L) {
     stop("mash outputlevel must retain posterior summaries")
   }
-  data <- mashr::mash_set_data(Bhat, Shat, V = V)
+  # t statistics from few residual df: let mash convert them to z-equivalent SEs
+  df_source <- "infinite_assumed"
+  Dhat <- Inf
+  if ("df" %in% names(table)) {
+    if (!is.numeric(table$df) || anyNA(table$df) || any(table$df <= 0)) {
+      stop("The df column must be positive numbers (Inf allowed)")
+    }
+    Dhat <- matrix(Inf, length(ids), length(conditions), dimnames = dimnames(Bhat))
+    Dhat[index] <- table$df
+    df_source <- "table_df_column"
+  }
+  data <- mashr::mash_set_data(Bhat, Shat, V = V, df = Dhat)
   U <- if (identical(covariances, "canonical")) mashr::cov_canonical(data) else covariances
   if (!is.list(U) || !length(U)) {
     stop("covariances must be canonical or an explicit native covariance list")
@@ -157,6 +174,7 @@ shrink_factor_effects <- function(
       engine_version = as.character(utils::packageVersion("mashr")),
       error_correlation = V,
       independent_conditions = independent_conditions,
+      df_source = df_source,
       eligible_factor_ids = ids,
       covariance_family = if (is.character(covariances)) covariances else "caller_supplied",
       control = control,

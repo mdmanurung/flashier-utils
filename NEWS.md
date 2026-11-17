@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- `shrink_factor_effects()` now uses a `df` column in the coefficient table (as from
+  `test_factor_association()`): `mashr::mash_set_data(df = )` converts the t statistics to
+  z-equivalent standard errors. Before, standard errors from few residual df were
+  treated as known, and `lfsr` came out about 10 to 27 times too small at 4 to 8 df in a
+  simulation. Without a `df` column the behaviour is unchanged (`df = Inf`);
+  `analysis_metadata$df_source` records which was used.
+
 - `enrich_factors(engine = "fgsea")` now seeds each factor from the seed and the
   factor ID, so a factor's p-values no longer change with the other selected
   factors. Monte Carlo p-values for a fixed seed therefore differ from earlier

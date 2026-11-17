@@ -62,3 +62,70 @@ test_that("shrink_factor_effects accepts a result list and a caller covariance l
   native <- mashr::mash(mashr::mash_set_data(out$Bhat, out$Shat), U, verbose = FALSE)
   expect_equal(out$table$estimate, as.vector(ashr::get_pm(native)))
 })
+
+test_that("a df column is passed to mash and matches a manual mashr run", {
+  skip_if_not_installed("mashr")
+  coefficients <- shrinkage_coefficients()
+  coefficients$df <- 4
+  run <- function(x) shrink_factor_effects(x, "cohort", term = "groupB", independent_conditions = TRUE)
+  with_df <- run(coefficients)
+  coefficients$df <- NULL
+  without_df <- run(coefficients)
+  ids <- rownames(with_df$Bhat)
+  manual_data <- mashr::mash_set_data(with_df$Bhat, with_df$Shat, df = 4)
+  manual <- mashr::mash(manual_data, Ulist = mashr::cov_canonical(manual_data), verbose = FALSE)
+  expect_equal(unname(as.vector(ashr::get_lfsr(manual))), with_df$table$lfsr)
+  expect_identical(with_df$analysis_metadata$df_source, "table_df_column")
+  expect_identical(without_df$analysis_metadata$df_source, "infinite_assumed")
+  # few residual df make the same estimates less certain, so lfsr cannot be smaller on the whole
+  expect_gt(median(with_df$table$lfsr / without_df$table$lfsr), 1)
+})
+
+test_that("an invalid df column is refused", {
+  skip_if_not_installed("mashr")
+  coefficients <- shrinkage_coefficients()
+  coefficients$df <- 0
+  expect_error(
+    shrink_factor_effects(coefficients, "cohort", term = "groupB", independent_conditions = TRUE),
+    "df column"
+  )
+})
+
+test_that("one N(0, I) component with a unit grid gives the closed-form posterior", {
+  skip_if_not_installed("mashr")
+  m <- association_fixture(K = 8)$view$manifest
+  set.seed(4)
+  Bhat <- matrix(rnorm(24, sd = 2), 8, 3, dimnames = list(m$factor_ids, c("A", "B", "C")))
+  Shat <- matrix(runif(24, 0.3, 1.5), 8, 3, dimnames = dimnames(Bhat))
+  coefficients <- expand.grid(factor = rownames(Bhat), cohort = colnames(Bhat), stringsAsFactors = FALSE)
+  coefficients$estimate <- as.vector(Bhat)
+  coefficients$std.error <- as.vector(Shat)
+  coefficients$term <- "groupB"
+  coefficients$basis_id <- m$basis_id
+  attr(coefficients, "analysis_metadata") <- m
+  # one covariance and one grid value make mixsqp report its trivial solution; that notice is expected here
+  closed_form <- function(x) {
+    suppressWarnings(shrink_factor_effects(
+      x,
+      "cohort",
+      term = "groupB",
+      independent_conditions = TRUE,
+      covariances = list(id = diag(3)),
+      control = list(grid = 1, usepointmass = FALSE)
+    ))$table
+  }
+  out <- closed_form(coefficients)
+  posterior_mean <- Bhat / (1 + Shat^2)
+  posterior_sd <- sqrt(Shat^2 / (1 + Shat^2))
+  expect_equal(out$estimate, as.vector(posterior_mean))
+  expect_equal(out$posterior.sd, as.vector(posterior_sd))
+  expect_equal(out$lfsr, as.vector(pnorm(-abs(posterior_mean) / posterior_sd)))
+  # row order of the input table does not change the answer
+  shuffled <- coefficients[.with_seed(9, sample(nrow(coefficients))), ]
+  attr(shuffled, "analysis_metadata") <- m
+  again <- closed_form(shuffled)
+  # conditions follow first appearance in the table, so compare by factor and condition
+  key <- function(x) x[order(x$factor, x$condition), ]
+  expect_equal(key(again)$estimate, key(out)$estimate)
+  expect_equal(key(again)$lfsr, key(out)$lfsr)
+})

@@ -54,3 +54,19 @@ test_that("a small-scale or offset column is not mistaken for a constant", {
   view <- .make_representation(shifted, d$view$effects, d$view$manifest)
   expect_equal(factor_cor(view, "pearson")$correlation[1, 2], truth, tolerance = 1e-6)
 })
+
+test_that("pearson and spearman equal hand-computed values", {
+  d <- association_fixture()
+  x <- c(1, 2, 3, 4, 5)
+  y <- c(2, 4, 5, 4, 5)
+  activity <- d$view$activity[1:5, 1:2]
+  activity[, 1] <- x
+  activity[, 2] <- y
+  manifest <- d$view$manifest
+  manifest$native_indices <- 1:2
+  view <- .make_representation(activity, d$view$effects[, 1:2], manifest)
+  # r = sum((x - 3) * (y - 4)) / sqrt(sum((x - 3)^2) * sum((y - 4)^2)) = 6 / sqrt(10 * 6)
+  expect_equal(factor_cor(view, "pearson")$correlation[1, 2], 6 / sqrt(60))
+  # ranks of y are 1, 2.5, 4.5, 2.5, 4.5 (ties get the average rank); Pearson on the ranks is 0.7378648
+  expect_equal(factor_cor(view, "spearman")$correlation[1, 2], 0.7378648, tolerance = 1e-6)
+})

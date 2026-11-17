@@ -16,7 +16,13 @@ shrink_factor_effects(
 )
 }
 \arguments{
-\item{results}{A coefficient table with attached activity manifest.}
+\item{results}{A coefficient table with attached activity manifest. The
+model is \verb{estimate ~ N(B, std.error^2 V)} per factor. If the table has a
+\code{df} column (as from \code{\link[=test_factor_association]{test_factor_association()}}) the t statistics are
+converted to z-equivalent standard errors with \code{mashr::mash_set_data(df = )};
+without it the standard errors are taken as known (\code{df = Inf}), which makes
+\code{lfsr} too small when they were estimated from few residual df. The choice
+is recorded in \code{analysis_metadata$df_source}.}
 
 \item{condition}{Condition column name.}
 
