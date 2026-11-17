@@ -383,7 +383,13 @@
 #' @param activity_poles observed evaluates directions used by each source's
 #'   scores; supported evaluates its declared signed/nonnegative score support.
 #' @param evidence Optional reference/target lists with exact-basis stability
-#'   artifacts and explicitly driver-bound paired holdout artifacts.
+#'   artifacts and explicitly driver-bound paired holdout artifacts. Each entry's
+#'   `source_basis_id` is the caller's assertion that the holdout belongs to that
+#'   source; it is compared with the source's basis id but nothing checks that the
+#'   holdout's fits were built from the source's recipe (a warning appears when the
+#'   holdout folds fitted a different factor count). Two holdouts count as paired
+#'   only when they share the input, folds, masks and scored values (after any
+#'   transform), score the same folds, units and cohorts, and have no failed fold.
 #' @return A prior_comparison with similarities, bidirectional coverage, residual
 #'   gene profiles, exclusions, compact manifests and separate evidence states.
 #' @details Effects are compared after L2 normalization on shared genes. Span
