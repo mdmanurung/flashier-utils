@@ -40,7 +40,7 @@ sign agreement (default 0).}
 }
 \value{
 List with \verb{$metrics} (pearson_correlation, prediction_r2,
-correlation_squared, slope, intercept, sign_concordance), \verb{$top_n_overlap},
+correlation_squared, slope, intercept, calibration_slope, sign_concordance), \verb{$top_n_overlap},
 \verb{$matched_features}, \verb{$residuals}, \verb{$plot},
 \verb{$exclusions} and \verb{$analysis_metadata}.
 }
@@ -49,7 +49,10 @@ Check a \code{\link[=backproject_contrast]{backproject_contrast()}} result again
 directly per feature, e.g. a differential expression table.
 Both estimates must use the same contrast, covariates, weighting and declared
 units. Prediction R squared is distinct from squared correlation and can be
-negative. Regression slope and top-feature overlap are descriptive.
+negative. Regression slope and top-feature overlap are descriptive. \code{slope}
+regresses reconstructed on observed, so noise in the observed table pulls it
+below 1 even when the reconstruction is exact; \code{calibration_slope} regresses
+observed on reconstructed and is not attenuated that way.
 }
 \details{
 Origin: NEW_ORCHESTRATION / none.

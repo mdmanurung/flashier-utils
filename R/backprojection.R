@@ -19,12 +19,46 @@
   invisible(source)
 }
 
+# A table whose term and contrast columns are identical needs only one of the two selections.
+.fill_identical_selection <- function(table, term, contrasts) {
+  if (
+    all(c("term", "contrast") %in% names(table)) &&
+      identical(as.character(table$term), as.character(table$contrast))
+  ) {
+    if (is.null(contrasts)) {
+      contrasts <- term
+    }
+    if (is.null(term)) term <- contrasts
+  }
+  list(term = term, contrasts = contrasts)
+}
+
+# An intercept-like label back-projects without the feature offset; warn, since it is not a contrast.
+.excludes_offset <- function(view, labels) {
+  excluded <- any(grepl("^\\(Intercept\\)", labels)) && !is.null(view$offset) && any(view$offset != 0)
+  if (excluded) {
+    warning(
+      "An intercept term is back-projected without the feature offset, so it is a factor contribution, not a contrast.",
+      call. = FALSE
+    )
+  }
+  excluded
+}
+
+# term and conditions select rows of a table, so they mean nothing for a vector or matrix.
+.require_table_selection <- function(term, conditions) {
+  if (!is.null(term) || !is.null(conditions)) {
+    stop("term and conditions select rows of a coefficient table; they cannot be used with a vector or matrix")
+  }
+}
+
 #' Back-project a declared factor contrast into feature units
 #'
 #' Turn per-factor coefficients from [test_factor_association()] (or any named vector) into
 #' a per-feature contrast by multiplying through the effects matrix.
-#' Computes B beta using the effects matching the activity model. Offsets
-#' cancel for contrasts. Point inputs produce no p-values or feature SEs.
+#' Computes B beta using the effects matching the activity model. The offset
+#' cancels only for contrasts whose weights sum to zero over the intercept; an
+#' intercept or level term leaves it out. Point inputs produce no p-values or feature SEs.
 #' Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
 #' @param fit Native fit or a view from [standardize_factors()].
 #' @param factor_effects Numeric vector named by factor ID, the `$table` from
@@ -40,8 +74,19 @@
 #' @param coefficient_covariance Optional full covariance matrix of the
 #'   coefficients, named by factor, to propagate uncertainty.
 #' @param level Interval coverage when uncertainty is available (default 0.95).
+#'   The interval is `estimate +/- q * std.error` with `q` from the normal
+#'   distribution, or from a t distribution when `df` is known. `std.error` is
+#'   conditional on the fitted effects matrix: it carries the coefficient
+#'   covariance only, not estimation error in the effects or residual noise in
+#'   a single feature, so it is not a confidence interval for a per-feature
+#'   contrast estimated directly.
 #' @param keep_draws Retain projected draws when `input = "draws"` (default `FALSE`).
 #' @param feature_block_size Positive block size for feature operations.
+#' @param df Optional residual degrees of freedom of the coefficients, one
+#'   positive number. With `coefficient_covariance` the interval then uses a t
+#'   quantile. If `NULL` and the coefficient table has a `df` column, the
+#'   smallest `df` among the selected rows is used. Without either, the
+#'   normal quantile is used and small samples under-cover.
 #' @return A `backprojection_result` with `$effects` (one row per feature:
 #'   estimate, and interval when uncertainty was supplied) and `$analysis_metadata`.
 #' @seealso [test_factor_association()], [validate_backprojection()]
@@ -91,8 +136,12 @@ backproject_contrast <- function(
   coefficient_covariance = NULL,
   level = 0.95,
   keep_draws = FALSE,
-  feature_block_size = 2000L
+  feature_block_size = 2000L,
+  df = NULL
 ) {
+  if (!is.null(df) && (!is.numeric(df) || length(df) != 1L || is.na(df) || df <= 0)) {
+    stop("df must be one positive number")
+  }
   if (missing(input)) {
     stop("input must explicitly declare coefficients or draws")
   }
@@ -135,6 +184,9 @@ backproject_contrast <- function(
     if (!all(c("factor", "estimate") %in% names(coefficients))) {
       stop("Coefficient table requires factor and estimate")
     }
+    selection <- .fill_identical_selection(coefficients, term, contrasts)
+    term <- selection$term
+    contrasts <- selection$contrasts
     for (name in c("term", "contrast", "condition")) {
       chosen <- switch(name, term = term, contrast = contrasts, condition = conditions)
       if (name %in% names(coefficients)) {
@@ -148,6 +200,9 @@ backproject_contrast <- function(
     }
     if (!nrow(coefficients)) {
       stop("No coefficients match requested selection")
+    }
+    if (is.null(df) && "df" %in% names(coefficients) && is.numeric(coefficients$df) && !anyNA(coefficients$df)) {
+      df <- min(coefficients$df)
     }
     label <- if ("contrast" %in% names(coefficients)) {
       as.character(coefficients$contrast)
@@ -170,6 +225,10 @@ backproject_contrast <- function(
     )
     C[cbind(match(coefficients$factor, rownames(C)), match(label, colnames(C)))] <- coefficients$estimate
   } else if (is.numeric(coefficients) && is.null(dim(coefficients))) {
+    .require_table_selection(term, conditions)
+    if (!is.null(contrasts) && (length(contrasts) != 1L || !nzchar(contrasts))) {
+      stop("A coefficient vector takes one contrast label")
+    }
     .validate_ids(names(coefficients), "Coefficient factor")
     C <- matrix(
       coefficients,
@@ -177,6 +236,7 @@ backproject_contrast <- function(
       dimnames = list(names(coefficients), if (is.null(contrasts)) "contrast" else contrasts)
     )
   } else {
+    .require_table_selection(term, conditions)
     C <- coefficients
   }
   if (!is.matrix(C) || !is.numeric(C) || any(!is.finite(C))) {
@@ -197,6 +257,8 @@ backproject_contrast <- function(
   }
   B <- view$effects[, match(rownames(C), ids), drop = FALSE]
   delta <- B %*% C
+  # an intercept or level term excludes the feature offset, so it is a contribution, not a contrast
+  excludes_offset <- .excludes_offset(view, colnames(C))
   table <- data.frame(
     feature = rep(rownames(B), ncol(C)),
     contrast = rep(colnames(C), each = nrow(B)),
@@ -211,7 +273,13 @@ backproject_contrast <- function(
       coefficient_basis_declaration = if (is.null(factor_basis)) "attached" else "user_supplied",
       included_factors = rownames(C),
       omitted_factors = omitted,
-      estimand = if (length(omitted)) "partial_program_contribution" else "represented_feature_contrast",
+      estimand = if (length(omitted)) {
+        "partial_program_contribution"
+      } else if (excludes_offset) {
+        "factor_contribution_excluding_offset"
+      } else {
+        "represented_feature_contrast"
+      },
       uncertainty_type = "none_point_coefficients",
       workflow_origin = "ZemmourLib::FlashierDGE / ImmGenT"
     )
@@ -248,10 +316,15 @@ backproject_contrast <- function(
       sqrt(pmax(rowSums((B %*% Sigma) * B), 0))
     })
     table$std.error <- unlist(errors, use.names = FALSE)
-    critical <- stats::qnorm((1 + level) / 2)
+    critical <- if (is.null(df)) stats::qnorm((1 + level) / 2) else stats::qt((1 + level) / 2, df)
     table$lower <- table$estimate - critical * table$std.error
     table$upper <- table$estimate + critical * table$std.error
-    metadata$uncertainty_type <- "normal_approximation_coefficient_covariance_fixed_programs"
+    metadata$uncertainty_type <- if (is.null(df)) {
+      "normal_approximation_coefficient_covariance_fixed_programs"
+    } else {
+      "t_approximation_coefficient_covariance_fixed_programs"
+    }
+    metadata$interval_df <- if (is.null(df)) NA_real_ else df
     metadata$level <- level
   }
   table$basis_id <- rep(view$manifest$basis_id, nrow(table))
@@ -284,6 +357,9 @@ backproject_contrast <- function(
     if (!all(c("draw", "factor", "estimate") %in% names(draws))) {
       stop("Draw table requires draw, factor and estimate")
     }
+    selection <- .fill_identical_selection(draws, term, contrasts)
+    term <- selection$term
+    contrasts <- selection$contrasts
     for (name in c("term", "contrast", "condition")) {
       selected <- switch(name, term = term, contrast = contrasts, condition = conditions)
       if (name %in% names(draws)) {
@@ -317,6 +393,7 @@ backproject_contrast <- function(
     )
     D[cbind(match(draws$draw, rownames(D)), match(draws$factor, colnames(D)))] <- draws$estimate
   } else {
+    .require_table_selection(term, conditions)
     D <- draws
   }
   if (!is.matrix(D) || !is.numeric(D) || nrow(D) < 2L || !ncol(D) || any(!is.finite(D))) {
@@ -354,6 +431,8 @@ backproject_contrast <- function(
     )
     if (keep_draws) retained[, rows] <- block
   }
+  excludes_offset <- .excludes_offset(view, label)
+  excludes_offset <- .excludes_offset(view, label)
   metadata <- c(
     view$manifest,
     list(
@@ -362,7 +441,13 @@ backproject_contrast <- function(
       included_factors = colnames(D),
       omitted_factors = omitted,
       contrast_direction = "user_declared",
-      estimand = if (length(omitted)) "partial_program_contribution" else "represented_feature_contrast",
+      estimand = if (length(omitted)) {
+        "partial_program_contribution"
+      } else if (excludes_offset) {
+        "factor_contribution_excluding_offset"
+      } else {
+        "represented_feature_contrast"
+      },
       uncertainty_type = "coefficient_draws_fixed_programs",
       nsamp = nrow(D),
       draw_ids = rownames(D),

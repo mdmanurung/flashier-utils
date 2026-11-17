@@ -17,7 +17,8 @@ backproject_contrast(
   coefficient_covariance = NULL,
   level = 0.95,
   keep_draws = FALSE,
-  feature_block_size = 2000L
+  feature_block_size = 2000L,
+  df = NULL
 )
 }
 \arguments{
@@ -42,11 +43,23 @@ the restricted contribution (default \code{FALSE}).}
 \item{coefficient_covariance}{Optional full covariance matrix of the
 coefficients, named by factor, to propagate uncertainty.}
 
-\item{level}{Interval coverage when uncertainty is available (default 0.95).}
+\item{level}{Interval coverage when uncertainty is available (default 0.95).
+The interval is \verb{estimate +/- q * std.error} with \code{q} from the normal
+distribution, or from a t distribution when \code{df} is known. \code{std.error} is
+conditional on the fitted effects matrix: it carries the coefficient
+covariance only, not estimation error in the effects or residual noise in
+a single feature, so it is not a confidence interval for a per-feature
+contrast estimated directly.}
 
 \item{keep_draws}{Retain projected draws when \code{input = "draws"} (default \code{FALSE}).}
 
 \item{feature_block_size}{Positive block size for feature operations.}
+
+\item{df}{Optional residual degrees of freedom of the coefficients, one
+positive number. With \code{coefficient_covariance} the interval then uses a t
+quantile. If \code{NULL} and the coefficient table has a \code{df} column, the
+smallest \code{df} among the selected rows is used. Without either, the
+normal quantile is used and small samples under-cover.}
 }
 \value{
 A \code{backprojection_result} with \verb{$effects} (one row per feature:
@@ -55,8 +68,9 @@ estimate, and interval when uncertainty was supplied) and \verb{$analysis_metada
 \description{
 Turn per-factor coefficients from \code{\link[=test_factor_association]{test_factor_association()}} (or any named vector) into
 a per-feature contrast by multiplying through the effects matrix.
-Computes B beta using the effects matching the activity model. Offsets
-cancel for contrasts. Point inputs produce no p-values or feature SEs.
+Computes B beta using the effects matching the activity model. The offset
+cancels only for contrasts whose weights sum to zero over the intercept; an
+intercept or level term leaves it out. Point inputs produce no p-values or feature SEs.
 Workflow origin: ZemmourLib FlashierDGE and ImmGenT; independently written.
 }
 \details{

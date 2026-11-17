@@ -78,3 +78,107 @@ test_that("backproject_contrast draw mode refuses ambiguous or partial draws", {
   partial <- run(draws[, "F1", drop = FALSE], allow_partial = TRUE)
   expect_identical(partial$analysis_metadata$omitted_factors, "F2")
 })
+
+test_that("a known df gives a t interval, and the table df column is used when none is given", {
+  view <- fixture_view()
+  beta <- c(F1 = 2, F2 = -1)
+  Sigma <- matrix(c(0.2, 0.05, 0.05, 0.1), 2, dimnames = list(names(beta), names(beta)))
+  base <- backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest, coefficient_covariance = Sigma)
+  expect_equal(
+    base$effects$upper - base$effects$estimate,
+    stats::qnorm(0.975) * base$effects$std.error
+  )
+  expect_match(base$analysis_metadata$uncertainty_type, "^normal")
+  with_df <- backproject_contrast(
+    view,
+    beta,
+    "coefficients",
+    factor_basis = view$manifest,
+    coefficient_covariance = Sigma,
+    df = 4
+  )
+  expect_equal(with_df$effects$upper - with_df$effects$estimate, stats::qt(0.975, 4) * with_df$effects$std.error)
+  expect_match(with_df$analysis_metadata$uncertainty_type, "^t_")
+  expect_equal(with_df$analysis_metadata$interval_df, 4)
+  tab <- data.frame(factor = names(beta), estimate = unname(beta), df = c(10, 4))
+  from_table <- backproject_contrast(
+    view,
+    tab,
+    "coefficients",
+    factor_basis = view$manifest,
+    coefficient_covariance = Sigma
+  )
+  expect_equal(from_table$analysis_metadata$interval_df, 4)
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", factor_basis = view$manifest, df = -1),
+    "df must be one positive number"
+  )
+})
+
+test_that("an intercept term is labelled a contribution and warns when the offset is nonzero", {
+  view <- fixture_view()
+  view <- .make_representation(
+    view$activity, view$effects, view$manifest,
+    offset = stats::setNames(rep(1, nrow(view$effects)), rownames(view$effects))
+  )
+  beta <- c(F1 = 2, F2 = -1)
+  expect_warning(
+    out <- backproject_contrast(
+      view,
+      beta,
+      "coefficients",
+      contrasts = "(Intercept)",
+      factor_basis = view$manifest
+    ),
+    "not a contrast"
+  )
+  expect_identical(out$analysis_metadata$estimand, "factor_contribution_excluding_offset")
+  contrast <- backproject_contrast(view, beta, "coefficients", contrasts = "groupB", factor_basis = view$manifest)
+  expect_identical(contrast$analysis_metadata$estimand, "represented_feature_contrast")
+})
+
+test_that("a table whose term and contrast columns match needs one selection", {
+  d <- association_fixture()
+  K <- ncol(d$view$activity)
+  set.seed(2)
+  effects <- matrix(rnorm(6 * K), 6, K, dimnames = list(paste0("g", 1:6), colnames(d$view$activity)))
+  view <- .make_representation(d$view$activity, effects, d$view$manifest)
+  out <- test_factor_association(
+    view,
+    d$metadata,
+    ~group,
+    "lm",
+    unit_col = "donor",
+    independence = "independent",
+    include_intercept = TRUE
+  )
+  by_term <- backproject_contrast(view, out$table, "coefficients", term = "groupB")
+  by_contrast <- backproject_contrast(view, out$table, "coefficients", contrasts = "groupB")
+  expect_equal(by_term$effects$estimate, by_contrast$effects$estimate)
+  # oracle: the back-projected contrast equals a per-feature lm on the fitted matrix
+  fitted <- view$activity %*% t(view$effects)
+  direct <- apply(fitted, 2L, function(y) unname(stats::coef(stats::lm(y ~ group, data = d$metadata))[["groupB"]]))
+  expect_equal(by_term$effects$estimate, unname(direct))
+})
+
+test_that("term and conditions are refused for a vector or matrix, and a vector takes one contrast", {
+  view <- fixture_view()
+  beta <- c(F1 = 2, F2 = -1)
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", term = "x", factor_basis = view$manifest),
+    "select rows of a coefficient table"
+  )
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", conditions = "x", factor_basis = view$manifest),
+    "select rows of a coefficient table"
+  )
+  expect_error(
+    backproject_contrast(view, beta, "coefficients", contrasts = c("a", "b"), factor_basis = view$manifest),
+    "one contrast label"
+  )
+  draws <- matrix(rnorm(20 * 2), 20, dimnames = list(NULL, names(beta)))
+  expect_error(
+    backproject_contrast(view, draws, "draws", term = "x", factor_basis = view$manifest),
+    "select rows of a coefficient table"
+  )
+})

@@ -164,6 +164,13 @@
 }
 
 # TRUE or FALSE, nothing else.
+#' TRUE when a numeric vector is constant up to rounding noise (or has under two finite values)
+#' @noRd
+.is_constant <- function(x) {
+  x <- x[is.finite(x)]
+  length(x) < 2L || stats::sd(x) <= 8 * .Machine$double.eps * max(abs(x))
+}
+
 .is_flag <- function(x) is.logical(x) && length(x) == 1L && !is.na(x)
 
 # A list whose entries, if any, carry unique names.

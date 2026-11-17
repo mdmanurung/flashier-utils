@@ -52,12 +52,8 @@ factor_cor <- function(
     stop("Correlation needs selected factors and at least three observations")
   }
   exclusions <- if (!is.null(metadata)) .match_ids(rownames(view$activity), metadata)$exclusions
-  # constant up to rounding noise: sd within a few machine epsilons of the column's magnitude
-  constant <- vapply(
-    seq_len(ncol(A)),
-    function(k) stats::sd(A[, k], na.rm = TRUE) <= 8 * .Machine$double.eps * max(abs(A[, k]), na.rm = TRUE),
-    logical(1)
-  )
+  # constant up to rounding noise, so a valid small-scale column is not dropped
+  constant <- vapply(seq_len(ncol(A)), function(k) .is_constant(A[, k]), logical(1))
   counts <- crossprod(!is.na(A))
   if (engine != "corshrink") {
     if (length(control)) {

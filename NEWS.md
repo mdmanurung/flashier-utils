@@ -1,5 +1,15 @@
 # flashier.utils 2.0.0.9000
 
+- `backproject_contrast()` takes `df`: with a coefficient covariance the interval uses a t
+  quantile (the smallest `df` of a `test_factor_association()` table is used when `df` is
+  not given); without it the normal quantile still applies and small samples under-cover.
+  An intercept term back-projects without the feature offset, so it now warns and is labelled
+  `factor_contribution_excluding_offset`. A table whose `term` and `contrast` columns match
+  needs one selection; `term` or `conditions` with a vector or matrix now stops with a message.
+  `validate_backprojection()` adds `calibration_slope` (observed on reconstructed, not
+  attenuated by noise in the observed table) and treats estimates constant up to rounding as
+  constant, so they give `NA` instead of a correlation read from noise.
+
 - `shrink_factor_effects()` now uses a `df` column in the coefficient table (as from
   `test_factor_association()`): `mashr::mash_set_data(df = )` converts the t statistics to
   z-equivalent standard errors. Before, standard errors from few residual df were

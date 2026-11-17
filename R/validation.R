@@ -5,7 +5,10 @@
 #' directly per feature, e.g. a differential expression table.
 #' Both estimates must use the same contrast, covariates, weighting and declared
 #' units. Prediction R squared is distinct from squared correlation and can be
-#' negative. Regression slope and top-feature overlap are descriptive.
+#' negative. Regression slope and top-feature overlap are descriptive. `slope`
+#' regresses reconstructed on observed, so noise in the observed table pulls it
+#' below 1 even when the reconstruction is exact; `calibration_slope` regresses
+#' observed on reconstructed and is not attenuated that way.
 #' @param reconstructed A [backproject_contrast()] result, or its `$effects` table.
 #' @param observed Data frame of directly estimated feature effects with the
 #'   columns named in `id_col` and `estimate_col`.
@@ -19,7 +22,7 @@
 #'   sign agreement (default 0).
 #' @param plot Include a scatter plot (default `TRUE`).
 #' @return List with `$metrics` (pearson_correlation, prediction_r2,
-#'   correlation_squared, slope, intercept, sign_concordance), `$top_n_overlap`,
+#'   correlation_squared, slope, intercept, calibration_slope, sign_concordance), `$top_n_overlap`,
 #'   `$matched_features`, `$residuals`, `$plot`,
 #'   `$exclusions` and `$analysis_metadata`.
 #' @export
@@ -116,15 +119,23 @@ validate_backprojection <- function(
     )
   )
   matched$residual <- matched$observed - matched$reconstructed
-  variable <- nrow(matched) > 1L && stats::sd(matched$observed) > 0 && stats::sd(matched$reconstructed) > 0
+  # constant up to rounding noise counts as constant, so no correlation or slope is read from noise
+  observed_constant <- .is_constant(matched$observed)
+  variable <- nrow(matched) > 1L && !observed_constant && !.is_constant(matched$reconstructed)
   correlation <- if (variable) stats::cor(matched$observed, matched$reconstructed) else NA_real_
-  denominator <- sum((matched$observed - mean(matched$observed))^2)
-  r2 <- if (denominator > 0) 1 - sum(matched$residual^2) / denominator else NA_real_
-  slope <- intercept <- NA_real_
-  if (nrow(matched) > 1L && stats::sd(matched$observed) > 0) {
+  r2 <- if (!observed_constant) {
+    1 - sum(matched$residual^2) / sum((matched$observed - mean(matched$observed))^2)
+  } else {
+    NA_real_
+  }
+  slope <- intercept <- calibration_slope <- NA_real_
+  if (nrow(matched) > 1L && !observed_constant) {
     model <- stats::lm(reconstructed ~ observed, data = matched)
     intercept <- unname(stats::coef(model)[["(Intercept)"]])
     slope <- unname(stats::coef(model)[["observed"]])
+  }
+  if (nrow(matched) > 1L && !.is_constant(matched$reconstructed)) {
+    calibration_slope <- unname(stats::coef(stats::lm(observed ~ reconstructed, data = matched))[["reconstructed"]])
   }
   if (length(zero_tolerance) != 1L || !is.finite(zero_tolerance) || zero_tolerance < 0) {
     stop("zero_tolerance must be nonnegative")
@@ -136,9 +147,17 @@ validate_backprojection <- function(
     NA_real_
   }
   metrics <- data.frame(
-    metric = c("pearson_correlation", "prediction_r2", "correlation_squared", "slope", "intercept", "sign_concordance"),
-    value = c(correlation, r2, correlation^2, slope, intercept, sign),
-    denominator = c(rep(nrow(matched), 5L), sum(eligible))
+    metric = c(
+      "pearson_correlation",
+      "prediction_r2",
+      "correlation_squared",
+      "slope",
+      "intercept",
+      "calibration_slope",
+      "sign_concordance"
+    ),
+    value = c(correlation, r2, correlation^2, slope, intercept, calibration_slope, sign),
+    denominator = c(rep(nrow(matched), 6L), sum(eligible))
   )
   metrics$reason <- ifelse(is.na(metrics$value), "constant estimates or no eligible features", NA_character_)
   if (!is.numeric(top_n) || any(!is.finite(top_n)) || any(top_n < 1) || any(top_n != as.integer(top_n))) {
