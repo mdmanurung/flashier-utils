@@ -75,7 +75,12 @@
 #' @param signal effects or distinctiveness.
 #' @param feature_map Optional explicitly one-to-one named feature mapping.
 #' @param control Native settings; seed is scoped, decoupleR method is ulm or mlm.
+#'   For fgsea the seed is combined with the factor ID, so a factor's result
+#'   does not change with the other selected factors.
 #' @return Native method table plus pathway universe, native result and provenance.
+#'   For fgsea, `padj` is the native Benjamini-Hochberg adjustment within one
+#'   factor and `padj_all` adjusts over all factor by pathway tests; the
+#'   `analysis_metadata$adjustment` entry names both families.
 #' @keywords internal
 #' @author Peter Carbonetto; Matthew Stephens; Gennady Korotkevich; Vladimir Sukhov; Alexey Sergushichev (fgsea); Pau Badia-i-Mompel; Jesús Vélez-Santiago; Jana Braunger; Celina Geiss; Daniel Dimitrov; Sophia Müller-Dott; Petr Taus; Aurélien Dugourd; Christian H. Holland; Ricardo O. Ramirez Flores; Julio Saez-Rodriguez (decoupleR).
 #'   Full source and dependency credits: \url{https://github.com/mdmanurung/flashier-utils/blob/main/CREDITS.md}.
@@ -107,6 +112,15 @@
 #'   factors = "F1",
 #'   control = list(seed = 4, minSize = 3L, nPermSimple = 100L, eps = 1e-3)
 #' )$table
+#' Seed for one factor from the call seed and the factor ID
+#' @noRd
+.factor_seed <- function(seed, factor_id) {
+  if (is.null(seed)) {
+    return(NULL)
+  }
+  bitwAnd(digest::digest2int(factor_id, as.integer(seed)), .Machine$integer.max)
+}
+
 enrich_factors <- function(
   fit,
   pathways,
@@ -191,10 +205,11 @@ enrich_factors <- function(
     if (any(!names(control) %in% setdiff(names(formals(fgsea::fgseaMultilevel)), c("pathways", "stats")))) {
       stop("Unsupported fgseaMultilevel control")
     }
-    native <- .with_seed(
-      seed,
-      lapply(seq_len(ncol(data$B)), function(k) {
-        stats <- stats::setNames(data$B[, k], rownames(data$B))
+    # each factor gets its own seed, so its result does not depend on which other factors are selected
+    native <- lapply(seq_len(ncol(data$B)), function(k) {
+      stats <- stats::setNames(data$B[, k], rownames(data$B))
+      .with_seed(
+        .factor_seed(seed, colnames(data$B)[k]),
         do.call(
           fgsea::fgseaMultilevel,
           c(
@@ -203,8 +218,8 @@ enrich_factors <- function(
             control
           )
         )
-      })
-    )
+      )
+    })
     table <- do.call(
       rbind,
       lapply(seq_along(native), function(k) {
@@ -213,7 +228,13 @@ enrich_factors <- function(
         out
       })
     )
+    # fgsea's padj is Benjamini-Hochberg within one factor; padj_all adjusts over every factor by pathway test
+    table$padj_all <- stats::p.adjust(table$pval, method = "BH")
     metadata$method <- "fgseaMultilevel"
+    metadata$adjustment <- c(
+      padj = "BH within each factor (fgsea native)",
+      padj_all = "BH over all tested factor by pathway pairs"
+    )
   } else {
     method <- if (is.null(control$method)) "ulm" else match.arg(control$method, c("ulm", "mlm"))
     control$method <- NULL

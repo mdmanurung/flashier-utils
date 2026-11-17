@@ -19,7 +19,7 @@ test_that("ranked fgsea results agree directly with the selected engine", {
   d$view <- .make_representation(d$view$activity, d$view$effects, d$view$manifest)
   settings <- list(seed = 4, nPermSimple = 100L, eps = 1e-3, minSize = 2L, scoreType = "pos")
   out <- enrich_factors(d$view, pathways, "fgsea", factors = "F1", control = settings)
-  set.seed(4)
+  set.seed(.factor_seed(4, "F1"))
   native <- as.data.frame(fgsea::fgseaMultilevel(
     pathways,
     setNames(d$view$effects[, 1], rownames(d$view$effects)),
@@ -147,4 +147,40 @@ test_that("network validation fails before native dispatch", {
   out <- enrich_factors(view, net, "decoupleR")
   expect_equal(nrow(out$table), 0L)
   expect_equal(out$analysis_metadata$network_targets_excluded, net$target)
+})
+
+test_that("an fgsea factor's result does not depend on the other selected factors", {
+  skip_if_not_installed("fgsea")
+  d <- association_fixture(K = 8)
+  pathways <- list(one = c("g1", "g2", "g3"), two = c("g4", "g5", "g6"))
+  set.seed(9)
+  d$view$effects <- matrix(rnorm(64), 8, dimnames = list(paste0("g", 1:8), paste0("F", 1:8)))
+  d$view <- .make_representation(d$view$activity, d$view$effects, d$view$manifest)
+  settings <- list(seed = 4, nPermSimple = 100L, eps = 1e-3, minSize = 2L)
+  alone <- enrich_factors(d$view, pathways, "fgsea", factors = "F2", control = settings)$table
+  together <- enrich_factors(d$view, pathways, "fgsea", factors = c("F1", "F2"), control = settings)$table
+  expect_equal(alone$pval, together$pval[together$factor == "F2"])
+  expect_equal(alone$NES, together$NES[together$factor == "F2"])
+})
+
+test_that("padj_all adjusts over every factor by pathway test and padj stays within a factor", {
+  skip_if_not_installed("fgsea")
+  d <- association_fixture(K = 8)
+  pathways <- list(one = c("g1", "g2", "g3"), two = c("g4", "g5", "g6"))
+  set.seed(9)
+  d$view$effects <- matrix(rnorm(64), 8, dimnames = list(paste0("g", 1:8), paste0("F", 1:8)))
+  d$view <- .make_representation(d$view$activity, d$view$effects, d$view$manifest)
+  out <- enrich_factors(
+    d$view,
+    pathways,
+    "fgsea",
+    factors = c("F1", "F2", "F3"),
+    control = list(seed = 4, nPermSimple = 100L, eps = 1e-3, minSize = 2L)
+  )
+  expect_equal(out$table$padj_all, p.adjust(out$table$pval, "BH"))
+  expect_equal(
+    unname(unlist(lapply(split(out$table, out$table$factor), function(x) p.adjust(x$pval, "BH")))),
+    unname(unlist(lapply(split(out$table, out$table$factor), function(x) x$padj)))
+  )
+  expect_named(out$analysis_metadata$adjustment, c("padj", "padj_all"))
 })

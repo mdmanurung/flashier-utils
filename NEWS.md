@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- `enrich_factors(engine = "fgsea")` now seeds each factor from the seed and the
+  factor ID, so a factor's p-values no longer change with the other selected
+  factors. Monte Carlo p-values for a fixed seed therefore differ from earlier
+  versions. The table gains `padj_all`, Benjamini-Hochberg over all factor by
+  pathway tests; the native `padj` stays within one factor, and
+  `analysis_metadata$adjustment` names both families.
+
 - `test_factor_association()` fixes found by an independent statistical review.
   With `engine = "dream"` the default no longer applies `variancePartition::eBayes()`:
   eBayes pooled residual df across factors, so a term that varies between donors
