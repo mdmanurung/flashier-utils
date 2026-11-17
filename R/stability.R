@@ -122,9 +122,16 @@
     if (!identical(saved$config_hash, config_hash)) {
       stop("Checkpoint configuration/input mismatch; use a new checkpoint directory")
     }
-    return(saved$result)
+    # a saved failure is recomputed: its cause may have been fixed since
+    if (!identical(saved$result$status, "failed")) {
+      return(saved$result)
+    }
   }
   result <- compute()
+  # a failure is returned but never checkpointed, so a rerun tries again
+  if (identical(result$status, "failed")) {
+    return(result)
+  }
   temporary <- tempfile(pattern = ".replicate-", tmpdir = dirname(path))
   on.exit(unlink(temporary), add = TRUE)
   saveRDS(list(config_hash = config_hash, result = result), temporary)

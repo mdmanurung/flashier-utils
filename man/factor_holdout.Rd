@@ -60,8 +60,13 @@ and \code{preprocessing_manifest} (e.g. \code{list(scope = "identity")}) when no
 }
 \value{
 A \code{holdout_result} with \verb{$metrics} (per fold, model and weighting:
-rmse, mae, prediction_r2 for the fit and the baseline; macro rows add
-\verb{n_units_<metric>}, the units each average used), \verb{$folds},
+rmse, mae, prediction_r2, skill and correlation for the fit and the baseline; macro rows add
+\verb{n_units_<metric>}, the units each average used). \code{prediction_r2} is
+\code{1 - SSE / SST} with SST centred on the mean of the scored held-out entries
+pooled over features, so feature means alone already score high. \code{skill}
+is \verb{1 - SSE(fit) / SSE(training mean)} on the same entries: 0 is no better
+than the training-mean baseline, and it is \code{NA} for the baseline row. Read
+the \code{fixed_programs} row next to the \code{training_mean} row. Also \verb{$folds},
 \verb{$failures}, \verb{$activities} and information boundaries. Each fold's seed is
 drawn per fold label and recorded in \verb{$analysis_metadata$fold_seeds}.
 }

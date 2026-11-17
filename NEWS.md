@@ -1,5 +1,18 @@
 # flashier.utils 2.0.0.9000
 
+- `factor_holdout()` adds a `skill` column, `1 - SSE(fit) / SSE(training mean)` on the
+  same scored entries, and documents that `prediction_r2` is centred on the held-out grand
+  mean, so feature means alone score high. A masked feature split no longer fails every
+  fold when variance is estimated per feature or per sample (`var_type` 1 or 2): fully
+  masked features are left out of the projection. A fold with one held-out sample is refused
+  up front when samples are rows (flashier cannot project one row); a unit or cohort with no
+  scored entry under a custom mask gets no metric row instead of failing the fold. Failed
+  folds and replicates are no longer written to checkpoints, so a rerun retries them.
+  `compare_prior_fits()` now requires paired holdouts to share the same scored entries (a
+  new `truth_digest`), the same folds, units and cohorts, and no failed fold; it warns when
+  the holdout folds fitted a different factor count than the source. Holdouts saved by an
+  earlier version carry no `truth_digest` and no longer count as paired evidence.
+
 - `backproject_contrast()` takes `df`: with a coefficient covariance the interval uses a t
   quantile (the smallest `df` of a `test_factor_association()` table is used when `df` is
   not given); without it the normal quantile still applies and small samples under-cover.

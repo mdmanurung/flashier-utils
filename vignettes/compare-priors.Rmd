@@ -147,6 +147,12 @@ preprocessing needs paired training-fit/frozen-transform callbacks. Empirical-Ba
 projection can recalibrate activity priors/noise on permitted query observations;
 this is not a fully frozen hyperparameter prediction experiment.
 
+`prediction_r2` is centred on the mean of the scored held-out entries pooled over
+features, so a model that only reproduces feature means already scores well above 0.
+The `skill` column, `1 - SSE(fit) / SSE(training mean)`, is centred on the baseline
+instead: 0 means no better than the training mean. Read the fitted-programs row
+next to the training-mean row.
+
 ## Program agreement and ambiguity
 
 `factor_replicability()` matches factors across the two fits by Tucker

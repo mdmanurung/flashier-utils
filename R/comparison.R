@@ -310,7 +310,39 @@
     paired <- !is.null(ma$evaluation_digest) &&
       !is.null(ma$input_digest) &&
       identical(ma$input_digest, mb$input_digest) &&
-      identical(ma$evaluation_digest, mb$evaluation_digest)
+      identical(ma$evaluation_digest, mb$evaluation_digest) &&
+      !is.null(ma$truth_digest) &&
+      identical(ma$truth_digest, mb$truth_digest)
+    # pairing needs the same scored folds in both artifacts, and no failed fold in either
+    fold_keys <- function(holdout) {
+      metrics <- holdout$metrics
+      sort(unique(paste(metrics$fold, metrics$weighting, metrics$unit, metrics$cohort, sep = "\r")))
+    }
+    has_failures <- function(holdout) !is.null(holdout$failures) && nrow(holdout$failures) > 0L
+    failed <- has_failures(a$holdout) || has_failures(b$holdout)
+    if (bound && failed) {
+      stop("A holdout has failed folds; refit or drop them before using it as paired evidence")
+    }
+    if (bound && !identical(fold_keys(a$holdout), fold_keys(b$holdout))) {
+      stop("The two holdouts scored different folds, units or cohorts, so they are not paired")
+    }
+    # the source basis id is the caller's assertion; compare the holdout's fold recipe with the source as a check
+    for (side in c("reference", "target")) {
+      counts <- evidence[[side]]$holdout$analysis_metadata$fold_factor_counts
+      source_factors <- ncol(sources[[side]]$effects)
+      if (bound && length(counts) && !is.null(source_factors) && !all(counts == source_factors)) {
+        warning(
+          "The ",
+          side,
+          " holdout folds fitted ",
+          paste(unique(counts), collapse = "/"),
+          " factors but the source has ",
+          source_factors,
+          "; the holdout may not belong to this source",
+          call. = FALSE
+        )
+      }
+    }
     masked <- identical(ma$evaluation_type, "masked") && identical(mb$evaluation_type, "masked")
     if (bound && !masked) {
       stop("Predictive evidence requires masked held-out evaluation")

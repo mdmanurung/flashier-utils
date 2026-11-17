@@ -1,17 +1,20 @@
 # Native fixed-program projection on a NEW object; no same-dimension update shortcut.
-.prediction_metrics <- function(observed, predicted) {
+# prediction_r2 is centred on the mean of the scored held-out entries; skill is centred on the reference
+# (the training-mean baseline): 1 - SSE(prediction) / SSE(reference), so 0 means no better than the baseline.
+.prediction_metrics <- function(observed, predicted, reference = NULL) {
   keep <- is.finite(observed)
   o <- observed[keep]
   p <- predicted[keep]
   if (!length(o) || any(!is.finite(p))) {
     stop("No finite scored entries or nonfinite predictions")
   }
-  sst <- sum((o - mean(o))^2)
+  sse_reference <- if (is.null(reference)) NA_real_ else sum((o - reference[keep])^2)
   c(
     rmse = sqrt(mean((o - p)^2)),
     mae = mean(abs(o - p)),
-    prediction_r2 = if (sst > 0) 1 - sum((o - p)^2) / sst else NA_real_,
-    correlation = if (length(o) > 1L && stats::sd(o) > 0 && stats::sd(p) > 0) stats::cor(o, p) else NA_real_,
+    prediction_r2 = if (!.is_constant(o)) 1 - sum((o - p)^2) / sum((o - mean(o))^2) else NA_real_,
+    skill = if (is.finite(sse_reference) && sse_reference > 0) 1 - sum((o - p)^2) / sse_reference else NA_real_,
+    correlation = if (length(o) > 1L && !.is_constant(o) && !.is_constant(p)) stats::cor(o, p) else NA_real_,
     n_scored_entries = length(o)
   )
 }
@@ -136,8 +139,13 @@
 #'   `keep_predictions`, `keep_fits`, `prior_policy` (`"query"` or
 #'   `"fixed_reference"`; see [project_factor_activity()]).
 #' @return A `holdout_result` with `$metrics` (per fold, model and weighting:
-#'   rmse, mae, prediction_r2 for the fit and the baseline; macro rows add
-#'   `n_units_<metric>`, the units each average used), `$folds`,
+#'   rmse, mae, prediction_r2, skill and correlation for the fit and the baseline; macro rows add
+#'   `n_units_<metric>`, the units each average used). `prediction_r2` is
+#'   `1 - SSE / SST` with SST centred on the mean of the scored held-out entries
+#'   pooled over features, so feature means alone already score high. `skill`
+#'   is `1 - SSE(fit) / SSE(training mean)` on the same entries: 0 is no better
+#'   than the training-mean baseline, and it is `NA` for the baseline row. Read
+#'   the `fixed_programs` row next to the `training_mean` row. Also `$folds`,
 #'   `$failures`, `$activities` and information boundaries. Each fold's seed is
 #'   drawn per fold label and recorded in `$analysis_metadata$fold_seeds`.
 #' @seealso [project_factor_activity()], [factor_stability()]
@@ -260,6 +268,12 @@ factor_holdout <- function(
   }
   evaluated <- if (is.null(control$evaluated_folds)) unique(labels) else control$evaluated_folds
   .select_ids(evaluated, unique(labels), "fold")
+  if (side == "rows" && any(table(labels)[as.character(evaluated)] < 2L)) {
+    stop(
+      "A held-out fold with one sample cannot be projected when samples are rows (flashier needs two or more rows); ",
+      "merge it into another fold or put samples in columns"
+    )
+  }
   # Check the preprocessing contract, the mask and the feature split.
   if (is.null(preprocess_fn)) {
     preprocessing <- control$preprocessing_manifest
@@ -462,9 +476,17 @@ factor_holdout <- function(
             }
             priors <- lapply(prior_ids, .prior_from_identifier)
           }
+          # a masked fold hides its scoring features completely; flashier rejects all-missing columns
+          # when variance is estimated per feature, so project through the observed features only
+          projected <- which(colSums(is.finite(Y)) > 0)
+          drop_masked <- evaluation == "masked" && is.null(test_aux$S) && length(projected) < ncol(Y)
+          projection_view <- view
+          if (drop_masked) {
+            projection_view$effects <- view$effects[projected, , drop = FALSE]
+          }
           A <- .native_projection(
-            Y,
-            view,
+            if (drop_masked) Y[, projected, drop = FALSE] else Y,
+            projection_view,
             side,
             priors,
             if (is.null(control$maxiter)) 100L else control$maxiter,
@@ -501,7 +523,11 @@ factor_holdout <- function(
           score_rows <- function(indices, weighting, unit = NA_character_, cohort = NA_character_) {
             for (model in c("fixed_programs", "training_mean")) {
               predicted <- if (model == "fixed_programs") prediction else baseline
-              values <- .prediction_metrics(observed[indices, , drop = FALSE], predicted[indices, , drop = FALSE])
+              values <- .prediction_metrics(
+                observed[indices, , drop = FALSE],
+                predicted[indices, , drop = FALSE],
+                if (model == "fixed_programs") baseline[indices, , drop = FALSE]
+              )
               metric_rows$rows[[length(metric_rows$rows) + 1L]] <- data.frame(
                 fold = label,
                 evaluation_type = evaluation,
@@ -512,6 +538,7 @@ factor_holdout <- function(
                 rmse = values["rmse"],
                 mae = values["mae"],
                 prediction_r2 = values["prediction_r2"],
+                skill = values["skill"],
                 correlation = values["correlation"],
                 n_scored_entries = values["n_scored_entries"],
                 n_samples = length(indices),
@@ -521,16 +548,19 @@ factor_holdout <- function(
             }
           }
           score_rows(seq_along(test), "observation")
+          # a unit or cohort with no scored entry (a custom mask) has no metric rather than failing the fold
+          has_scored <- function(indices) any(is.finite(observed[indices, , drop = FALSE]))
           for (unit in unique(units[test])) {
-            score_rows(which(units[test] == unit), "unit", unit = unit)
+            if (has_scored(which(units[test] == unit))) score_rows(which(units[test] == unit), "unit", unit = unit)
           }
           if (!is.null(control$cohort_col)) {
             for (cohort in unique(as.character(md[[control$cohort_col]][test]))) {
-              score_rows(which(as.character(md[[control$cohort_col]][test]) == cohort), "cohort", cohort = cohort)
+              indices <- which(as.character(md[[control$cohort_col]][test]) == cohort)
+              if (has_scored(indices)) score_rows(indices, "cohort", cohort = cohort)
             }
           }
           metrics <- do.call(rbind, metric_rows$rows)
-          metric_names <- c("rmse", "mae", "prediction_r2", "correlation")
+          metric_names <- c("rmse", "mae", "prediction_r2", "skill", "correlation")
           # Units averaged into each macro metric; NA metrics (a constant unit) drop out.
           for (name in metric_names) {
             metrics[[paste0("n_units_", name)]] <- NA_integer_
@@ -580,6 +610,9 @@ factor_holdout <- function(
             training_ids = samples[train],
             scoring_ids = samples[test],
             train_basis = view$manifest,
+            truth_digest = digest::digest(observed, algo = "sha256"),
+            n_factors = ncol(view$effects),
+            prior_identifiers = attr(train_fit, "flashbridge_metadata")$prior_identifiers,
             prediction = if (isTRUE(control$keep_predictions)) prediction else NULL,
             fit = if (isTRUE(control$keep_fits)) train_fit else NULL
           )
@@ -629,6 +662,13 @@ factor_holdout <- function(
             list(evaluation, labels, evaluated, mask, activity_features, scoring_features),
             algo = "sha256"
           ),
+          # what the scored entries were after any transform, and how each fold's training fit was built
+          truth_digest = digest::digest(
+            lapply(results[successful], function(result) result$truth_digest),
+            algo = "sha256"
+          ),
+          fold_factor_counts = vapply(results[successful], function(result) as.integer(result$n_factors), integer(1)),
+          prior_identifiers = if (any(successful)) results[successful][[1L]]$prior_identifiers,
           program_values_fixed = TRUE,
           hyperparameters = prior_note,
           prior_policy = prior_policy,
