@@ -485,8 +485,16 @@ factor_holdout <- function(
           }
           # a masked fold hides its scoring features completely; flashier rejects all-missing columns
           # when variance is estimated per feature, so project through the observed features only
+          fold_var_type <- attr(train_fit, "flashbridge_metadata")$configuration$var_type
+          if (is.null(fold_var_type)) {
+            fold_var_type <- 0L
+          }
           projected <- which(colSums(is.finite(Y)) > 0)
-          drop_masked <- evaluation == "masked" && is.null(test_aux$S) && length(projected) < ncol(Y)
+          # var_type 0 ignores all-missing columns, so only a per-feature or per-sample variance needs the drop
+          drop_masked <- evaluation == "masked" &&
+            is.null(test_aux$S) &&
+            length(projected) < ncol(Y) &&
+            any(fold_var_type != 0L)
           projection_view <- view
           if (drop_masked) {
             projection_view$effects <- view$effects[projected, , drop = FALSE]
@@ -498,11 +506,7 @@ factor_holdout <- function(
             priors,
             if (is.null(control$maxiter)) 100L else control$maxiter,
             S = test_aux$S,
-            var_type = if (is.null(attr(train_fit, "flashbridge_metadata")$configuration$var_type)) {
-              0L
-            } else {
-              attr(train_fit, "flashbridge_metadata")$configuration$var_type
-            },
+            var_type = fold_var_type,
             g = if (prior_policy == "fixed_reference" && ncol(view$effects)) .reference_activity_g(train_fit, view)
           )
           prediction <- sweep(tcrossprod(A, view$effects), 2L, view$offset, "+")

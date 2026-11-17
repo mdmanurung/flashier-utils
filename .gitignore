@@ -8,3 +8,5 @@ Meta/
 docs/
 .claude/
 .github/scripts/__pycache__/
+tests/testthat/_problems/
+tests/testthat/testthat-problems.rds

@@ -257,3 +257,20 @@ test_that("holdout evidence is paired only for the same scored entries, folds an
   expect_error(.program_evidence(evidence(stub(), stub(folds = "other")), sources), "different folds")
   expect_warning(.program_evidence(evidence(stub(factors = 5L), stub()), sources), "may not belong to this source")
 })
+
+test_that("a masked split with var_type 0 still works when samples are columns and one feature is observed", {
+  s <- review_setup()
+  out <- factor_holdout(
+    t(s$X),
+    s$md,
+    "donor",
+    s$folds,
+    review_callback,
+    seed = 12,
+    evaluation = "masked",
+    activity_features = "g1",
+    scoring_features = paste0("g", 5:8),
+    control = review_control(sample_side = "columns")
+  )
+  expect_equal(nrow(out$failures), 0L)
+})

@@ -427,7 +427,7 @@ test_factor_association <- function(
         "none"
       },
       moderation_settings = control$ebayes,
-      small_factor_moderation_caveat = engine != "lm",
+      small_factor_moderation_caveat = engine == "limma" || (engine == "dream" && moderate),
       inference = "conditional_on_factor_fit"
     )
   )

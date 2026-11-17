@@ -110,10 +110,8 @@
   do.call(interaction, c(columns, list(drop = TRUE, lex.order = TRUE)))
 }
 
-.with_seed <- function(seed, code) {
-  if (is.null(seed)) {
-    return(force(code))
-  }
+# A seed is one finite whole number from 0 to .Machine$integer.max.
+.check_seed <- function(seed) {
   if (
     length(seed) != 1L ||
       !is.numeric(seed) ||
@@ -124,6 +122,14 @@
   ) {
     stop("seed must be a nonnegative integer")
   }
+  invisible(seed)
+}
+
+.with_seed <- function(seed, code) {
+  if (is.null(seed)) {
+    return(force(code))
+  }
+  .check_seed(seed)
   existed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
   if (existed) {
     old <- get(".Random.seed", envir = .GlobalEnv)

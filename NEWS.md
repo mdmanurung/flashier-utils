@@ -1,5 +1,12 @@
 # flashier.utils 2.0.0.9000
 
+- Follow-ups from a second review of the fixes above. `enrich_factors(engine = "fgsea")` again
+  refuses an invalid `seed` (negative, fractional, too large, text or `NA`). `factor_holdout()`
+  drops fully masked features before projection only when `var_type` is not 0, so a masked
+  split with `var_type = 0` and one activity feature, samples as columns, runs as before. The
+  empty fgsea table has the `padj_all` column. `small_factor_moderation_caveat` is `TRUE` only
+  where moderation is applied.
+
 - Summary and diagnostic functions. `factor_pve()` gains a `denominator` column and the docs
   say the shares are of the uncentred second moment, which includes a feature intercept.
   `factor_gate_alignment()` reports `n_tied_at_cutoff`, `overlap_min` and `overlap_max` and sets

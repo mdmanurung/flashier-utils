@@ -94,3 +94,21 @@ test_that("control$ebayes needs moderate = TRUE for dream", {
     "moderate = TRUE"
   )
 })
+
+test_that("the small-factor moderation caveat is only flagged when moderation is applied", {
+  skip_if_not_installed("variancePartition")
+  d <- association_fixture(TRUE)
+  run <- function(moderate) {
+    test_factor_association(
+      d$view,
+      d$metadata,
+      ~ group + (1 | donor),
+      "dream",
+      unit_col = "donor",
+      independence = "repeated",
+      moderate = moderate
+    )$analysis_metadata$small_factor_moderation_caveat
+  }
+  expect_false(run(FALSE))
+  expect_true(run(TRUE))
+})

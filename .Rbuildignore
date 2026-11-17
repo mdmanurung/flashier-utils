@@ -29,3 +29,5 @@
 ^flashier\.utils_.*\.tar\.gz$
 ^.*\.Rcheck$
 ^tests/README\.md$
+^tests/testthat/_problems$
+^tests/testthat/testthat-problems\.rds$

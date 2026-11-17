@@ -184,3 +184,23 @@ test_that("padj_all adjusts over every factor by pathway test and padj stays wit
   )
   expect_named(out$analysis_metadata$adjustment, c("padj", "padj_all"))
 })
+
+test_that("an invalid fgsea seed is refused, and the empty table has the same columns as a full one", {
+  skip_if_not_installed("fgsea")
+  d <- association_fixture(K = 8)
+  set.seed(9)
+  d$view$effects <- matrix(rnorm(64), 8, dimnames = list(paste0("g", 1:8), paste0("F", 1:8)))
+  d$view <- .make_representation(d$view$activity, d$view$effects, d$view$manifest)
+  pathways <- list(one = c("g1", "g2", "g3"), two = c("g4", "g5", "g6"))
+  settings <- list(nPermSimple = 100L, eps = 1e-3, minSize = 2L)
+  for (bad in list(-1, 4.7, 1e10, "a", NA, c(1, 2))) {
+    expect_error(
+      enrich_factors(d$view, pathways, "fgsea", factors = "F1", control = c(settings, list(seed = bad))),
+      "seed must be a nonnegative integer"
+    )
+  }
+  full <- enrich_factors(d$view, pathways, "fgsea", factors = "F1", control = c(settings, list(seed = 4)))$table
+  empty <- enrich_factors(d$view, list(none = "unknown"), "fgsea")$table
+  expect_true(all(c("padj", "padj_all") %in% names(empty)))
+  expect_true(all(names(empty) %in% names(full)))
+})

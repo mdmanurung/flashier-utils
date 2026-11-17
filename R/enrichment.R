@@ -118,6 +118,7 @@
   if (is.null(seed)) {
     return(NULL)
   }
+  .check_seed(seed)
   bitwAnd(digest::digest2int(factor_id, as.integer(seed)), .Machine$integer.max)
 }
 
@@ -178,7 +179,8 @@ enrich_factors <- function(
         NES = numeric(),
         pval = numeric(),
         padj = numeric(),
-        size = integer()
+        size = integer(),
+        padj_all = numeric()
       )
     } else {
       data.frame(
