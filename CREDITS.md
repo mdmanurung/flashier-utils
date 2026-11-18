@@ -315,6 +315,8 @@ never assigns cell types automatically.
 
 `project_factor_activity`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
 
+Agent skill (`skills/flashier-utils/`, `.claude-plugin/`) and the "Use with AI assistants" article: written by Mikhael Manurung. Their layout follows the [Agent Skills](https://agentskills.io) format and the example of the [Marsilea](https://github.com/Marsilea-viz/marsilea-skill) skill (MIT); no Marsilea text or code is reused.
+
 `build_factor_reference`, `reference_programs`, `reference_members`, `reference_diagnostics` and `project_reference`: independently written by Mikhael Manurung. The consensus catalog construction (normalized spectra, pairwise correlation on the union of source feature sets, reciprocal top-ranked neighbours, density-checked greedy merging, mean consensus) is a conceptual adaptation of [STARCAT](https://github.com/immunogenomics/starCAT) by Dylan Kotliar and Michelle Curtis (Kotliar et al. 2025, Nature Methods 22:1964-1980; MIT). starCAT `build_consensus_reference.py` at 5399183 was read to match the `starcat2025` mode; no source was copied. Projection uses native flashier.
 ### igraph
 

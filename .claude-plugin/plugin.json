@@ -1,0 +1,10 @@
+{
+  "name": "flashier-utils",
+  "description": "Agent skill for the R package flashier.utils: interpret, test, project and build consensus references from flashier (EBMF) matrix factorizations.",
+  "version": "2.0.0",
+  "author": { "name": "Mikhael Manurung" },
+  "homepage": "https://mdmanurung.github.io/flashier-utils/",
+  "repository": "https://github.com/mdmanurung/flashier-utils",
+  "license": "MIT",
+  "keywords": ["r", "flashier", "ebmf", "matrix-factorization", "single-cell", "gene-programs"]
+}

@@ -1,5 +1,11 @@
 # flashier.utils 2.0.0.9000
 
+- New agent skill for AI coding assistants in `skills/flashier-utils/`, installable in Claude
+  Code with `/plugin marketplace add mdmanurung/flashier-utils`. It covers the core workflow,
+  the declarations the package requires, inference, projection, consensus references and common
+  traps. A new article, "Use with AI assistants", explains installation for other agents and
+  links the site's `llms.txt`. The skill and plugin files are excluded from the package build.
+
 - New consensus program references across datasets, a conceptual adaptation of STARCAT
   (Kotliar et al. 2025). `build_factor_reference()` compares the factors of several
   independently fitted datasets pair by pair and links similar ones into a graph. It merges

@@ -1,0 +1,11 @@
+{
+  "name": "flashier-utils",
+  "owner": { "name": "Mikhael Manurung" },
+  "plugins": [
+    {
+      "name": "flashier-utils",
+      "source": "./",
+      "description": "Agent skill for the R package flashier.utils (flashier EBMF interpretation, inference, projection and consensus references)."
+    }
+  ]
+}
