@@ -1,167 +1,44 @@
-# Handoff — docs review, planted-truth benchmark and robustness article
+# Handoff — flashier-starcat core (M0–M6) on branch starcat/m0
 
-**Date:** 2026-11-16 · **Branch:** main · **Status:** rOpenSci P1-P7 done; P2 (srr) done 2026-11-16: 58 of 101 standards met, `srr_stats_pre_submit()` clean, report in reports/srr-report-20261116.html; P8 (pkgcheck on a fresh clone, all CI jobs) open. Plan: ~/.claude/plans/make-a-thorouhg-workplan-graceful-wand.md
+**Written:** 2026-11-18 · **Branch:** starcat/m0 (from main @ b03ba4c) · **Status:** M0–M6 built, tested and committed locally, not pushed. Clean-clone R CMD check: tests and examples OK, no new NOTE. main's rOpenSci pkgcheck step is parked (D020). CI on b03ba4c: R CMD check, pkgdown and test-coverage all green.
+
+## Check first
+Run `git log --oneline 8495e92..HEAD` and `git status --short` on `starcat/m0`. If either shows work this file does not mention, say so before acting.
 
 ## Goal
-Keep flashier.utils scientifically honest and shippable, working down
-`docs/plans/2026-10-25-ease-triage.md` in rank order. Ranks 1 and 2 are done.
+Implement the flashier-starcat design bundle (`flashier-starcat/`) core path. Consensus references across datasets come from `build_factor_reference()`, and native EBMF projection onto them from `project_reference()`. The user chose scope M0–M6 (D020) under `/tusoskill`.
 
 ## Next action
-`gh run list --limit 4` must be green for the last push, then re-run `pkgcheck::pkgcheck()` on a fresh clone
-(about 25 min; save the object before summarising: `checks_to_markdown(x, render = FALSE)`). The 17b8b0b run failed only on `<<-`
-(8 sites, now replaced by environment accumulators) and on a local LaTeX warning (missing inconsolata.sty, not a package
-defect; CI R CMD check is green). Optional :eyes: items left: duplicated function names on CRAN, `\dontrun{}` in examples,
-no ORCID for the two contributors. User still owes: CODECOV_TOKEN secret, the decision on filing
-reports/autotest-20261103/upstream-issue.md, approval for the G3.0 tolerance change (`== 0` on doubles in
-R/correlation.R and R/comparison.R) and to delete the two stale tarballs in the repo root.
-
-## Previous next action
-`gh run list --limit 4`: the gate-fix push (examples, package doc, CONTRIBUTING, oldrel job, quoted 'flashier') must be green, including the new oldrel-1 job. Remaining review items are recommendations only (reports/ropensci-review-20261027/README.md). Reusable skill: ~/.claude/skills/r-package-review.
-
-## Previous next action
-Run `gh run list --limit 4`. The API cleanup push must pass R CMD check (5 jobs) and
-pkgdown. Earlier runs 40357365764 (init_fn fix) and 40360265143 (test_gom_de) must also
-be green; full-engines installs fastTopics from the pinned Remote. If green,
-ask whether to start triage rank 3, the saved-fit comparison API (A1–A2 in
-`docs/plans/2026-10-25-complete-package.md`).
+Ask the user to choose, then act on the answer:
+1. push `starcat/m0` so CI (including pkgdown for the new `_pkgdown.yml` section) runs on it;
+2. continue toward the tusoskill floor (ledger at 8/50; `validation/starcat-20261118/`) with R035 starCAT parity, the R100/R103/R105–R107 receipts and R053 plots, each with its own seed and grid asks;
+3. or stop this round, which the user must say in their own words before `record-blocker --kind user`.
+Also offer a bench-v1 rescore: the recovery cut (congruence ≥ 0.9), 30% effect sparsity and `max_factors = 6` were defaults the user did not approve.
 
 ## State
-- Review reports are committed (user asked, 2026-10-26): core-review-20261022/,
-  ebmf-cnmf-adversarial-review-20261025.md, package-review-20261026.md,
-  starcat-status-20261025.md and api-review-20261026/. Probe harness and check log stay
-  local in validation/api-review-20261026/.
-- Tests: `scripts/run-r.sh -e 'devtools::load_all(); testthat::test_dir("tests/testthat")'`
-  gives 219 blocks, 0 failures, 0 skips, 0 warnings (allow_maxiter() muffles only the
-  iteration-cap warning), ~5 min. Line coverage 90.7% (backprojection 91.9, shrinkage 100).
-  Under R CMD check the no-`:::` test skips (R/ is absent in pkg.Rcheck): full-engines
-  reports SKIP 1; hard-dependency jobs also skip 5-26 optional-engine tests.
-- Last green CI: 22c8877 (R CMD check, 5 jobs, plus pkgdown). Ubuntu dependency setup takes ~40 min.
-- Runtime: R4_51 via scripts/run-r.sh. roxygen2 8.1.0 installed, package records 8.1.1; 8.1.1 regenerates identical man/ (checked 2026-11-03).
-- Local-only (git-excluded): development/, docs/plans/, validation/ (receipts).
-
-## Shipped this thread (one line each)
-- 2026-11-17 inference review (7 Fable-model reviewers plus a refuting agent per finding): 44 findings, 3 bugs. All fixed or documented in commits 6a0e518..b1720ed; each fix has a test that fails on the old code. Bugs: dream df inflated by eBayes (rejection 0.092 vs 0.058 at a nominal 0.05 in 150 simulated datasets), limma single factor all-NA, mash lfsr 10-27x too small at 4-8 df. [28] (X vs t(X) reaching different optima) did not reproduce in a probe with normal/point-laplace priors (identical ELBO, K, PVE) and is documented as a general caveat only. Probe scripts: validation/planted-validation-20261027/review-20261117/ (rotation check only); the rest are in the session scratchpad.
-- 2026-11-16 P2 srr: roclet in DESCRIPTION and the drift job; 43 `@srrstatsNA` in R/srr-stats-standards.R, 58 `@srrstats` tags at the end of the R files and in tests/testthat/test-srr-edges.R; docs added (references, glossary, lifecycle in README, tests/README.md); test-srr-edges.R covers G5.8a/b/d and G5.9. Still unmet by choice: G2.9, G2.14b (new messages), G3.0, print/summary/plot methods, error classes.
-- 2026-11-16 batch correction review (independent Fable-model agent): no correctness bug (26 tests, parity with Harmony 2.0.5 and a QR reference to 1e-14). Fixed: warning on skipped clusters and on a protected covariate nested in batch, absent protected factor levels no longer stop, NA formulas stop, docs state the residual shift. Not changed: solve() on poorly scaled covariates (fails loudly). The planted batch benchmark (validation/batch-planted-20261112) is still a draft with no results.
-- 2026-11-04 batch correction (user: "build now"): correct_feature_batch() = Harmony's per-cluster ridge in R on the feature matrix (no clipping, protect = ~covariate, name-keyed lambda), harmony_assignments() wraps RunHarmony(return_object = TRUE); harmony in Suggests; parity with Harmony 2.0.5 embedding (~2e-5, float) and limma::removeBatchEffect at lambda 1e-6; article articles/batch-correction; scope statement gains a preprocessing paragraph.
-- 2026-11-03 P3: autotest report reports/autotest-20261103/ (S7 abort repro + draft issue; remaining errors are autotest call-reconstruction artefacts); var_type contract enforced at 3 entry points (14239c2); examples demonstrate flagged parameters; @return names classes. air format at 120 and a .lintr without big exclusions (lint was 200 s/file): 36 real lints in R/.
-- 2026-11-03 docs push: lucid-writer review fixes in ebmf-cnmf-comparison (inline CSV numbers, conditional congruence, split counts, cNMF cap, held-out replicate count) and robustness-checks; vignette code checks. All 7 vignettes render locally. Autotest aborts inside autotest on ggplot2 S7 objects (`cannot coerce type 'object'`): next step is excluding plot_* and reporting upstream.
-- 2026-11-03 renames: factor_provenance(), test_factor_association(); old names exported as .Deprecated() aliases in R/deprecated.R (CRAN clashes: provenance x4, test_factors x1).
-- 2026-11-03 P4: README.Rmd + badges, CODE_OF_CONDUCT.md, inst/CITATION, test-coverage workflow, roxygen-drift CI job; credits review reports/credits-review-20261103/ (scales, irlba, softImpute credited; CorShrink pin named; patchwork dropped).
-- 2026-11-03 P6 + GBCD: test-shrinkage.R, test-backprojection-guards.R, 11 tracker tests, allow_maxiter(), preflight mock; fixes: MDS float-noise ties, holdout fold seeds keyed by label + n_units_<metric>, one prior-identifier registry.
-- 2026-11-03 P5: .lintr (120), styler over R/ and tests/, .is_flag/.is_named_list, palette/label helpers, display seed = 1 default, oob squish (scales Import), factor_diagnostics thresholds required, step comments. Gallery check compares coordinates (fixes pkgdown).
-- 2026-11-03 P1: CRAN flashier 1.0.7 fails masked holdout (all-missing slices) and lacks flash_plot_scree; pin kept, Imports flashier (>= 1.0.60).
-- 2026-10-27 rOpenSci gate fixes: examples for the two projection exports, R/flashier.utils-package.R, CONTRIBUTING.md (Rbuildignored), ubuntu oldrel-1 CI job, 'flashier' quoted in DESCRIPTION.
-- 2026-10-27 rOpenSci-style review (read-only): pkgcheck/goodpractice/autotest/coverage/complexity/dependency/performance passes with evidence CSVs under reports/ropensci-review-20261027; 5 standards gates fail (examples for 2 projection exports, CONTRIBUTING, package doc, oldrel CI, quoted 'flashier'); no R code defects beyond style. Skill saved at ~/.claude/skills/r-package-review.
-- 2026-10-27 D1 technical part: validation/planted-validation-20261027 (PREREG frozen; paired masked prediction 25 folds x 3 arms, all beat training mean; compare_prior_fits evidence bound in 15/15 pairs; subsample stability 300/300 refits; refit check reproduces 20261026 fits to 1e-14). Finding: signed-arm shared-block factors unstable under subsampling (0.05-1.0), nonnegative arms 1.0. Article section added; projection paths store verbosity 0.
-- 2026-10-27: compare_prior_fits() promoted from validation/implementation-all-20261025/candidate to R/comparison.R with its oracle tests (test-comparison.R) plus native-fit and bound-holdout tests; factor_holdout records input_digest/evaluation_digest; print/plot methods; registry, CREDITS, pkgdown index and compare-priors tutorial updated. A1 done; A2 evidence binding is implemented for stability (exact basis) and masked paired holdout (digests), comparison reports beyond print/plot not built. GB-005b completed (canonical MDS sign, group_order, dense refusal). Release memo gates renamed REL-001a/b.
-- fit_ebmf always takes the explicit init/greedy/backfit/nullcheck path and calls flash_set_verbose, so verbose=0 silences flashier's zero-factor report (the flash() wrapper never stored the level). Okabe-Ito default for discrete colours in plot_factor_scatter/data/activity(structure); activity plots carry a scaling subtitle. Per-seed candidate counts (ebmf-cnmf-planted-candidates-seeds.csv, written by evaluate.R) feed the comparison figure.
-- Plot-first docs: first-fit (PVE, ranked weights), compare-priors (effects vs truth, metrics, held-out, congruence), advanced-use (coordinates, intervals, group distributions, backprojection, filter history), pancreas (weights, projected activity), robustness-checks (one figure per check, `plot_congruence()` helper in the article), comparison (candidates figure). ggplot2 only (Imports); patchwork/ggrepel not used in tutorials.
-- 09cb71d CI fix after the display suite (undocumented arg; tolerant prior chunk).
-- 617f6d1 docs site reordered value-first; roxygen markdown enabled (DESCRIPTION `Roxygen:`), all Rd regenerated; stale tracked docs/plans file removed.
-- Planted-truth benchmark: archive `validation/ebmf-cnmf-planted-20261026/` (PREREG, JOURNAL, simulate/fit-cnmf/fit-ebmf/evaluate, receipt, SHA256). Derived CSVs in vignettes/articles/data/ebmf-cnmf-planted-*.csv; new section in ebmf-cnmf-comparison.Rmd. Deviations logged: auc_posthoc column added after first evaluation (PREREG rule unchanged); collinear cor 0.89-0.91 vs 0.85 target. All cNMF runs hit the 300-iteration cap (pilot config).
-- New website article vignettes/articles/robustness-checks.Rmd; allowlisted in check-site.py + test fixture; navbar entry.
-- 120c0bf MOFA2-style display suite: plot_factor_weights/scatter/pve/data exported from R/plot-suite.R, plot_factor_embedding exported with a matrix path; gallery 17 cards; check-site counts updated; MOFA2 credited (LGPL-3, conceptual only).
-- Review fixes 13c8c16..e52fec5: var_type inheritance, fixed_reference prior policy, stability subsampling, docs, styler.
-- 0097ab8 fixed_reference tests for intercept fits and factor subsets; b7f153a metadata extra rows dropped and recorded.
-- 2884978 ledgers reconciled (GBCD tracker 150 done, 13 partial); f59a2d0 custom greedy init_fn fits are callback-required.
-- Profiling: validation/profiling-20261026/DECISION.md, Rcpp not justified (factor_intervals time is the native sampler).
-- ab8ce82 `test_gom_de()` exported fastTopics adapter (pin 5cf9a448); 2cabb52 Rd drift from styler regenerated.
-- API cleanup: 12 single-value/reserved args removed from 7 exports, 4 trailing reorders,
-  S/var_type/one-sample guards, factor_intervals side default; 322-probe edge matrix.
-
-## rOpenSci publication readiness — to do (added 2026-10-27)
-
-Source: reports/ropensci-review-20261027 (state at 22c8877; gates fixed in 00ac52d).
-Order is by what unblocks the next step. Estimates are hands-on effort.
-
-- [x] P1 done 2026-11-03: pin kept, `flashier (>= 1.0.60)` in Imports. CRAN 1.0.7 fails 10
-  masked-holdout expectations (all-missing slices rejected), pancreas vignette, and lacks
-  flash_plot_scree. Receipts: validation/p1-cran-flashier-20261103/. Plan for the rest:
-  ~/.claude/plans/review-using-lucid-coder-and-polymorphic-feather.md.
-  Original item: Decide the dependency story (half a day). Run the full suite and the four
-  vignettes against CRAN flashier 1.0.x in a scratch library. If green: drop the
-  `Remotes:` pin for flashier, keep the three Suggests remotes (CorShrink, gbcd,
-  fastTopics) and document them as optional GitHub installs. If not green: record
-  the failing feature in NEWS and README and keep the pin with a one-line reason.
-  Acceptance: DESCRIPTION installable with `install.packages()` for Imports, or a
-  documented reason in README.
-- [ ] P2 srr statistical standards (1–2 weeks). `srr::srr_stats_roxygen(category =
-  "unsupervised")` writes R/srr-stats-standards.R; annotate every G and UL standard
-  next to the code with `@srrstats` or `@srrstatsNA` plus a reason; no
-  `@srrstatsTODO` left. Acceptance: `srr::srr_stats_pre_submit()` clean,
-  `srr::srr_report()` committed under reports/.
-- [~] P3 2026-11-03: as clean as autotest 0.2.0.3 allows; see reports/autotest-20261103/README.md. Original: autotest clean run (2–3 days). Reproduce the two aborts (package `tests/`
-  present; S4/ggplot return value) in a minimal example and either work around in
-  `~/.claude/skills/r-package-review/scripts/autotest.sh` or report upstream.
-  Demonstrate the 49 undocumented-in-examples parameters (start with
-  standardize_factors, backproject_contrast, plot_factor_data, fit_ebmf); name
-  return classes in `@return` for the 6 flagged pages. Acceptance:
-  `autotest_package(test = TRUE)` returns no `error` rows; remaining diagnostics
-  listed in the srr report.
-- [x] P4 done 2026-11-03; ORCID added 2026-11-04; Codecov token still needs the user. Original: Community files and README (1 day). README.Rmd that renders README.md;
-  badges (R CMD check, Codecov, repostatus, lifecycle); Codecov upload step in
-  R-CMD-check.yaml; CODE_OF_CONDUCT.md; inst/CITATION; ORCID for the maintainer in
-  Authors@R. Acceptance: pkgcheck `has_citation`, `has_orcid` pass; README shows
-  live badges.
-- [x] P5 done 2026-11-03: 36 real lints in R/ (lintr defaults at 120, package context; 73 no-visible-global artefacts excluded). Original: Style pass (half a day). `.lintr` with 120-character limit; `styler::style_pkg()`;
-  rename `T` in R/alignment.R; delete or use `.display_options`; `@inheritParams` for the
-  duplicated `fit` parameter; `add = TRUE` on the two `on.exit` calls. Acceptance:
-  goodpractice lintr count under 50 excluding tests.
-- [x] P6 done 2026-11-03: backprojection 91.9%, shrinkage 100%. Original: Test depth (1 day). test-shrinkage.R; `backproject_contrast` guard tests;
-  replace the wall-clock assertion in test-fu0-preflight.R:40; plot-data assertions for
-  plot_factor_pve/weights/scatter. Acceptance: backprojection.R and shrinkage.R above
-  85 percent line coverage.
-- [x] P7 done 2026-11-03: reports/ropensci-submission/scope-statement.md; both clashing names renamed. Original: Scope and overlap statement (half a day). One paragraph for the submission
-  issue: category (statistical, unsupervised learning), overlap with flashier itself,
-  MOFA2 and cNMF tooling, what this package adds (named views, provenance, bound
-  evidence). Check `pkgcheck::fn_names_on_cran()` for `provenance` and
-  `test_factors` and decide whether to rename before submission.
-- [ ] P8 Pre-submission check (half a day). `pkgcheck::pkgcheck()` on a fresh clone
-  must report ready; `R CMD check` clean on all 6 CI jobs; then follow the
-  peer-review-author checklist (ropensci-skills) to open the software-review issue.
+- Commits: bf7b5b7 (M0 snapshot and fixtures), 8495e92 (M1–M6), plus a follow-up commit with edge-case tests, air formatting and this file.
+- New exports: `build_factor_reference`, `project_reference`, `reference_programs`, `reference_members`, `reference_diagnostics`; S3 print and summary methods. Files: `R/reference-build.R`, `R/reference-class.R`, `R/reference-projection.R`, `tests/testthat/test-reference.R`, `tests/testthat/test-reference-baseline.R`, `tests/testthat/helper-reference.R`.
+- Tracker: 38 tasks DONE in `flashier-starcat/03_EXECUTION_TRACKER.{csv,md}`; records in `flashier-starcat/10_COMPLETION_RECORDS.md`.
+- Tests: full suite 0 failures after 8495e92; the reference file has about 95 expectations.
+- bench-v1 (R101): `validation/starcat-20261118/benchmark/bench-v1/f1_by_noise.png` and `summary.csv`. F1 is 0.85–0.97 at `min_similarity` 0.5–0.7. There were 0 duplicate-dataset clusters and 0 private-program leaks in 240 builds, with a median build of 0.5 s. The low-noise dip comes from source-fit rotation, not the reference layer. At SD 0.25, 0.70 of 3 truths were recovered in all 3 fits versus 2.55 by the reference, and the reference never fell below what the sources allow (0/80) — `validation/starcat-20261118/benchmark/bench-v1/source_vs_reference.png`.
+- Assumed, not run: CI on starcat/m0; the starCAT parity script (R035). The starcat2025 parity test uses datasets with identical feature sets, so renormalization over shared features is not exercised.
 
 ## Locked decisions
-- Inference review fixes (user, 2026-11-17): `test_factor_association(engine = "dream")` skips eBayes unless `moderate = TRUE`; `shrink_factor_effects()` passes the table's `df` column to mash (`df = Inf` when absent); `factor_stability()` keeps `scheme = "bootstrap"` and documents and warns instead of changing the default; `factor_holdout()` keeps `prediction_r2` and adds `skill`. Proposed and approved with the plan: `factor_intervals()` warns under 5 tail draws; one-sample rows folds are refused up front; the constant rule is `sd <= 8 * .Machine$double.eps * max(abs(x))` (`.is_constant()` in R/ids.R); `validate_backprojection()` adds `calibration_slope`; moderation warning at a tenfold residual-variance ratio. Do not re-ask.
-- `prior_policy` defaults to "query"; "fixed_reference" is opt-in (user, 2026-10-26).
-- `.match_ids` defaults to `extra = "drop"` with exclusions recorded; sample-keyed holdout folds pass `extra = "fail"` (user, 2026-10-26).
-- `test_gom_de` is exported, takes an explicit membership matrix only, never normalizes EBMF scores (user, 2026-10-26).
-- basis_id keeps hashing engine versions; only the comment changed (2026-10-26).
-- Push once per batch; the last pushed commit must not carry `[skip ci]` when R code changed — it skips CI for the whole push, and R CMD check has no workflow_dispatch.
-- Core API migration shipped; do not re-ask (user, 2026-10-23).
-- Single-value and reserved arguments are removed from exports; breaking signature changes
-  approved by the user (2026-10-26). Do not re-add alignment/bootstrap/refit_inputs/control
-  (factor_replicability), resample/alignment (factor_stability), freeze_noise/workers
-  (factor_holdout), factor_uncertainty (test_factors), uncertainty (backproject_contrast)
-  or engine (plots). Selections stay character IDs only.
-- Preserve scientific contracts, original authors, inst/NOTICE, provenance, CREDITS (AGENTS.md).
-- GBCD: optional exact pin 670e3afb…; Baseline stays a factor; activity support unknown; copy no algorithms.
-- Keep LM/ash statistics separate from EB-SNMF effects; invent no FLASH uncertainty/PVE.
-- ImmGenT membership filter defaults: threshold 10, 12 passes; paired rescaling preserves reconstruction.
-- compare_prior_fits promoted 2026-10-27 with the A1 acceptance oracles in tests/testthat/test-comparison.R (supersedes the 2026-10-25 hold). Remaining A2 work: comparison reports beyond print/plot.
-
-## Findings to keep
-- Planted stability (2026-10-27, reworded 2026-11-17): signed EBMF shared-block factors fail to recover under cell subsampling (recovery 0.05-1.0 at congruence 0.9) while nonnegative arms recover them in every refit. A subspace check found P2/P3 failures stay inside the refit span (54 of 54, share >= 0.975: rotation) but the lowest-variance shared factor F7 is partly lost (0 of 64 at >= 0.95; median share 0.44-0.69, chance 0.0175). One signed arm, five datasets, cell unit; `table fallback: per-refit values in validation/planted-validation-20261027/review-20261117/p6_rotation_seed0*.csv`, no figure. Semi-nonnegative bipolar factor next least stable (0.30-0.90).
-- SCI-004a/b are the protocol's scientific gates (fixed-B point projection; supplied-profile consensus recovery) and remain open. The release software gates in reports/GO_MEMO_SCI004.md are REL-001a/b (renamed 2026-10-27).
-- Fixed priors alone do not remove query-set dependence: only fixed priors plus sample-wise
-  var_type do (same cell, two query sets: 5e-7 vs 4e-4 to 9e-4).
-- fastTopics' matrix path checks row sums one-sided and only warns; test_gom_de checks both sides.
+- D019 (user, 2026-11-18): the spec's generic defaults are confirmed — L1/L2 profiles, congruence, sign flip only signed/signed, intersection features, required `min_similarity`, reciprocal FALSE, density ≥ 2/3, `min_datasets` 2. The starcat2025 constants are also confirmed.
+- D021/D022 (user, 2026-11-18): starcat2025 uses starCAT's cross-cluster directed density > 0.666 and the unrenormalized mean of source-SD spectra.
+- D023/D024 (agent, recorded): ties break by similarity, then radix member ID. The per-dataset best filter runs only in starcat2025 mode. `reference_id` hashes a permutation-invariant source digest.
+- bench-v1 grid (user): seeds 1:20; noise 0.25/0.5/1/2; `min_similarity` 0.5/0.7/0.9.
+- The earlier main-branch decisions still hold: see `git show b03ba4c:HANDOFF.md` (inference fixes D1–D8, `prior_policy`, removed arguments, provenance rules).
 
 ## Dead ends — do not redo
-- Pages cleanup in tracked docs/ fails; build under RUNNER_TEMP/pkgdown-site.
-- Baseline/GEP labels do not establish GBCD support lineage.
-- Descriptive coefficient margins are not conditional GoM DE lfsr.
-- Prototype signed reorientation changes cone coverage; fix sign/pole contracts first.
-- CE track: reports/CE_G2_LOSS_MEMO.md says no rerun.
+- `rcmdcheck` from the working tree copies `validation/` (about 10 minutes); check a clean clone in the scratchpad instead.
+- Main-branch dead ends: see `git show b03ba4c:HANDOFF.md`.
 
 ## Read first
-- `reports/api-review-20261026/REPORT.md:1` — argument cleanup findings and migration.
-- `docs/plans/2026-10-25-complete-package.md:1` — A1–A2 contract for rank 3 (staged candidate under validation/implementation-all-20261025/candidate/).
-- `docs/plans/2026-10-25-ease-triage.md:1` — remaining ranks 3–5 and follow-ups.
-- `R/gom-de.R:49` — newest adapter; pattern for optional engines with `R/gbcd.R`.
+- `flashier-starcat/07_SOURCE_AUDIT_AND_DECISIONS.md` D018–D024.
+- `flashier-starcat/10_COMPLETION_RECORDS.md`.
+- `flashier-starcat/05_TEST_BENCHMARK_PLAN.md` for the open receipts.
 
 ## Open items
-- GB-005b display order lacks canonical MDS sign and declared group order — fix on request.
-- GBCD tracker has 13 partial rows (small missing tests) — flashier-gbcd/TRACKER.md.
-- Possible follow-up: fix residual variance to the reference (reference tau as S).
-- StarCAT (SC-*), SCI-*, VAL-* backlogs unchanged; need data and Slurm.
+- rOpenSci path on main (parked): fresh-clone pkgcheck; user actions — JMLR citation check, `CODECOV_TOKEN`, upstream-issue decision, opening the submission issue.
+- Open StarCAT tasks: R035, R053, R100, R101 (rescore), R103–R109, M7–M9, M11, M12 (vignettes, final release gate).

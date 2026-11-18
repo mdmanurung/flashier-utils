@@ -36,12 +36,16 @@
       "declare that the source datasets were preprocessed comparably"
     )
   }
-  if (is.null(manifest$profile_normalization)) manifest$profile_normalization <- "auto"
+  if (is.null(manifest$profile_normalization)) {
+    manifest$profile_normalization <- "auto"
+  }
   if (!identical(manifest$profile_normalization, "auto")) {
     stop("comparison_manifest$profile_normalization supports only \"auto\" in schema v1")
   }
   standard <- if (mode == "starcat2025") "source_sd" else "none"
-  if (is.null(manifest$feature_standardization)) manifest$feature_standardization <- standard
+  if (is.null(manifest$feature_standardization)) {
+    manifest$feature_standardization <- standard
+  }
   if (!identical(manifest$feature_standardization, standard)) {
     stop(
       "comparison_manifest$feature_standardization must be \"",
@@ -108,7 +112,11 @@
       function(k) support$effect_support[k] == "nonnegative" && any(B[, k] < -tolerance(B[, k])),
       logical(1)
     )
-    reason <- ifelse(zero_effect, "zero_effect", ifelse(negative, "negative_effect_under_nonnegative_support", "eligible"))
+    reason <- ifelse(
+      zero_effect,
+      "zero_effect",
+      ifelse(negative, "negative_effect_under_nonnegative_support", "eligible")
+    )
     members[[d]] <- data.frame(
       member_id = paste0(d, "::", colnames(B)),
       dataset_id = d,
@@ -324,7 +332,9 @@
   directed <- directed[order(rank[directed$from], -directed$similarity, rank[directed$to]), , drop = FALSE]
   directed$rank <- stats::ave(seq_len(nrow(directed)), directed$from, FUN = seq_along)
   status <- rep("candidate", nrow(directed))
-  if (!is.null(rank_max)) status[directed$rank > rank_max] <- "outside_rank_max"
+  if (!is.null(rank_max)) {
+    status[directed$rank > rank_max] <- "outside_rank_max"
+  }
   status[status == "candidate" & !(directed$similarity > min_similarity)] <- "not_above_min_similarity"
   if (best_per_dataset) {
     live <- which(status == "candidate")

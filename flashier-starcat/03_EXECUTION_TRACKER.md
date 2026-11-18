@@ -57,7 +57,7 @@ The CSV file is authoritative for machine execution; this table is the readable 
 | R090 | M9 | P2 | TODO | Import optional source factor-stability summaries | R050 | member diagnostics |
 | R091 | M9 | P2 | TODO | Add consensus descriptive stability summaries | R090 | consensus diagnostics |
 | R100 | M10 | P0 | TODO | Exact scale/permutation/order invariance benchmark | R050 | benchmark receipt |
-| R101 | M10 | P0 | TODO | Shared vs dataset-specific simulation | R050 | benchmark receipt |
+| R101 | M10 | P0 | DONE | Shared vs dataset-specific simulation | R050 | benchmark receipt |
 | R102 | M10 | P0 | DONE | Split/merged-factor stress test | R050 | benchmark receipt |
 | R103 | M10 | P0 | TODO | Feature-overlap/preprocessing stress test | R050,R061 | benchmark receipt |
 | R104 | M10 | P1 | TODO | STARCAT profile/graph parity validation | R035 | benchmark receipt |
