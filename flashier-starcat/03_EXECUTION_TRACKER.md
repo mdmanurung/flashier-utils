@@ -8,44 +8,44 @@ The CSV file is authoritative for machine execution; this table is the readable 
 
 | ID | Milestone | Priority | Status | Task | Depends on | Acceptance artifact |
 |---|---|---:|---|---|---|---|
-| R000 | M0 | P0 | TODO | Freeze repository/API/dependency snapshot | — | baseline receipt |
-| R001 | M0 | P0 | TODO | Add alignment regression fixtures | R000 | tests |
-| R002 | M0 | P0 | TODO | Add projection regression fixtures | R000 | tests |
-| R003 | M0 | P0 | TODO | Add signed/semi-NMF/nonnegative synthetic fixtures | R000 | helper fixtures |
-| R010 | M1 | P0 | TODO | Implement source collection and compact source table | R001,R002,R003 | internal helper + tests |
-| R011 | M1 | P0 | TODO | Implement source/member eligibility records | R010 | eligibility table tests |
-| R012 | M1 | P0 | TODO | Implement generic comparison-profile normalization | R011 | profile helper |
-| R013 | M1 | P0 | TODO | Implement constraint-aware orientation/sign rules | R012 | sign tests |
-| R014 | M1 | P0 | TODO | Implement pairwise/reference feature policies | R012 | feature-set tests |
-| R015 | M1 | P1 | TODO | Implement STARCAT-2025 profile-statistics contract | R014 | mode validator + tests |
-| R016 | M1 | P0 | TODO | Add source-basis immutability/rescaling invariance tests | R012,R013 | invariance tests |
-| R020 | M2 | P0 | TODO | Extract reusable pre-assignment similarity primitive | R016 | internal helper |
-| R021 | M2 | P0 | TODO | Implement all-pairs similarity table | R020 | similarity tests |
-| R022 | M2 | P0 | TODO | Add pair coverage/exclusion reasons | R021 | schema tests |
-| R023 | M2 | P0 | TODO | Prove graph path does not use LSAP assignment | R021 | regression/adversarial test |
-| R030 | M3 | P0 | TODO | Implement directed candidate-neighbor table | R021,R022 | graph candidate tests |
-| R031 | M3 | P0 | TODO | Implement reciprocal accepted-edge table | R030 | edge tests |
-| R032 | M3 | P0 | TODO | Implement deterministic density-constrained merging | R031 | clustering helper |
-| R033 | M3 | P0 | TODO | Enforce one member per dataset | R032 | adversarial tests |
-| R034 | M3 | P1 | TODO | Store rejected merge decisions/reasons | R032 | audit table |
+| R000 | M0 | P0 | DONE | Freeze repository/API/dependency snapshot | — | baseline receipt |
+| R001 | M0 | P0 | DONE | Add alignment regression fixtures | R000 | tests |
+| R002 | M0 | P0 | DONE | Add projection regression fixtures | R000 | tests |
+| R003 | M0 | P0 | DONE | Add signed/semi-NMF/nonnegative synthetic fixtures | R000 | helper fixtures |
+| R010 | M1 | P0 | DONE | Implement source collection and compact source table | R001,R002,R003 | internal helper + tests |
+| R011 | M1 | P0 | DONE | Implement source/member eligibility records | R010 | eligibility table tests |
+| R012 | M1 | P0 | DONE | Implement generic comparison-profile normalization | R011 | profile helper |
+| R013 | M1 | P0 | DONE | Implement constraint-aware orientation/sign rules | R012 | sign tests |
+| R014 | M1 | P0 | DONE | Implement pairwise/reference feature policies | R012 | feature-set tests |
+| R015 | M1 | P1 | DONE | Implement STARCAT-2025 profile-statistics contract | R014 | mode validator + tests |
+| R016 | M1 | P0 | DONE | Add source-basis immutability/rescaling invariance tests | R012,R013 | invariance tests |
+| R020 | M2 | P0 | DONE | Extract reusable pre-assignment similarity primitive | R016 | internal helper |
+| R021 | M2 | P0 | DONE | Implement all-pairs similarity table | R020 | similarity tests |
+| R022 | M2 | P0 | DONE | Add pair coverage/exclusion reasons | R021 | schema tests |
+| R023 | M2 | P0 | DONE | Prove graph path does not use LSAP assignment | R021 | regression/adversarial test |
+| R030 | M3 | P0 | DONE | Implement directed candidate-neighbor table | R021,R022 | graph candidate tests |
+| R031 | M3 | P0 | DONE | Implement reciprocal accepted-edge table | R030 | edge tests |
+| R032 | M3 | P0 | DONE | Implement deterministic density-constrained merging | R031 | clustering helper |
+| R033 | M3 | P0 | DONE | Enforce one member per dataset | R032 | adversarial tests |
+| R034 | M3 | P1 | DONE | Store rejected merge decisions/reasons | R032 | audit table |
 | R035 | M3 | P1 | TODO | Add STARCAT graph parity benchmark script | R032,R033 | external benchmark receipt |
-| R040 | M4 | P0 | TODO | Rebuild member profiles on final reference features | R032,R033 | consensus fixture |
-| R041 | M4 | P0 | TODO | Implement arithmetic-mean consensus + renormalization | R040 | consensus tests |
-| R042 | M4 | P0 | TODO | Implement constraint-compatible cluster filtering | R041 | incompatibility tests |
-| R043 | M4 | P1 | TODO | Implement support/heterogeneity diagnostics | R041 | diagnostic tables |
-| R044 | M4 | P0 | TODO | Implement `factor_reference` constructor/validator | R042,R043 | class tests |
-| R045 | M4 | P0 | TODO | Implement deterministic `reference_id` | R044 | order/serialization tests |
-| R046 | M4 | P1 | TODO | Implement reference accessors/print/summary | R044 | API tests |
-| R050 | M5 | P0 | TODO | Implement `build_factor_reference()` | R045,R046 | end-to-end builder |
-| R051 | M5 | P0 | TODO | Implement discovery-only vs projection-ready contract incl. common activity support | R050 | readiness tests |
-| R052 | M5 | P1 | TODO | Add compact provenance/source hashing | R050 | provenance tests |
+| R040 | M4 | P0 | DONE | Rebuild member profiles on final reference features | R032,R033 | consensus fixture |
+| R041 | M4 | P0 | DONE | Implement arithmetic-mean consensus + renormalization | R040 | consensus tests |
+| R042 | M4 | P0 | DONE | Implement constraint-compatible cluster filtering | R041 | incompatibility tests |
+| R043 | M4 | P1 | DONE | Implement support/heterogeneity diagnostics | R041 | diagnostic tables |
+| R044 | M4 | P0 | DONE | Implement `factor_reference` constructor/validator | R042,R043 | class tests |
+| R045 | M4 | P0 | DONE | Implement deterministic `reference_id` | R044 | order/serialization tests |
+| R046 | M4 | P1 | DONE | Implement reference accessors/print/summary | R044 | API tests |
+| R050 | M5 | P0 | DONE | Implement `build_factor_reference()` | R045,R046 | end-to-end builder |
+| R051 | M5 | P0 | DONE | Implement discovery-only vs projection-ready contract incl. common activity support | R050 | readiness tests |
+| R052 | M5 | P1 | DONE | Add compact provenance/source hashing | R050 | provenance tests |
 | R053 | M5 | P2 | TODO | Add minimum useful reference diagnostic plots | R050 | plot tests |
-| R060 | M6 | P0 | TODO | Implement `reference_projection` class | R051 | class tests |
-| R061 | M6 | P0 | TODO | Implement native EBMF `project_reference()` | R060 | projection API |
-| R062 | M6 | P0 | TODO | Implement feature intersection/gene mapping/coverage | R061 | mapping tests |
-| R063 | M6 | P0 | TODO | Implement explicit projection-prior contract | R061 | prior-family tests |
-| R064 | M6 | P1 | TODO | Add optional L1 activity normalization | R061,R063 | normalization tests |
-| R065 | M6 | P0 | TODO | Refactor shared legacy projection internals safely | R061,R002 | legacy regression tests |
+| R060 | M6 | P0 | DONE | Implement `reference_projection` class | R051 | class tests |
+| R061 | M6 | P0 | DONE | Implement native EBMF `project_reference()` | R060 | projection API |
+| R062 | M6 | P0 | DONE | Implement feature intersection/gene mapping/coverage | R061 | mapping tests |
+| R063 | M6 | P0 | DONE | Implement explicit projection-prior contract | R061 | prior-family tests |
+| R064 | M6 | P1 | DONE | Add optional L1 activity normalization | R061,R063 | normalization tests |
+| R065 | M6 | P0 | DONE | Refactor shared legacy projection internals safely | R061,R002 | legacy regression tests |
 | R070 | M7 | P1 | TODO | Probe fixed reference programs through `flash_greedy()` | R061 | feasibility receipt |
 | R071 | M7 | P1 | TODO | Probe fixed reference programs through backfit | R070 | feasibility receipt |
 | R072 | M7 | P1 | TODO | Probe mixed fixed/new factor ID and nullcheck behavior | R071 | feasibility receipt |
@@ -58,7 +58,7 @@ The CSV file is authoritative for machine execution; this table is the readable 
 | R091 | M9 | P2 | TODO | Add consensus descriptive stability summaries | R090 | consensus diagnostics |
 | R100 | M10 | P0 | TODO | Exact scale/permutation/order invariance benchmark | R050 | benchmark receipt |
 | R101 | M10 | P0 | TODO | Shared vs dataset-specific simulation | R050 | benchmark receipt |
-| R102 | M10 | P0 | TODO | Split/merged-factor stress test | R050 | benchmark receipt |
+| R102 | M10 | P0 | DONE | Split/merged-factor stress test | R050 | benchmark receipt |
 | R103 | M10 | P0 | TODO | Feature-overlap/preprocessing stress test | R050,R061 | benchmark receipt |
 | R104 | M10 | P1 | TODO | STARCAT profile/graph parity validation | R035 | benchmark receipt |
 | R105 | M10 | P0 | TODO | Missing/extra reference-program projection simulation | R061 | benchmark receipt |

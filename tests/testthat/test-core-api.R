@@ -1,6 +1,7 @@
 test_that("the public API contains exactly the approved core", {
   core <- c(
     "backproject_contrast",
+    "build_factor_reference",
     "compare_factor_groups",
     "compare_prior_fits",
     "correct_feature_batch",
@@ -26,6 +27,10 @@ test_that("the public API contains exactly the approved core", {
     "plot_factor_embedding",
     "project_factor_activity",
     "project_factor_features",
+    "project_reference",
+    "reference_diagnostics",
+    "reference_members",
+    "reference_programs",
     "factor_provenance",
     "standardize_factors",
     "summarize_factor_activity",

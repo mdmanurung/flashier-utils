@@ -314,6 +314,8 @@ never assigns cell types automatically.
 `project_factor_features`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
 
 `project_factor_activity`: independently written by Mikhael Manurung; upstream workflow and engine credits above.
+
+`build_factor_reference`, `reference_programs`, `reference_members`, `reference_diagnostics` and `project_reference`: independently written by Mikhael Manurung. The consensus catalog construction (normalized spectra, pairwise correlation on the union of source feature sets, reciprocal top-ranked neighbours, density-checked greedy merging, mean consensus) is a conceptual adaptation of [STARCAT](https://github.com/immunogenomics/starCAT) by Dylan Kotliar and Michelle Curtis (Kotliar et al. 2025, Nature Methods 22:1964-1980; MIT). starCAT `build_consensus_reference.py` at 5399183 was read to match the `starcat2025` mode; no source was copied. Projection uses native flashier.
 ### igraph
 
  Gábor Csárdi [aut] (ORCID: <https://orcid.org/0000-0001-7098-9676>),   Tamás Nepusz [aut] (ORCID: <https://orcid.org/0000-0002-1451-338X>),   Vincent Traag [aut] (ORCID: <https://orcid.org/0000-0003-3170-3879>),   Szabolcs Horvát [aut] (ORCID: <https://orcid.org/0000-0002-3100-523X>),   Fabio Zanini [aut] (ORCID: <https://orcid.org/0000-0001-7097-8539>),   Daniel Noom [aut],   Kirill Müller [aut, cre] (ORCID:     <https://orcid.org/0000-0002-1416-3412>),   Michael Antonov [ctb],   Chan Zuckerberg Initiative [fnd] (ROR: <https://ror.org/02qenvm24>),   David Schoch [aut] (ORCID: <https://orcid.org/0000-0003-2952-4812>),   Maëlle Salmon [aut] (ORCID: <https://orcid.org/0000-0002-2815-0399>),   R Consortium [fnd] (ROR: <https://ror.org/01z833950>)

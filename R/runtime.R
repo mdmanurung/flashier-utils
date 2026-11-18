@@ -12,6 +12,7 @@
       "activity_init",
       "effect_init",
       "fit",
+      "fits",
       "object",
       "metadata",
       "results",

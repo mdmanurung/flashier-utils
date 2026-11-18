@@ -1,5 +1,18 @@
 # flashier.utils 2.0.0.9000
 
+- New consensus program references across datasets, a conceptual adaptation of STARCAT
+  (Kotliar et al. 2025). `build_factor_reference()` compares the factors of several
+  independently fitted datasets pair by pair and links similar ones into a graph. It merges
+  them greedily with at most one factor per dataset and averages each group into a consensus
+  program on a common feature basis. `"generic"` mode suits EBMF factors: congruence, L1 or L2
+  profiles by effect support, sign flips only between signed factors, and a required
+  `min_similarity`. `"starcat2025"` mode follows starCAT's `build_consensus_reference.py`
+  (source-SD spectra, Pearson on the union of feature sets, reciprocal top-ranked neighbours
+  above 0.5, cross-cluster density > 0.666). `project_reference()` estimates query activities
+  on the fixed programs with native flashier and checks that the programs did not change.
+  `reference_programs()`, `reference_members()` and `reference_diagnostics()` read the result.
+  Source fits are never modified, and the `reference_id` hash ignores dataset and factor order.
+
 - Further follow-ups. `test_factor_association(engine = "dream")` now requires the random
   intercept's grouping to match the biological unit one-to-one: `(1 | donor:visit)` is refused
   (it rejected at 0.17 instead of 0.05 in a simulation), while `(1 | site/donor)` with unique

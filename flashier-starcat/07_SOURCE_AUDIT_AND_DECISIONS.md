@@ -293,3 +293,27 @@ The user confirmed these spec values, row by row, as written:
 ## D020 — Scope (2026-11-18)
 
 The user chose the full core path M0–M6 on branch `starcat/m0`. The rOpenSci pkgcheck step on `main` is parked. Run state for this build lives in `validation/starcat-20261118/`, which `.Rbuildignore` excludes.
+
+## D021 — starcat2025 merge density follows the starCAT code, not spec §12 (user, 2026-11-18)
+
+**Finding:** starCAT `cluster_geps()` at 5399183 merges two clusters X and Y when the directed adjacency cells between them that are nonzero, counted in both directions, exceed 0.666 of `2 |X| |Y|`, and the two share no dataset. Spec §12 instead described undirected edges inside the merged set over `choose(n, 2)`, `>= 2/3`.
+
+**Decision:** starcat2025 mode uses starCAT's rule (`density_rule = "starcat_cross"`, `> 0.666`). Generic mode keeps the spec rule (`"merged_set"`, `>= 2/3`). Test: the A-B-C chain merges under the spec rule and stays split under starCAT's.
+
+## D022 — starcat2025 consensus units follow the starCAT code (user, 2026-11-18)
+
+**Finding:** starCAT `cluster_cnmf_results()` restricts each member spectrum to genes shared by all datasets, rescales it to sum 1e6, divides by its own dataset's per-gene SD, and averages without renormalizing. The normalized output is then subset to the union of HVGs.
+
+**Decision:** starcat2025 programs are the unrenormalized mean of those SD-normalized spectra on the reference features (union of source sets ∩ all-shared features). Generic mode averages L1 or L2 profiles and renormalizes (spec §14).
+
+## D023 — Deterministic ties and best-per-dataset filtering
+
+**Finding:** starCAT sorts edges with pandas `sort_values` and no tie rule, and applies `drop_duplicates()` per target dataset after the top-k cut.
+
+**Decision:** ties break by similarity, then radix-sorted member ID (`dataset::factor`). The per-target-dataset filter runs only in starcat2025 mode. Generic mode with no rank limit keeps every above-threshold pair, and the one-member-per-dataset merge rule blocks duplicates. A parity run against starCAT on tie-free inputs (R035) is still open.
+
+## D024 — reference_id hashes a permutation-invariant source digest
+
+**Finding:** spec §16 lists source basis IDs in the hash, but `basis_id` changes when the factor columns of a source are permuted, which conflicts with the factor-permutation invariance gate (05 §1).
+
+**Decision:** the hash uses a per-source digest of effects with rows and columns sorted by ID, plus per-factor support and `feature_scale`. `basis_id` stays in `source_table` and `provenance`. Programs enter the hash rounded to 12 significant digits, so BLAS-level differences do not change the ID.
