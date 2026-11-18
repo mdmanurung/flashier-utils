@@ -36,6 +36,8 @@ table (one row per source factor, with its cluster, program and eligibility),
 and \code{reference_diagnostics()} one audit table.
 }
 \details{
+Experimental: arguments and outputs may change in a later release.
+
 Origin: NEW_QOL / none. Use factor_provenance("reference_programs").
 }
 \examples{

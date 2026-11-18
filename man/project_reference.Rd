@@ -79,6 +79,8 @@ must be in the measurement basis declared by the reference's
 \code{projection_manifest}; you declare that by matching \code{feature_scale}.
 }
 \details{
+Experimental: arguments and outputs may change in a later release.
+
 Origin: NEW_ORCHESTRATION / call_only. Uses the same fixed-program
 path as \code{\link[=project_factor_activity]{project_factor_activity()}} and checks that the programs did not
 change. Activities depend on the other query samples through the

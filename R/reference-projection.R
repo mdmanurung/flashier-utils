@@ -9,6 +9,8 @@
 #' (`flash_factors_init()`, `flash_factors_fix()`, `flash_backfit()`). The query
 #' must be in the measurement basis declared by the reference's
 #' `projection_manifest`; you declare that by matching `feature_scale`.
+#'
+#' Experimental: arguments and outputs may change in a later release.
 #' @param reference A projection-ready `factor_reference`.
 #' @param query Named matrix of query samples on reference features;
 #'   `sample_side` says which side holds samples. Needs at least two samples.

@@ -123,6 +123,8 @@
 #' with at most one factor per dataset. A program is the mean member profile on
 #' a common feature basis. Source fits are not modified.
 #'
+#' Experimental: arguments and outputs may change in a later release.
+#'
 #' Two modes exist. `"generic"` suits ordinary EBMF factors: congruence on the
 #' features two datasets share, L1 profiles for non-negative effects and L2
 #' profiles otherwise, sign flips only between signed/signed factors, and no
@@ -399,6 +401,8 @@ build_factor_reference <- function(
 #' returns the features by programs matrix, `reference_members()` the member
 #' table (one row per source factor, with its cluster, program and eligibility),
 #' and `reference_diagnostics()` one audit table.
+#'
+#' Experimental: arguments and outputs may change in a later release.
 #' @param reference A `factor_reference`.
 #' @param programs Optional character program IDs. Default all.
 #' @param what Table to return: `"programs"` (per-cluster support and
@@ -524,3 +528,15 @@ print.summary.factor_reference <- function(x, ...) {
   }
   invisible(x)
 }
+
+#' srr standards evidence for the consensus reference layer
+#'
+#' @srrstats {G1.0} build_factor_reference() cites Kotliar et al. (2025, Nature Methods 22:1964-1980, doi:10.1038/s41592-025-02793-1) in @references (R/reference-class.R); the starcat2025 mode follows starCAT build_consensus_reference.py at 5399183 (flashier-starcat/07_SOURCE_AUDIT_AND_DECISIONS.md D021-D023).
+#' @srrstats {G2.0} Scalar arguments of build_factor_reference() are length-checked: min_similarity, min_cluster_density (length 1, finite, bounded), rank_max, min_shared_features and min_datasets through .program_number(), reciprocal and keep_source_objects through .is_flag() (R/reference-class.R).
+#' @srrstats {G2.3a} match.arg() restricts metric in build_factor_reference(), what in reference_diagnostics(), and feature_match and normalize_activity in project_reference() (R/reference-class.R, R/reference-projection.R).
+#' @srrstats {G5.4} Correctness against independent computation: all-pairs congruence equals factor_replicability() congruence to 1e-12, and starcat2025 Pearson and consensus spectra equal a by-hand implementation of the STARCAT formula (tests/testthat/test-reference.R).
+#' @srrstats {G5.6} Parameter recovery: noiseless planted shared programs are recovered with congruence 1 and dataset-specific programs stay singletons; projected activities correlate above 0.99 with the planted truth (tests/testthat/test-reference.R).
+#' @srrstats {UL3.3} project_reference() in R/reference-projection.R estimates activities for new samples on fixed consensus programs without refitting the sources.
+#' @srrstats {UL7.0} Fail-closed tests cover a missing comparison contract, missing min_similarity, mismatched feature_scale, nonzero offsets, invalid starcat2025 inputs and non-projection-ready references (tests/testthat/test-reference.R).
+#' @noRd
+NULL
