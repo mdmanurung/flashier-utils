@@ -120,6 +120,13 @@ class SiteCheckTests(unittest.TestCase):
         receipt = self.check()
         self.assertEqual(receipt["website_articles"], 3)
 
+    def test_named_ai_assistants_article(self):
+        self.add_gallery()
+        (self.repo / "vignettes/articles/ai-assistants.Rmd").write_text("Assistants")
+        (self.site / "articles/ai-assistants.html").write_text("Assistants")
+        receipt = self.check()
+        self.assertEqual(receipt["website_articles"], 2)
+
     def test_unapproved_nested_article(self):
         self.add_gallery()
         (self.repo / "vignettes/articles/extra.Rmd").write_text("Extra")
