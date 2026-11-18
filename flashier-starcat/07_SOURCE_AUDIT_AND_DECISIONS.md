@@ -317,3 +317,22 @@ The user chose the full core path M0–M6 on branch `starcat/m0`. The rOpenSci p
 **Finding:** spec §16 lists source basis IDs in the hash, but `basis_id` changes when the factor columns of a source are permuted, which conflicts with the factor-permutation invariance gate (05 §1).
 
 **Decision:** the hash uses a per-source digest of effects with rows and columns sorted by ID, plus per-factor support and `feature_scale`. `basis_id` stays in `source_table` and `provenance`. Programs enter the hash rounded to 12 significant digits, so BLAS-level differences do not change the ID.
+
+## D025 — Release path and next round (user, grilling 2026-11-18)
+
+- Q1/Q8: push `starcat/m0` and open a PR to `main`; merge once R CMD check, pkgdown, test-coverage and revdep-cellprograms are green. A branch push alone runs only R CMD check.
+- Q2: merge now, marked experimental. Q7: one "Experimental" sentence per new Rd plus NEWS; no lifecycle dependency. Q9: the rOpenSci scope statement gains the reference layer and the STARCAT overlap. Q10: `@srrstats` tags in the new files before the fresh-clone pkgcheck.
+- Q3: continue the tusoskill round; R035 parity first.
+
+## D026 — bench-v1 rescore (user)
+
+Recovery cut congruence ≥ 0.9 (precedent: validation/planted-validation-20261027/PREREG.md:60); `max_factors = 50` (the `fit_ebmf()` default; it never bound in the first run); effect sparsity grid 10%, 30%, 50%. Seeds 1:20, noise 0.25/0.5/1/2 and `min_similarity` 0.5/0.7/0.9 stay as before.
+
+## D027 — R035 real-data parity design (user)
+
+- Q11/Q18: starCAT installed into the existing `cnmf` env (cnmf 1.7.1) from git commit 5399183, after a pip dry run is shown to the user.
+- Q12/Q14: real cNMF pilot on the local single-cell-jamboree pancreas data (rev 6cf9aa7). Datasets: inDrop1, inDrop2, inDrop3, inDrop4 and smartseq2, the five technologies with integer counts.
+- Q15–Q17: K = 9 for every dataset (precedent: the jamboree celseq2 factors); cnmf 1.7.1 defaults (n_iter 100, 2000 HVGs, max_NMF_iter 1000, beta_loss frobenius, density_threshold 0.5, build_ref True); seed 1 for every dataset.
+- Q19: a SLURM array with one cNMF fit per dataset (partition medium, 4 h limit), then a dependent job that runs starCAT and `build_factor_reference(mode = "starcat2025")`.
+- Q20: cNMF spectra (TPM) and usages enter the R builder through the internal `.make_representation()`, in the validation script only; no new export.
+- Q13: pass when directed candidates, accepted edges and cluster memberships match as sets, correlations agree within 1e-10 and consensus spectra within 1e-8 relative. Any difference gets a decision entry; real-data ties are a known cause, because starCAT has no tie rule.

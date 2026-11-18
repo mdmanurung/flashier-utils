@@ -25,6 +25,16 @@ regression (Korsunsky et al. 2019), independently written in R, with optional
 protected covariates. `harmony_assignments()` supplies its cluster weights by
 calling the optional harmony package.
 
+An experimental layer combines factors from several independently fitted
+datasets. `build_factor_reference()` compares every cross-dataset pair of
+factors. It links similar ones into a graph, merges them with at most one factor
+per dataset, and averages each group into a consensus program on a declared
+common feature basis. `project_reference()` then estimates activities for new
+samples with those programs held fixed, through flashier's public functions.
+The construction is a conceptual adaptation of STARCAT (Kotliar et al. 2025).
+Its `"starcat2025"` mode follows the starCAT code; the `"generic"` mode suits
+signed and semi-nonnegative EBMF factors.
+
 ## Overlap with other software
 
 - **flashier** fits the factorization. flashier.utils calls only flashier's
@@ -40,6 +50,12 @@ calling the optional harmony package.
 - **harmony** corrects embeddings, and cNMF's `Preprocess` applies its ridge
   step to gene counts before NMF. `correct_feature_batch()` applies the same
   step to signed input such as shifted log expression, without clipping.
+- **starCAT** (Python) builds consensus program catalogs from several cNMF runs
+  and scores queries with nonnegative least squares. `build_factor_reference()`
+  is an independent R implementation of its catalog construction for EBMF
+  factors, with a mode that follows the starCAT code (a parity benchmark
+  against starCAT is in progress). Projection uses native EBMF instead of least squares. No starCAT
+  code is reused.
 - **gbcd** and **fastTopics** are called through optional adapters
   (`fit_gbcd_programs()`, `test_gom_de()`) that check inputs and record
   provenance; their methods are unchanged.
@@ -49,3 +65,6 @@ calling the optional harmony package.
 `pkgcheck::fn_names_on_cran()` on 2026-11-03 found two clashes among the 30
 exports: `provenance` (AgriFusionR, dataset, metasurvey, provenance) and
 `test_factors` (plspm). Both were renamed; the old names warn for one release.
+The five reference-layer exports (`build_factor_reference`, `project_reference`,
+`reference_programs`, `reference_members`, `reference_diagnostics`) had no CRAN
+clash on 2026-11-18.

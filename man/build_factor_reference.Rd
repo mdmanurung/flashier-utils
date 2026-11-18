@@ -92,6 +92,8 @@ with at most one factor per dataset. A program is the mean member profile on
 a common feature basis. Source fits are not modified.
 }
 \details{
+Experimental: arguments and outputs may change in a later release.
+
 Two modes exist. \code{"generic"} suits ordinary EBMF factors: congruence on the
 features two datasets share, L1 profiles for non-negative effects and L2
 profiles otherwise, sign flips only between signed/signed factors, and no
