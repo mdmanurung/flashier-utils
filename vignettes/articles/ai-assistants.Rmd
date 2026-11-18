@@ -1,0 +1,73 @@
+---
+title: "Use flashier.utils with AI assistants"
+description: "Install the flashier.utils agent skill in Claude Code or another coding agent, or point any assistant at llms.txt."
+output: rmarkdown::html_document
+---
+
+flashier.utils offers two things for AI coding assistants. The first is an
+agent skill: instructions that teach an assistant the package's workflow, its
+required declarations and its traps. The second is an `llms.txt` file that any
+assistant able to read a web page can use.
+
+## Claude Code
+
+Run these two commands inside Claude Code:
+
+```
+/plugin marketplace add mdmanurung/flashier-utils
+/plugin install flashier-utils@flashier-utils
+```
+
+The skill then loads on its own when you ask about flashier fits, factor
+interpretation, association tests, projection or consensus references.
+
+The assistant runs R code in your environment, so install the package there too:
+
+```r
+remotes::install_github("mdmanurung/flashier-utils")
+```
+
+## Other coding agents
+
+The skill follows the open [Agent Skills](https://agentskills.io) format, so
+any agent that reads skills can use it. Copy the skill directory into your
+agent's skills folder:
+
+```sh
+git clone https://github.com/mdmanurung/flashier-utils
+cp -r flashier-utils/skills/flashier-utils <your-agent-skills-dir>/
+```
+
+Common locations are `.agents/skills/`, `.cursor/skills/` and
+`~/.codex/skills/`; check your agent's documentation.
+
+## Any assistant: llms.txt
+
+Give the assistant this URL, or paste the file's contents into the chat:
+
+<https://mdmanurung.github.io/flashier-utils/llms.txt>
+
+The file is generated from this website at every build. It lists the
+tutorials and the function reference in plain Markdown.
+
+## What the skill contains
+
+- `SKILL.md` holds the core workflow (fit, view, features, plots), the
+  declarations the package will not guess (`sample_side`, `feature_scale`,
+  `unit_col`, `seed`) and the common traps. Examples of traps are sign
+  ambiguity, opposite contrast directions and treating cells as replicates.
+- `references/inference.md` covers group summaries, association tests,
+  back-projection, posterior uncertainty, stability and held-out prediction.
+- `references/projection-and-references.md` covers projection onto new samples
+  and the experimental consensus references across datasets.
+- `references/fitting.md` covers prior families, batch correction, GBCD,
+  grade-of-membership DE and membership filtering.
+
+Every code snippet in the skill was run against the package before release.
+The skill does not replace the function reference. An assistant can still make
+mistakes, so check its code and its scientific claims as you would a
+colleague's.
+
+The skill format and this page follow the example of
+[Marsilea](https://marsilea.readthedocs.io/en/stable/ai_assistants.html)
+(the Marsilea-viz project); no Marsilea text or code is reused.

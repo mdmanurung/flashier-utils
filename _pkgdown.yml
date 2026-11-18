@@ -24,6 +24,8 @@ navbar:
           href: articles/robustness-checks.html
         - text: Batch correction before fitting
           href: articles/batch-correction.html
+        - text: Use with AI assistants
+          href: articles/ai-assistants.html
     gallery:
       text: Plot gallery
       href: articles/plot-gallery.html
@@ -50,6 +52,9 @@ articles:
     contents:
       - articles/robustness-checks
       - articles/batch-correction
+  - title: AI assistants
+    contents:
+      - articles/ai-assistants
 reference:
   - title: Prepare input
     contents:
