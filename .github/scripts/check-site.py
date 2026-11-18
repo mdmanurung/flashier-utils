@@ -83,7 +83,8 @@ def check_site(repo, site):
     require(len(tutorials) <= 4,
             f"Teaching vignette limit exceeded: {len(tutorials)} > 4")
     approved_articles = {"articles/plot-gallery.Rmd", "articles/ebmf-cnmf-comparison.Rmd",
-                         "articles/robustness-checks.Rmd", "articles/batch-correction.Rmd"}
+                         "articles/robustness-checks.Rmd", "articles/batch-correction.Rmd",
+                         "articles/ai-assistants.Rmd"}
     require(website_articles <= approved_articles,
             f"Unapproved website article: {sorted(website_articles - approved_articles)}")
     articles = {path.stem for path in article_sources}
