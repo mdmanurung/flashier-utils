@@ -159,7 +159,9 @@ project_reference <- function(
     stop("Projection needs at least two query samples; native flashier drops a single-sample dimension")
   }
   if (!is.null(gene_mapping)) {
-    if (!is.null(S)) stop("Explicit S with gene mapping requires pre-mapped query and S axes")
+    if (!is.null(S)) {
+      stop("Explicit S with gene mapping requires pre-mapped query and S axes")
+    }
     .validate_ids(names(gene_mapping), "Query mapping")
     .validate_ids(unname(gene_mapping), "Reference mapping")
     if (!all(colnames(Y) %in% names(gene_mapping))) {
@@ -203,7 +205,9 @@ project_reference <- function(
   }
   offset <- stats::setNames(rep(0, nrow(B)), rownames(B))
   constraints <- c(activity = prior_support, effects = unique(support$effect_support))
-  if (length(constraints) != 2L) constraints <- c(activity = prior_support, effects = "unknown")
+  if (length(constraints) != 2L) {
+    constraints <- c(activity = prior_support, effects = "unknown")
+  }
   view <- .make_representation(
     A,
     B,

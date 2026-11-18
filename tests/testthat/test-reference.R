@@ -44,7 +44,11 @@ test_that("sources are immutable and every invariance holds", {
   expect_identical(build_generic(rev(p$views))$reference_id, ref$reference_id)
   expect_identical(build_generic(rev(p$views))$graph$accepted_edges, ref$graph$accepted_edges)
   permuted <- p$views
-  permuted$D2 <- reference_view(p$views$D2$effects[, c(4, 2, 1, 3)], support = c(activity = "signed", effects = "signed"), fit_id = "D2")
+  permuted$D2 <- reference_view(
+    p$views$D2$effects[, c(4, 2, 1, 3)],
+    support = c(activity = "signed", effects = "signed"),
+    fit_id = "D2"
+  )
   expect_identical(build_generic(permuted)$reference_id, ref$reference_id)
   set.seed(3)
   scaled <- planted_programs(noise = 0.05, scale = c(10, 0.1, 3, 7))
@@ -79,7 +83,10 @@ test_that("similarity follows the sign and metric contract", {
   signed <- c(activity = "signed", effects = "signed")
   semi <- c(activity = "nonnegative", effects = "signed")
   collect <- function(views) .reference_collect_sources(views, names(views), .reference_manifest(generic_manifest()))
-  views <- list(A = reference_view(B, support = signed, fit_id = "A"), B = reference_view(-B, support = signed, fit_id = "B"))
+  views <- list(
+    A = reference_view(B, support = signed, fit_id = "A"),
+    B = reference_view(-B, support = signed, fit_id = "B")
+  )
   table <- .reference_similarity_table(collect(views), "congruence")
   cross <- table[table$dataset_i != table$dataset_j, ]
   diagonal <- cross[cross$factor_i == cross$factor_j, ]
@@ -88,9 +95,15 @@ test_that("similarity follows the sign and metric contract", {
   expect_equal(diagonal$orientation, c(-1, -1))
   expect_equal(cross$raw_similarity[cross$factor_i != cross$factor_j], c(0, 0))
   expect_identical(table$reason[table$dataset_i == table$dataset_j], c("same_dataset", "same_dataset"))
-  semi_views <- list(A = reference_view(B, support = semi, fit_id = "A"), B = reference_view(-B, support = semi, fit_id = "B"))
+  semi_views <- list(
+    A = reference_view(B, support = semi, fit_id = "A"),
+    B = reference_view(-B, support = semi, fit_id = "B")
+  )
   semi_table <- .reference_similarity_table(collect(semi_views), "congruence")
-  expect_equal(semi_table$similarity[semi_table$dataset_i != semi_table$dataset_j & semi_table$factor_i == semi_table$factor_j], c(-1, -1))
+  expect_equal(
+    semi_table$similarity[semi_table$dataset_i != semi_table$dataset_j & semi_table$factor_i == semi_table$factor_j],
+    c(-1, -1)
+  )
   shifted <- list(
     A = reference_view(B[, 1, drop = FALSE], support = signed, fit_id = "A"),
     B = reference_view(B[, 1, drop = FALSE] + 5, support = signed, fit_id = "B")
@@ -196,7 +209,10 @@ test_that("the builder fails closed on undeclared or incompatible inputs", {
   )
   standardized <- generic_manifest()
   standardized$feature_standardization <- "source_sd"
-  expect_error(build_factor_reference(p$views, comparison_manifest = standardized, min_similarity = 0.8), "never applies")
+  expect_error(
+    build_factor_reference(p$views, comparison_manifest = standardized, min_similarity = 0.8),
+    "never applies"
+  )
 })
 
 test_that("unusable factors are recorded and incompatible clusters never become programs", {
@@ -230,8 +246,17 @@ test_that("starcat2025 mode reproduces the STARCAT pairwise correlation and cons
   sets <- list(D1 = features[1:20], D2 = features[11:30], D3 = features[5:35])
   sds <- lapply(1:3, function(d) stats::setNames(seq(0.5, 2, length.out = length(features)) * d, features))
   names(sds) <- names(sets)
-  manifest <- list(mode = "starcat2025", feature_scale = "simulated_intensity", preprocessing_compatibility = "user_declared")
-  ref <- build_factor_reference(p$views, comparison_manifest = manifest, source_feature_sets = sets, source_feature_sd = sds)
+  manifest <- list(
+    mode = "starcat2025",
+    feature_scale = "simulated_intensity",
+    preprocessing_compatibility = "user_declared"
+  )
+  ref <- build_factor_reference(
+    p$views,
+    comparison_manifest = manifest,
+    source_feature_sets = sets,
+    source_feature_sd = sds
+  )
   expect_identical(ref$build_settings$rank_max, 3L)
   expect_identical(ref$build_settings$density_rule, "starcat_cross")
   pair <- ref$similarity[ref$similarity$member_i == "D1::F1" & ref$similarity$member_j == "D2::F1", ]
@@ -252,7 +277,12 @@ test_that("starcat2025 mode reproduces the STARCAT pairwise correlation and cons
   zero_sd <- sds
   zero_sd$D1[keep[1]] <- 0
   expect_error(
-    build_factor_reference(p$views, comparison_manifest = manifest, source_feature_sets = sets, source_feature_sd = zero_sd),
+    build_factor_reference(
+      p$views,
+      comparison_manifest = manifest,
+      source_feature_sets = sets,
+      source_feature_sd = zero_sd
+    ),
     "finite and positive"
   )
 })
@@ -265,13 +295,27 @@ test_that("project_reference recovers activities with the programs held fixed", 
   truth <- matrix(stats::rnorm(30 * 3), 30, 3)
   Y <- tcrossprod(truth, ref$programs) + matrix(stats::rnorm(30 * nrow(ref$programs), sd = 0.01), 30)
   dimnames(Y) <- list(paste0("q", 1:30), rownames(ref$programs))
-  out <- project_reference(ref, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity"), maxiter = 100)
+  out <- project_reference(
+    ref,
+    Y,
+    "rows",
+    "simulated_intensity",
+    preprocessing = list(scope = "identity"),
+    maxiter = 100
+  )
   expect_s3_class(out, "reference_projection")
   expect_identical(out$representation$effects, ref$programs)
   expect_gt(min(diag(stats::cor(out$activity, truth))), 0.99)
   expect_gt(out$reconstruction[["fit_r2"]], 0.99)
   expect_identical(out$reference_id, ref$reference_id)
-  columns <- project_reference(ref, t(Y), "columns", "simulated_intensity", preprocessing = list(scope = "identity"), maxiter = 100)
+  columns <- project_reference(
+    ref,
+    t(Y),
+    "columns",
+    "simulated_intensity",
+    preprocessing = list(scope = "identity"),
+    maxiter = 100
+  )
   expect_equal(columns$activity, out$activity, tolerance = 1e-6)
   partial <- project_reference(
     ref,
@@ -284,22 +328,49 @@ test_that("project_reference recovers activities with the programs held fixed", 
   )
   expect_identical(partial$missing_reference_features, rownames(ref$programs)[1:5])
   expect_error(
-    project_reference(ref, Y[, 1:10], "rows", "simulated_intensity", preprocessing = list(scope = "identity"), feature_match = "intersection"),
+    project_reference(
+      ref,
+      Y[, 1:10],
+      "rows",
+      "simulated_intensity",
+      preprocessing = list(scope = "identity"),
+      feature_match = "intersection"
+    ),
     "rank-deficient|Insufficient"
   )
-  expect_error(project_reference(ref, Y, "rows", "counts", preprocessing = list(scope = "identity")), "projection_manifest")
+  expect_error(
+    project_reference(ref, Y, "rows", "counts", preprocessing = list(scope = "identity")),
+    "projection_manifest"
+  )
   expect_error(project_reference(ref, Y, "rows", "simulated_intensity", preprocessing = list()), "explicit scope")
   expect_error(
-    project_reference(ref, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity"), normalize_activity = "l1"),
+    project_reference(
+      ref,
+      Y,
+      "rows",
+      "simulated_intensity",
+      preprocessing = list(scope = "identity"),
+      normalize_activity = "l1"
+    ),
     "nonnegative"
   )
   expect_error(
-    project_reference(ref, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity"), ebnm_fn = ebnm::ebnm_point_exponential),
+    project_reference(
+      ref,
+      Y,
+      "rows",
+      "simulated_intensity",
+      preprocessing = list(scope = "identity"),
+      ebnm_fn = ebnm::ebnm_point_exponential
+    ),
     "differs"
   )
   inspection <- build_generic(p$views)
   expect_false(inspection$projection_ready)
-  expect_error(project_reference(inspection, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity")), "not projection-ready")
+  expect_error(
+    project_reference(inspection, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity")),
+    "not projection-ready"
+  )
 })
 
 test_that("nonnegative references project with L1-normalized activity", {
@@ -312,7 +383,15 @@ test_that("nonnegative references project with L1-normalized activity", {
   Y <- tcrossprod(truth, ref$programs)
   Y <- Y + matrix(abs(stats::rnorm(length(Y), sd = 1e-3)), nrow(Y))
   dimnames(Y) <- list(paste0("q", 1:20), rownames(ref$programs))
-  out <- project_reference(ref, Y, "rows", "simulated_intensity", preprocessing = list(scope = "identity"), normalize_activity = "l1", maxiter = 100)
+  out <- project_reference(
+    ref,
+    Y,
+    "rows",
+    "simulated_intensity",
+    preprocessing = list(scope = "identity"),
+    normalize_activity = "l1",
+    maxiter = 100
+  )
   expect_true(all(out$activity >= 0))
   ok <- !out$zero_sum_activity
   expect_equal(unname(rowSums(out$activity_normalized[ok, , drop = FALSE])), rep(1, sum(ok)), tolerance = 1e-12)
@@ -346,4 +425,37 @@ test_that("split and merged source factors cannot inflate support (R102)", {
   expect_equal(pair$similarity, 30 / sqrt(30 * 60))
   table <- reference_diagnostics(ref, "programs")
   expect_identical(table$n_datasets[table$status == "program"], c(3L, 2L, 2L))
+})
+
+test_that("empty graphs, program selection and summaries work", {
+  set.seed(3)
+  p <- planted_programs(noise = 0.3)
+  empty <- build_factor_reference(
+    p$views,
+    comparison_manifest = generic_manifest(),
+    min_similarity = 0.9999,
+    projection_manifest = projection_manifest()
+  )
+  expect_identical(nrow(reference_diagnostics(empty, "edges")), 0L)
+  expect_identical(ncol(reference_programs(empty)), 0L)
+  expect_false(empty$projection_ready)
+  expect_output(print(empty), "0 programs")
+  expect_output(print(summary(empty)), "programs: 0")
+  ref <- build_generic(p$views, projection_manifest = projection_manifest())
+  expect_identical(colnames(reference_programs(ref, programs = "RP002")), "RP002")
+  expect_error(reference_programs(ref, programs = "RP999"))
+  expect_output(print(summary(ref)), "RP001")
+  Y <- tcrossprod(matrix(stats::rnorm(20 * 3), 20, 3), ref$programs)
+  dimnames(Y) <- list(paste0("q", 1:20), rownames(ref$programs))
+  one <- project_reference(
+    ref,
+    Y,
+    "rows",
+    "simulated_intensity",
+    preprocessing = list(scope = "identity"),
+    programs = "RP001",
+    maxiter = 50
+  )
+  expect_identical(colnames(one$activity), "RP001")
+  expect_identical(one$representation$effects, ref$programs[, "RP001", drop = FALSE])
 })

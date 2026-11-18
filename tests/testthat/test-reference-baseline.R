@@ -6,8 +6,10 @@ test_that("legacy replicability and projection outputs match the b03ba4c snapsho
   skip_if_not_installed("clue")
   expected <- readRDS(test_path("fixtures", "m0-legacy-baseline.rds"))
   observed <- legacy_baseline_outputs()
-  expect_identical(observed$replicability$matches[c("reference_factor", "target_factor", "status")],
-    expected$replicability$matches[c("reference_factor", "target_factor", "status")])
+  expect_identical(
+    observed$replicability$matches[c("reference_factor", "target_factor", "status")],
+    expected$replicability$matches[c("reference_factor", "target_factor", "status")]
+  )
   expect_equal(observed$replicability, expected$replicability, tolerance = 1e-6)
   expect_equal(observed$activity, expected$activity, tolerance = 1e-6)
   expect_equal(observed$fixed_reference, expected$fixed_reference, tolerance = 1e-6)

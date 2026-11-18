@@ -45,8 +45,15 @@
   }
   prior <- manifest$activity_prior
   if (!is.null(prior)) {
-    if (!is.character(prior) || length(prior) != 1L || !prior %in% getNamespaceExports("ebnm") || !startsWith(prior, "ebnm_")) {
-      stop("projection_manifest$activity_prior must name one exported ebnm prior function, e.g. \"ebnm_point_exponential\"")
+    if (
+      !is.character(prior) ||
+        length(prior) != 1L ||
+        !prior %in% getNamespaceExports("ebnm") ||
+        !startsWith(prior, "ebnm_")
+    ) {
+      stop(
+        "projection_manifest$activity_prior must name one exported ebnm prior function, e.g. \"ebnm_point_exponential\""
+      )
     }
   }
   manifest[intersect(.reference_projection_keys, names(manifest))]
@@ -234,7 +241,9 @@ build_factor_reference <- function(
   } else if (!is.null(source_feature_sets) || !is.null(source_feature_sd)) {
     stop("source_feature_sets and source_feature_sd apply only to starcat2025 mode")
   }
-  if (is.null(metric)) metric <- if (starcat_mode) "pearson" else "congruence"
+  if (is.null(metric)) {
+    metric <- if (starcat_mode) "pearson" else "congruence"
+  }
   metric <- match.arg(metric, c("congruence", "cosine", "pearson"))
   if (starcat_mode && metric != "pearson") {
     stop("starcat2025 mode uses Pearson correlation")
@@ -246,22 +255,40 @@ build_factor_reference <- function(
     }
     min_similarity <- 0.5
   }
-  if (length(min_similarity) != 1L || !is.numeric(min_similarity) || !is.finite(min_similarity) ||
-    min_similarity < -1 || min_similarity >= 1) {
+  if (
+    length(min_similarity) != 1L ||
+      !is.numeric(min_similarity) ||
+      !is.finite(min_similarity) ||
+      min_similarity < -1 ||
+      min_similarity >= 1
+  ) {
     stop("min_similarity must be one number in [-1, 1)")
   }
-  if (is.null(rank_max) && starcat_mode) rank_max <- n_datasets
-  if (!is.null(rank_max)) .program_number(rank_max, "rank_max", TRUE, 1)
-  if (is.null(reciprocal)) reciprocal <- starcat_mode
+  if (is.null(rank_max) && starcat_mode) {
+    rank_max <- n_datasets
+  }
+  if (!is.null(rank_max)) {
+    .program_number(rank_max, "rank_max", TRUE, 1)
+  }
+  if (is.null(reciprocal)) {
+    reciprocal <- starcat_mode
+  }
   if (!.is_flag(reciprocal)) {
     stop("reciprocal must be TRUE or FALSE")
   }
   if (starcat_mode && !reciprocal) {
     stop("starcat2025 mode uses reciprocal edges")
   }
-  if (is.null(min_cluster_density)) min_cluster_density <- if (starcat_mode) 0.666 else 2 / 3
-  if (length(min_cluster_density) != 1L || !is.numeric(min_cluster_density) || !is.finite(min_cluster_density) ||
-    min_cluster_density <= 0 || min_cluster_density > 1) {
+  if (is.null(min_cluster_density)) {
+    min_cluster_density <- if (starcat_mode) 0.666 else 2 / 3
+  }
+  if (
+    length(min_cluster_density) != 1L ||
+      !is.numeric(min_cluster_density) ||
+      !is.finite(min_cluster_density) ||
+      min_cluster_density <= 0 ||
+      min_cluster_density > 1
+  ) {
     stop("min_cluster_density must be one number in (0, 1]")
   }
   .program_number(min_datasets, "min_datasets", TRUE, 1)
@@ -452,12 +479,12 @@ print.factor_reference <- function(x, ...) {
     " features\n",
     sep = ""
   )
-  table <- x$programs_table
+  clusters <- x$programs_table
   cat(
     "  clusters: ",
-    nrow(table),
+    nrow(clusters),
     " (",
-    sum(table$n_members == 1L),
+    sum(clusters$n_members == 1L),
     " singletons); excluded factors: ",
     nrow(x$excluded_members),
     "\n",
@@ -470,15 +497,15 @@ print.factor_reference <- function(x, ...) {
 #' @export
 summary.factor_reference <- function(object, ...) {
   object <- .validate_factor_reference(object)
-  table <- object$programs_table
+  programs_table <- object$programs_table
   structure(
     list(
       mode = object$comparison_manifest$mode,
       datasets = object$source_table$dataset_id,
       n_programs = ncol(object$programs),
       n_features = nrow(object$programs),
-      status = table(factor(table$status)),
-      programs = table[table$status == "program", , drop = FALSE],
+      status = table(factor(programs_table$status)),
+      programs = programs_table[programs_table$status == "program", , drop = FALSE],
       projection_ready = object$projection_ready,
       reference_id = object$reference_id
     ),
