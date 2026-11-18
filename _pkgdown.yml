@@ -76,6 +76,11 @@ reference:
       - plot_factor_embedding
       - project_factor_features
       - project_factor_activity
+  - title: Build and project consensus references
+    contents:
+      - build_factor_reference
+      - reference_programs
+      - project_reference
   - title: Compare samples and conditions
     contents:
       - summarize_factor_activity
